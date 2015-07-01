@@ -1,0 +1,40 @@
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">40</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP SCS Instance Number</b><br>Enter the SAP system's instance number.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sapscsinstnr</file>
+             <question>SAP SCS Instance Number</question>
+             <stage>cont</stage>
+             <script>
+              <filename>my_scs_ino.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+	      <environment config:type="boolean">true</environment>
+	      <source><![CDATA[
+function check_scs_instance_no() {
+	local scsino=$1
+	local ino=`< /tmp/ay_q_sapinstnr`
+
+	LC_ALL=POSIX
+
+	[ -z "$scsino" ] && echo "You need to provide a SAP SCS Instance Number." && return 1
+	[ "${#scsino}" -ne 2 ] && echo "The SAP SCS Instance Number needs to be exactly 2 digits long. You entered '${scsino}'." && return 1
+	[ -n "${scsino//[0-9]/}" ] && echo "The SAP SCS Instance Number can only contain digits. You entered '${scsino}'." && return 1
+
+	[ "$scsino" = "$ino" ] && echo "The SAP SCS Instance Number must not be the same than the SAP Instance Number." && return 1
+
+	return 0
+}
+check_scs_instance_no "$VAL"
+]]>
+	    </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+            <default>01</default>
+          </ask>

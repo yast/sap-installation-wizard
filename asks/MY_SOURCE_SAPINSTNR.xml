@@ -1,0 +1,38 @@
+i        <ask>
+          <title>SAP System Parameters</title>
+          <dialog config:type="integer">9</dialog>
+          <element config:type="integer">20</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+          <help><![CDATA[
+          <p><b>Source SAP Instance Number</b><br>Enter the SAP system's instance number of the system which should be renamed.</p>
+]]>
+</help>
+          <file>/tmp/ay_q_source_sapinstnr</file>
+          <question>Source SAP Instance Number</question>
+          <stage>cont</stage>
+          <script>
+            <filename>my_source_sap_ino.sh</filename>
+            <rerun_on_error config:type="boolean">true</rerun_on_error>
+            <environment config:type="boolean">true</environment>
+            <source><![CDATA[
+function check_source_instance_no() {
+        local ino=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$ino" ] && echo "You need to provide a SAP Instance Number." && return 1
+        [ "${#ino}" -ne 2 ] && echo "The SAP Instance Number needs to be exactly 2 digits long. You entered '${ino}'." && return 1
+        [ -n "${ino//[0-9]/}" ] && echo "The SAP Instance Number can only contain digits. You entered '${ino}'." && return 1
+        [ -z `ls -d1 /usr/sap/???/D*${ino} 2>/dev/null` ] && echo "You entered '${ino}' which could not be found on this system." && return 1
+
+        return 0
+}
+check_source_instance_no "$VAL"
+]]>
+            </source>
+            <debug config:type="boolean">false</debug>
+            <feedback config:type="boolean">true</feedback>
+          </script>
+          <default>00</default>
+        </ask>

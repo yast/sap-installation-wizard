@@ -1,0 +1,8 @@
+main:
+  icon: '../icons/yast-system.png'
+  url: 'http://localhost:5INSTNUMBER13'
+  groups: [ System ]
+  tags: [ ldap ]
+  title: "SAP SAPSID"
+  description: "SAP Management Consol for SID: SAPSID Instant Number: INSTNUMBER"
+  read_permissions: [ org.opensuse.yast.permissions.read ]

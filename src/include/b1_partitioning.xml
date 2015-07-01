@@ -1,0 +1,4 @@
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+   <partitioning_defined config:type="boolean">false</partitioning_defined>
+</profile>

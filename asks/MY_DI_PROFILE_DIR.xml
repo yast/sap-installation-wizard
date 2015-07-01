@@ -1,0 +1,98 @@
+          <ask>
+             <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">40</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>Profile Directory</b><br>Mount the specified profile directory from a remote host.</p>
+             ]]>
+             </help>
+             <file>/tmp/ay_q_mount_profile_dir</file>
+             <question>Specify whether the SAP Profile Directory should be mounted from a remote host</question>
+             <stage>cont</stage>
+            <script>
+              <filename>my_check_local_profile_dir.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_local_profile_dir() {
+        local SID=`< /tmp/ay_q_sid`
+        local profile_dir="/sapmnt/${SID}/profile"
+
+        LC_ALL=POSIX
+
+        # Should we mount a remote directory?
+        if [ "true" == "${1}" ]; then
+                # check if a /sapmnt/${SID}/profile directory already exists locally --> If it exists, complain about it.
+                if [ -d ${profile_dir} ]; then
+                        echo "Error: Found a profile directory ${profile_dir}. Please reconsider using a local profile directory." 
+                        return 1
+                fi
+        else
+                # We should be able to find a local profile directory already. Check whether it holds a valid profile --> Otherwise notify about it.
+                # a SAP profile should look like "NPL_DVEBMGS42_nplhost"
+                check=$(ls -1 ${profile_dir}/${SID}_*_* 2>/dev/null)
+                if [ -z "${check}" ]; then
+                        echo "Warning: Could not find a valid profile in directory ${profile_dir}. Please reconsider mounting a remote profile directory. \n Asuming you are running a stacked installation so the local profile directory has not yet been created..." 
+                fi
+        fi
+
+        # Skip mounting a remote SAP profile directory if answer is "false".
+        [ "false" = "${1}" ] && echo "-1" > /tmp/next_dialog
+
+        return 0
+}
+check_local_profile_dir "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+             <default>false</default>
+             <type>boolean</type>
+          </ask>
+ 
+          <ask>
+             <title>SAP System Parameters</title>
+             <dialog config:type="integer">70</dialog>
+             <element config:type="integer">60</element>
+             <help><![CDATA[
+             <p><b>Profile Directory</b><br>SAPinst retrieves existing parameters from the SAP system profile directory. Location of your SAP system profile directory.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_remote_profile_directory</file>
+             <question>Remote SAP Profile Directory</question>
+             <stage>cont</stage>
+            <script>
+              <filename>my_remote_profile_dir.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function mount_remote_profile_dir() {
+        local profile_dir=$1
+        local check=""
+        local SID=`< /tmp/ay_q_sid`
+
+        LC_ALL=POSIX
+
+        [ ! -d /sapmnt/${SID}/profile ] && mkdir /sapmnt/${SID}/profile
+
+        # TODO Do some YaST magic stuff for proper mounting, protocoll, etc.
+        # e.g. check whether hostname is reachable, etc.
+        # linuxlab:/export/redhat /mnt/redhat             nfs     defaults        0 0"
+        echo "Mounting ${profile_dir} to /sapmnt/${SID}/profile."
+        echo "${profile_dir}\t/sapmnt/${SID}/profile\tnfs\t\defaults\t0 0" >> /etc/fstab
+        mount /sapmnt/${SID}/profile
+        [ 0 -eq $? ] && return 0
+        return 1
+}
+mount_remote_profile_dir "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+            <default>host:/sapmnt/&lt;SID&gt;/profile</default>
+          </ask>
+

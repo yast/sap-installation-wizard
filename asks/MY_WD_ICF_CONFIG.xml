@@ -1,0 +1,61 @@
+          <ask>
+             <title>Internet Connection Framework (ICF)</title>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">10</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p>The Web Dispatcher uses ICF services of the ABAP system's application servers to retrieve information about server groups and URL mappings. By default, all ICF services are inactive. For more information, see SAP Note 552286.</p>
+]]>
+</help>
+             <question>Activate ICF nodes</question>
+             <default>true</default>
+             <type>boolean</type>
+             <file>/tmp/ay_q_ifc</file>
+	  </ask>
+          <ask>
+             <title>Internet Connection Framework (ICF)</title>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">20</element>
+             <help><![CDATA[
+             <p><b>Application Server Host</b><br>Default: Message Server Host</p>
+]]>
+</help>
+             <file>/tmp/ay_q_ifc_host</file>
+             <question>Application Server Host</question>
+             <stage>cont</stage>
+          </ask>
+          <ask>
+             <title>Internet Connection Framework (ICF)</title>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">30</element>
+             <file>/tmp/ay_q_ifc_in</file>
+             <question>Instance Number</question>
+             <stage>cont</stage>
+             <default>00</default>
+          </ask>
+          <ask>
+             <title>Internet Connection Framework (ICF)</title>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">40</element>
+             <file>/tmp/ay_q_ifc_sapsc</file>
+             <question>SAP System Client</question>
+             <stage>cont</stage>
+          </ask>
+          <ask>
+             <title>Internet Connection Framework (ICF)</title>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">50</element>
+             <file>/tmp/ay_q_ifc_rfcuser</file>
+             <question>RFC User</question>
+             <stage>cont</stage>
+          </ask>
+          <ask>
+             <title>Internet Connection Framework (ICF)</title>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">60</element>
+             <file>/tmp/ay_q_ifc_rfcuser_password</file>
+             <question>Password of RFC User</question>
+	     <stage>cont</stage>
+	     <password config:type="boolean">true</password>
+          </ask>

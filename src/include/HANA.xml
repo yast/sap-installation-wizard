@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+<general>
+  <ask-list config:type="list">
+  
+          <ask>
+             <title>SAP HANA System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">30</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP HANA Master Password</b><br>Enter and repeat the master password for the SAP system.<br>
+		The system uses this master password for all accounts created by the installer<br> 
+		and for the secure store key phrase.<br>
+		The password must fulfill the following requirements:<br>
+		- Consists of 8 or more characters<br>
+		- Contains at least one digit, one lowercase and one uppercase character<br> 
+		- It can contain only these 3 special characters: $ _ #<br>
+	     </p>
+	     ]]>
+	     </help>
+             <file>/tmp/ay_q_masterpass</file>
+             <path>users,0,user_password</path>
+             <question>SAP HANA Master Password</question>
+             <password config:type="boolean">true</password>
+             <stage>cont</stage>
+             <default></default>
+             <script>
+                <filename>my_pwd.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_masterpwd() {
+	local pwd=$( cat /tmp/ay_q_masterpass )
+
+        if [ -z "$pwd" ]; then
+		echo "You must provide a master password for your installation!"
+		exit 1
+        fi
+	if [ "${#pwd}" -lt 8 ]; then
+		echo "The master password cannot be shorter than 8 chars."
+		echo "You entered a ${#pwd} chars long password."
+		exit 1
+	fi
+        if [ -n "${pwd//[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#\$_]}" ]; then
+		echo "The Password contains forbidden chars."
+		echo "Allowed are 0-9, A-Z, a-z and $ _ #"
+		echo "But you're using: '${pwd//[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#\$_]/}'."
+		exit 1
+	fi	
+        if [ -z "${pwd//[0123456789abcdefghijklmnopqrstuvwxyz\$_#]/}" ]; then
+		echo "The Password must at least contain one uppercase character A-Z."
+		exit 1
+        fi
+        if [ -z "${pwd//[0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\$_#]/}" ]; then
+		echo "The Password must at least contain one lowercase character a-z."
+		exit 1
+        fi
+        if [ -z "${pwd//[A-Za-z\$_#]/}" ]; then
+		echo "The Password must at least contain one numeric character 0-9."
+		exit 1
+        fi
+        exit 0
+}
+check_masterpwd "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+	<ask>
+	     <title>SAP HANA System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>SID (SAP HANA System ID)</b><br>Enter the three letter SAP HANA System ID.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sid</file>
+             <question>SID (SAP HANA System ID)</question>
+             <stage>cont</stage>
+             <default>NDB</default>
+            <script>
+              <filename>my_sid.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_sid() {
+        local sid=$1 reserved_sids rsid
+        reserved_sids="ADD ALL AND ANY ASC COM DBA END EPS FOR GID IBM INT \
+        KEY LOG MON NIX NOT OFF OMS RAW ROW SAP SET SGA SHG SID SQL SYS TMP \
+        UID USR VAR"
+
+        LC_ALL=POSIX
+
+        [ -z "$sid" ] && echo "You need to provide a SID." && return 1
+        [ "${#sid}" -ne 3 ] && echo "The SID needs to be exactly 3 chars. You entered '${sid}'." && return 1
+        [ "${sid#[0-9]}" != "$sid" ] && echo "The SID needs to start with a letter. You entered '${sid}'." && return 1
+        [ -n "${sid//[0-9A-Z]/}" ] && echo "The SID needs to be upper case. You entered '${sid}'." && return 1
+        for rsid in $reserved_sids; do
+                case $sid in
+                        $rsid)
+                                echo "The SID '${sid}' is reserved and cannot be used."
+                                return 1
+                                ;;
+                esac
+         done
+         [ "${sid}" = "DAA" ] && echo "The System ID \"DAA\" is reserved for the Solution Manager Diagnostics Agent. Please choose a different one." && return 1
+         return 0
+}
+check_sid "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+          </ask>
+	<ask>
+	     <title>SAP HANA System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">20</element>
+             <help><![CDATA[
+             <p><b>SAP HANA Instance Number</b><br>Enter the SAP HANA system's instance number.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sapinstnr</file>
+             <question>SAP HANA Instance Number</question>
+             <stage>cont</stage>
+             <script>
+              <filename>my_sap_ino.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_instance_no() {
+        local ino=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$ino" ] && echo "You need to provide a SAP HANA Instance Number." && return 1
+        [ "${#ino}" -ne 2 ] && echo "The SAP HANA Instance Number needs to be exactly 2 digits long. You entered '${ino}'." && return 1
+        [ -n "${ino//[0-9]/}" ] && echo "The SAP HANA Instance Number can only contain digits. You entered '${ino}'." && return 1
+
+        return 0
+}
+check_instance_no "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+            <default>00</default>
+          </ask>
+  </ask-list>
+</general>
+<software>
+  <post-packages config:type="list">
+     <package>autoyast2-installation</package>
+     <package>bc</package>
+     <package>bing</package>     
+     <package>bonnie</package>    
+     <package>cairo</package>     
+     <package>expect</package>
+     <package>findutils-locate</package>
+     <package>graphviz</package>  
+     <package>gtk2</package>
+     <package>iptraf</package>    
+     <package>java-1_6_0-ibm-jdbc</package>
+     <package>java-1_7_1-ibm</package>
+     <package>java-1_7_1-ibm-jdbc</package>
+     <package>krb5-32bit</package>
+     <package>krb5-client</package>
+     <package>libicu</package>
+     <package>libssh2-1</package>
+     <package>mozilla-xulrunner192</package>
+     <package>nfs-client</package>
+     <package>ntp</package>
+     <package>numactl</package>
+     <package>sensors</package>   
+     <package>sudo</package>
+     <package>syslog-ng</package>
+     <package>tcsh</package>
+     <package>unixODBC</package>
+     <package>xfsprogs</package>
+     <package>yast2-ncurses</package>
+  </post-packages>
+</software>
+<scripts>
+   <post-scripts config:type="list">
+     <script>
+        <feedback config:type="boolean">false</feedback>
+        <debug config:type="boolean">false</debug>
+        <filename>configure_HANA.sh</filename>
+        <source><![CDATA[#!/bin/bash
+for dev in `ls /sys/block/sd*/queue/scheduler`; do echo noop > $dev; done
+echo 'for dev in `ls /sys/block/sd*/queue/scheduler`; do echo noop > $dev; done' >> /etc/init.d/boot.local
+echo 'for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f $CPUFREQ ] || continue; echo -n performance > $CPUFREQ; done' >> /etc/init.d/boot.local
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo '#SAP-Note 1824819
+echo never > /sys/kernel/mm/transparent_hugepage/enabled' >> /etc/init.d/boot.local
+#SAP-Note 1824819
+grep -q 'net.ipv4.tcp_slow_start_after_idle' /etc/sysctl.conf || {
+    echo 0 > /proc/sys/net/ipv4/tcp_slow_start_after_idle
+    echo "net.ipv4.tcp_slow_start_after_idle=0" >> /etc/sysctl.conf
+}
+#/proc/sys/kernel/shmmni
+main_memory_KB=`awk -F" " '{if (match ($1,"^MemTotal")) print $2}' /proc/meminfo`
+main_memory_MB=$(( ${main_memory_KB} / 1024 ))
+main_memory_GB=$(( ( $main_memory_MB + 1024 ) / 1024 * 1024 / 1024 ))
+if [ $main_memory_GB -lt 64 ]; then
+    SH=4096
+elif [ $main_memory_GB -lt 256 ]; then
+    SH=65536
+else
+    SH=524288
+fi
+grep -q 'kernel.shmmni' /etc/sysctl.conf || {
+    echo $SH > /proc/sys/kernel/shmmni
+    echo "kernel.shmmni=$SH" >> /etc/sysctl.conf
+}
+]]></source>
+     </script>
+   </post-scripts>
+</scripts>
+</profile>

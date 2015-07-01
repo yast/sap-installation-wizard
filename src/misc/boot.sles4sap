@@ -1,0 +1,32 @@
+#! /bin/sh
+#
+# Copyright (c) 2001-2002 SuSE Linux AG, Nuernberg, Germany.
+# All rights reserved.
+#
+# /etc/init.d/boot.localnet
+#
+### BEGIN INIT INFO
+# Provides:          boot.sles4sap
+# Required-Start:    boot.localnet
+# Required-Stop:     $null
+# Default-Start:     B
+# Default-Stop:
+# Short-Description: Checks if the product is registered
+# Description:       Checks if the product is registered. Slow down booting if not.
+### END INIT INFO
+
+/usr/bin/isRegistered || {
+echo 0 > /proc/splash
+cat<<EOF
+This system appears as it has not been registered yet.
+Upon registration you gain a lot of benefits, like
+updates for software packages and support services.
+Learn more about your benefits and how to register
+your product at this site:
+http://www.suse.com/products/register.html
+Thank you very much
+The system start procedures will continue within a short time.
+EOF
+
+sleep 60
+}

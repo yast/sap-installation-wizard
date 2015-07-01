@@ -1,0 +1,16 @@
+	<ask>
+		<dialog config:type="integer">70</dialog>
+		<element config:type="integer">30</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+		<help><![CDATA[
+			<p><b>Install the SAP Cryptographic Library</b></p><p>Prepare SSL Activation</p>
+		]]>
+		</help>
+		<question>Install the SAP Cryptographic Library</question>
+		<stage>cont</stage>
+		<default>true</default>
+		<type>boolean</type>
+		<file>/tmp/ay_q_sapcryppto</file>
+	</ask>
+

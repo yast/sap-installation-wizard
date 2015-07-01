@@ -1,0 +1,44 @@
+        <ask>
+          <title>SAP System Parameters</title>
+          <dialog config:type="integer">9</dialog>
+          <element config:type="integer">30</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+          <help><![CDATA[
+          <p><b>Source SAP Master Password</b><br>Enter and repeat the master password for the SAP system.<br>
+             The system uses this master password for all accounts created by the installer<br> 
+             and for the secure store key phrase.<br>
+             The password must fulfill the following requirements:<br>
+             - Consists of 8 or 9 characters<br>
+             - Contains at least one digit, one lowercase character and one uppercase character<br> 
+             - It can contain these special characters: #, $, @, _<br>
+             - It does not have a digit or an underscore (_) as the first character
+          </p>
+          ]]>
+          </help>
+          <file>/tmp/ay_q_source_masterpass</file>
+          <question>Source SAP Master Password</question>
+          <password config:type="boolean">true</password>
+          <stage>cont</stage>
+          <default></default>
+          <script>
+            <filename>my_source_pwd.sh</filename>
+            <rerun_on_error config:type="boolean">true</rerun_on_error>
+            <environment config:type="boolean">true</environment>
+            <source><![CDATA[
+function check_masterpwd() {
+        local pwd=$1
+
+        if [ -z "$pwd" ]; then
+                echo "You must provide a master password for your installation!"
+                exit 1
+        fi
+        exit 0
+}
+check_masterpwd "$VAL"
+]]>
+            </source>
+            <debug config:type="boolean">false</debug>
+            <feedback config:type="boolean">true</feedback>
+          </script>
+        </ask>

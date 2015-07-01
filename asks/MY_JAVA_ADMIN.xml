@@ -1,0 +1,67 @@
+          <ask>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">10</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>AS-JAVA Administrator User</b><br>Enter the source system's administrator user.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_java_cp_admin_user</file>
+             <question>AS-JAVA Administrator User</question>
+             <stage>cont</stage>
+             <default>Administrator</default>
+             <script>
+                <filename>my_admin_user.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_admin_user() {
+        local admin_user=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$admin_user" ] && echo "You must provide a user name!" && return 1
+
+        return 0
+}
+check_admin_user "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
+          <ask>
+             <dialog config:type="integer">40</dialog>
+             <element config:type="integer">20</element>
+             <help><![CDATA[
+             <p><b>AS-JAVA Administrator User's Password</b><br>Enter the source system's administrator password.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_java_cp_admin_pass</file>
+             <question>AS-JAVA Administrator User's Password</question>
+             <stage>cont</stage>
+             <default></default>
+             <script>
+                <filename>my_admin_user_pass.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_admin_user_pass() {
+        local admin_user_pass=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$admin_user_pass" ] && echo "You must provide a password!" && return 1
+
+        return 0
+}
+check_admin_user_pass "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>

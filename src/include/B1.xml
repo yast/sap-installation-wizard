@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+<general>
+  <ask-list config:type="list">
+          <ask>
+             <title>SAP BusinessOne System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">30</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP HANA Master Password</b><br>Enter exiting password for the SYSTEM user.<br>
+	     </p>
+	     ]]>
+	     </help>
+             <file>/tmp/ay_q_masterpass</file>
+             <path>users,0,user_password</path>
+             <question>SAP HANA Master Password</question>
+             <password config:type="boolean">true</password>
+             <stage>cont</stage>
+             <default></default>
+             <script>
+                <filename>my_pwd.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_masterpwd() {
+        # search for pwd from HANA input
+        [ -f /dev/shm/ay_q_masterpass ] && return 0
+        for i in `ls /data/SAP_CDs/`; do
+           grep HANA /data/SAP_CDs/$i/product.data > /dev/null 2>&1
+           if [ $? -eq 0 ]; then
+              [ -f /data/SAP_CDs/$i/ay_q_masterpass ] && return 0
+              break
+           fi
+        done
+
+        # no pwd found, read pwd (and sid/instance) from ask dialog
+	local pwd=$1
+        local sid=NDB
+        local ino=00
+        [ -f /tmp/ay_q_sid ] && sid=$(< /tmp/ay_q_sid)
+	[ -f /tmp/ay_q_sapinstnr ] && ino=$(< /tmp/ay_q_sapinstnr)
+        [ -z $pwd ] && exit 1
+        # does it make sense to check the HANA password by a DB test connect ?
+        #if [ -n $pwd ]; then
+        #   lsid=`echo ${sid} | tr '[:upper:]' '[:lower:]'`
+        #   su - ${lsid}adm -c "hdbsql -i ${ino} -u SYSTEM -p ${pwd} -jC 'select * from sys.dummy'" >/dev/null 2>&1
+        #   rc=$?
+        #   if [ $rc -ne 0 ];then
+        #      echo "Connection to SAP HANA failed. Please check if HANA is running, or try another password."
+        #      exit $rc
+        #   fi
+        #fi
+        exit 0
+}
+check_masterpwd "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+             <default_value_script>
+                 <source> <![CDATA[
+if [ -f /dev/shm/ay_q_masterpass ];then
+   cat /dev/shm/ay_q_masterpass
+else
+   if [ -f /data/SAP_CDs/0/ay_q_masterpass ];then
+      cat /data/SAP_CDs/0/ay_q_masterpass
+   fi
+fi
+]]>
+             </source>
+             </default_value_script>
+             <timeout config:type="integer">1</timeout>
+          </ask>
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sid</file>
+             <question>SID (SAP HANA System ID)</question>
+             <stage>cont</stage>
+             <default>NDB</default>
+            <script>
+              <filename>my_sid.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_sid() {
+        [ -f /data/SAP_CDs/0/ay_q_sid ] && exit 0
+        [ -f /dev/shm/ay_q_sid ] && exit 0
+
+        local sid=$1 reserved_sids rsid
+        reserved_sids="ADD ALL AND ANY ASC COM DBA END EPS FOR GID IBM INT \
+        KEY LOG MON NIX NOT OFF OMS RAW ROW SAP SET SGA SHG SID SQL SYS TMP \
+        UID USR VAR"
+
+        LC_ALL=POSIX
+
+        [ -z "$sid" ] && echo "You need to provide a SID." && return 1
+        [ "${#sid}" -ne 3 ] && echo "The SID needs to be exactly 3 chars. You entered '${sid}'." && return 1
+        [ "${sid#[0-9]}" != "$sid" ] && echo "The SID needs to start with a letter. You entered '${sid}'." && return 1
+        [ -n "${sid//[0-9A-Z]/}" ] && echo "The SID needs to be upper case. You entered '${sid}'." && return 1
+        for rsid in $reserved_sids; do
+                case $sid in
+                        $rsid)
+                                echo "The SID '${sid}' is reserved and cannot be used."
+                                return 1
+                                ;;
+                esac
+         done
+         [ "${sid}" = "DAA" ] && echo "The System ID \"DAA\" is reserved for the Solution Manager Diagnostics Agent. Please choose a different one." && return 1
+         return 0
+}
+check_sid "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+             <default_value_script>
+                 <source> <![CDATA[
+cat /data/SAP_CDs/0/ay_q_sid
+]]>
+             </source>
+             </default_value_script>
+             <timeout config:type="integer">1</timeout>
+          </ask>
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">20</element>
+             <help><![CDATA[
+             <p><b>SAP HANA Instance Number</b><br>Enter the SAP system's instance number.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sapinstnr</file>
+             <question>SAP HANA Instance Number</question>
+             <stage>cont</stage>
+             <script>
+              <filename>my_sap_ino.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_instance_no() {
+        [ -f /data/SAP_CDs/0/ay_q_sapinstnr ] && return 0
+        [ -f /dev/shm/ay_q_sapinstnr ] && return 0
+
+        local ino=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$ino" ] && echo "You need to provide a SAP HANA Instance Number." && return 1
+        [ "${#ino}" -ne 2 ] && echo "The SAP HANA Instance Number needs to be exactly 2 digits long. You entered '${ino}'." && return 1
+        [ -n "${ino//[0-9]/}" ] && echo "The SAP HANA Instance Number can only contain digits. You entered '${ino}'." && return 1
+
+        return 0
+         
+}
+check_instance_no "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+             <default_value_script>
+                 <source> <![CDATA[
+cat /data/SAP_CDs/0/ay_q_sapinstnr
+]]>
+             </source>
+             </default_value_script>
+             <timeout config:type="integer">1</timeout>
+            <default>00</default>
+          </ask>
+  </ask-list>
+</general>
+<software>
+  <post-packages config:type="list">
+     <package>glibc-devel</package>
+     <package>java-1_7_1-ibm</package>
+     <package>java-1_7_1-ibm-jdbc</package>
+     <package>libgcrypt</package>
+     <package>libaio</package>
+     <package>samba</package>
+     <package>glibc-i18ndata</package>
+     <package>libgthread-2_0-0-32bit</package>
+     <package>libgcrypt11-32bit</package>
+     <package>libgpg-error0-32bit</package>
+     <package>glibc-32bit</package>
+     <package>libidn-32bit</package>
+     <package>libgcc46-32bit</package>
+     <package>libldap-2_4-2-32bit</package>
+     <package>libstdc++46-32bit</package>
+     <package>libcurl4-32bit</package>
+     <package>krb5-32bit</package>
+     <package>libcom_err2-32bit</package>
+     <package>keyutils-libs-32bit</package>
+     <package>zlib-32bit</package>
+     <package>cyrus-sasl-32bit</package>
+     <package>libaio-32bit</package>
+     <package>unixODBC</package>
+     <package>xorg-x11-libXext-32bit</package>
+     <package>xorg-x11-libXrender-32bit</package>
+     <package>xorg-x11-libs-32bit</package>
+     <package>pam-32bit</package>
+  </post-packages>
+</software>
+</profile>

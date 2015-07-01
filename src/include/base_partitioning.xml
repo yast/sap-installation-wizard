@@ -1,0 +1,26 @@
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+   <partitioning config:type="list">
+    <drive>
+      <device>/dev/data_vg</device>
+      <is_lvm_vg config:type="boolean">true</is_lvm_vg>
+      <type config:type="symbol">CT_LVM</type>
+      <partitions config:type="list">
+        <partition>
+	  <create config:type="boolean">true</create>
+	  <format config:type="boolean">true</format>
+          <filesystem config:type="symbol">xfs</filesystem>
+	  <fstopt>defaults</fstopt>
+          <lv_name>data_lv</lv_name>
+          <mount>/sapdata</mount>
+	  <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <use>all</use>
+    </drive>
+  </partitioning>
+</profile>
+

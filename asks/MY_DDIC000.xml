@@ -1,0 +1,36 @@
+ 
+           <ask>
+              <dialog config:type="integer">40</dialog>
+              <element config:type="integer">10</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+              <help><![CDATA[
+              <p><b>DDIC password</b><br>Enter the source system's password of user DDIC in client 000.</p>
+ ]]>
+ </help>
+              <file>/tmp/ay_q_abap_cp_ddic000_pass</file>
+              <question>DDIC password</question>
+              <stage>cont</stage>
+              <default></default>
+              <script>
+                 <filename>my_ddic_pass.sh</filename>
+                 <rerun_on_error config:type="boolean">true</rerun_on_error>
+                 <environment config:type="boolean">true</environment>
+                 <source><![CDATA[
+ function check_ddic_pass() {
+         local ddic_pass=$1
+ 
+         LC_ALL=POSIX
+ 
+         [ -z "$ddic_pass" ] && echo "You must provide a password!" && return 1
+ 
+         return 0
+ }
+ check_ddic_pass "$VAL"
+ ]]>
+                 </source>
+                 <debug config:type="boolean">false</debug>
+                 <feedback config:type="boolean">true</feedback>
+              </script>
+           </ask>
+ 
