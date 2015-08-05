@@ -18,6 +18,15 @@ module Yast
       @contents = nil
       @help_text = ""
 
+      # Check if we have to start at the end of the installation
+      if File.exists?("/root/start_sap_wizard")
+         start = IO.read("/root/start_sap_wizard")
+         File.delete("/root/start_sap_wizard")
+	 if start == "no"
+	   return :next
+	 end
+      end
+
       # We have to restart network in 2. stage and set gnome as default WM and DM
       if Stage.cont
         SCR.Execute(path(".target.bash"), "/etc/init.d/network restart")
