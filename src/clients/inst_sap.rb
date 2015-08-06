@@ -22,7 +22,7 @@ module Yast
       if File.exists?("/root/start_sap_wizard")
          start = IO.read("/root/start_sap_wizard")
          File.delete("/root/start_sap_wizard")
-	 if start == "no"
+	 if start == "false"
 	   return :next
 	 end
       end

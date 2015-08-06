@@ -9,7 +9,14 @@ module Yast
       func = WFM.Args[0]
       param = WFM.Args[1] || {}
       @sap_enabled = true;
-      IO.write("/root/start_sap_wizard","true");
+      if File.exists?("/root/start_sap_wizard")
+         start = IO.read("/root/start_sap_wizard")
+         if start == "false"
+	    @sap_enabled = false;
+         end
+      else
+         IO.write("/root/start_sap_wizard","true");
+      end
     
       case func
       when "MakeProposal"
@@ -27,7 +34,7 @@ module Yast
         case chosen_id
         when SAP_DISABLE_LINK
           @sap_enabled = false
-          IO.write("/root/start_sap_wizard","no");
+          IO.write("/root/start_sap_wizard","false");
         when SAP_ENABLE_LINK
           IO.write("/root/start_sap_wizard","true");
           @sap_enabled = true
@@ -35,6 +42,11 @@ module Yast
           @sap_enabled = Popup.YesNo(
             _("Start SAP Installation Wizard at the end of installation?")
           )
+          if @sap_enabled
+            IO.write("/root/start_sap_wizard","true");
+	  else
+            IO.write("/root/start_sap_wizard","false");
+	  end
         else
           raise "Unexpected value #{chosen_id}"
         end
@@ -59,12 +71,12 @@ module Yast
     def proposal_text
       ret = "<ul><li>\n"
 
-      if @sap_enabled?
+      if @sap_enabled
         ret << Builtins.sformat(
           # TRANSLATORS: Installation overview
           # IMPORTANT: Please, do not change the HTML link <a href="...">...</a>, only visible text
           _(
-            "The SAP Installation Wizard (<a href=\"%1\">will be started</a>) at the end of the installation."
+            "The SAP Installation Wizard <a href=\"%1\">will be started</a> at the end of the installation."
           ),
           SAP_DISABLE_LINK
         )
@@ -73,7 +85,7 @@ module Yast
           # TRANSLATORS: Installation overview
           # IMPORTANT: Please, do not change the HTML link <a href="...">...</a>, only visible text
           _(
-            "The SAP Installation Wizard (<a href=\"%1\">will not be started</a>) at the end of the installation."
+            "The SAP Installation Wizard <a href=\"%1\">will not be started</a> at the end of the installation."
           ),
           SAP_ENABLE_LINK
         )
