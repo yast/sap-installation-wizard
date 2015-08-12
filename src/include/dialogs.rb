@@ -190,8 +190,8 @@ module Yast
          SAPInst.createLinks = false
       end
       Builtins.y2milestone("SAPInst.productList %1", SAPInst.productList)
-      SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.instDir, "Instmaster", false)
-      SAPInst.instMasterPath = SAPInst.instDir + "/Instmaster"
+      SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster-" + SAPInst.instMasterType, false)
+      SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster-" + SAPInst.instMasterType
       SAPInst.UmountSources(@umountSource)
       return ret
     end
@@ -451,11 +451,15 @@ module Yast
           Builtins.y2milestone("-- Start sapinst %1", cmd )
           SCR.Execute(path(".target.bash"), cmd)
         when "HANA"
-          if Popup.AnyQuestion(_("Preparation for autoinstallation?"), _("Select this option to only enter installation parameter and to not start installation right after."), _("Yes"), _("No"), :focus_no)
+          if Popup.AnyQuestion(_("Preparation for autoinstallation?"),
+	                       _("Select this option to only enter installation parameter and to not start installation right after."),
+			       _("Yes"), _("No"), :focus_no)
             SAPInst.instMode = "preauto"
           end
         when /^B1/
-          if Popup.AnyQuestion(_("Preparation for autoinstallation?"), _("Select this option to only enter installation parameter and to not start installation right after."), _("Yes"), _("No"), :focus_no)
+          if Popup.AnyQuestion(_("Preparation for autoinstallation?"),
+	                       _("Select this option to only enter installation parameter and to not start installation right after."),
+			       _("Yes"), _("No"), :focus_no)
             SAPInst.instMode = "preauto"
           end
       end
@@ -626,7 +630,7 @@ module Yast
         end
       }
 
-      #If we have not found anything we have to copy the whole medium
+      #If we have not found anything we have to copy the whole medium when there is a LABAL.ASC file
       if path_map.empty?
         lf=base+"/LABEL.ASC"
         if File.exist?(lf)
@@ -653,17 +657,17 @@ module Yast
         VBox(HSpacing(13)),
         VBox(
           HBox(Label("Enter the path to the " +  @dialogs[wizard]["name"])),
-          HBox(
-            HSpacing(13),
+          Left(
+            HBox(
             ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
             InputField(Id(:location),Opt(:hstretch),
               @dialogs[wizard]["name"],
               @locationCache
             ),
             HSpacing(18)
-          ),
+          )),
           VBox(HSpacing(13)),
-          CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true)
+          Left(HBox(CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true)))
         )
       )
       #By copying sapmedia we have to list the existing media
@@ -673,6 +677,7 @@ module Yast
             media = Dir.entries(SAPInst.mediaDir)
             media.delete('.')
             media.delete('..')
+            media.delete_if { |name|  name =~ /Instmaster-/ }
          end
          if !media.empty?
             content = HBox(
@@ -680,22 +685,52 @@ module Yast
               VBox(
                 Left(Frame(_("List of SAP media already copied or linked."), Label( media.join("\n")))),
                 VBox(HSpacing(13)),
-                HBox(
-                  HSpacing(13),
+                Left(HBox(
                   ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
                   InputField(Id(:location),Opt(:hstretch),
                     @dialogs[wizard]["name"],
                     @locationCache
                   ),
                   HSpacing(18)
-                ),
+                )),
                 VBox(HSpacing(13)),
-                CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true),
-                CheckBox(Id(:forw),_("All sources are present. Do not copy."),false)
+                Left(HBox(CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true))),
+                Left(HBox(CheckBox(Id(:forw),_("All sources are present. Do not copy."),false)))
               )
             )
          end
       end
+      #List existing inst master
+      if wizard == "inst_master"
+         media = []
+         if File.exist?(SAPInst.mediaDir)
+            media = Dir.entries(SAPInst.mediaDir)
+            media.delete('.')
+            media.delete('..')
+            media.delete_if { |name| !( name =~ /Instmaster-/ ) }
+         end
+         if !media.empty?
+            content = HBox(
+              VBox(HSpacing(13)),
+              VBox(
+                Left(Frame(_("List of SAP Installation Masters already copied or linked."), ComboBox(Id(:local_im), Opt(:notify),
+		           _("Select one installation master"), [ "---" ] + media))),
+                VBox(HSpacing(13)),
+                Left(HBox(
+                  ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
+                  InputField(Id(:location),Opt(:hstretch),
+                    @dialogs[wizard]["name"],
+                    @locationCache
+                  ),
+                  HSpacing(18)
+                )),
+                VBox(HSpacing(13)),
+                Left(HBox(CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true))),
+                Left(HBox(CheckBox(Id(:forw),_("All sources are present. Do not copy."),false)))
+              )
+            )
+         end
+      end      
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,
@@ -712,6 +747,22 @@ module Yast
       while run
         button          = UI.UserInput
 
+        if button == :local_im
+          im = Convert.to_string(UI.QueryWidget(Id(:local_im), :Value))
+	  if im == "---"
+	    next
+	  end
+	  UI.ChangeWidget(Id(:scheme), :Value, "dir")
+          UI.ChangeWidget(Id(:forw), :Value, true)
+          UI.ChangeWidget(Id(:link), :Value, false)
+          UI.ChangeWidget(Id(:link), :Enabled, true)
+          UI.ChangeWidget(
+            :location,
+            :Value,
+            SAPInst.mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value))
+          )
+          next
+        end
         if button == :scheme
           do_default_values(wizard)
           next

@@ -723,7 +723,7 @@ sub search_labelfiles {
 
    my @file_list = ();
 
-   logger(" in Function: search_labelfiles") if ($DEBUG);;
+   logger(" in Function: search_labelfiles") if ($DEBUG);
 
    # Traverse desired filesystems - generated from find2perl
    #my ($dev,$ino,$mode,$nlink,$uid,$gid);
@@ -748,9 +748,11 @@ sub search_labelfiles {
    # /mnt/foo/LABEL.ASC
    # /mnt/bar/subdir/LABEL.ASC
    # /mnt/foo/subdir/LABEL.ASC
-   @file_list = `find '$prod_path' ! -path '*/.*' -name LABEL.ASC -o -name info.txt | perl -lne 'print tr:/::, " \$_"' | sort -n | awk {'print \$2'}`;
+   chomp $prod_path;
+   print ("find -L '$prod_path' -name LABEL.ASC -o -name info.txt") if($DEBUG);
+   @file_list = `find -L '$prod_path' -name LABEL.ASC -o -name info.txt`;
+   #@file_list = `find '$prod_path' ! -path '*/.*' -name LABEL.ASC -o -name info.txt | perl -lne 'print tr:/::, " \$_"' | sort -n | awk {'print \$2'}`;
 
-   print ("prod_path: ->$prod_path<-\n");
    chomp(@file_list);
 
    return @file_list;
