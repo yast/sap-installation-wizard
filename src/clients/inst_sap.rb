@@ -160,7 +160,7 @@ module Yast
           return :next
         end
       end
-      WFM.CallFunction("sap-installation-wizard", [true, true])
+      WFM.CallFunction("sap-installation-wizard", [])
       SCR.Execute(path(".target.bash"), "rm /tmp/may_*")
       SCR.Execute(path(".target.bash"), "rm /tmp/ay_*")
       SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
