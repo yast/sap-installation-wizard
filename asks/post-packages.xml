@@ -23,7 +23,7 @@
     <package>perl-XML-LibXML</package>
     <package>qt3</package>
     <package>rsh</package>
-    <package>sapconf</package>
+    <package>tuned-sap</package>
     <package>sap-locale</package>
     <package>screen</package>
     <package>smartmontools</package>
