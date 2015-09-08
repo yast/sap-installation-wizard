@@ -10,7 +10,7 @@ install:
 	install -d $(DESTDIR)/usr/share/YaST2/lib/sap/
 	install -d $(DESTDIR)/usr/lib/YaST2/bin/
 	install -m 644 include/* $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
-	install -m 644 lib/* $(DESTDIR)/usr/share/YaST2/lib/sap/
+	install -m 644 lib/sap/* $(DESTDIR)/usr/share/YaST2/lib/sap/
 	install -m 644 clients/* $(DESTDIR)/usr/share/YaST2/clients/
 	install -m 644 modules/* $(DESTDIR)/usr/share/YaST2/modules/
 	install -m 644 desktop/sap-installation-wizard.desktop $(DESTDIR)/usr/share/applications/YaST2/
