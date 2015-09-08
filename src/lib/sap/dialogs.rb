@@ -8,7 +8,8 @@
 
 module Yast
   module SapInstallationWizardDialogsInclude
-    def initialize_sap_installation_wizard_dialogs(include_target)
+    extend self
+    def initialize
       textdomain "sap-installation-wizard"
 
       Yast.import "SAPInst"

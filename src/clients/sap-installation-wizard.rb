@@ -23,14 +23,16 @@
 #**
 # <h3>YAST Module to Install SAP Applications on SLE4SAP</h3>
 
+require "sap/wizards"
+
 module Yast
   class SapInstallationWizard < Client
+    include SapInstallationWizardWizardsInclude
     def main
       textdomain "sap-installation-wizard"
       Yast.import "SAPInst"
       Yast.import "CommandLine"
       Yast.import "RichText"
-      Yast.include self, "sap-installation-wizard/wizards.rb"
       Builtins.y2milestone("sap-installation-wizard called with %1",WFM.Args)
 
       @ret = :auto

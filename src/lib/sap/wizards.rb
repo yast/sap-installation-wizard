@@ -25,9 +25,18 @@
 # Authors:      Peter Varkoly <varkoly@suse.com>
 #
 
+require "sap/dialogs"
+
 module Yast
   module SapInstallationWizardWizardsInclude
+    include SapInstallationWizardDialogsInclude
+    extend self
     def initialize_sap_installation_wizard_wizards(include_target)
+    end
+
+    # SAP Installation Main Sequence
+    # @return sequence result
+    def SAPInstSequence
       Yast.import "UI"
 
       textdomain "sap-installation-wizard"
@@ -36,13 +45,6 @@ module Yast
       Yast.import "Wizard"
       Yast.import "Label"
       Yast.import "Stage"
-
-      Yast.include include_target, "sap-installation-wizard/dialogs.rb"
-    end
-
-    # SAP Installation Main Sequence
-    # @return sequence result
-    def SAPInstSequence
       aliases = {
         "read"    => lambda { ReadDialog()  },
         "readIM"  => lambda { ReadInstallationMaster()   },
