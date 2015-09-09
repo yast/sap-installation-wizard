@@ -231,14 +231,14 @@ module Yast
         if Builtins.contains(["HANA", "B1AH", "B1A", "B1H"], @instMasterType)
           @contents2 = VBox(
             VBox(
-              RichText( "<br><h2>Please wait until the installation finishes...</h2></br>"),
+              RichText( "<br><h2>SAP software installation now begins.</h2></br>"),
               LogView(Id(:log), "&Installation log", 20, 0)
             )
           )
         else
           @contents2 = VBox(
             HBox(
-              RichText( "<br><h2>Please wait until the installation finishes...</h2></br>")
+              RichText( "<br><h2>SAP software installation now begins.</h2></br>")
             )
           )
         end

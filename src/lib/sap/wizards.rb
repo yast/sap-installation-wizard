@@ -26,12 +26,16 @@
 #
 
 require "sap/dialogs"
+require "sap/add_repo_dialog"
+require "sap/tuning_dialog"
 
 module Yast
   module SapInstallationWizardWizardsInclude
     include SapInstallationWizardDialogsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
+      # Do not remove the empty function
+      # I do not understand - removing it will cause weird failures
     end
 
     # SAP Installation Main Sequence
@@ -53,7 +57,9 @@ module Yast
         "copy"    => lambda { CopyNWMedia() },
         "3th"     => lambda { ReadSupplementMedium() },
         "readP"   => lambda { ReadParameter() },
-        "write"   => lambda { WriteDialog() }
+        "write"   => lambda { WriteDialog() },
+        "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
+        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run }
       }
 
       sequence = {
@@ -87,14 +93,25 @@ module Yast
         "3th"      => {
                         :abort => :abort,
                         :back  => "copy",
+                        :next  => "add_repo"
+                      },
+        "add_repo" => {
+                        :abort => :abort,
+                        :back => "copy",
+                        :auto  => "write",
                         :next  => "readP"
                       },
         "readP"    => {
                         :abort   => :abort, 
                         :back    => "3th",
-                        :next    => "write",
+                        :next    => "tuning",
                         :selectP => "selectP",
                         :readIM  => "readIM" 
+                      },
+        "tuning"     => {
+                        :abort => :abort,
+                        :auto  => "write",
+                        :next  => "write"
                       },
         "write"    => {
                         :abort => :abort,

@@ -268,7 +268,7 @@ module Yast
             end
           when :back
             return :back
-          when :abort
+          when :abort, :cancel
             if Popup.ReallyAbort(false)
               SAPInst.UmountSources(true)
               run = false
@@ -331,7 +331,7 @@ module Yast
             end
           when :back
             return :back
-          when :abort
+          when :abort, :cancel
             if Popup.ReallyAbort(false)
               SAPInst.UmountSources(true)
               return :abort
@@ -351,7 +351,7 @@ module Yast
       run = true
       while run  
         case media_dialog("sapmedium")
-           when :abort
+           when :abort, :cancel
               return :abort
            when :back
               return :back
@@ -781,7 +781,7 @@ module Yast
            return :back
         end
       
-        if button == :abort
+        if button == :abort || button == :cancel
           if Popup.ReallyAbort(false)
             SAPInst.UmountSources(true)
             run = false
