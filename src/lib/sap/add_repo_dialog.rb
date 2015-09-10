@@ -24,6 +24,20 @@ Yast.import "UI"
 Yast.import "Label"
 Yast.import "Popup"
 
+module Yast
+    # The class invokes add-reposotiry dialog
+    # It must live in Yast namespace because it uses the legacy Yast.include mechanism
+    # It must also inherit from Client, or the dialog will not be able to run
+    class AddRepoInvokerClass < Client
+        include Yast::I18n
+        def show
+            Yast.include self, "add-on/add-on-workflow.rb"
+            MediaSelect()
+        end
+    end
+    AddRepoInvoker = AddRepoInvokerClass.new
+end
+
 module SAPInstaller
     class AddRepoWizardDialog
         include Yast::UIShortcuts
@@ -45,7 +59,12 @@ module SAPInstaller
             loop do
                 case Yast::UI.UserInput
                 when :add_repo
-                    Yast::SCR.Execute(Yast::Path.new(".target.bash"), "/usr/sbin/yast2 repositories")
+                    begin
+                        begin
+                            Yast::AddRepoInvoker.show
+                        rescue
+                        end
+                    end while Yast::Popup.YesNo(_("Are there more repositories to add?"))
                     return :next
                 when :back
                     return :back
@@ -64,10 +83,10 @@ module SAPInstaller
                 VBox(
                      Label(_("Do you have additional software repositores to add at this stage?\n" + 
                              "If so, please click to button to add software repositories.")),
-                     PushButton(Id(:add_repo), _("Manage additional software repositories")),
+                     PushButton(Id(:add_repo), _("Add additional software repositories")),
                      Label(_("Otherwise, click \"Next\" to continue."))
                 ),
-                _("You now have an opportunity to manage software repositories, for example: adding repository for SAP partner solutions.\n" + 
+                _("You now have an opportunity to add software repositories, for example: repositores for SAP partner solutions.\n" + 
                   "The step is completely optional, simply click \"Next\" if you do not use any additional repositories."),
                 true,
                 true
