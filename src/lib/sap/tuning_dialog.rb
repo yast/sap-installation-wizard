@@ -23,6 +23,8 @@ require "yast"
 Yast.import "UI"
 Yast.import "Label"
 Yast.import "Popup"
+Yast.import "Service"
+Yast.import "SAPInst"
 
 module SAPInstaller
     class TuningWizardDialog
@@ -44,7 +46,12 @@ module SAPInstaller
         
         def initialize
             textdomain "sap-installation-wizard"
-            @recommended_profile = "throughput-performance"
+            case Yast::SAPInst.instMasterType
+            when "HANA"
+                @recommended_profile = "sap-hana"
+            else
+                @recommended_profile = "sap-netweaver"
+            end
         end
         
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
@@ -67,6 +74,7 @@ module SAPInstaller
                 when :abort, :cancel
                     return :abort
                 else
+                    # Check whether user has made a choice different from the recommended one
                     choice = Yast::UI.QueryWidget(Id(:profile_name), :Value)
                     if choice != @recommended_profile
                         if !Yast::Popup.YesNo(_("You chose to use profile %s, but for your SAP installation we strongly recommend profile %s.\n" +
@@ -74,6 +82,13 @@ module SAPInstaller
                                         [choice, @recommended_profile])
                             redo
                         end
+                    end
+                    # Enable tuned daemon and apply profile
+                    Yast::Service.Enable("tuned")
+                    if Yast::Service.Active("tuned")
+                        Yast::Service.Restart("tuned")
+                    else
+                        Yast::Service.Start("tuned")
                     end
                     if Yast::SCR.Execute(Yast::Path.new(".target.bash"), "tuned-adm profile " + choice) == 0
                         Yast::Popup.Message(_("Tuning profile has been successfully activated."))
