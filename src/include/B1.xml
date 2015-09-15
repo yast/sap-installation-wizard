@@ -209,6 +209,7 @@ cat /data/SAP_CDs/0/ay_q_sapinstnr
      <package>xorg-x11-libXrender-32bit</package>
      <package>xorg-x11-libs-32bit</package>
      <package>pam-32bit</package>
+     <package>tuned-sap</package>
   </post-packages>
 </software>
 </profile>

@@ -185,43 +185,7 @@ check_instance_no "$VAL"
      <package>unixODBC</package>
      <package>xfsprogs</package>
      <package>yast2-ncurses</package>
+     <package>tuned-sap</package>
   </post-packages>
 </software>
-<scripts>
-   <post-scripts config:type="list">
-     <script>
-        <feedback config:type="boolean">false</feedback>
-        <debug config:type="boolean">false</debug>
-        <filename>configure_HANA.sh</filename>
-        <source><![CDATA[#!/bin/bash
-for dev in `ls /sys/block/sd*/queue/scheduler`; do echo noop > $dev; done
-echo 'for dev in `ls /sys/block/sd*/queue/scheduler`; do echo noop > $dev; done' >> /etc/init.d/boot.local
-echo 'for CPUFREQ in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do [ -f $CPUFREQ ] || continue; echo -n performance > $CPUFREQ; done' >> /etc/init.d/boot.local
-echo never > /sys/kernel/mm/transparent_hugepage/enabled
-echo '#SAP-Note 1824819
-echo never > /sys/kernel/mm/transparent_hugepage/enabled' >> /etc/init.d/boot.local
-#SAP-Note 1824819
-grep -q 'net.ipv4.tcp_slow_start_after_idle' /etc/sysctl.conf || {
-    echo 0 > /proc/sys/net/ipv4/tcp_slow_start_after_idle
-    echo "net.ipv4.tcp_slow_start_after_idle=0" >> /etc/sysctl.conf
-}
-#/proc/sys/kernel/shmmni
-main_memory_KB=`awk -F" " '{if (match ($1,"^MemTotal")) print $2}' /proc/meminfo`
-main_memory_MB=$(( ${main_memory_KB} / 1024 ))
-main_memory_GB=$(( ( $main_memory_MB + 1024 ) / 1024 * 1024 / 1024 ))
-if [ $main_memory_GB -lt 64 ]; then
-    SH=4096
-elif [ $main_memory_GB -lt 256 ]; then
-    SH=65536
-else
-    SH=524288
-fi
-grep -q 'kernel.shmmni' /etc/sysctl.conf || {
-    echo $SH > /proc/sys/kernel/shmmni
-    echo "kernel.shmmni=$SH" >> /etc/sysctl.conf
-}
-]]></source>
-     </script>
-   </post-scripts>
-</scripts>
 </profile>

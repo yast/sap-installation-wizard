@@ -49,6 +49,7 @@
     <package>yast2-qt</package>
     <package>ypbind</package>
     <package>yp-tools</package>
+    <package>tuned-sap</package>
   </post-packages>
 </software>
 </profile>
