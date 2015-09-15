@@ -83,11 +83,10 @@ module SAPInstaller
                             redo
                         end
                     end
+                    Yast::UI.ReplaceWidget(Id(:busy), BusyIndicator(Id(:busy_ind), _("Applying, this may take a while."), 60000))
                     # Enable tuned daemon and apply profile
                     Yast::Service.Enable("tuned")
-                    if Yast::Service.Active("tuned")
-                        Yast::Service.Restart("tuned")
-                    else
+                    if !Yast::Service.Active("tuned")
                         Yast::Service.Start("tuned")
                     end
                     if Yast::SCR.Execute(Yast::Path.new(".target.bash"), "tuned-adm profile " + choice) == 0
@@ -112,7 +111,9 @@ module SAPInstaller
                         ComboBox(Id(:profile_name), Opt(:notify), "Profile name",
                             TUNING_PROFILES.map { |name, val| Item(name, name == @recommended_profile)}),
                         Label(Id(:profile_desc), TUNING_PROFILES[@recommended_profile]["desc"])
-                    ))
+                    )),
+                    VSpacing(2.0),
+                    ReplacePoint(Id(:busy), Empty())
                 ),
                 _("Choose a tuning profile that will tune your system for best performance.\n" +
                   "System tuning is carried out by software package \"tuned\".\n" +
