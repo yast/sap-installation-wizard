@@ -6,7 +6,7 @@ X-KDE-ModuleType=Library
 X-KDE-RootOnly=true
 X-KDE-HasReadOnlyMode=true
 X-KDE-Library=yast2
-X-SuSE-YaST-Call=inst_sap_wrapper
+X-SuSE-YaST-Call=sap-installation-wizard
 
 X-SuSE-YaST-Group=Software
 X-SuSE-YaST-Argument=
