@@ -39,7 +39,7 @@ module SAPInstaller
             "sap-netweaver" => {
                 "desc" => "Best choice for SAP NetWeaver application and non-HANA database server."
             },
-            "sap-haha" => {
+            "sap-hana" => {
                 "desc" => "Best choice for SAP HANA and HANA-based products such as BusinessOne."
             }
         }
