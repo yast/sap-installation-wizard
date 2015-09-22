@@ -16,24 +16,16 @@ module Yast
       textdomain "autoinst"
 
       @contents = nil
+      @start    = nil
       @help_text = ""
 
       # Check if we have to start at the end of the installation
       if File.exists?("/root/start_sap_wizard")
-         start = IO.read("/root/start_sap_wizard")
+         @start = IO.read("/root/start_sap_wizard")
          File.delete("/root/start_sap_wizard")
-	 if start == "false"
+	 if @start == "false"
 	   return :next
 	 end
-      end
-
-      # We have to restart network in 2. stage and set gnome as default WM and DM
-      if Stage.cont
-        SCR.Execute(path(".target.bash"), "/etc/init.d/network restart")
-        SCR.Write(path(".sysconfig.windowmanager.DEFAULT_WM"), "gnome")
-        SCR.Write(path(".sysconfig.displaymanager.DISPLAYMANAGER"), "gdm")
-        SCR.Write(path(".sysconfig.windowmanager"), nil)
-        SCR.Write(path(".sysconfig.displaymanager"), nil)
       end
 
       # Check if hostname -f is set
@@ -71,7 +63,7 @@ module Yast
           _("Error by detecting the fully qualified hostname (FQHN)"),
           @contents,
           @help_text,
-          false,
+          true,
           true
         )
         UI.ChangeWidget(Id(:fqhn), :ValidChars, @valid_domain_chars)
@@ -83,6 +75,9 @@ module Yast
           if @button == :abort
             return :abort if Popup.ReallyAbort(false)
             next
+          end
+          if @button == :back
+            return :back 
           end
           @lfqhn = Builtins.splitstring(@fqhn, ".")
           if Ops.less_or_equal(Builtins.size(@fqhn), 1)
@@ -112,53 +107,10 @@ module Yast
       SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
       SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
       SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
-      if Stage.cont
-        # for BOne users ask to do partitioning and install
-        UI.OpenDialog(
-          RadioButtonGroup(
-            Id(:rb),
-            VBox(
-              Heading("SAP product installation"),
-              Label(
-                "The standard installation of the Operating System has settled." + "\n" +
-                  "Would you like to continue with SAP products now?"
-              ),
-              Left(
-                RadioButton(
-                  Id("sap_install"),
-                  "&Create SAP file systems and start SAP product installation.",
-                  true
-                )
-              ),
-              Left(
-                RadioButton(
-                  Id("hana_partitioning"),
-                  "Only create &SAP Business One file systems, do not install SAP products now.",
-                  false
-                )
-              ),
-              Left(
-                RadioButton(
-                  Id("none"),
-                  "&Finish wizard and proceed to OS login.",
-                  false
-                )
-              ),
-              HBox(PushButton("&OK"))
-            )
-          )
-        )
-        UI.UserInput
-        @current = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
-	Builtins.y2milestone("CURRENT %1", @current)
-        UI.CloseDialog
-        if @current == "none"
-          return :next
-        elsif @current == "hana_partitioning"
-	  Builtins.y2milestone("Starting SAPInst.CreateHANAPartitions")
-	  SAPInst.CreateHANAPartitions("")
-          return :next
-        end
+      if @start == "hana_part"
+        Builtins.y2milestone("Starting SAPInst.CreateHANAPartitions")
+        SAPInst.CreateHANAPartitions("")
+        return :next
       end
       WFM.CallFunction("sap-installation-wizard", [])
       SCR.Execute(path(".target.bash"), "rm /tmp/may_*")
