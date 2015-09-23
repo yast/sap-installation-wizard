@@ -1,5 +1,5 @@
 install:
-	install -d $(DESTDIR)/etc/init.d/
+	install -d $(DESTDIR)/etc/YaST2/
 	install -d $(DESTDIR)/etc/sysconfig/
 	install -d $(DESTDIR)/usr/share/YaST2/clients/
 	install -d $(DESTDIR)/usr/share/applications/YaST2/
@@ -17,6 +17,5 @@ install:
 	install -m 644 scrconf/cfg_sap-installation-wizard.scr $(DESTDIR)/usr/share/YaST2/scrconf/
 	install -m 644 misc/sap-installation-wizard     $(DESTDIR)/var/adm/fillup-templates/sysconfig.sap-installation-wizard
 	install -m 644 misc/sap-installation-wizard.xml $(DESTDIR)/etc/
-	echo "TODO install -m 755 boot.sles4sap      $(DESTDIR)/etc/init.d/"
-	echo "TODO install -m 755 check_sap_uname.sh $(DESTDIR)/usr/lib/YaST2/bin/"
+	install -m 644 misc/firstboot.xml $(DESTDIR)/etc/YaST2/firstboot-sap.xml
 

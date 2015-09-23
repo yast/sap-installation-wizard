@@ -22,11 +22,12 @@ module Yast
 
       case func
       when "MakeProposal"
+        PackagesProposal.AddResolvables('sap-wizard',:package,['sap-installation-wizard'])
 	if @sap_start == "false"
-          PackagesProposal.RemoveResolvables('sap-wizard',:package,['sap-installation-wizard'])
+          PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot'])
           ProductControl.DisableModule("sap")
         else
-          PackagesProposal.AddResolvables('sap-wizard',:package,['sap-installation-wizard'])
+          PackagesProposal.AddResolvables('sap-wizard',:package,['yast2-firstboot'])
           ProductControl.EnableModule("sap")
         end
         ret = {
