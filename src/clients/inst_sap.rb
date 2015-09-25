@@ -8,10 +8,10 @@ module Yast
       textdomain "autoinst"
 
       # Check if we have to start at the end of the installation
-      if !File.exists?("/root/start_sap_wizard")
+      if !File.exists?("/root/inst-sys/start_sap_wizard")
 	 return :next
       end
-      start = IO.read("/root/start_sap_wizard")
+      start = IO.read("/root/inst-sys/start_sap_wizard")
       start.strip!
       if start != "false"
          SCR.Execute(path(".target.bash"), "touch /var/lib/YaST2/reconfig_system")
