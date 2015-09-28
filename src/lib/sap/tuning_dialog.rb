@@ -89,9 +89,9 @@ module SAPInstaller
                     end
                     Yast::UI.ReplaceWidget(Id(:busy), BusyIndicator(Id(:busy_ind), _("Applying, this may take a while."), 60000))
                     # Enable tuned daemon and apply profile
-                    if !Yast::Package.Installed("tuned-sap")
-                        if !Yast::Package.DoInstall("tuned-sap")
-							Yast::Popup.Message(_("Non-fatal error: failed to install package tuned-sap.\n" +
+                    if !Yast::Package.Installed("sapconf")
+                        if !Yast::Package.DoInstall("sapconf")
+							Yast::Popup.Message(_("Non-fatal error: failed to install package sapconf.\n" +
 												  "However you may still proceed to install SAP software."))
                         return :next
                         end

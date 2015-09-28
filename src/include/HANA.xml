@@ -185,7 +185,7 @@ check_instance_no "$VAL"
      <package>unixODBC</package>
      <package>xfsprogs</package>
      <package>yast2-ncurses</package>
-     <package>tuned-sap</package>
+     <package>sapconf</package>
   </post-packages>
 </software>
 </profile>

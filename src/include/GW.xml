@@ -184,7 +184,7 @@ check_instance_no "$VAL"
     <package>perl-XML-LibXML</package>
     <package>qt3</package>
     <package>rsh</package>
-    <package>tuned-sap</package>
+    <package>sapconf</package>
     <package>sap-locale</package>
     <package>screen</package>
     <package>smartmontools</package>
