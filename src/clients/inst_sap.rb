@@ -3,6 +3,7 @@
 module Yast
   class InstSapClient < Client
     def main
+      Yast.import "Mode"
 
       # MAIN
       textdomain "autoinst"
