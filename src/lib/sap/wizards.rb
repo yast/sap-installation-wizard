@@ -26,7 +26,6 @@
 #
 
 require "sap/dialogs"
-require "sap/add_repo_dialog"
 require "sap/tuning_dialog"
 
 module Yast
@@ -59,7 +58,6 @@ module Yast
         "readP"   => lambda { ReadParameter() },
         "write"   => lambda { WriteDialog() },
         "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
-        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run }
       }
 
       sequence = {
@@ -93,12 +91,6 @@ module Yast
         "3th"      => {
                         :abort => :abort,
                         :back  => "copy",
-                        :next  => "add_repo"
-                      },
-        "add_repo" => {
-                        :abort => :abort,
-                        :back => "copy",
-                        :auto  => "write",
                         :next  => "readP"
                       },
         "readP"    => {
