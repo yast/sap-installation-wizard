@@ -39,15 +39,18 @@ module SAPInstaller
             "sap-netweaver" => {
                 "desc" => "Best choice for SAP NetWeaver application and non-HANA database server."
             },
-            "sap-haha" => {
-                "desc" => "Best choice for SAP HANA database server."
+            "sap-hana" => {
+                "desc" => "Best choice for SAP HANA and HANA-based products such as BusinessOne."
             }
         }
         
         def initialize
             textdomain "sap-installation-wizard"
-            case Yast::SAPInst.instMasterType
-            when "HANA"
+            case Yast::SAPInst.instMasterType.downcase
+            when /hana/
+                @recommended_profile = "sap-hana"
+            when /b1/
+                # Both HANA and BusinessOne use the hana tuning profile
                 @recommended_profile = "sap-hana"
             else
                 @recommended_profile = "sap-netweaver"

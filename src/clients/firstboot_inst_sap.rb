@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 module Yast
-  class InstSapClient < Client
+  class FirstbootInstSapClient < Client
     def main
       Yast.import "UI"
       Yast.import "IP"
@@ -15,9 +15,9 @@ module Yast
 
       textdomain "autoinst"
 
-      @contents = nil
-      @start    = nil
+      @contents  = nil
       @help_text = ""
+      @start     = ""
 
       # Check if we have to start at the end of the installation
       if File.exists?("/root/start_sap_wizard")
@@ -63,7 +63,7 @@ module Yast
           _("Error by detecting the fully qualified hostname (FQHN)"),
           @contents,
           @help_text,
-          true,
+          false,
           true
         )
         UI.ChangeWidget(Id(:fqhn), :ValidChars, @valid_domain_chars)
@@ -75,9 +75,6 @@ module Yast
           if @button == :abort
             return :abort if Popup.ReallyAbort(false)
             next
-          end
-          if @button == :back
-            return :back 
           end
           @lfqhn = Builtins.splitstring(@fqhn, ".")
           if Ops.less_or_equal(Builtins.size(@fqhn), 1)
@@ -123,4 +120,4 @@ module Yast
   end
 end
 
-Yast::InstSapClient.new.main
+Yast::FirstbootInstSapClient.new.main
