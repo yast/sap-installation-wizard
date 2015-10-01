@@ -7,48 +7,8 @@
  </ask-list>
 </general>
 <software>
-  <post-packages config:type="list">
-    <package>autofs</package>
-    <package>bind-utils</package>
-    <package>cifs-mount</package>
-    <package>compat-32bit</package>
-    <package>compat-libldap-2_3-0</package>
-    <package>compat-openssl097g-32bit</package>
-    <package>compat-openssl097g</package>
-    <package>gcc</package>
-    <package>gdb</package>
-    <package>glibc-devel</package>
-    <package>ksh</package>
-    <package>libstdc++33-32bit</package>
-    <package>libstdc++33</package>
-    <package>lsof</package>
-    <package>lukemftp</package>
-    <package>mcelog</package>
-    <package>nscd</package>
-    <package>openssh</package>
-    <package>pam-32bit</package>
-    <package>pam-modules-32bit</package>
-    <package>perl-XML-LibXML</package>
-    <package>qt3</package>
-    <package>rsh</package>
-    <package>sapconf</package>
-    <package>sap-locale</package>
-    <package>screen</package>
-    <package>smartmontools</package>
-    <package>strace</package>
-    <package>sudo</package>
-    <package>sysstat</package>
-    <package>unrar</package>
-    <package>vim-base</package>
-    <package>vim-data</package>
-    <package>vim</package>
-    <package>xrdp</package>
-    <package>yast2-ncurses</package>
-    <package>yast2-ntp-client</package>
-    <package>yast2-online-update-frontend</package>
-    <package>yast2-qt</package>
-    <package>ypbind</package>
-    <package>yp-tools</package>
-  </post-packages>
+  <post-patterns config:type="list">
+    <pattern>sap-nw</pattern>
+  </post-patterns>
 </software>
 </profile>

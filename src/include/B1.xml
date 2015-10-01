@@ -181,35 +181,8 @@ cat /data/SAP_CDs/0/ay_q_sapinstnr
   </ask-list>
 </general>
 <software>
-  <post-packages config:type="list">
-     <package>glibc-devel</package>
-     <package>java-1_7_1-ibm</package>
-     <package>java-1_7_1-ibm-jdbc</package>
-     <package>libgcrypt</package>
-     <package>libaio</package>
-     <package>samba</package>
-     <package>glibc-i18ndata</package>
-     <package>libgthread-2_0-0-32bit</package>
-     <package>libgcrypt11-32bit</package>
-     <package>libgpg-error0-32bit</package>
-     <package>glibc-32bit</package>
-     <package>libidn-32bit</package>
-     <package>libgcc46-32bit</package>
-     <package>libldap-2_4-2-32bit</package>
-     <package>libstdc++46-32bit</package>
-     <package>libcurl4-32bit</package>
-     <package>krb5-32bit</package>
-     <package>libcom_err2-32bit</package>
-     <package>keyutils-libs-32bit</package>
-     <package>zlib-32bit</package>
-     <package>cyrus-sasl-32bit</package>
-     <package>libaio-32bit</package>
-     <package>unixODBC</package>
-     <package>xorg-x11-libXext-32bit</package>
-     <package>xorg-x11-libXrender-32bit</package>
-     <package>xorg-x11-libs-32bit</package>
-     <package>pam-32bit</package>
-     <package>sapconf</package>
-  </post-packages>
+  <post-patterns config:type="list">
+    <pattern>sap-b1</pattern>
+  </post-patterns>
 </software>
 </profile>

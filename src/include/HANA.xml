@@ -156,36 +156,8 @@ check_instance_no "$VAL"
   </ask-list>
 </general>
 <software>
-  <post-packages config:type="list">
-     <package>autoyast2-installation</package>
-     <package>bc</package>
-     <package>bing</package>     
-     <package>bonnie</package>    
-     <package>cairo</package>     
-     <package>expect</package>
-     <package>findutils-locate</package>
-     <package>graphviz</package>  
-     <package>gtk2</package>
-     <package>iptraf</package>    
-     <package>java-1_6_0-ibm-jdbc</package>
-     <package>java-1_7_1-ibm</package>
-     <package>java-1_7_1-ibm-jdbc</package>
-     <package>krb5-32bit</package>
-     <package>krb5-client</package>
-     <package>libicu</package>
-     <package>libssh2-1</package>
-     <package>mozilla-xulrunner192</package>
-     <package>nfs-client</package>
-     <package>ntp</package>
-     <package>numactl</package>
-     <package>sensors</package>   
-     <package>sudo</package>
-     <package>syslog-ng</package>
-     <package>tcsh</package>
-     <package>unixODBC</package>
-     <package>xfsprogs</package>
-     <package>yast2-ncurses</package>
-     <package>sapconf</package>
-  </post-packages>
+  <post-patterns config:type="list">
+    <pattern>sap-hana</pattern>
+  </post-patterns>
 </software>
 </profile>
