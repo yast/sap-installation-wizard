@@ -37,6 +37,24 @@ case "$PROD" in
 			cat $i.xml >> ../src/include/$PROD.xml
 		done
 		;;
+	GATEWAY)
+		for i in MY_MASTERPASS MY_GW_INSTANCE_NR
+		do
+			cat $i.xml >> ../src/include/$PROD.xml
+		done
+		;;
+	Webdispatcher)
+		for i in MY_MASTERPASS MY_WD_ICF_CONFIG MY_WD_MS_PARAM MY_WD_PARAM
+		do
+			cat $i.xml >> ../src/include/$PROD.xml
+		done
+		;;
+	TREX)
+		for i in MY_MASTERPASS 
+		do
+			cat $i.xml >> ../src/include/$PROD.xml
+		done
+		;;
 	*)
 		echo "No ask dialog for $PROD."
 		;;
