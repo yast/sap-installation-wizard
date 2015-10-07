@@ -490,6 +490,12 @@ module Yast
         scheme = "device"
       end
 
+      if /^cdrom::(?<dev>.*)/ =~ scheme
+        cdromDevice = dev
+        location = Ops.add(Ops.add(cdromDevice, "/"), location)
+        scheme = "device"
+      end
+
       if scheme == "device"
         parsedURL = URL.Parse(Ops.add("device://", location))
         Builtins.y2milestone("parsed URL: %1", parsedURL)

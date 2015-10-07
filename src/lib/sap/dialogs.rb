@@ -27,10 +27,21 @@ module Yast
           Item(Id("local"), "dir://", true),
           Item(Id("device"), "device://", false),
           Item(Id("usb"), "usb://", false),
-          Item(Id("cdrom"), "cdrom://", false),
           Item(Id("nfs"), "nfs://", false),
           Item(Id("smb"), "smb://", false)
       ]
+
+      #Detect how many cdrom we have:
+      cdroms=`hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
+      if cdroms.count == 1
+          @scheme_list << Item(Id("cdrom"), "cdrom://", false)
+      elsif cdroms.count > 1
+         i=1
+         cdroms.each { |cdrom|
+            @scheme_list << Item(Id("cdrom::" + cdrom  ), "cdrom" + i.to_s + "://", false)
+            i = i.next
+         }
+      end
 
       #The selected schema.
       @schemeCache    = "local"
@@ -858,14 +869,6 @@ module Yast
             :Value,
             @locationCache == "" ? "/directory/" : @locationCache
           )
-        elsif val == "cdrom"
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ? "//" : @locationCache
-          )
         elsif val == "smb"
           UI.ChangeWidget(Id(:link), :Value, false)
           UI.ChangeWidget(Id(:link), :Enabled, false)
@@ -875,6 +878,15 @@ module Yast
             @locationCache == "" ?
               "[username:passwd@]server/path-on-server[?workgroup=my-workgroup]" :
               @locationCache
+          )
+        else
+          #This is cdrom1 cdrom2 and so on
+          UI.ChangeWidget(Id(:link), :Value, false)
+          UI.ChangeWidget(Id(:link), :Enabled, false)
+          UI.ChangeWidget(
+            :location,
+            :Value,
+            @locationCache == "" ? "//" : @locationCache
           )
         end
     
