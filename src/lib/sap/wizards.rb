@@ -27,6 +27,7 @@
 
 require "sap/dialogs"
 require "sap/tuning_dialog"
+require "sap/config_hanafw"
 
 module Yast
   module SapInstallationWizardWizardsInclude
@@ -58,6 +59,7 @@ module Yast
         "readP"   => lambda { ReadParameter() },
         "write"   => lambda { WriteDialog() },
         "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
+        "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new.run },
       }
 
       sequence = {
@@ -107,7 +109,11 @@ module Yast
                       },
         "write"    => {
                         :abort => :abort,
-                        :next => :next
+                        :next => "hanafw"
+                      },
+        "hanafw"   => {
+                          :abort => :abort,
+                          :next  => :next
                       }
       }
 
