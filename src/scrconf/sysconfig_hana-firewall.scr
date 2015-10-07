@@ -1,0 +1,10 @@
+/**
+ * Summary: Agent for reading/writing /etc/sysconfig/hana-firewall
+ * Author:  Howard Guo <hguo@suse.com>
+ * Access:  read / write
+ */
+.sysconfig.hana-firewall
+
+`ag_ini(
+    `SysConfigFile("/etc/sysconfig/hana-firewall")
+)
