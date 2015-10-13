@@ -23,13 +23,16 @@ module Yast
       Yast.import "LogView"
       Yast.import "Misc"
       Yast.import "Mode"
+      Yast.import "NfsServer"
       Yast.import "Popup"
       Yast.import "Profile"
       Yast.import "Progress"
       Yast.import "SAPMedia"
       Yast.import "Service"
+      Yast.import "SLP"
       Yast.import "Stage"
       Yast.import "Storage"
+      Yast.import "SuSEFirewal"
       Yast.import "Wizard"
       Yast.import "URL"
       Yast.import "XML"
@@ -1011,6 +1014,35 @@ module Yast
       nil
     end
 
+    # ***********************************
+    # Function to export SAP installation media
+    # and publish it via slp
+    #
+    def ExportSAPCDs
+       NfsServer.Read
+       nfs_server = NfsServer.Export
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",[],"sles4sapinst.reg")
+       nfs_server["start_nfsserver"] = true
+       exported = false
+       nfs_server["nfs_exports"].each { |exp|
+          if exp["mountpoint"] == "/data/SAP_CDs/"
+             exported = true
+             break
+          end
+       }
+       if ! exported
+          nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
+       end
+       NfsServer.Set(nfs_server)
+       NfsServer.Write
+       # Open Firewall
+       SuSEFirewall.Read
+       SuSEFirewall.SetServicesForZones( ["service:openslp","service:nfs-kernel-server"],["EXT", "DMZ"],true)
+       SuSEFirewall.Write
+       Service.Enbale("slp")
+       Service.Restart("slp")
+    end
+
     #Published functions
     publish :function => :Read,                :type => "boolean ()"
     publish :function => :Write,               :type => "void ()"
@@ -1025,6 +1057,7 @@ module Yast
     publish :function => :CreateHANAPartitions,:type => "void()"
     publish :function => :GetProductParameter, :type => "string ()"
     publish :function => :WriteProductDatas,   :type => "void ()"
+    publish :function => :ExportSAPCDs,        :type => "void ()"
     
     # Published module variables
     publish :variable => :createLinks,       :type => "boolean"
