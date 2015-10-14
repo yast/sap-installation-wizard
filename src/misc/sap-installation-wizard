@@ -49,11 +49,23 @@ SAPINST_SCRIPT="/usr/share/YaST2/include/sap-installation-wizard/sap_inst.sh"
 ## Type:    yesno
 ## Default: yes
 #
-MULTIPLE_PRODUCTS=yes
+MULTIPLE_PRODUCTS="yes"
 
 ## Description: Start the installation in auto installation mode
 ## Type:    yesno
 ## Default: yes
 #
-SAP_AUTO_INSTALL=no
+SAP_AUTO_INSTALL="no"
+
+## Description: Export the SAP CDs via SLP + NFS
+## Type:    yesno
+## Default: yes
+#
+SAP_EXPORT_CDS="no"
+
+## Description: SLP URL for the used SAP CD server
+## Type:    string
+## Default: ""
+#
+SAP_CDS_URL=""
 
