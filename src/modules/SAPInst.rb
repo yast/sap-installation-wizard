@@ -32,9 +32,10 @@ module Yast
       Yast.import "SLP"
       Yast.import "Stage"
       Yast.import "Storage"
-      Yast.import "SuSEFirewal"
+      Yast.import "SuSEFirewall"
       Yast.import "Wizard"
       Yast.import "URL"
+      Yast.import "UI"
       Yast.import "XML"
 
       # ***********************************
@@ -120,6 +121,12 @@ module Yast
       # Array of the scripts which will be executed in Write
       @productScriptsList = []
 
+      #If this is true this server exports the SAP CDs via SLP + NFS
+      @exportSAPCDs = false
+
+      #SLP URL for the used SAP CD server
+      @sapCDsURL = ""
+
       @STACK = ""
       @SEARCH = ""
       @TYPE = ""
@@ -155,11 +162,14 @@ module Yast
       # read the global configuration
       parse_sysconfig
 
-      #TODO Temporary dirty patch 
-      SCR.Execute(path(".target.bash"), "cp /usr/share/YaST2/include/sap-installation-wizard/inst_autoconfigure.rb /usr/share/YaST2/clients/inst_autoconfigure.rb" )
-     
+      if @sapCDsURL != ""
+         mount_sap_cds()
+      elsif @instMode != "auto"
+         FindSAPCDServer()
+      end
+
       # Read the existing media
-      if File.exist?(SAPInst.mediaDir)
+      if File.exist?(@mediaDir)
          media = Dir.entries(@mediaDir)
          media.delete('.')
          media.delete('..')
@@ -1014,25 +1024,64 @@ module Yast
       nil
     end
 
+    def FindSAPCDServer()
+        serverList = []
+	sles4sapinst=SLP.FindSrvs("service:sles4sapinst","")
+	sles4sapinst.each { |server|
+	    attrs = SLP.GetUnicastAttrMap("service:sles4sapinst",server["ip"])
+	    if attrs.has_key?("provided-media")
+	        serverList << [ server["pcHost"], attrs["provided-media"], server["srvurl"] ] 
+	    end
+        }
+	return if serverList.empty?
+        cdServer = Table()
+	cdServer << Header("Server","Provided media")
+	items    = []
+	i = 0
+	serverList.each { |server|
+		items  << Item(Id(server[2]),server[0],server[1]) 
+		i = i.next
+	}
+	items  << Item(Id("local"),"Local","")
+	cdServer << items
+	UI.OpenDialog(VBox(
+		Heading(_("Select a Detected SLES4SAP Installation Server")),
+		MinSize(60,i+2,cdServer),
+		PushButton("&OK")
+	))
+	ret = UI.UserInput();
+Builtins.y2milestone("Slected slp url %1",ret)
+	if ret != "local"
+	   /service:sles4sapinst:(?<url>.*)/ =~ ret
+	   @sapCDsURL = url
+Builtins.y2milestone("url %1",url)
+	   mount_sap_cds
+	end
+	UI.CloseDialog();
+    end
+
     # ***********************************
     # Function to export SAP installation media
     # and publish it via slp
     #
-    def ExportSAPCDs
+    def ExportSAPCDs()
        NfsServer.Read
        nfs_server = NfsServer.Export
-       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",[],"sles4sapinst.reg")
        nfs_server["start_nfsserver"] = true
        exported = false
        nfs_server["nfs_exports"].each { |exp|
-          if exp["mountpoint"] == "/data/SAP_CDs/"
+          if exp["mountpoint"] == @mediaDir
              exported = true
              break
           end
        }
        if ! exported
+          if ! Popup.YesNo(_("Make the locally stored SAP media available on the local network?"))
+             return
+          end
           nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",[{ "provided-media" => @mediaList.join(",") }],"sles4sapinst.reg")
        NfsServer.Set(nfs_server)
        NfsServer.Write
        # Open Firewall
@@ -1124,6 +1173,16 @@ module Yast
         path(".sysconfig.sap-installation-wizard.SAP_AUTO_INSTALL"),
         "no"
       ) == "yes" ? "auto" : "manual"
+
+      @exportSAPCDs = Misc.SysconfigRead(
+        path(".sysconfig.sap-installation-wizard.SAP_EXPORT_CDS"),
+        "no"
+      ) == "yes" ? true : false
+
+      @sapCDsURL = Misc.SysconfigRead(
+        path(".sysconfig.sap-installation-wizard.SAP_CDS_URL"),
+        ""
+      )
 
       nil
     end
@@ -1268,6 +1327,33 @@ module Yast
         Ops.get_string(@out, "stdout", ""),
         "0123456789-."
       )
+    end
+
+    def mount_sap_cds
+        url     = URL.Parse(@sapCDsURL)
+	command = ""
+	case url["schema"]
+	   when "nfs"
+		command = "mount -o nolock "    + url["host"] + ":" + url["path"] + " " + @mediaDir
+	   when "smb"
+		mopts = "-o ro"
+		if url["workgroup"] != ""
+		   mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
+		elsif url["user"] != ""
+		   mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
+		else
+		   mopts = mopts + ",guest"
+		end
+		command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + mopts 
+	end
+Builtins.y2milestone("Mount Command: %1",command)
+	out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
+        if Ops.get_string(out, "stderr", "") != ""
+          ret = "ERROR:" + Ops.get_string(out, "stderr", "")
+        else
+          ret = ""
+        end
+	return ret
     end
 
   end   
