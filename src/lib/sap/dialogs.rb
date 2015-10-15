@@ -3,7 +3,7 @@
 # File: sap-installation-wizard/dialogs.rb
 # Package:      Configuration of SAP products
 # Summary:      Definition of dialogs
-# Authors:      Peter Varkoly <varkoly@suse.de>
+# Authors:      Peter Varkoly <varkoly@suse.com>, Howard Guo <hguo@suse.com>
 #
 
 module Yast
@@ -79,44 +79,43 @@ module Yast
 #                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
       @dialogs = {
          "inst_master" => {
-             "help"    => _("<p>Enter the location of your SAP Installation Master.</p>") +
-                          '<p><b>' + _("Do not copy the sources. Create only links.") + '</p></b>' +
-                          _("Select this option to not copy the installation data from media to the local drive space.") +
-                          _("This option is only available for SWPM based (NetWeaver) application types.") +
-                          '<p><b>' + _("List of present SAP Media.") + '</p></b>' +  
-                          _("List of locally already available SAP media."),
-             "name"    => _("SAP Installation Master")
+             "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>") +
+                          '<p><b>' + _("Prepare the SAP medium for installation by creating links to it") + '</p></b>' +
+                          _("Prepare the installation master medium by creating necessary links, but do not make a copy of its content.") +
+                          _("This option should only be used with SWPM based (NetWeaver) product medias.") +
+                          '<p><b>' + _("List of SAP installation masters") + '</p></b>' +  
+                          _("These SAP installation masters are ready to use."),
+             "name"    => _("Prepare the SAP installation master medium")
              },
          "sapmedium" => {
              "help"    => _("<p>Enter the location of your SAP medium.</p>") +
-			  '<p><b>' + _("Do not copy the sources. Create only links.")  + '</p></b>' +
-                          _("Select this option to not copy the installation data from media to the local drive space.") +
-			  '<p><b>' + _("All sources are present. Do not copy.")  + '</p></b>' +
-                          _("Select this option to skip the copy process if all needed SAP media were already copied."),
-             "name"    => _("Location of the SAP Medium")
+			  '<p><b>' + _("Prepare the SAP medium for installation by creating links to it")  + '</p></b>' +
+                          _("Select this option to not copy the installation data from medium to the local drive space.") +
+			  '<p><b>' + _("This is the last SAP medium to be prepared for product installation")  + '</p></b>' +
+                          _("The specified location contains the last SAP product medium to be prepared for installation."),
+             "name"    => _("Location of the SAP product medium (e.g. SAP kernel, database, and database exports)")
              },
          "nwInstType" => {
-             "help"    => _("<p>Choose an installation type from the list.</p>") +
-                          '<p><b>' + _("Preparation for autoinstallation.") + '</p></b>' +
-			  _("<p>Select this option to only enter installation parameter and to not start installation right after.</p>") +
+             "help"    => _("<p>Choose SAP product installation and back-end database.</p>") +
+                          '<p><b>' + _("Collect auto-installation profiles") + '</p></b>' +
+			  _("<p>Enter installation parameters and generate auto-installation profiles for SAP products, without conducting product installation on this system.</p>") +
                           '<p><b>' + _("SAP Standard System") + '</p></b>' +
-                          _("<p>Installation of a SAP NetWeaver system with all instances on the same host.</p>") +
+                          _("<p>Installation of a SAP NetWeaver system with all servers on the same host.</p>") +
                           '<p><b>' + _("SAP Standalone Engines") + '</p></b>' +
-                          _("<p>Standalone engines are not part of a specific SAP NetWeaver product instance.</p>") +
-                          _("Standalone product types are: TREX, Gateway, Web Dispatcher.<p>") +
+                          _("<p>Standalone engines are SAP Trex, SAP Gateway, and Web Dispatcher.</p>") +
                           '<p><b>' + _("Distributed System") + '</p></b>' +
-                          _("Installation of SAP NetWeaver with the instances distributed on separate hosts.</p>") +
+                          _("Installation of SAP NetWeaver with the servers distributed on separate hosts.</p>") +
                           '<p><b>' + _("High-Availability System") + '</p></b>' +
-                          _("Installation of SAP NetWeaver for a high-availability scenario.</p>") +
+                          _("Installation of SAP NetWeaver in a high-availability setup.</p>") +
                           '<p><b>' + _("System Rename") + '</p></b>' +
-                          _("Changes the SAP system ID, database ID, instance number, or host name of a SAP system.</p>") +
+                          _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>") +
                           '<p><b>' + _("Select the database.") + '</p></b>' +
                           _("Select the database you have to install or will use.</p>") ,
-             "name"    => _("Select the Installation Parameter.")
+             "name"    => _("What would you like to install?")
              },
          "nwSelectProduct" => {
-             "help"    => _("<p>Select a SAP product from the list.</p>"),
-             "name"    => _("Select a SAP Product.")
+             "help"    => _("<p>Please choose the SAP product you wish to install.</p>"),
+             "name"    => _("Choose a Product")
              },
          "database" => {
              "help"    => _("<p>Enter the location of your database medium. The database type is determined automatically.</p>"),
@@ -154,7 +153,12 @@ module Yast
       run = true
       while run  
         ret = media_dialog("inst_master")
-        return :abort if ret == :abort
+        if ret == :abort || ret == :cancel
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                return :abort
+            end
+        end
     
         # is_instmaster gives back a key-value pair to split for the BO workflow
         #         KEY: SAPINST, BOBJ, HANA, B1
@@ -172,7 +176,7 @@ module Yast
           @instMasterVersion
         )
         if SAPInst.instMasterPath == nil || SAPInst.instMasterPath.size == 0
-           Popup.Error(_("Cannot find Installation Master at given location"))
+           Popup.Error(_("The location does not point to an SAP installation master.\nPlease check your input."))
         else
            #We have found the installation master
            run = false
@@ -224,31 +228,41 @@ module Yast
       Wizard.SetContents(
         @dialogs["nwInstType"]["name"],
         VBox(
-          Left( CheckBox( Id(:auto), _("Preparation for autoinstallation."), false )),
-          HBox(
-            Frame(_("Select the installation mode."),
-            RadioButtonGroup( Id(:type),
-              VBox(
-                RadioButton( Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
-                RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
-                RadioButton( Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
-                #RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
-                RadioButton( Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
-                RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
-              ),
-            )),
-            Frame(_("Select the database."),
-            RadioButtonGroup( Id(:db),
-              VBox(
-                RadioButton( Id("DB6"),    Opt(:notify, :hstretch), _("IBM DB2"), false),
-                RadioButton( Id("ADA"),    Opt(:notify, :hstretch), _("MaxDB"), false),
-                RadioButton( Id("ORA"),    Opt(:notify, :hstretch), _("Oracle"), false),
-                RadioButton( Id("HDB"),    Opt(:notify, :hstretch), _("SAP HANA"), false),
-                RadioButton( Id("SYB"),    Opt(:notify, :hstretch), _("SAP ASE"), false)
-              )
-            ))
+          
+          HVSquash(Frame("",
+          
+          VBox(
+            HBox(
+                VBox(
+                    Label(_("The SAP product is ..")),
+                    RadioButtonGroup( Id(:type),
+                    VBox(
+                        RadioButton( Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
+                        RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
+                        RadioButton( Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
+                        #RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
+                        RadioButton( Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
+                        RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
+                    )),
+                ),
+                HSpacing(4.0),
+                VBox(
+                    Label(_("The back-end database system is ..")),
+                    RadioButtonGroup( Id(:db),
+                    VBox(
+                        RadioButton( Id("ADA"),    Opt(:notify, :hstretch), _("SAP MaxDB"), false),
+                        RadioButton( Id("HDB"),    Opt(:notify, :hstretch), _("SAP HANA"), false),
+                        RadioButton( Id("SYB"),    Opt(:notify, :hstretch), _("SAP ASE"), false),
+                        RadioButton( Id("DB6"),    Opt(:notify, :hstretch), _("IBM DB2"), false),
+                        RadioButton( Id("ORA"),    Opt(:notify, :hstretch), _("Oracle"), false)
+                    ))
+                )
+            ),
+            VSpacing(4.0),
+            Frame(_("Advanced Options"),
+                Left(CheckBox( Id(:auto), _("Collect auto-installation profiles, without installing the product."), false))),
           )
-        ),
+        ))),
         @dialogs["nwInstType"]["help"],
         true,
         true
@@ -269,21 +283,22 @@ module Yast
             run = false
             if SAPInst.instType == ""
               run = true
-              Popup.Message(_("Select an installation type!"))
+              Popup.Message(_("Please choose an SAP installation type."))
               next
             end
             if SAPInst.instType !~ /STANDALONE|SBC/ and SAPInst.DB == ""
               run = true
-              Popup.Message(_("Select a database!"))
+              Popup.Message(_("Please choose a back-end database."))
               next
             end
           when :back
             return :back
           when :abort, :cancel
-            if Popup.ReallyAbort(false)
-              SAPInst.UmountSources(true)
-              run = false
-              return :abort
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                SAPInst.UmountSources(true)
+                run = false
+                return :abort
             end
         end
       end
@@ -305,7 +320,7 @@ module Yast
       end
       SAPInst.productList = SAPMedia.get_nw_products(SAPInst.instMasterPath,SAPInst.instType,SAPInst.DB)
       if SAPInst.productList == nil or SAPInst.productList.empty?
-         Popup.Error(_("There are now products to find on this media."))
+         Popup.Error(_("The medium does not contain SAP installation data."))
 	 return :back
       end
       SAPInst.productList.each { |map|
@@ -319,7 +334,8 @@ module Yast
         @dialogs["nwSelectProduct"]["name"],
         VBox(
           SelectionBox(Id(:products),
-            _("List of available products for the selected installation mode and database."),
+            _("Your SAP installation master supports the following products.\n"+
+              "Please choose the product you wish to install:"),
             productItemTable
           )
         ),
@@ -343,9 +359,11 @@ module Yast
           when :back
             return :back
           when :abort, :cancel
-            if Popup.ReallyAbort(false)
-              SAPInst.UmountSources(true)
-              return :abort
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                SAPInst.UmountSources(true)
+                run = false
+                return :abort
             end
         end
       end
@@ -363,7 +381,10 @@ module Yast
       while run  
         case media_dialog("sapmedium")
            when :abort, :cancel
-              return :abort
+              if Yast::Popup.ReallyAbort(false)
+                  Yast::Wizard.CloseDialog
+                  return :abort
+              end
            when :back
               return :back
            when :forw
@@ -373,7 +394,7 @@ module Yast
               media.each { |path,label|
                 SAPInst.CopyFiles(path, SAPInst.mediaDir, label, false)
               }
-              run = Popup.YesNo(_("Do you have more SAP medium to copy?"))
+              run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         end
       end
       return :next
@@ -386,10 +407,15 @@ module Yast
     ############################################################
     def ReadSupplementMedium
       Builtins.y2milestone("-- Start ReadSupplementMedium ---")
-      run = Popup.YesNo(_("Do you have a Supplement/3rd-Party medium?"))
+      run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
       while run  
         ret = media_dialog("supplement")
-        return :abort if ret == :abort
+        if ret == :abort || ret == :cancel
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                return :abort
+            end
+        end
         return :back  if ret == :back
         SAPInst.CopyFiles(@sourceDir, SAPInst.mediaDir, "Supplement", false)
         SAPInst.ParseXML(SAPInst.mediaDir + "/Supplement/" + SAPInst.productXML)
@@ -408,6 +434,17 @@ module Yast
     ############################################################
     def ReadParameter
       Builtins.y2milestone("-- Start ReadParameter ---")
+      # Display the empty dialog before running external SAP installer program
+      Wizard.SetContents(
+        _("Collecting installation profile for SAP product"),
+        VBox(
+            Top(Left(Label(_("Please follow the on-screen instructions of SAP installer (external program)."))))
+        ),
+        "",
+        true,
+        true
+      )
+      Wizard.RestoreAbortButton()
       ret=:next
       #First we execute the autoyast xml file of the product if this exeists
       script_name  = SAPInst.ayXMLPath + '/' +  SAPInst.GetProductParameter("script_name")
@@ -442,7 +479,7 @@ module Yast
                 "chgrp sapinst " + SAPInst.instDir + ";" +
                 "chmod 770 " + SAPInst.instDir + ";" 
           Builtins.y2milestone("-- Prepare sapinst %1", cmd )
-          SCR.Execute(path(".target.bash"), cmd)
+          SCR.Execute(path(".target.bash"), "xterm -e '" + cmd + "'")
 
           #Some other staff
           if SAPInst.DB == "DB6"
@@ -461,21 +498,26 @@ module Yast
           end
 
           Builtins.y2milestone("-- Start sapinst %1", cmd )
-          SCR.Execute(path(".target.bash"), cmd)
+          SCR.Execute(path(".target.bash"), "xterm -e '" + cmd + "'")
         when "HANA"
-          if Popup.AnyQuestion(_("Preparation for autoinstallation?"),
-	                       _("Select this option to only enter installation parameter and to not start installation right after."),
+          if Popup.AnyQuestion(_("Only collect installation profile"),
+	                       _("There is an advanced installation mode that will collect installation profile without doing installation.\n" +
+                             "Answer Yes if you wish to only collect a HANA installation profile.\n" +
+                             "Answer No if you wish to collect HANA installation profile and execute the installation on the system."),
 			       _("Yes"), _("No"), :focus_no)
             SAPInst.instMode = "preauto"
           end
         when /^B1/
-          if Popup.AnyQuestion(_("Preparation for autoinstallation?"),
-	                       _("Select this option to only enter installation parameter and to not start installation right after."),
+          if Popup.AnyQuestion(_("Only collect installation profile"),
+                           _("There is an advanced installation mode that will collect installation profile without doing installation.\n" +
+                             "Answer Yes if you wish to only collect a BusinessOne installation profile.\n" +
+                             "Answer No if you wish to collect BusinessOne installation profile and execute the installation on the system."),
 			       _("Yes"), _("No"), :focus_no)
             SAPInst.instMode = "preauto"
           end
       end
-      if Popup.YesNo(_("Do you want to install another product?"))
+      if Popup.YesNo(_("Installation profile is ready.\n" +
+                       "Are there more SAP products to install?"))
          ret = SAPInst.instMasterType == "SAPINST" ?  :selectP : :readIM
          SAPInst.prodCount = SAPInst.prodCount.next
          SAPInst.instDir = Builtins.sformat("%1/%2", SAPInst.instDirBase, SAPInst.prodCount)
@@ -496,10 +538,15 @@ module Yast
     
       while run  
         ret = media_dialog("kernel")
-        return :abort if ret == :abort
+        if ret == :abort || ret == :cancel
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                return :abort
+            end
+        end
         return :back  if ret == :back
         if @dbMap == {}
-           Popup.Error(_("This is not an allowed Database medium - please choose a usable medium"))
+           Popup.Error(_("The SAP kernel installation medium does not contain installation data."))
         else
           run = false
           @dbMap.each do |key, val|
@@ -548,10 +595,15 @@ module Yast
       @mediaList    = SAPInst.dbMediaList
       while run  
         ret = media_dialog("database")
-        return :abort if ret == :abort
+        if ret == :abort || ret == :cancel
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                return :abort
+            end
+        end
         return :back  if ret == :back
         if @dbMap == {}
-           Popup.Error(_("This is not an allowed Database medium - please choose a usable medium"))
+           Popup.Error(_("The database medium does not contain installation data."))
         else
            run = false
            @dbMap.each do |key, val|
@@ -650,7 +702,7 @@ module Yast
           path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
         else
           #This is not a real SAP medium.
-          Popup.Error( _("This is not an official SAP medium."))
+          Popup.Error( _("The location does not contain SAP installation data."))
         end
       end
       Builtins.y2milestone("path_map %1",path_map)
@@ -668,18 +720,18 @@ module Yast
       content = HBox(
         VBox(HSpacing(13)),
         VBox(
-          HBox(Label("Enter the path to the " +  @dialogs[wizard]["name"])),
+          HBox(Label(@dialogs[wizard]["name"])),
           Left(
             HBox(
-            ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
+            ComboBox(Id(:scheme), Opt(:notify), "", @scheme_list),
             InputField(Id(:location),Opt(:hstretch),
-              @dialogs[wizard]["name"],
+              "",
               @locationCache
             ),
             HSpacing(18)
           )),
           VBox(HSpacing(13)),
-          Left(HBox(CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true)))
+          Left(HBox(CheckBox(Id(:link),_("Prepare the SAP medium for installation by creating links to it, without copying its content."),true)))
         )
       )
       #By copying sapmedia we have to list the existing media
@@ -693,21 +745,21 @@ module Yast
          end
          if !media.empty?
             content = HBox(
-              VBox(HSpacing(13)),
+              VBox(HSpacing(12)),
               VBox(
-                Left(Frame(_("List of SAP media already copied or linked."), Label( media.join("\n")))),
-                VBox(HSpacing(13)),
+                Left(Frame(_("These SAP product mediums are ready for use:"), Label(Id(:mediums), Opt(:hstretch), media.join("\n")))),
+                VBox(HSpacing(12)),
                 Left(HBox(
                   ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
                   InputField(Id(:location),Opt(:hstretch),
                     @dialogs[wizard]["name"],
                     @locationCache
                   ),
-                  HSpacing(18)
+                  HSpacing(12)
                 )),
-                VBox(HSpacing(13)),
-                Left(HBox(CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true))),
-                Left(HBox(CheckBox(Id(:forw),_("All sources are present. Do not copy."),false)))
+                VBox(HSpacing(12)),
+                Left(HBox(CheckBox(Id(:link),_("Prepare the SAP medium for installation by creating links to it, without copying its content."),true))),
+                Left(HBox(CheckBox(Id(:forw),_("This is the last SAP medium to be prepared for product installation."),false)))
               )
             )
          end
@@ -725,8 +777,8 @@ module Yast
             content = HBox(
               VBox(HSpacing(13)),
               VBox(
-                Left(Frame(_("List of SAP Installation Masters already copied or linked."), ComboBox(Id(:local_im), Opt(:notify),
-		           _("Select one installation master"), [ "---" ] + media))),
+                Left(Frame(_("These SAP installation masters are ready for use:"), ComboBox(Id(:local_im), Opt(:notify),
+		           "", [ "---" ] + media))),
                 VBox(HSpacing(13)),
                 Left(HBox(
                   ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
@@ -737,12 +789,12 @@ module Yast
                   HSpacing(18)
                 )),
                 VBox(HSpacing(13)),
-                Left(HBox(CheckBox(Id(:link),_("Do not copy the sources. Create only links."),true))),
-                Left(HBox(CheckBox(Id(:forw),_("All sources are present. Do not copy."),false)))
+                Left(HBox(CheckBox(Id(:link),_("Prepare the SAP installatioin master by creating links to it, without copying its content."),true))),
+                Left(HBox(CheckBox(Id(:forw),_("This is the last SAP installation master medium."),false)))
               )
             )
          end
-      end      
+      end
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,
@@ -793,12 +845,7 @@ module Yast
         end
       
         if button == :abort || button == :cancel
-          if Popup.ReallyAbort(false)
-            SAPInst.UmountSources(true)
-            run = false
             return :abort
-          end
-          next
         end
 
         if UI.WidgetExists(Id(:forw)) and Convert.to_boolean(UI.QueryWidget(Id(:forw), :Value))
@@ -808,7 +855,7 @@ module Yast
         if urlPath != "" 
           ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
           if Ops.get_string(@ltmp, 0, "") != ""
-            Popup.Error( _("Mounting failed: ") + Ops.get_string(@ltmp, 0, ""))
+            Popup.Error( _("Failed to mount the location: ") + Ops.get_string(@ltmp, 0, ""))
             next
           end
         end
