@@ -124,6 +124,9 @@ module Yast
       #If this is true this server exports the SAP CDs via SLP + NFS
       @exportSAPCDs = false
 
+      #If this is true this server imports the SAP CDs
+      @importSAPCDs = false
+
       #SLP URL for the used SAP CD server
       @sapCDsURL = ""
 
@@ -1034,7 +1037,7 @@ module Yast
 	    end
         }
 	return if serverList.empty?
-        cdServer = Table()
+        cdServer = Table(Id(:servers))
 	cdServer << Header("Server","Provided media")
 	items    = []
 	i = 0
@@ -1049,7 +1052,8 @@ module Yast
 		MinSize(60,i+2,cdServer),
 		PushButton("&OK")
 	))
-	ret = UI.UserInput();
+	UI.UserInput
+	ret = Convert.to_string(UI.QueryWidget(Id(:servers), :CurrentItem))
 Builtins.y2milestone("Slected slp url %1",ret)
 	if ret != "local"
 	   /service:sles4sapinst:(?<url>.*)/ =~ ret
@@ -1110,6 +1114,7 @@ Builtins.y2milestone("url %1",url)
     
     # Published module variables
     publish :variable => :createLinks,       :type => "boolean"
+    publish :variable => :importSAPCDs,      :type => "boolean"
     publish :variable => :mediaList,         :type => "list"
     publish :variable => :productList,       :type => "list"
     publish :variable => :PRODUCT_ID,        :type => "string"
@@ -1332,7 +1337,7 @@ Builtins.y2milestone("url %1",url)
     def mount_sap_cds
         url     = URL.Parse(@sapCDsURL)
 	command = ""
-	case url["schema"]
+	case url["scheme"]
 	   when "nfs"
 		command = "mount -o nolock "    + url["host"] + ":" + url["path"] + " " + @mediaDir
 	   when "smb"
@@ -1344,16 +1349,16 @@ Builtins.y2milestone("url %1",url)
 		else
 		   mopts = mopts + ",guest"
 		end
-		command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + mopts 
+		command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
 	end
-Builtins.y2milestone("Mount Command: %1",command)
 	out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
         if Ops.get_string(out, "stderr", "") != ""
-          ret = "ERROR:" + Ops.get_string(out, "stderr", "")
+	  @importSAPCDs = false
+	  Popup.ErrorDetails("Can not mount " + @sapCDsURL,Ops.get_string(out, "stderr", ""))
         else
-          ret = ""
+	  @importSAPCDs = true
         end
-	return ret
+	return
     end
 
   end   
