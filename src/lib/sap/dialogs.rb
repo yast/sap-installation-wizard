@@ -684,6 +684,10 @@ module Yast
       )
       #By copying sapmedia we have to list the existing media
       if wizard == "sapmedium"
+	 if SAPInst.importSAPCDs
+            #When importing the SAP Media we can not copy anything
+	    return :forw
+	 end
          media = []
          if File.exist?(SAPInst.mediaDir)
             media = Dir.entries(SAPInst.mediaDir)
@@ -721,7 +725,25 @@ module Yast
             media.delete('..')
             media.delete_if { |name| !( name =~ /Instmaster-/ ) }
          end
-         if !media.empty?
+	 if SAPInst.importSAPCDs
+	    if media.empty?
+	       Popup.Error("No SAP Installation Master found.")
+	       return :abort
+	    end
+	    if 1 == media.count
+               @sourceDir = SAPInst.mediaDir + "/" + media[0]
+               return :next
+	    end
+            #When importing the SAP Media we can not copy anything
+	    content = HBox(
+              VBox(HSpacing(13)),
+	      VBox(
+	          Left(Frame(_("List of SAP Installation Masters."),
+		     ComboBox(Id(:local_im), Opt(:notify), _("Select one installation master"), [ "---" ] + media)
+		  ))
+	      )
+	    )
+         elsif !media.empty?
             content = HBox(
               VBox(HSpacing(13)),
               VBox(
