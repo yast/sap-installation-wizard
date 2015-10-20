@@ -391,8 +391,8 @@ module Yast
         ret = media_dialog("supplement")
         return :abort if ret == :abort
         return :back  if ret == :back
-        SAPInst.CopyFiles(@sourceDir, SAPInst.mediaDir, "Supplement", false)
-        SAPInst.ParseXML(SAPInst.mediaDir + "/Supplement/" + SAPInst.productXML)
+        SAPInst.CopyFiles(@sourceDir, SAPInst.instDir, "Supplement", false)
+        SAPInst.ParseXML(SAPInst.instDir + "/Supplement/" + SAPInst.productXML)
         run = false
       end
       return :next
