@@ -232,8 +232,12 @@ module Yast
     # Starts the installation
     # @return nil
     def Write()
-        Builtins.y2milestone("-- Start Write ---")
-        Builtins.y2milestone("@instMode %1 @productScriptsList %2",@instMode,@productScriptsList )
+      Builtins.y2milestone("-- Start Write ---")
+      Builtins.y2milestone("@instMode %1 @productScriptsList %2",@instMode,@productScriptsList )
+
+      if  @instMode != "auto" and !@importSAPCDs
+          ExportSAPCDs()
+      end
 
       if @instMode != "preauto"
         # First we have to create the partitions, maybe HW-dependent
@@ -1054,11 +1058,9 @@ module Yast
 	))
 	UI.UserInput
 	ret = Convert.to_string(UI.QueryWidget(Id(:servers), :CurrentItem))
-Builtins.y2milestone("Slected slp url %1",ret)
 	if ret != "local"
 	   /service:sles4sapinst:(?<url>.*)/ =~ ret
 	   @sapCDsURL = url
-Builtins.y2milestone("url %1",url)
 	   mount_sap_cds
 	end
 	UI.CloseDialog();
