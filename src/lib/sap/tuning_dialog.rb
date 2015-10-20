@@ -76,7 +76,10 @@ module SAPInstaller
                 when :back
                     return :back
                 when :abort, :cancel
-                    return :abort
+                    if Yast::Popup.ReallyAbort(false)
+                        Yast::Wizard.CloseDialog
+                        return :abort
+                    end
                 else
                     # Check whether user has made a choice different from the recommended one
                     choice = Yast::UI.QueryWidget(Id(:profile_name), :Value)
@@ -109,17 +112,16 @@ module SAPInstaller
         def render_all
             Yast::Wizard.SetContents(
                 _("Tune your system for best performance"),
-                VBox(
-                    Label(_("The tuning profile will automatically adjust your system for best performance.")),
-                    Label(_("The recommended profile choice has been selected as default.")),
-                    Frame("",VBox(
-                        ComboBox(Id(:profile_name), Opt(:notify), "Profile name",
-                            TUNING_PROFILES.map { |name, val| Item(name, name == @recommended_profile)}),
-                        Label(Id(:profile_desc), TUNING_PROFILES[@recommended_profile]["desc"])
-                    )),
+                HVSquash(Frame("", VBox(
+                    Left(Label(_("The tuning profile automatically adjusts your system for best performance."))),
+                    Left(Label(_("The recommended profile choice has been selected as default."))),
+                    VSpacing(2.0),
+                    Left(ComboBox(Id(:profile_name), Opt(:notify), "Profile name",
+                        TUNING_PROFILES.map { |name, val| Item(name, name == @recommended_profile)})),
+                    Label(Id(:profile_desc), TUNING_PROFILES[@recommended_profile]["desc"]),
                     VSpacing(2.0),
                     ReplacePoint(Id(:busy), Empty())
-                ),
+                ))),
                 _("Choose a tuning profile that will tune your system for best performance.\n" +
                   "System tuning is carried out by software package \"tuned\".\n" +
                   "If you wish to change tuning profile later on, use \"tuned-adm\" utility.\n" +

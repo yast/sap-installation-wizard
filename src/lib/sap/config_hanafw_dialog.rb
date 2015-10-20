@@ -44,8 +44,11 @@ module SAPInstaller
                 # This dialog is shown only after installing HANA.
                 return :next
             end
-
             (@global_conf, @iface_conf, @init_num_ifaces) = Yast::HANAFirewall.Read
+            # The UI will display at least 1 network interface
+            if @init_num_ifaces == 0
+                @init_num_ifaces = 1
+            end
             @curr_iface_num = 0
             @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
             render_all
@@ -65,7 +68,10 @@ module SAPInstaller
                 when :back
                     return :back
                 when :abort, :cancel
-                    return :abort
+                    if Yast::Popup.ReallyAbort(false)
+                        Yast::Wizard.CloseDialog
+                        return :abort
+                    end
                 when :num_ifaces
                     # Change number of network interfaces to display
                     new_num = Yast::UI.QueryWidget(Id(:num_ifaces), :Value)
@@ -202,7 +208,9 @@ module SAPInstaller
                                 _("Allowed services:"),
                                 ["ntp", "ssh"]
                             ))
-                        )
+                        ),
+                        Left(Label(_("Please note: the HANA service choices are defined for single-tenant HANA installation."))),
+                        Left(Label(_("Please use /etc/hana-firewall.d/create_new_service to configure multi-tenant HANA deployment.")))
                     )),
                 ),
                 _("HANA firewall helps protecting your HANA database against harmful network traffic.\n" +
@@ -210,6 +218,8 @@ module SAPInstaller
                   "If you are relying on SSH connection for this installation, please make sure to check \"Enable SSH\" checkbox.\n" +
                   "If you are adding other services, you can find a complete list of service names in \"/etc/services\" file.\n" +
                   "After the wizard finishes, you may continue to administrate HANA-firewall using command \"hana-firewall\"\n" +
+                  "Please note that the pre-defined HANA services are only for single-tenant HANA installation.\n" +
+                  "If you have a multi-tenant HANA installation, please define HANA application services by calling /etc/hana-firewall.d/create_new_service.\n" +
                   "See \"man 8 hana-firewall\" for more help on HANA firewall administration."),
                 true,
                 true

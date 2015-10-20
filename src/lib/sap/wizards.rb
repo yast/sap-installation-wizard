@@ -26,8 +26,9 @@
 #
 
 require "sap/dialogs"
+require "sap/add_repo_dialog"
 require "sap/tuning_dialog"
-require "sap/config_hanafw"
+require "sap/config_hanafw_dialog"
 
 module Yast
   module SapInstallationWizardWizardsInclude
@@ -60,6 +61,7 @@ module Yast
         "write"   => lambda { WriteDialog() },
         "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
         "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new.run },
+        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run }
       }
 
       sequence = {
@@ -93,6 +95,12 @@ module Yast
         "3th"      => {
                         :abort => :abort,
                         :back  => "copy",
+                        :next  => "add_repo"
+                      },
+        "add_repo" => {
+                        :abort => :abort,
+                        :back => "copy",
+                        :auto  => "write",
                         :next  => "readP"
                       },
         "readP"    => {

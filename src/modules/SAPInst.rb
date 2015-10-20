@@ -1,4 +1,5 @@
 # encoding: utf-8
+# Authors: Peter Varkoly <varkoly@suse.com>, Howard Guo <hguo@suse.com>
 
 # ex: set tabstop=4 expandtab:
 # vim: set tabstop=4:expandtab
@@ -201,10 +202,10 @@ module Yast
             :from => "any",
             :to   => "map <string, any>"
           )
-          if Popup.YesNo(_("A not completed installation was found:") + "\n" +
+          if Popup.YesNo(_("Previous installation was interrupted unexpectedly:") + "\n" +
                          Ops.get_string(productData2,"PRODUCT_NAME","") + "\n" +
-                         Ops.get_string(productData2,"PRODUCT_ID","")   + "\n" +
-                         _("Do you want to start the installation again?"))
+                         Ops.get_string(productData2,"PRODUCT_ID","")   + "\n\n" +
+                         _("Would you like to resume the installation at a latter stage of the installation wizard?"))
              WriteProductDatas(productData2)
           end
         end
@@ -244,26 +245,13 @@ module Yast
         CreatePartitions()
 
         @help_text = _(
-          "<p>Now external programs like the SAP Software Delivery Tool or others are called to perform the SAP installation(s).</p>"
+          "<p>SAP installer will now start as an external program, please carefully follow the on-screen instructions to complete the installation.</p>"
         )
         @contents2 = nil
         Builtins.y2milestone("********instMasterType: %1", @instMasterType)
-        if Builtins.contains(["HANA", "B1AH", "B1A", "B1H"], @instMasterType)
-          @contents2 = VBox(
-            VBox(
-              RichText( "<br><h2>SAP software installation now begins.</h2></br>"),
-              LogView(Id(:log), "&Installation log", 20, 0)
-            )
-          )
-        else
-          @contents2 = VBox(
-            HBox(
-              RichText( "<br><h2>SAP software installation now begins.</h2></br>")
-            )
-          )
-        end
+        @contents2 = VBox(HBox(Top(Left(Label(_("Please follow the on-screen instructions of SAP installer (external program)."))))))
         Wizard.SetContents(
-          _("SAP Installation Wizard - Finish installation"),
+          _("SAP installer now starts"),
           @contents2,
           @help_text,
           false,
@@ -271,41 +259,7 @@ module Yast
         )
 
         @productScriptsList.each { |installScript|
-          if Builtins.contains(["HANA", "B1AH", "B1A", "B1H"], @instMasterType)
-            set_date
-            logfile = "/var/adm/autoinstall/logs/sap_inst." + @date + ".log"
-            # read installation log file, remove rotating cursor and < > tags
-            tailcmd = "tail -50 " + logfile + " | sed -e 's/[<>]//g' | sed -e 's/"
-            grepcmd = "grep completed " + logfile + " | awk '{ print $3 }' | tail -1 | sed s/%//g"
-
-            # with HANA unified installer, no sapinst GUI pops up, so we show the progress by displaying the install log
-            pid = Convert.to_integer(
-              SCR.Execute(path(".process.start_shell"), installScript)
-            )
-            if pid == nil || Ops.less_or_equal(pid, 0)
-              Builtins.y2error("Cannot run '%1' -> %2", installScript, pid)
-              next false
-            end
-            Builtins.y2milestone("running %1 with pid %2", installScript, pid)
-            while SCR.Read(path(".process.running"), pid) == true
-              out = Convert.to_map(
-                SCR.Execute(path(".target.bash_output"), tailcmd)
-              )
-              UI.ChangeWidget(
-                Id(:log),
-                :LastLine,
-                Ops.get_string(out, "stdout", "")
-              )
-              out = Convert.to_map(
-                SCR.Execute(path(".target.bash_output"), grepcmd)
-              )
-              Builtins.sleep(1000) # ms
-            end
-            SCR.Execute(path(".process.release"), pid)
-          else
-            # sapinst, no HANA unified installer
-            SCR.Execute(path(".target.bash"), installScript)
-          end
+            SCR.Execute(path(".target.bash"), "xterm -e '" + installScript + "'")
         }
         # Remove all global ask files
         SCR.Execute(path(".target.bash"), "rm /tmp/may_*")
@@ -807,8 +761,8 @@ module Yast
           )
           Popup.Error(error)
           if Popup.ErrorAnyQuestion(
-              "Copy has faild",
-              "Do you want to retry ?",
+              "Failed to copy files from medium",
+              "Would you like to retry?",
               "Retry",
               "Abort",
               :focus_yes
@@ -816,7 +770,7 @@ module Yast
             CopyFiles(sourceDir, targetDir, subDir, localCheck)
           else
             UI.CloseDialog
-            return
+            return :abort
           end
         end
       end
@@ -1001,7 +955,7 @@ module Yast
 
       set_date
       params = Builtins.sformat(
-        " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"  >> /var/adm/autoinstall/logs/sap_inst.%6.log 2>/var/adm/autoinstall/logs/sap_inst.%6.err",
+        " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"  > >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.log) 2> >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.err)",
         Ops.get_string(productData, "instMaster", ""),
         Ops.get_string(productData, "PRODUCT_ID", ""),
         Ops.get_string(productData, "DB", ""),
