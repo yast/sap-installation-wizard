@@ -206,8 +206,14 @@ module Yast
          SAPInst.createLinks = false
       end
       Builtins.y2milestone("SAPInst.productList %1", SAPInst.productList)
-      SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster-" + SAPInst.instMasterType, false)
-      SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster-" + SAPInst.instMasterType
+      if SAPInst.instMasterType == 'HANA'
+        # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
+        SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster", false)
+        SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster"
+      else
+        SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster-" + SAPInst.instMasterType, false)
+        SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster-" + SAPInst.instMasterType
+      end
       SAPInst.UmountSources(@umountSource)
       return ret
     end
