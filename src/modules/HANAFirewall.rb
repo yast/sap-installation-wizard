@@ -136,13 +136,14 @@ module Yast
                 SCR.Write(path(".sysconfig.hana-firewall.INTERFACE_" + i.to_s + "_SERVICES"), "")
             }
             SCR.Write(path(".sysconfig.hana-firewall"), nil)
-            
+
             # Enable and start daemon
             Service.Enable("hana-firewall")
-            if !(Service.Active("hana-firewall") ? Service.Restart("hana-firewall") : Service.Start("hana-firewall"))
+            if Service.Active("hana-firewall") ? Service.Restart("hana-firewall") : Service.Start("hana-firewall")
+                Report.Message(_("Firewall has been successfully activated."))
+            else
                 Report.Error(_("Failed to activate 'hana-firewall' service."))
             end
-            
         end
     end
 

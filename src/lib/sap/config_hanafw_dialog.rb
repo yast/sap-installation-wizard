@@ -45,6 +45,10 @@ module SAPInstaller
                 return :next
             end
             (@global_conf, @iface_conf, @init_num_ifaces) = Yast::HANAFirewall.Read
+            # The UI will display at least 1 network interface
+            if @init_num_ifaces == 0
+                @init_num_ifaces = 1
+            end
             @curr_iface_num = 0
             @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
             render_all
