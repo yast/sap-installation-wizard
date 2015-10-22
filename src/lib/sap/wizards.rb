@@ -60,7 +60,7 @@ module Yast
         "readP"   => lambda { ReadParameter() },
         "write"   => lambda { WriteDialog() },
         "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
-        "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new.run },
+        "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new(true).run },
         "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run }
       }
 

@@ -52,9 +52,7 @@ module Yast
             # If new keys are introduced to the sysconfig file, remember to add them here.
             global_conf = {
                 :hana_systems => SCR.Read(path(".sysconfig.hana-firewall.HANA_SYSTEMS")).to_s,
-                # Both of these keys carry default value yes
                 :open_all_ssh => SCR.Read(path(".sysconfig.hana-firewall.OPEN_ALL_SSH")).to_s.downcase.strip != "no",
-                :enable_logging => SCR.Read(path(".sysconfig.hana-firewall.ENABLE_LOGGING")).to_s.downcase.strip != "no",
             }
             # Interface services are interface numbers VS name and services list
             iface_conf = {}
@@ -86,6 +84,23 @@ module Yast
             # Return all names excluding loopback.
             return Socket.getifaddrs.map{|i| i.name}.uniq.select{|name| !name.match(/^lo\d*$/)}.sort
         end
+        
+        # Figure out the names of currently running HANA systems. Name consists of SID and instance number.
+        def GetHANASystemNames
+            # Look for running HANA instances
+            pids = `pgrep hdb.sap`.split(/\n/)
+            # Figure out SID and instance ID from the processes' working directory
+            sys_names = []
+            pids.each { |pid|
+                cwd_segments = `cat /proc/#{pid}/cmdline`.strip.split(/\//)
+                # It should look like /hana/shared/T00/HDB00/hana-02
+                if cwd_segments.length > 5
+                    # Combine SID T00 and instance number 00 (from HDB00, remove HDB)
+                    sys_names += [cwd_segments[3] + cwd_segments[4].slice(3,2)]
+                end
+            }
+            return sys_names
+        end
 
         # Write HANA firewall configuration files and immediately start HANA firewall service.
         def Write(global_conf, iface_conf)
@@ -98,28 +113,9 @@ module Yast
                     return
                 end
             end
-            # Look for running HANA instances
-            pids = `pgrep hdb.sap`.split(/\n/)
-            if pids.empty?
-                Report.Error(_("Cannot detect any running HANA instances.\n" +
-                               "The firewall may not function properly.\n" +
-                              "Please remember to manually re-configure HANA-Firewall."))
-            end
-            # Figure out SID and instance ID from the processes' working directory
-            sys_names = []
-            pids.each { |pid|
-                cwd_segments = `cat /proc/#{pid}/cmdline`.strip.split(/\//)
-                # It should look like /hana/shared/T00/HDB00/hana-02
-                if cwd_segments.length > 5
-                    # Combine SID T00 and instance number 00 (from HDB00, remove HDB)
-                    sys_names += [cwd_segments[3] + cwd_segments[4].slice(3,2)]
-                end
-            }
-            log.info "HANAFirewall.Write - detected HANA system names: " + sys_names.to_s
-            SCR.Write(path(".sysconfig.hana-firewall.HANA_SYSTEMS"), sys_names.join(' '))
+            SCR.Write(path(".sysconfig.hana-firewall.HANA_SYSTEMS"), GetHANASystemNames().join(' '))
             # Write configuration
             SCR.Write(path(".sysconfig.hana-firewall.OPEN_ALL_SSH"), global_conf[:open_all_ssh] == true ? "yes" : "no")
-            SCR.Write(path(".sysconfig.hana-firewall.ENABLE_LOGGING"), global_conf[:enable_logging] == true ? "yes" : "no")
             max_iface_num = 0
             iface_conf.each { |iface_num, val|
                 if iface_num > max_iface_num

@@ -33,29 +33,40 @@ module SAPInstaller
         include Yast::UIShortcuts
         include Yast::I18n
         include Yast::Logger
-        
-        def initialize
+
+        def initialize(check_instmaster)
+            @check_instmaster = check_instmaster
             textdomain "sap-installation-wizard"
         end
-        
+
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
-            if !Yast::SAPInst.instMasterType.downcase.match(/hana/)
-                # This dialog is shown only after installing HANA.
+            if @check_instmaster && !Yast::SAPInst.instMasterType.downcase.match(/hana/)
+                # In wizard workflow (@check_instmaster = false), the dialog is only shown when instmaster is HANA.
                 return :next
             end
             (@global_conf, @iface_conf, @init_num_ifaces) = Yast::HANAFirewall.Read
+            @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
+            @hana_sysnames = Yast::HANAFirewall.GetHANASystemNames
             # The UI will display at least 1 network interface
+            @curr_iface_num = 0
             if @init_num_ifaces == 0
                 @init_num_ifaces = 1
             end
-            @curr_iface_num = 0
-            @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
+            # Warn if HANA cannot be detected running on this system - after rendering the dialog
             render_all
+            if @hana_sysnames.length == 0
+                if !Yast::Popup.ContinueCancel(_("Cannot find any running HANA systems.\n" +
+                    "If you continue to use the module: \n" +
+                    "- HANA firewall configuration will be incomplete.\n" +
+                    "- HANA firewall will not start.\n\nDo you still wish to continue?"))
+                    return :next
+                end
+            end
             render_for_iface
             return ui_event_loop
         end
-        
+
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def ui_event_loop
             loop do
@@ -178,8 +189,7 @@ module SAPInstaller
                 _("Configure network firewall for HANA"),
                 VBox(
                     Left(Frame(_("Global Firewall Options"), VBox(
-                        Left(CheckBox(Id(:open_all_ssh), _("Enable SSH on all interfaces (recommended)"), @global_conf[:open_all_ssh])),
-                        Left(CheckBox(Id(:enable_logging), _("Log blocked traffic"), @global_conf[:enable_logging])),
+                        Left(CheckBox(Id(:open_all_ssh), _("Enable SSH - recommended before going production"), @global_conf[:open_all_ssh])),
                         Left(HSquash(IntField(Id(:num_ifaces), Opt(:notify), _("Number of network interfaces in this HANA setup"), 1, 10, @init_num_ifaces)))
                     ))),
                     Frame(_("Choose HANA services applicable on each network interface"), VBox(
@@ -209,8 +219,10 @@ module SAPInstaller
                                 ["ntp", "ssh"]
                             ))
                         ),
+                        Left(Label(_("Currently running HANA systems (auto-detected): ") +
+                                     (@hana_sysnames.length == 0 ? _("none") : @hana_sysnames.join(", ")))),
                         Left(Label(_("Please note: the HANA service choices are defined for single-tenant HANA installation."))),
-                        Left(Label(_("Please use /etc/hana-firewall.d/create_new_service to configure multi-tenant HANA deployment.")))
+                        Left(Label(_("For multi-tenant HANA system, please create tenant services using /etc/hana-firewall.d/create_new_service and then re-visit this module.")))
                     )),
                 ),
                 _("HANA firewall helps protecting your HANA database against harmful network traffic.\n" +
@@ -219,7 +231,7 @@ module SAPInstaller
                   "If you are adding other services, you can find a complete list of service names in \"/etc/services\" file.\n" +
                   "After the wizard finishes, you may continue to administrate HANA-firewall using command \"hana-firewall\"\n" +
                   "Please note that the pre-defined HANA services are only for single-tenant HANA installation.\n" +
-                  "If you have a multi-tenant HANA installation, please define HANA application services by calling /etc/hana-firewall.d/create_new_service.\n" +
+                  "If you have a multi-tenant HANA installation, please define HANA application services by calling /etc/hana-firewall.d/create_new_service and then re-visit this module.\n" +
                   "See \"man 8 hana-firewall\" for more help on HANA firewall administration."),
                 true,
                 true

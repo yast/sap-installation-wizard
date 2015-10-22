@@ -32,7 +32,7 @@ module SAPInstaller
         include Yast::UIShortcuts
         include Yast::I18n
         include Yast::Logger
-        
+
         TUNING_PROFILES = {
             "throughput-performance" => {
                 "desc" => "A generic performance-biased profile, it does not tune any particular SAP product."
@@ -44,7 +44,7 @@ module SAPInstaller
                 "desc" => "Best choice for SAP HANA and HANA-based products such as BusinessOne."
             }
         }
-        
+
         def initialize
             textdomain "sap-installation-wizard"
             case Yast::SAPInst.instMasterType.downcase
@@ -57,13 +57,13 @@ module SAPInstaller
                 @recommended_profile = "sap-netweaver"
             end
         end
-        
+
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
             render_all
             return ui_event_loop
         end
-        
+
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def ui_event_loop
             loop do
@@ -107,7 +107,7 @@ module SAPInstaller
                 end
             end
         end
-        
+
         private
         def render_all
             Yast::Wizard.SetContents(
