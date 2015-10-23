@@ -1036,7 +1036,8 @@ module Yast
           end
        }
        if ! exported
-          if ! Popup.YesNo(_("Make the locally stored SAP media available on the local network?"))
+          if ! Popup.YesNo(_("Would you like to serve the locally stored SAP mediums over NFS on local network?\n" +
+                             "This option may ease the installation of the same SAP product on other machines in local network."))
              return
           end
           nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }

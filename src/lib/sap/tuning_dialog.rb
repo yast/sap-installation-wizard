@@ -35,7 +35,7 @@ module SAPInstaller
 
         TUNING_PROFILES = {
             "throughput-performance" => {
-                "desc" => "A generic performance-biased profile, it does not tune any particular SAP product."
+                "desc" => "A generic performance-biased profile, it does not tune for any particular SAP product."
             },
             "sap-netweaver" => {
                 "desc" => "Best choice for SAP NetWeaver application and non-HANA database server."
@@ -60,6 +60,22 @@ module SAPInstaller
 
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
+            # Must have sapconf and tuned installed
+            pkg_to_install = []
+            if !Yast::Package.Installed("sapconf")
+                pkg_to_install += ["sapconf"]
+            end
+            if !Yast::Package.Installed("tuned")
+                pkg_to_install += ["tuned"]
+            end
+            if pkg_to_install.length > 0
+                if !Yast::Package.DoInstall(pkg_to_install)
+                    Yast::Popup.Error(_("Failed to install software package \"sapconf\" or \"tuned\".\n" +
+                        "The system will not be tuned for optimal performance, however you may still proceed to install SAP software."))
+                    return :next # skip the dialog
+                end
+            end
+
             render_all
             return ui_event_loop
         end
@@ -92,7 +108,6 @@ module SAPInstaller
                     end
                     Yast::UI.ReplaceWidget(Id(:busy), Label(Id(:busy_ind), _("Applying, this may take a while...")))
                     # Enable tuned daemon and apply profile
-                    Yast::Package.DoInstall(["sapconf", "tuned"])
                     Yast::Service.Enable("tuned")
                     if !Yast::Service.Active("tuned")
                         Yast::Service.Start("tuned")
@@ -100,8 +115,8 @@ module SAPInstaller
                     if Yast::SCR.Execute(Yast::Path.new(".target.bash"), "tuned-adm profile " + choice) == 0
                         Yast::Popup.Message(_("Tuning profile has been successfully activated."))
                     else
-                        Yast::Popup.Message(_("Non-fatal error: failed to activate tuning profile.\n" +
-                                              "However you may still proceed to install SAP software."))
+                        Yast::Popup.Error(_("Failed to activate tuning profile.\n" +
+                            "The system is not tuned for optimal performance, however you may still proceed to install SAP software."))
                     end
                     return :next
                 end
@@ -111,9 +126,9 @@ module SAPInstaller
         private
         def render_all
             Yast::Wizard.SetContents(
-                _("Tune your system for best performance"),
+                _("Tune your system for optimal performance"),
                 HVSquash(Frame("", VBox(
-                    Left(Label(_("The tuning profile automatically adjusts your system for best performance."))),
+                    Left(Label(_("The tuning profile automatically adjusts your system for optimal performance."))),
                     Left(Label(_("The recommended profile choice has been selected as default."))),
                     VSpacing(2.0),
                     Left(ComboBox(Id(:profile_name), Opt(:notify), "Profile name",
@@ -122,10 +137,10 @@ module SAPInstaller
                     VSpacing(2.0),
                     ReplacePoint(Id(:busy), Empty())
                 ))),
-                _("Choose a tuning profile that will tune your system for best performance.\n" +
-                  "System tuning is carried out by software package \"tuned\".\n" +
-                  "If you wish to change tuning profile later on, use \"tuned-adm\" utility.\n" +
-                  "Read more about system tuning control in manual page \"man tuned\" and \"man tuned-adm\"."),
+                _("Choose a tuning profile that will tune your system for optimal performance.\n" +
+                  "System tuning is carried out by software package \"sapconf\".\n" +
+                  "If you wish to change tuning profile later on, use \"sapconf\" in combination with \"tuned-adm\" utility.\n" +
+                  "Read more about system tuning control in manual page \"man sapconf\", \"man tuned\" and \"man tuned-adm\"."),
                 true,
                 true
             )
