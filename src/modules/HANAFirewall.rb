@@ -51,10 +51,9 @@ module Yast
             # Global configuration are simple key-values
             # If new keys are introduced to the sysconfig file, remember to add them here.
             global_conf = {
+                :enable => Service.Enabled("hana-firewall"),
                 :hana_systems => SCR.Read(path(".sysconfig.hana-firewall.HANA_SYSTEMS")).to_s,
-                # Both of these keys carry default value yes
                 :open_all_ssh => SCR.Read(path(".sysconfig.hana-firewall.OPEN_ALL_SSH")).to_s.downcase.strip != "no",
-                :enable_logging => SCR.Read(path(".sysconfig.hana-firewall.ENABLE_LOGGING")).to_s.downcase.strip != "no",
             }
             # Interface services are interface numbers VS name and services list
             iface_conf = {}
@@ -86,25 +85,11 @@ module Yast
             # Return all names excluding loopback.
             return Socket.getifaddrs.map{|i| i.name}.uniq.select{|name| !name.match(/^lo\d*$/)}.sort
         end
-
-        # Write HANA firewall configuration files and immediately start HANA firewall service.
-        def Write(global_conf, iface_conf)
-            log.info "HANAFirewall.Write - global configuration is: " + global_conf.to_s
-            log.info "HANAFirewall.Write - interface services are: " + iface_conf.to_s
-            # Make sure HANA Firewall package is installed
-            if !Package.Installed("HANA-Firewall")
-                if !Package.DoInstall(["HANA-Firewall"])
-                    Report.Error(_("Failed to install package 'HANA-Firewall'."))
-                    return
-                end
-            end
+        
+        # Figure out the names of currently running HANA systems. Name consists of SID and instance number.
+        def GetHANASystemNames
             # Look for running HANA instances
             pids = `pgrep hdb.sap`.split(/\n/)
-            if pids.empty?
-                Report.Error(_("Cannot detect any running HANA instances.\n" +
-                               "The firewall may not function properly.\n" +
-                              "Please remember to manually re-configure HANA-Firewall."))
-            end
             # Figure out SID and instance ID from the processes' working directory
             sys_names = []
             pids.each { |pid|
@@ -115,13 +100,28 @@ module Yast
                     sys_names += [cwd_segments[3] + cwd_segments[4].slice(3,2)]
                 end
             }
-            log.info "HANAFirewall.Write - detected HANA system names: " + sys_names.to_s
-            SCR.Write(path(".sysconfig.hana-firewall.HANA_SYSTEMS"), sys_names.join(' '))
+            return sys_names
+        end
+
+        # Keep the new settings internally without writing them into system. Make sure that HANA firewall package is installed.
+        def PreWrite(global_conf, iface_conf)
+            @global_conf = global_conf
+            @iface_conf = iface_conf
+        end
+
+        # Write HANA firewall configuration files and immediately start HANA firewall service.
+        def Write
+            log.info "HANAFirewall.Write - global configuration is: " + @global_conf.to_s
+            log.info "HANAFirewall.Write - interface services are: " + @iface_conf.to_s
+            if !Package.Installed("HANA-Firewall")
+                log.info "Will not apply HANA firewall configuration because the package is not installed."
+                return
+            end
             # Write configuration
-            SCR.Write(path(".sysconfig.hana-firewall.OPEN_ALL_SSH"), global_conf[:open_all_ssh] == true ? "yes" : "no")
-            SCR.Write(path(".sysconfig.hana-firewall.ENABLE_LOGGING"), global_conf[:enable_logging] == true ? "yes" : "no")
+            SCR.Write(path(".sysconfig.hana-firewall.HANA_SYSTEMS"), GetHANASystemNames().join(' '))
+            SCR.Write(path(".sysconfig.hana-firewall.OPEN_ALL_SSH"), !!@global_conf[:open_all_ssh] ? "yes" : "no")
             max_iface_num = 0
-            iface_conf.each { |iface_num, val|
+            @iface_conf.each { |iface_num, val|
                 if iface_num > max_iface_num
                     max_iface_num = iface_num
                 end
@@ -137,12 +137,21 @@ module Yast
             }
             SCR.Write(path(".sysconfig.hana-firewall"), nil)
 
-            # Enable and start daemon
-            Service.Enable("hana-firewall")
-            if Service.Active("hana-firewall") ? Service.Restart("hana-firewall") : Service.Start("hana-firewall")
-                Report.Message(_("Firewall has been successfully activated."))
+            # Enable/disable daemon
+            if !!@global_conf[:enable]
+                Service.Enable("hana-firewall")
+                if Service.Active("hana-firewall") ? Service.Restart("hana-firewall") : Service.Start("hana-firewall")
+                    Report.Message(_("HANA firewall has been successfully activated."))
+                else
+                    Report.Error(_("Failed to activate 'hana-firewall' service."))
+                end
             else
-                Report.Error(_("Failed to activate 'hana-firewall' service."))
+                Service.Disable("hana-firewall")
+                if Service.Active("hana-firewall")
+                    if !Service.Stop("hana-firewall")
+                        Report.Message(_("Failed to stop 'hana-firewall' service."))
+                    end
+                end
             end
         end
     end

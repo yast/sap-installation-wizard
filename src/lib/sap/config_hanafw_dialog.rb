@@ -33,29 +33,55 @@ module SAPInstaller
         include Yast::UIShortcuts
         include Yast::I18n
         include Yast::Logger
-        
-        def initialize
+
+        def initialize(wizard_mode)
+            # There are two modes the dialog can run in:
+            # Wizard mode (wizard_mode=true): Test instmaster type; do not look for running HANA systems; do PreWrite instead of Write
+            # Standalone mode: (wizard_mode=false) Do not test instmaster type; look for running HANA systems; do both PreWrite and Write
+            @wizard_mode = wizard_mode
             textdomain "sap-installation-wizard"
         end
-        
+
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
-            if !Yast::SAPInst.instMasterType.downcase.match(/hana/)
-                # This dialog is shown only after installing HANA.
+            if @wizard_mode && !Yast::SAPInst.instMasterType.downcase.match(/hana/)
+                # In wizard workflow, the dialog is only shown when instmaster is HANA.
                 return :next
             end
             (@global_conf, @iface_conf, @init_num_ifaces) = Yast::HANAFirewall.Read
+            @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
+            @hana_sysnames = Yast::HANAFirewall.GetHANASystemNames
             # The UI will display at least 1 network interface
+            @curr_iface_num = 0
             if @init_num_ifaces == 0
                 @init_num_ifaces = 1
             end
-            @curr_iface_num = 0
-            @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
+            # Install HANA package
+            if !Yast::Package.Installed("HANA-Firewall")
+                if !Yast::Popup.YesNo(_("Do you plan to make use of HANA firewall to enhance network security?\n" +
+                    "The software package \"hana-firewall\" is not yet installed.\n" +
+                    "If you plan to use HANA firewall, the package will be installed now."))
+                    return :next
+                end
+                if !Yast::Package.DoInstall(["HANA-Firewall"])
+                    Yast::Report.Error(_("Failed to install package 'HANA-Firewall'."))
+                    return :next
+                end
+            end
+            # Warn if HANA cannot be detected running on this system - after rendering the dialog
             render_all
+            if !@wizard_mode && @hana_sysnames.length == 0
+                if !Yast::Popup.ContinueCancel(_("Cannot find any running HANA systems.\n" +
+                    "If you continue to use the module: \n" +
+                    "- HANA firewall configuration will be incomplete.\n" +
+                    "- HANA firewall will not start.\n\nDo you still wish to continue?"))
+                    return :abort
+                end
+            end
             render_for_iface
             return ui_event_loop
         end
-        
+
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def ui_event_loop
             loop do
@@ -132,7 +158,6 @@ module SAPInstaller
                     # Proceed to write HANA firewall configuration and activate
                     # Double check SSH settings with user
                     enable_ssh = Yast::UI.QueryWidget(Id(:open_all_ssh), :Value)
-                    print enable_ssh
                     if !enable_ssh && !Yast::Popup.YesNo(
                         _("You did not choose to enable SSH on all network interfaces.\n"+
                           "Please be aware that you should definitely open SSH port if you are installing SAP\n" +
@@ -141,9 +166,12 @@ module SAPInstaller
                         redo
                     end
                     # Apply new configuration and activate
+                    @global_conf[:enable] = Yast::UI.QueryWidget(Id(:enable_fw), :Value)
                     @global_conf[:open_all_ssh] = enable_ssh
-                    @global_conf[:enable_logging] = Yast::UI.QueryWidget(Id(:enable_logging), :Value)
-                    Yast::HANAFirewall.Write(@global_conf, @iface_conf)
+                    Yast::HANAFirewall.PreWrite(@global_conf, @iface_conf)
+                    if !@wizard_mode
+                        Yast::HANAFirewall.Write()
+                    end
                     return :next
                 end
             end
@@ -177,9 +205,9 @@ module SAPInstaller
             Yast::Wizard.SetContents(
                 _("Configure network firewall for HANA"),
                 VBox(
-                    Left(Frame(_("Global Firewall Options"), VBox(
-                        Left(CheckBox(Id(:open_all_ssh), _("Enable SSH on all interfaces (recommended)"), @global_conf[:open_all_ssh])),
-                        Left(CheckBox(Id(:enable_logging), _("Log blocked traffic"), @global_conf[:enable_logging])),
+                    Left(Frame(_("Global Options"), VBox(
+                        Left(CheckBox(Id(:enable_fw), _("Enable HANA firewall"), !!@global_conf[:enable])),
+                        Left(CheckBox(Id(:open_all_ssh), _("Allow SSH traffic through firewall (recommended before going production)"), @global_conf[:open_all_ssh])),
                         Left(HSquash(IntField(Id(:num_ifaces), Opt(:notify), _("Number of network interfaces in this HANA setup"), 1, 10, @init_num_ifaces)))
                     ))),
                     Frame(_("Choose HANA services applicable on each network interface"), VBox(
@@ -209,17 +237,16 @@ module SAPInstaller
                                 ["ntp", "ssh"]
                             ))
                         ),
-                        Left(Label(_("Please note: the HANA service choices are defined for single-tenant HANA installation."))),
-                        Left(Label(_("Please use /etc/hana-firewall.d/create_new_service to configure multi-tenant HANA deployment.")))
+                        Left(Label(_("Please read Help if you have a multi-tenant HANA installation.")))
                     )),
                 ),
-                _("HANA firewall helps protecting your HANA database against harmful network traffic.\n" +
+                _("HANA firewall helps protecting your HANA database against harmful network traffic. " +
                   "Please enter HANA network interface names and choose allowed services for each network interface.\n" +
                   "If you are relying on SSH connection for this installation, please make sure to check \"Enable SSH\" checkbox.\n" +
                   "If you are adding other services, you can find a complete list of service names in \"/etc/services\" file.\n" +
                   "After the wizard finishes, you may continue to administrate HANA-firewall using command \"hana-firewall\"\n" +
-                  "Please note that the pre-defined HANA services are only for single-tenant HANA installation.\n" +
-                  "If you have a multi-tenant HANA installation, please define HANA application services by calling /etc/hana-firewall.d/create_new_service.\n" +
+                  "Please note that the pre-defined HANA services are only for single-tenant HANA installation. " +
+                  "If you have a multi-tenant HANA installation, please define HANA application services by calling /etc/hana-firewall.d/create_new_service and then re-visit this module.\n" +
                   "See \"man 8 hana-firewall\" for more help on HANA firewall administration."),
                 true,
                 true
