@@ -1041,14 +1041,14 @@ module Yast
           end
           nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
-       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",[{ "provided-media" => @mediaList.join(",") }],"sles4sapinst.reg")
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => @mediaList.join(",") },"sles4sapinst.reg")
        NfsServer.Set(nfs_server)
        NfsServer.Write
        # Open Firewall
        SuSEFirewall.Read
        SuSEFirewall.SetServicesForZones( ["service:openslp","service:nfs-kernel-server"],["EXT", "DMZ"],true)
        SuSEFirewall.Write
-       Service.Enbale("slp")
+       Service.Enable("slp")
        Service.Restart("slp")
     end
 
