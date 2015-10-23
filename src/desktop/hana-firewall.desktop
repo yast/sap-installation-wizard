@@ -24,14 +24,14 @@ Categories=Settings;System;Qt;X-SuSE-YaST;X-SuSE-YaST-Security;
 
 X-KDE-ModuleType=Library
 X-KDE-HasReadOnlyMode=true
-X-SuSE-YaST-Call=hanafw
+X-SuSE-YaST-Call=hana_firewall
 
 X-SuSE-YaST-Group=Security
 X-SuSE-YaST-RootOnly=true
 X-SuSE-YaST-Keywords=sap,hana
 
 Icon=yast-firewall
-Exec=xdg-su -c "/sbin/yast2 hanafw"
+Exec=xdg-su -c "/sbin/yast2 hana_firewall"
 
 Name=SAP HANA Firewall
 GenericName=Configure system firewall for running SAP HANA softwares

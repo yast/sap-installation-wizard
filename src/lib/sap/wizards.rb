@@ -39,6 +39,14 @@ module Yast
       # I do not understand - removing it will cause weird failures
     end
 
+    # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
+    def ApplyHANAFirewall
+        if SAPInst.instMasterType.downcase.match(/hana/)
+            HANAFirewall.Write()
+        end
+        return :next
+    end
+
     # SAP Installation Main Sequence
     # @return sequence result
     def SAPInstSequence
@@ -61,7 +69,8 @@ module Yast
         "write"   => lambda { WriteDialog() },
         "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
         "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new(true).run },
-        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run }
+        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
+        "hanafw_post" => lambda { ApplyHANAFirewall() }
       }
 
       sequence = {
@@ -113,15 +122,19 @@ module Yast
         "tuning"     => {
                         :abort => :abort,
                         :auto  => "write",
+                        :next  => "hanafw"
+                      },
+        "hanafw"   => {
+                        :abort => :abort,
                         :next  => "write"
                       },
         "write"    => {
                         :abort => :abort,
-                        :next => "hanafw"
+                        :next => "hanafw_post"
                       },
-        "hanafw"   => {
-                          :abort => :abort,
-                          :next  => :next
+        "hanafw_post" => {
+                        :abort => :abort,
+                        :next  => :next
                       }
       }
 
