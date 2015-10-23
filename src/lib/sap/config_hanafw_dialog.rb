@@ -56,6 +56,18 @@ module SAPInstaller
             if @init_num_ifaces == 0
                 @init_num_ifaces = 1
             end
+            # Install HANA package
+            if !Yast::Package.Installed("HANA-Firewall")
+                if !Yast::Popup.YesNo(_("Do you plan to make use of HANA firewall to enhance network security?\n" +
+                    "The software package \"hana-firewall\" is not yet installed.\n" +
+                    "If you plan to use HANA firewall, the package will be installed now."))
+                    return :next
+                end
+                if !Yast::Package.DoInstall(["HANA-Firewall"])
+                    Yast::Report.Error(_("Failed to install package 'HANA-Firewall'."))
+                    return :next
+                end
+            end
             # Warn if HANA cannot be detected running on this system - after rendering the dialog
             render_all
             if !@wizard_mode && @hana_sysnames.length == 0
@@ -194,7 +206,7 @@ module SAPInstaller
                 _("Configure network firewall for HANA"),
                 VBox(
                     Left(Frame(_("Global Options"), VBox(
-                        Left(CheckBox(Id(:enable_fw), _("Enable firewall to enhance network security"), !!@global_conf[:enable])),
+                        Left(CheckBox(Id(:enable_fw), _("Enable HANA firewall"), !!@global_conf[:enable])),
                         Left(CheckBox(Id(:open_all_ssh), _("Allow SSH traffic through firewall (recommended before going production)"), @global_conf[:open_all_ssh])),
                         Left(HSquash(IntField(Id(:num_ifaces), Opt(:notify), _("Number of network interfaces in this HANA setup"), 1, 10, @init_num_ifaces)))
                     ))),

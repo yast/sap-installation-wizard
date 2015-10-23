@@ -107,20 +107,16 @@ module Yast
         def PreWrite(global_conf, iface_conf)
             @global_conf = global_conf
             @iface_conf = iface_conf
-            if !!@global_conf[:enable]
-                if !Package.Installed("HANA-Firewall")
-                    if !Package.DoInstall(["HANA-Firewall"])
-                        Report.Error(_("Failed to install package 'HANA-Firewall'."))
-                        return
-                    end
-                end
-            end
         end
 
         # Write HANA firewall configuration files and immediately start HANA firewall service.
         def Write
             log.info "HANAFirewall.Write - global configuration is: " + @global_conf.to_s
             log.info "HANAFirewall.Write - interface services are: " + @iface_conf.to_s
+            if !Package.Installed("HANA-Firewall")
+                log.info "Will not apply HANA firewall configuration because the package is not installed."
+                return
+            end
             # Write configuration
             SCR.Write(path(".sysconfig.hana-firewall.HANA_SYSTEMS"), GetHANASystemNames().join(' '))
             SCR.Write(path(".sysconfig.hana-firewall.OPEN_ALL_SSH"), !!@global_conf[:open_all_ssh] ? "yes" : "no")
