@@ -986,6 +986,12 @@ module Yast
     end
 
     def FindSAPCDServer()
+	slpopen=SuSEFirewall.GetAcceptExpertRules('EXT')
+	if slpopen !~ /udp,0:65535,svrloc/
+            SuSEFirewall.SetAcceptExpertRules('EXT','0/0,udp,0:65535,svrloc')
+            SuSEFirewall.SetModified()
+            SuSEFirewall.Write()
+        end
         serverList = []
 	sles4sapinst=SLP.FindSrvs("service:sles4sapinst","")
 	sles4sapinst.each { |server|
