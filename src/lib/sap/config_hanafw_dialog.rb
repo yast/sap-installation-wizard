@@ -48,14 +48,6 @@ module SAPInstaller
                 # In wizard workflow, the dialog is only shown when instmaster is HANA.
                 return :next
             end
-            (@global_conf, @iface_conf, @init_num_ifaces) = Yast::HANAFirewall.Read
-            @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
-            @hana_sysnames = Yast::HANAFirewall.GetHANASystemNames
-            # The UI will display at least 1 network interface
-            @curr_iface_num = 0
-            if @init_num_ifaces == 0
-                @init_num_ifaces = 1
-            end
             # Install HANA package
             if !Yast::Package.Installed("HANA-Firewall")
                 if !Yast::Popup.YesNo(_("Do you plan to make use of HANA firewall to enhance network security?\n" +
@@ -67,6 +59,15 @@ module SAPInstaller
                     Yast::Report.Error(_("Failed to install package 'HANA-Firewall'."))
                     return :next
                 end
+            end
+            # Prepare data for UI
+            (@global_conf, @iface_conf, @init_num_ifaces) = Yast::HANAFirewall.Read
+            @all_svc_choices = Yast::HANAFirewall.GetAllHANAServiceNames + Yast::HANAFirewall.GetNonHANAServiceNames
+            @hana_sysnames = Yast::HANAFirewall.GetHANASystemNames
+            # The UI will display at least 1 network interface
+            @curr_iface_num = 0
+            if @init_num_ifaces == 0
+                @init_num_ifaces = 1
             end
             # Warn if HANA cannot be detected running on this system - after rendering the dialog
             render_all
