@@ -79,26 +79,15 @@ module Yast
 #                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
       @dialogs = {
          "inst_master" => {
-             "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>") +
-                          '<p><b>' + _("Prepare the SAP medium for installation by creating links to it") + '</p></b>' +
-                          _("Prepare the installation master medium by creating necessary links, but do not make a copy of its content.") +
-                          _("This option should only be used with SWPM based (NetWeaver) product medias.") +
-                          '<p><b>' + _("List of SAP installation masters") + '</p></b>' +  
-                          _("These SAP installation masters are ready to use."),
+             "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>"),
              "name"    => _("Prepare the SAP installation master medium")
              },
          "sapmedium" => {
-             "help"    => _("<p>Enter the location of your SAP medium.</p>") +
-			  '<p><b>' + _("Prepare the SAP medium for installation by creating links to it")  + '</p></b>' +
-                          _("Select this option to not copy the installation data from medium to the local drive space.") +
-			  '<p><b>' + _("This is the last SAP medium to be prepared for product installation")  + '</p></b>' +
-                          _("The specified location contains the last SAP product medium to be prepared for installation."),
+             "help"    => _("<p>Enter the location of your SAP medium.</p>"),
              "name"    => _("Location of the SAP product medium (e.g. SAP kernel, database, and database exports)")
              },
          "nwInstType" => {
              "help"    => _("<p>Choose SAP product installation and back-end database.</p>") +
-                          '<p><b>' + _("Collect auto-installation profiles") + '</p></b>' +
-			  _("<p>Enter installation parameters and generate auto-installation profiles for SAP products, without conducting product installation on this system.</p>") +
                           '<p><b>' + _("SAP Standard System") + '</p></b>' +
                           _("<p>Installation of a SAP NetWeaver system with all servers on the same host.</p>") +
                           '<p><b>' + _("SAP Standalone Engines") + '</p></b>' +
@@ -108,9 +97,7 @@ module Yast
                           '<p><b>' + _("High-Availability System") + '</p></b>' +
                           _("Installation of SAP NetWeaver in a high-availability setup.</p>") +
                           '<p><b>' + _("System Rename") + '</p></b>' +
-                          _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>") +
-                          '<p><b>' + _("Select the database.") + '</p></b>' +
-                          _("Select the database you have to install or will use.</p>") ,
+                          _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>"),
              "name"    => _("What would you like to install?")
              },
          "nwSelectProduct" => {
@@ -176,7 +163,7 @@ module Yast
           @instMasterVersion
         )
         if SAPInst.instMasterPath == nil || SAPInst.instMasterPath.size == 0
-           Popup.Error(_("The location does not point to an SAP installation master.\nPlease check your input."))
+           Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
            #We have found the installation master
            run = false
@@ -251,7 +238,7 @@ module Yast
                         RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
                     )),
                 ),
-                HSpacing(4.0),
+                HSpacing(3),
                 VBox(
                     Label(_("The back-end database system is ..")),
                     RadioButtonGroup( Id(:db),
@@ -264,9 +251,6 @@ module Yast
                     ))
                 )
             ),
-            VSpacing(4.0),
-            Frame(_("Advanced Options"),
-                Left(CheckBox( Id(:auto), _("Collect auto-installation profiles, without installing the product."), false))),
           )
         ))),
         @dialogs["nwInstType"]["help"],
@@ -285,7 +269,6 @@ module Yast
           when /DB6|ADA|ORA|HDB|SYB/
             SAPInst.DB = Convert.to_string(UI.QueryWidget(Id(:db), :CurrentButton))
           when :next
-            SAPInst.instMode = "preauto" if Convert.to_boolean(UI.QueryWidget(Id(:auto), :Value))
             run = false
             if SAPInst.instType == ""
               run = true
@@ -393,8 +376,6 @@ module Yast
               end
            when :back
               return :back
-           when :forw
-              return :next
            else
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
@@ -425,7 +406,7 @@ module Yast
         return :back  if ret == :back
         SAPInst.CopyFiles(@sourceDir, SAPInst.instDir, "Supplement", false)
         SAPInst.ParseXML(SAPInst.instDir + "/Supplement/" + SAPInst.productXML)
-        run = false
+        run = Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
       end
       return :next
     end
@@ -505,25 +486,9 @@ module Yast
 
           Builtins.y2milestone("-- Start sapinst %1", cmd )
           SCR.Execute(path(".target.bash"), "xterm -e '" + cmd + "'")
-        when "HANA"
-          if Popup.AnyQuestion(_("Only collect installation profile"),
-	                       _("There is an advanced installation mode that will collect installation profile without doing installation.\n" +
-                             "Answer Yes if you wish to only collect a HANA installation profile.\n" +
-                             "Answer No if you wish to collect HANA installation profile and execute the installation on the system."),
-			       _("Yes"), _("No"), :focus_no)
-            SAPInst.instMode = "preauto"
-          end
-        when /^B1/
-          if Popup.AnyQuestion(_("Only collect installation profile"),
-                           _("There is an advanced installation mode that will collect installation profile without doing installation.\n" +
-                             "Answer Yes if you wish to only collect a BusinessOne installation profile.\n" +
-                             "Answer No if you wish to collect BusinessOne installation profile and execute the installation on the system."),
-			       _("Yes"), _("No"), :focus_no)
-            SAPInst.instMode = "preauto"
-          end
       end
       if Popup.YesNo(_("Installation profile is ready.\n" +
-                       "Are there more SAP products to install?"))
+                       "Are there more SAP products to be prepared for installation?"))
          ret = SAPInst.instMasterType == "SAPINST" ?  :selectP : :readIM
          SAPInst.prodCount = SAPInst.prodCount.next
          SAPInst.instDir = Builtins.sformat("%1/%2", SAPInst.instDirBase, SAPInst.prodCount)
@@ -533,120 +498,6 @@ module Yast
       return ret 
     end
 
-    #############################################################
-    #
-    # Read kernel media
-    #
-    ############################################################
-    def ReadKernel
-      run = true
-      @mediaList = ["UKERNEL", "SCA"]
-    
-      while run  
-        ret = media_dialog("kernel")
-        if ret == :abort || ret == :cancel
-            if Yast::Popup.ReallyAbort(false)
-                Yast::Wizard.CloseDialog
-                return :abort
-            end
-        end
-        return :back  if ret == :back
-        if @dbMap == {}
-           Popup.Error(_("The SAP kernel installation medium does not contain installation data."))
-        else
-          run = false
-          @dbMap.each do |key, val|
-            SAPInst.CopyFiles(val, SAPInst.mediaDir, key, true)
-            @labelHashRef = Builtins.remove(@labelHashRef, key)
-            if key == "UKERNEL"
-              @STACK = "AS-ABAP"
-    
-              # if we need the feature SAPLUP, try to copy it. It may be on the Kernel medium
-              if @needSaplup
-                @dbMediaList = ["SAPLUP"]
-    
-                # Try to find it on the media inserted
-                myMap = SAPMedia.check_media(
-                  @sourceDir,
-                  @dbMediaList,
-                  @labelHashRef 
-                )
-    
-                if myMap == {}
-                  # SAPLUP is on a different media - we are asking later
-                  @ownSaplupMedia = true
-                else
-                  Builtins.foreach(myMap) do |key2, val2|
-                    Builtins.y2milestone("key=%1 val=%2", key2, val2)
-                    copyFiles(val2, SAPInst.mediaDir, key2, true)
-                      @labelHashRef = Builtins.remove(@labelHashRef, key2)
-                  end
-                end
-              end
-            elsif key == "SCA"
-              @STACK = "AS-JAVA"
-            end
-          end
-        end
-      end
-    end
-    
-    #############################################################
-    #
-    # Read database media
-    #
-    ############################################################
-    def ReadDataBase
-      run = true
-      @mediaList    = SAPInst.dbMediaList
-      while run  
-        ret = media_dialog("database")
-        if ret == :abort || ret == :cancel
-            if Yast::Popup.ReallyAbort(false)
-                Yast::Wizard.CloseDialog
-                return :abort
-            end
-        end
-        return :back  if ret == :back
-        if @dbMap == {}
-           Popup.Error(_("The database medium does not contain installation data."))
-        else
-           run = false
-           @dbMap.each do |key, val|
-             SAPInst.CopyFiles(val, SAPInst.mediaDir, key, false)
-             @labelHashRef = Builtins.remove(@labelHashRef, key)
-             # only if we do not have set a DB before
-             if Builtins.size(SAPInst.DB) == 0
-               SAPInst.DB = Builtins.substring(key, 6)
-               Builtins.y2milestone("DB = %1", SAPInst.DB)
-               key = ""
-    
-               if SAPInst.DB == "DB6"
-                 key = "RDBMS-DB6-CLIENT"
-               elsif SAPInst.DB == "ORA" || SAPInst.DB == "ORA2" ||
-                     SAPInst.DB == "ORA112d" ||
-                     SAPInst.DB == "ORA1122" ||
-                     SAPInst.DB == "ORA112"
-                 key = "ORACLI"
-               end
-               if key != ""
-                 run = true
-                 UI.ChangeWidget(
-                   Id(:location),
-                   :Label,
-                   Builtins.sformat(
-                     _("Provide the location of the medium with the label: %1"),
-                     Ops.get(@labelHashRef, [key, "mediaName"], "")
-                   )
-                 )
-                 @mediaList = [key]
-               end
-             end
-           end
-        end
-      end
-    end
-    
     def WriteDialog
       Builtins.y2milestone("--Start SAPInst WriteDialog ---")
       return SAPInst.Write
@@ -715,114 +566,96 @@ module Yast
       return path_map
     end
 
-    #############################################################
-    #
-    # Private function to handle media
-    #
-    ############################################################
+    # Show the dialog where 
     def media_dialog(wizard)
       Builtins.y2milestone("-- Start media_dialog ---")
       @dbMap = {}
-      content = HBox(
-        VBox(HSpacing(13)),
-        VBox(
-          HBox(Label(@dialogs[wizard]["name"])),
-          Left(
-            HBox(
-            ComboBox(Id(:scheme), Opt(:notify), "", @scheme_list),
-            InputField(Id(:location),Opt(:hstretch),
-              "",
-              @locationCache
-            ),
-            HSpacing(18)
-          )),
-          VBox(HSpacing(13)),
-          Left(HBox(CheckBox(Id(:link),_("Prepare the SAP medium for installation by creating links to it, without copying its content."),true)))
-        )
+
+      # Find the already-prepared mediums
+      media = []
+      if File.exist?(SAPInst.mediaDir)
+          media = Dir.entries(SAPInst.mediaDir)
+          media.delete('.')
+          media.delete('..')
+      end
+
+      # Displayed above the new-medium input
+      content_before_input = Empty()
+      # The new-medium input
+      content_input = Empty()
+      # Displayed below the new-medium input
+      content_advanced_ops = Empty()
+
+      # Make dialog content acording to wizard stage
+      case wizard
+      when "sapmedium"
+          # List existing product installation mediums
+          if !media.empty?
+              content_before_input = Frame(
+                  _("Ready for use:"),
+                  Label(Id(:mediums), Opt(:hstretch), (media.select {|name| !(name =~ /Instmaster-/)}).join("\n"))
+              )
+          end
+          content_input = HBox(
+              ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
+              InputField(Id(:location),Opt(:hstretch),
+              _("Prepare SAP installation medium (such as SAP kernel, database and exports, Java components)"),
+              @locationCache)
+          )
+          content_advanced_ops = VBox(
+              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
+          )
+      when "inst_master"
+          # List existing installation masters
+          if !media.empty?
+              content_before_input = Frame(
+                  _("Use an existing installation master"),
+                  ComboBox(Id(:local_im),
+                    Opt(:notify),"", [ "---" ] + media.select {|name| name =~ /Instmaster-/})
+              )
+          end
+          content_input = HBox(
+              ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
+              InputField(Id(:location),Opt(:hstretch),
+              _("Prepare SAP installation master"),
+              @locationCache)
+          )
+          content_advanced_ops = VBox(
+              Left(CheckBox(Id(:link),_("Link to the installation master, without copying its content to local location (SAP NetWeaver only)."), false)),
+              Left(CheckBox(Id(:export),_("Serve all installation mediums (including master) to local network via NFS."), false)),
+              Left(CheckBox(Id(:auto),_("Collect installation profiles for SAP products but do not execute installation."), false))
+          )
+      when "supplement"
+          # Find the already-prepared mediums
+          media = []
+          if File.exist?(SAPInst.mediaDir)
+              media = Dir.entries(SAPInst.mediaDir)
+              media.delete('.')
+              media.delete('..')
+              # No need to show installation master itself
+              media.delete_if { |name| name =~ /Instmaster-/ }
+          end
+          if !media.empty?
+              content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), media.join("\n")))
+          end
+          content_input = HBox(
+              ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
+              InputField(Id(:location),Opt(:hstretch),
+              _("Prepare SAP supplementary medium"),
+              @locationCache)
+          )
+          content_advanced_ops = VBox(
+              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
+          )
+      end
+      content = VBox(
+          Left(content_before_input),
+          VSpacing(3),
+          Left(content_input),
+          VSpacing(3),
+          Frame(_("Advanced Options"), Left(content_advanced_ops))
       )
-      #By copying sapmedia we have to list the existing media
-      if wizard == "sapmedium"
-	 if SAPInst.importSAPCDs
-            #When importing the SAP Media we can not copy anything
-	    return :forw
-	 end
-         media = []
-         if File.exist?(SAPInst.mediaDir)
-            media = Dir.entries(SAPInst.mediaDir)
-            media.delete('.')
-            media.delete('..')
-            media.delete_if { |name|  name =~ /Instmaster-/ }
-         end
-         if !media.empty?
-            content = HBox(
-              VBox(HSpacing(12)),
-              VBox(
-                Left(Frame(_("These SAP product mediums are ready for use:"), Label(Id(:mediums), Opt(:hstretch), media.join("\n")))),
-                VBox(HSpacing(12)),
-                Left(HBox(
-                  ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-                  InputField(Id(:location),Opt(:hstretch),
-                    @dialogs[wizard]["name"],
-                    @locationCache
-                  ),
-                  HSpacing(12)
-                )),
-                VBox(HSpacing(12)),
-                Left(HBox(CheckBox(Id(:link),_("Prepare the SAP medium for installation by creating links to it, without copying its content."),true))),
-                Left(HBox(CheckBox(Id(:forw),_("This is the last SAP medium to be prepared for product installation."),false)))
-              )
-            )
-         end
-      end
-      #List existing inst master
-      if wizard == "inst_master"
-         media = []
-         if File.exist?(SAPInst.mediaDir)
-            media = Dir.entries(SAPInst.mediaDir)
-            media.delete('.')
-            media.delete('..')
-            media.delete_if { |name| !( name =~ /Instmaster-/ ) }
-         end
-	 if SAPInst.importSAPCDs
-	    if media.empty?
-	       Popup.Error("No SAP Installation Master found.")
-	       return :abort
-	    end
-	    if 1 == media.count
-               @sourceDir = SAPInst.mediaDir + "/" + media[0]
-               return :next
-	    end
-            #When importing the SAP Media we can not copy anything
-	    content = HBox(
-              VBox(HSpacing(13)),
-	      VBox(
-	          Left(Frame(_("List of SAP Installation Masters."),
-		     ComboBox(Id(:local_im), Opt(:notify), _("Select one installation master"), [ "---" ] + media)
-		  ))
-	      )
-	    )
-         elsif !media.empty?
-            content = HBox(
-              VBox(HSpacing(13)),
-              VBox(
-                Left(Frame(_("These SAP installation masters are ready for use:"), ComboBox(Id(:local_im), Opt(:notify),
-		           "", [ "---" ] + media))),
-                VBox(HSpacing(13)),
-                Left(HBox(
-                  ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-                  InputField(Id(:location),Opt(:hstretch),
-                    @dialogs[wizard]["name"],
-                    @locationCache
-                  ),
-                  HSpacing(18)
-                )),
-                VBox(HSpacing(13)),
-                Left(HBox(CheckBox(Id(:link),_("Prepare the SAP installatioin master by creating links to it, without copying its content."),true))),
-                Left(HBox(CheckBox(Id(:forw),_("This is the last SAP installation master medium."),false)))
-              )
-            )
-         end
-      end
+      # Render the wizard
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,
@@ -833,79 +666,74 @@ module Yast
       Wizard.RestoreAbortButton()
       UI.ChangeWidget(:scheme, :Value, @schemeCache)
       do_default_values(wizard)
-      run = true
       @sourceDir = ""
       @umountSource = false
-      while run
-        button          = UI.UserInput
-
-        if button == :local_im
-          im = Convert.to_string(UI.QueryWidget(Id(:local_im), :Value))
-	  if im == "---"
-	    next
-	  end
-	  UI.ChangeWidget(Id(:scheme), :Value, "dir")
-          UI.ChangeWidget(Id(:forw), :Value, true)
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, true)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            SAPInst.mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value))
-          )
-          next
-        end
-        if button == :scheme
-          do_default_values(wizard)
-          next
-        end
-
-        scheme          = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
-        @locationCache  = Convert.to_string(UI.QueryWidget(Id(:location), :Value))
-        if scheme == "local"
-          #This value can be reset by MountSource if the target is iso file.
-          SAPInst.createLinks =Convert.to_boolean(UI.QueryWidget(Id(:link), :Value))
-        end
-        @sourceDir      = @locationCache
-      
-        if button == :back
-           return :back
-        end
-      
-        if button == :abort || button == :cancel
+      while true
+        case UI.UserInput
+        when :back
+            return :back
+        when :abort, :cancel
             return :abort
-        end
+        when :local_im
+            # Choosing an already prepared installation master
+            im = UI.QueryWidget(Id(:local_im), :Value)
+            if im == "---"
+                # Re-enable media input
+                UI.ChangeWidget(Id(:scheme), :Enabled, true)
+                UI.ChangeWidget(Id(:link), :Enabled, true)
+                UI.ChangeWidget(Id(:location), :Enabled, true)
+                next
+            end
+            # Write down media location and disable media input
+            UI.ChangeWidget(Id(:scheme), :Value, "dir")
+            UI.ChangeWidget(Id(:scheme), :Enabled, false)
+            UI.ChangeWidget(Id(:link), :Enabled, false)
+            UI.ChangeWidget(Id(:location), :Value, SAPInst.mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value)))
+            UI.ChangeWidget(Id(:location), :Enabled, false)
+        when :scheme
+            # Basically re-render layout
+            do_default_values(wizard)
+        when :next
+            # Export locally stored mediums over NFS
+            SAPInst.exportSAPCDs = true if !!UI.QueryWidget(Id(:export), :Value)
+            # Set installation mode to preauto so that only installation profiles are collected
+            SAPInst.instMode = "preauto" if !!UI.QueryWidget(Id(:auto), :Value)
 
-        if UI.WidgetExists(Id(:forw)) and Convert.to_boolean(UI.QueryWidget(Id(:forw), :Value))
-           return :forw
-        end
-        urlPath = SAPInst.MountSource(scheme, @locationCache)
-        if urlPath != "" 
-          ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
-          if Ops.get_string(@ltmp, 0, "") != ""
-            Popup.Error( _("Failed to mount the location: ") + Ops.get_string(@ltmp, 0, ""))
-            next
-          end
-        end
-        run = false
-        if scheme != "local"
-          @sourceDir = SAPInst.mountPoint +  "/" + urlPath
-        elsif urlPath != ""
-          @sourceDir = urlPath
-        end
-        @umountSource = true
-        Builtins.y2milestone("urlPath %1, @sourceDir %2, scheme %3",urlPath,@sourceDir,scheme)
-      end
+            scheme          = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
+            @locationCache  = Convert.to_string(UI.QueryWidget(Id(:location), :Value))
+            if scheme == "local"
+                #This value can be reset by MountSource if the target is iso file.
+                SAPInst.createLinks =!!UI.QueryWidget(Id(:link), :Value)
+            end
+            @sourceDir      = @locationCache
+
+            # Break the loop for a chosen installation master, without executing check_media
+            if UI.WidgetExists(Id(:local_im)) && UI.QueryWidget(Id(:local_im), :Value).to_s != "---"
+                return :forw
+            end
+            urlPath = SAPInst.MountSource(scheme, @locationCache)
+            if urlPath != "" 
+                ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
+                if Ops.get_string(@ltmp, 0, "") != ""
+                    Popup.Error( _("Failed to mount the location: ") + Ops.get_string(@ltmp, 0, ""))
+                    next
+                end
+            end
+            if scheme != "local"
+                @sourceDir = SAPInst.mountPoint +  "/" + urlPath
+            elsif urlPath != ""
+                @sourceDir = urlPath
+            end
+            @umountSource = true
+            Builtins.y2milestone("urlPath %1, @sourceDir %2, scheme %3",urlPath,@sourceDir,scheme)
+            break # No more input
+        end # Case user input
+      end # While true
       if @mediaList != [] and @labelHashRef != {}
-         @dbMap = SAPMedia.check_media(
-           @sourceDir,
-           @mediaList,
-           @labelHashRef
-         )
+          @dbMap = SAPMedia.check_media(@sourceDir, @mediaList, @labelHashRef)
       end
-      return :next
-    end
-    
+    end # Function media_dialog
+
     # ***********************************
     # show a default entry or the last entered path
     #
@@ -964,7 +792,6 @@ module Yast
             @locationCache == "" ? "//" : @locationCache
           )
         end
-    
         nil
     end
   end

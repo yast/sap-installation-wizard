@@ -205,7 +205,7 @@ module Yast
           if Popup.YesNo(_("Previous installation was interrupted unexpectedly:") + "\n" +
                          Ops.get_string(productData2,"PRODUCT_NAME","") + "\n" +
                          Ops.get_string(productData2,"PRODUCT_ID","")   + "\n\n" +
-                         _("Would you like to resume the installation at a latter stage of the installation wizard?"))
+                         _("Would you like to resume from it?"))
              WriteProductDatas(productData2)
           end
         end
@@ -236,7 +236,7 @@ module Yast
       Builtins.y2milestone("-- Start Write ---")
       Builtins.y2milestone("@instMode %1 @productScriptsList %2",@instMode,@productScriptsList )
 
-      if  @instMode != "auto" and !@importSAPCDs
+      if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
           ExportSAPCDs()
       end
 
@@ -1042,10 +1042,6 @@ module Yast
           end
        }
        if ! exported
-          if ! Popup.YesNo(_("Would you like to serve the locally stored SAP mediums over NFS on local network?\n" +
-                             "This option may ease the installation of the same SAP product on other machines in local network."))
-             return
-          end
           nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
        SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => @mediaList.join(",") },"sles4sapinst.reg")
@@ -1089,6 +1085,7 @@ module Yast
     publish :variable => :instMasterType,    :type => "string"
     publish :variable => :instMasterVersion, :type => "string"
     publish :variable => :instMode,          :type => "string"
+    publish :variable => :exportSAPCDs,      :type => "string"
     publish :variable => :instType,          :type => "string"
     publish :variable => :mountPoint,        :type => "string"
     publish :variable => :mediaDir,          :type => "string"
