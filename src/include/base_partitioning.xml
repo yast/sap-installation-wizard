@@ -3,6 +3,7 @@
    <partitioning config:type="list">
     <drive>
       <device>/dev/sda</device>
+      <type config:type="symbol">CT_DISK</type>
       <is_lvm_vg config:type="boolean">false</is_lvm_vg>
       <partitions config:type="list">
         <partition>
