@@ -26,7 +26,12 @@ module Yast
       @LVGs = {}
       @profiles = {}
       @LVGsize = {}
+      @SWAP = {}
 
+      @needSWAP = true
+      if `cat /proc/swaps | wc -l`.to_i > 1
+         @needSWAP = false
+      end
 
       # **********************************************
       # Start the program.
@@ -83,6 +88,10 @@ module Yast
               )
             end
             Ops.set(@LVGs, n, Ops.get(@profile, ["partitioning", @i]))
+          else
+             if @needSWAP
+                @SWAP = Ops.get(@profile, ["partitioning", @i])
+             end
           end
           @i = Ops.add(@i, 1)
         end
@@ -91,6 +100,7 @@ module Yast
           @profile
         )
         Builtins.y2milestone("LVGs after parsing partition sizes %1", @LVGs)
+        Builtins.y2milestone("SWAPS after parsing partition sizes %1", @SWAP)
 
         @ok = true
         @mounts = Convert.convert(
@@ -216,6 +226,26 @@ Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops
         end
 
         Builtins.y2milestone("Notre profiles %1", @profiles)
+        #First we are creating the swap if necessary
+        if @needSWAP
+          UI.OpenDialog(
+            Opt(:decorated),
+            Popup.ShowFeedback(
+              "Processing Partitioning",
+              "The SWAP partiton will be created. Depending on your system this may take some time."
+            )
+	  )
+          Stage.Set("initial")
+          Mode.SetMode("autoinstallation")
+          AutoinstStorage.Import(Ops.get_list(@profiles, "SWAP", []))
+          AutoinstStorage.Write
+          AutoinstLVM.Write if AutoinstLVM.Init
+          AutoinstRAID.Write if AutoinstRAID.Init
+          Storage.CommitChanges
+          UI.CloseDialog
+        end
+
+        #Now we are creating the needed LVMs
         Builtins.foreach(@neededLVG) do |_LVG|
           min = Builtins.tointeger(
             Ops.get_string(@LVGs, [_LVG, "partitions", 0, "size_min"], "0")
@@ -329,6 +359,32 @@ Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops
         )
         items = Builtins.add(items, item)
       end
+      if @needSWAP
+        buttons = VBox()
+        Builtins.foreach(@freeDevices) do |dev, tmp|
+          tmp1 = Ops.add("SWAP#", dev)
+          tmp2 = Ops.add(
+            Ops.add(
+              Ops.add(dev, " "),
+              Ops.divide(
+                Ops.divide(
+                  Ops.divide(Ops.get(@freeDevices, dev, 0), 1024),
+                  1024
+                ),
+                1024
+              )
+            ),
+            "GB"
+          )
+          buttons = Builtins.add(
+            buttons,
+            CheckBox(Id(tmp1), Opt(:notify), tmp2, false)
+          )
+        end
+        item = Left(Frame("Select one Device for SWAP", HBox(buttons)))
+        items = Builtins.add(items, item)
+      end
+
       Wizard.CreateDialog
       items = Builtins.add(
         items,
@@ -385,41 +441,49 @@ Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops
               end
             end
           end
+          if @needSWAP
+            Builtins.foreach(@freeDevices) do |dev, tmp|
+              wid = Ops.add("SWAP#", dev)
+	      if Convert.to_boolean(UI.QueryWidget(Id(wid), :Value))
+                 @SWAP["device"] = dev
+		 Ops.set(@profiles,"SWAP",Builtins.add([],@SWAP))
+                 break     
+	      end
+            end
+          end
           UI.CloseDialog
           return true
         end
+        if Builtins.substring(sret, 0, 5) == "SWAP#"
+          @ltmp = Builtins.regexptokenize(sret, "SWAP#(.*)")
+          Builtins.foreach(@neededLVG) do |_LVG|
+            if Convert.to_boolean(UI.QueryWidget(Id(ret), :Value))
+              UI.ChangeWidget( Id( Ops.add( Ops.add(Ops.add("CHECK", _LVG), "#"), Ops.get_string(@ltmp, 0, ""))), :Enabled, false)
+            else
+              UI.ChangeWidget( Id( Ops.add( Ops.add(Ops.add("CHECK", _LVG), "#"), Ops.get_string(@ltmp, 0, ""))), :Enabled, true)
+            end
+          end
+        end
         if Builtins.substring(sret, 0, 5) == "CHECK"
           @ltmp = Builtins.regexptokenize(sret, "CHECK(.*)#(.*)")
+          if @needSWAP
+              if Convert.to_boolean(UI.QueryWidget(Id(ret), :Value))
+                 UI.ChangeWidget(Id(Ops.add("SWAP#", Ops.get_string(@ltmp, 1, ""))),:Enabled,false)
+              else
+                 UI.ChangeWidget(Id(Ops.add("SWAP#", Ops.get_string(@ltmp, 1, ""))),:Enabled,true)
+              end
+	  end
           Builtins.foreach(@neededLVG) do |_LVG|
             if Ops.get_string(@ltmp, 0, "") != _LVG
               if Convert.to_boolean(UI.QueryWidget(Id(ret), :Value))
-                UI.ChangeWidget(
-                  Id(
-                    Ops.add(
-                      Ops.add(Ops.add("CHECK", _LVG), "#"),
-                      Ops.get_string(@ltmp, 1, "")
-                    )
-                  ),
-                  :Enabled,
-                  false
-                )
+                UI.ChangeWidget( Id( Ops.add( Ops.add(Ops.add("CHECK", _LVG), "#"), Ops.get_string(@ltmp, 1, ""))), :Enabled, false)
               else
-                UI.ChangeWidget(
-                  Id(
-                    Ops.add(
-                      Ops.add(Ops.add("CHECK", _LVG), "#"),
-                      Ops.get_string(@ltmp, 1, "")
-                    )
-                  ),
-                  :Enabled,
-                  true
-                )
+                UI.ChangeWidget( Id( Ops.add( Ops.add(Ops.add("CHECK", _LVG), "#"), Ops.get_string(@ltmp, 1, ""))), :Enabled, true)
               end
             end
           end
         end
       end
-
       nil
     end
   end
