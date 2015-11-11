@@ -33,44 +33,44 @@ module Yast
       Yast.import "ProductControl"
       Yast.import "GetInstArgs"
       #MAY BE TODO set the default value
-      start = false
-      hana  = false
-      dont  = false
-      @caption = _("SAP product installation")
+      sles   = false
+      sap    = false
+      wizard = false
+      @caption = _("Product Installation Mode")
       @help    = _("<p>Use <b>Start SAP Product Setup after Installation</b> if you want the SAP Installation Wizard to start after the base system was installed.</p>")
       @contents = VBox(
             RadioButtonGroup(
               Id(:rb),
               VBox(
-                Heading(_("SAP product installation")),
-                Label(
-                    _("Start SAP Installation Wizard at the end of installation?")
-                ),
+                Heading(_("Select the Mode of the Product Installation!")),
                 Left(
                   RadioButton(
-                    Id("true"),
-                    _("Create SAP file systems and start SAP product installation."),
-                    start
+                    Id("sles"),
+                    Opt(:notify),
+                    _("Proceed normal SLES installation."),
+                    sles
                   )
                 ),
                 Left(
                   RadioButton(
-                    Id("hana_part"),
-                    _("Only create SAP Business One file systems, do not install SAP products now."),
-                    hana
-                  )
-                ),
-                Left(
-                  RadioButton(
-                    Id("false"),
-                    _("Do not start SAP Product installation. Proceed to OS login."),
-                    dont
-                  )
-                ),
-                HBox(PushButton("&OK"))
-              )
+                       Id("sap"),
+                       Opt(:notify),
+                       _("Proceed SAP customized SLES installation."),
+                       sap
+                     )
+                   ),
+                Frame("",
+                    Left(
+                      CheckBox(
+                        Id("wizard"),
+                        _("Start the SAP Installation Wizard at the end of installation."),
+                        wizard
+                      )
+                    )
+               )
             )
           )
+       )
       Wizard.SetDesktopIcon("sap-installation-wizard")
       Wizard.SetContents(
         @caption,
@@ -79,28 +79,47 @@ module Yast
         GetInstArgs.enable_back,
         GetInstArgs.enable_next
       )
+      UI.ChangeWidget(Id("wizard"),:Enabled,false)
       ret = nil
       begin
         ret = Wizard.UserInput
-
+        Builtins.y2milestone("ret %1",ret)
         case ret
         when :abort
           break if Popup.ConfirmAbort(:incomplete)
         when :help
           Wizard.ShowHelp(@help)
+	when "sles"
+	  UI.ChangeWidget(Id("wizard"),:Enabled,false)
+	when "sap"
+	  UI.ChangeWidget(Id("wizard"),:Enabled,true)
         when :next
-          sap_start = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
-          case @sap_start
-          when "true"
-            IO.write("/root/start_sap_wizard","true");
-          when "false"
-            IO.write("/root/start_sap_wizard","false");
-          when "hana_part"
-            IO.write("/root/start_sap_wizard","hana_part");
+          install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
+          case install
+          when "sap"
+	    constumize_sap_installation(Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)) )
+          when "sles"
+	    constumize_sles_installation
           end
         end
       end until ret == :next || ret == :back
       ret
+    end
+
+    def constumize_sap_installation(start_wizard)
+        ProductControl.ReadControlFile("/sap-control.xml")
+        if(start_wizard)
+           PackagesProposal.AddResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
+           ProductControl.EnableModule("sap")
+	else
+           PackagesProposal.AddResolvables('sap-wizard',:package,['sap-installation-wizard'])
+           ProductControl.DisableModule("sap")
+	end
+    end
+
+    def constumize_sles_installation()
+        ProductControl.ReadControlFile("/control.xml")
+        PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
     end
   end
 end

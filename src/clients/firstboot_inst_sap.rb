@@ -23,9 +23,9 @@ module Yast
       if File.exists?("/root/start_sap_wizard")
          @start = IO.read("/root/start_sap_wizard")
          File.delete("/root/start_sap_wizard")
-	 if @start == "false"
-	   return :next
-	 end
+         if @start == "false"
+           return :next
+         end
       end
 
       # Check if hostname -f is set
@@ -34,88 +34,81 @@ module Yast
       )
       @hostname = Ops.get_string(@out, "stdout", "")
       if @hostname == ""
-        @out = Convert.to_map(
-          SCR.Execute(
-            path(".target.bash_output"),
-            "ip addr show eth0 | gawk '/inet / { print $2 }' | gawk -F/ '{ print $1 }'"
+        if( PopUp.AnyQuestion(_("The fully qualified hostname (FQHN) could not be dectected."),
+                              _("Do you want to return to network setup or break the SAP product installation and start the installed system?"),
+                              _("Return to Network Setup"),
+                              _("Break"),
+                              :focus_yes
+                              ))
+            return :back
+         else
+            return :next
+         end
+      end
+      @caption = _("Product Installation Mode")
+      @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
+                 _("Now you can start the SAP Product Installation")
+      @content = RadioButtonGroup(
+            Id(:rb),
+            VBox(
+              Left(
+                RadioButton(
+                  Id("sap_install"),
+                  "&Create SAP file systems and start SAP product installation.",
+                  true
+                )
+              ),
+              Left(
+                RadioButton(
+                  Id("hana_partitioning"),
+                  "Only create &SAP HANA file systems, do not install SAP products now.",
+                  false
+                )
+              ),
+              Left(
+                RadioButton(
+                  Id("none"),
+                  "&Finish wizard and proceed to OS login.",
+                  false
+                )
+              )
+            )
           )
-        )
-        @valid_domain_chars = ".0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-"
-        @valid_ip_chars = ".0123456789"
-        @fqhn = Convert.to_string(
-          SCR.Read(path(".target.string"), "/etc/HOSTNAME")
-        )
-        @ip = Ops.get_string(@out, "stdout", "")
-        @fqhn = Builtins.filterchars(@fqhn, @valid_domain_chars)
-        @ip = Builtins.filterchars(@ip, @valid_ip_chars)
-        Builtins.y2milestone("fqhn %1 ip %2 test", @fqhn, @ip)
-        @help_text = _(
-          "<p>The fully qualified hostname (FQHN) could not be dectected.</p>"
-        ) +
-          _(
-            "<p>Please check the proposed values and correct these if necessary!</p>"
-          )
-        @contents = VBox(
-          TextEntry(Id(:fqhn), "Proposed FQHN", @fqhn),
-          TextEntry(Id(:ip), "Proposed IP-Address", @ip)
-        )
-        Wizard.SetContents(
-          _("Error by detecting the fully qualified hostname (FQHN)"),
-          @contents,
-          @help_text,
-          false,
-          true
-        )
-        UI.ChangeWidget(Id(:fqhn), :ValidChars, @valid_domain_chars)
-        UI.ChangeWidget(Id(:ip), :ValidChars, @valid_ip_chars)
-        while true
-          @button = UI.UserInput
-          @fqhn = Convert.to_string(UI.QueryWidget(Id(:fqhn), :Value))
-          @ip = Convert.to_string(UI.QueryWidget(Id(:ip), :Value))
-          if @button == :abort
-            return :abort if Popup.ReallyAbort(false)
-            next
+      Wizard.SetDesktopIcon("sap-installation-wizard")
+      Wizard.SetContents(
+        @caption,
+        @contents,
+        @help,
+        true,
+        true
+      )
+
+      ret = nil
+      begin
+        ret = Wizard.UserInput
+        Builtin.y2milestone("ret %1",ret)
+        case ret
+        when :abort
+          break if Popup.ConfirmAbort(:incomplete)
+        when :help
+          Wizard.ShowHelp(@help)
+        when :next
+          install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
+          case install
+          when "sap_install"
+              WFM.CallFunction("sap-installation-wizard", [])
+          when "hana_partitioning"
+              SAPInst.CreateHANAPartitions("")
           end
-          @lfqhn = Builtins.splitstring(@fqhn, ".")
-          if Ops.less_or_equal(Builtins.size(@fqhn), 1)
-            Popup.Error(_("The hostname is incorrect"))
-            UI.SetFocus(Id(:fqhn))
-            next
-          end
-          if !IP.Check4(@ip)
-            Popup.Error(_("The IP address is incorrect"))
-            UI.SetFocus(Id(:ip))
-            next
-          end
-          SCR.Execute(
-            path(".target.bash"),
-            "echo " + @ip + " " + @fqhn + " " + Ops.get_string(@lfqhn, 0, "") + ">> /etc/hosts"
-          )
-          SCR.Execute(
-            path(".target.bash"),
-            "hostname " + Ops.get_string(@lfqhn, 0, "")
-          )
-          break
+          SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
+          SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
+          SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
+          SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
+          SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
         end
-      end
+      end until ret == :next || ret == :back
 
-      SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
-      SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
-      SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
-      SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
-      SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
-      if @start == "hana_part"
-        Builtins.y2milestone("Starting SAPInst.CreateHANAPartitions")
-        SAPInst.CreateHANAPartitions("")
-        return :next
-      end
-      WFM.CallFunction("sap-installation-wizard", [])
-      SCR.Execute(path(".target.bash"), "rm /tmp/may_*")
-      SCR.Execute(path(".target.bash"), "rm /tmp/ay_*")
-      SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
-      SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
-
-      :next
+      ret
     end
   end
 end
