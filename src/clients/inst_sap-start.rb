@@ -37,7 +37,7 @@ module Yast
       sap    = false
       wizard = false
       @caption = _("Product Installation Mode")
-      @help    = _("<p>Use <b>Start SAP Product Setup after Installation</b> if you want the SAP Installation Wizard to start after the base system was installed.</p>")
+      @help    = _("<p>Use this menu to select the basic installation profile types.<b>Start SAP Product Setup after Installation</b> if you want the SAP Installation Wizard to start after the base system was installed.</p>")
       @contents = VBox(
             RadioButtonGroup(
               Id(:rb),
@@ -125,4 +125,3 @@ module Yast
 end
 
 Yast::InstSapStart.new.main
-
