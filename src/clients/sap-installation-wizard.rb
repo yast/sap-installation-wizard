@@ -53,7 +53,7 @@ module Yast
       @ret = CommandLine.Run(@cmdline)
       deep_copy(@ret)
       if SAPInst.importSAPCDs
-         SCR.Execute(path(".target.bash"), "umount @mediaDir")
+         SCR.Execute(path(".target.bash"), "umount " + SAPInst.mediaDir)
       end
     end
   end
