@@ -202,10 +202,10 @@ module Yast
             :from => "any",
             :to   => "map <string, any>"
           )
-          if Popup.YesNo(_("Previous installation was interrupted unexpectedly:") + "\n" +
+          if Popup.YesNo(_("The following product did not finish its installation:") + "\n" +
                          Ops.get_string(productData2,"PRODUCT_NAME","") + "\n" +
                          Ops.get_string(productData2,"PRODUCT_ID","")   + "\n\n" +
-                         _("Would you like to resume from it?"))
+                         _("Would you like to resume its installation later?"))
              WriteProductDatas(productData2)
           end
         end
@@ -1004,16 +1004,14 @@ module Yast
         cdServer = Table(Id(:servers))
 	cdServer << Header("Server","Provided media")
 	items    = []
-	i = 0
 	serverList.each { |server|
 		items  << Item(Id(server[2]),server[0],server[1]) 
-		i = i.next
 	}
-	items  << Item(Id("local"),"Local","")
+	items  << Item(Id("local"),"(Local)","(do not use network installation server)")
 	cdServer << items
 	UI.OpenDialog(VBox(
-		Heading(_("Select a Detected SLES4SAP Installation Server")),
-		MinSize(60,i+2,cdServer),
+		Heading(_("SLES4SAP installation servers are detected")),
+		MinHeight(10, cdServer),
 		PushButton("&OK")
 	))
 	UI.UserInput
@@ -1051,8 +1049,8 @@ module Yast
        SuSEFirewall.Read
        SuSEFirewall.SetServicesForZones( ["service:openslp","service:nfs-kernel-server"],["EXT", "DMZ"],true)
        SuSEFirewall.Write
-       Service.Enable("slp")
-       Service.Restart("slp")
+       Service.Enable("slpd")
+       Service.Restart("slpd")
     end
 
     #Published functions
@@ -1074,6 +1072,7 @@ module Yast
     # Published module variables
     publish :variable => :createLinks,       :type => "boolean"
     publish :variable => :importSAPCDs,      :type => "boolean"
+    publish :variable => :sapCDsURL,         :type => "string"
     publish :variable => :mediaList,         :type => "list"
     publish :variable => :productList,       :type => "list"
     publish :variable => :PRODUCT_ID,        :type => "string"
@@ -1295,6 +1294,13 @@ module Yast
     end
 
     def mount_sap_cds
+        # Un-mount it, in case if the location was previously mounted
+        # Run twice to umount it forcibly and surely
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
+        # Make sure the mount point exists
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/mkdir -p " + @mediaDir)
+        # Mount new network location
         url     = URL.Parse(@sapCDsURL)
 	command = ""
 	case url["scheme"]
@@ -1314,7 +1320,9 @@ module Yast
 	out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
         if Ops.get_string(out, "stderr", "") != ""
 	  @importSAPCDs = false
-	  Popup.ErrorDetails("Can not mount " + @sapCDsURL,Ops.get_string(out, "stderr", ""))
+	  Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
+                         "The wizard will move on without using network installation server.",
+                        Ops.get_string(out, "stderr", ""))
         else
 	  @importSAPCDs = true
         end

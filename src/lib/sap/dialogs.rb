@@ -366,6 +366,11 @@ module Yast
     ############################################################
     def CopyNWMedia
       Builtins.y2milestone("-- Start CopyNWMedia ---")
+      if SAPInst.importSAPCDs
+          # Skip the dialog all together if SAP_CD is already mounted from network location
+          # There is no chance for user to copy new mediums to the location
+          return :next
+      end
       run = true
       while run  
         case media_dialog("sapmedium")
@@ -589,11 +594,12 @@ module Yast
       # Make dialog content acording to wizard stage
       case wizard
       when "sapmedium"
-          # List existing product installation mediums
-          if !media.empty?
+          # List existing product installation mediums (excluding installation master)
+          product_media = media.select {|name| !(name =~ /Instmaster-/)}
+          if !product_media.empty?
               content_before_input = Frame(
                   _("Ready for use:"),
-                  Label(Id(:mediums), Opt(:hstretch), (media.select {|name| !(name =~ /Instmaster-/)}).join("\n"))
+                  Label(Id(:mediums), Opt(:hstretch), product_media.join("\n"))
               )
           end
           content_input = HBox(
@@ -606,13 +612,24 @@ module Yast
               Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
           )
       when "inst_master"
-          # List existing installation masters
-          if !media.empty?
-              content_before_input = Frame(
-                  _("Use an existing installation master"),
-                  ComboBox(Id(:local_im),
-                    Opt(:notify),"", [ "---" ] + media.select {|name| name =~ /Instmaster-/})
-              )
+          # List installation masters
+          instmaster_media = media.select {|name| name =~ /Instmaster-/}
+          if !instmaster_media.empty?
+              if SAPInst.importSAPCDs
+                  # If SAP_CD is mounted from network location, do not allow empty selection
+                  content_before_input = VBox(
+                      Frame(_("Ready for use from:  " + SAPInst.sapCDsURL.to_s),
+                            Label(Id(:mediums), Opt(:hstretch), media.join("\n"))),
+                      Frame(_("Choose an installation master"),
+                            Left(ComboBox(Id(:local_im), Opt(:notify),"", instmaster_media))),
+                  )
+              else
+                  # Otherwise, allow user to enter new installation master
+                  content_before_input = Frame(
+                    _("Choose an installation master"),
+                    ComboBox(Id(:local_im), Opt(:notify),"", ["---"] + instmaster_media)
+                  )
+              end
           end
           content_input = HBox(
               ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
@@ -620,23 +637,20 @@ module Yast
               _("Prepare SAP installation master"),
               @locationCache)
           )
-          content_advanced_ops = VBox(
-              Left(CheckBox(Id(:link),_("Link to the installation master, without copying its content to local location (SAP NetWeaver only)."), false)),
-              Left(CheckBox(Id(:export),_("Serve all installation mediums (including master) to local network via NFS."), false)),
-              Left(CheckBox(Id(:auto),_("Collect installation profiles for SAP products but do not execute installation."), false))
-          )
+          advanced_ops = [Left(CheckBox(Id(:auto),_("Collect installation profiles for SAP products but do not execute installation."), false))]
+          if !SAPInst.importSAPCDs
+              # link & export options are not applicable if SAP_CD is mounted from network location
+              advanced_ops += [
+                Left(CheckBox(Id(:link),_("Link to the installation master, without copying its content to local location (SAP NetWeaver only)."), false)),
+                Left(CheckBox(Id(:export),_("Serve all installation mediums (including master) to local network via NFS."), false))
+              ]
+          end
+          content_advanced_ops = VBox(*advanced_ops)
       when "supplement"
           # Find the already-prepared mediums
-          media = []
-          if File.exist?(SAPInst.mediaDir)
-              media = Dir.entries(SAPInst.mediaDir)
-              media.delete('.')
-              media.delete('..')
-              # No need to show installation master itself
-              media.delete_if { |name| name =~ /Instmaster-/ }
-          end
-          if !media.empty?
-              content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), media.join("\n")))
+          product_media = media.select {|name| !(name =~ /Instmaster-/)}
+          if !product_media.empty?
+              content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n")))
           end
           content_input = HBox(
               ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
@@ -648,14 +662,15 @@ module Yast
               Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
           )
       end
+
+      # Render the wizard
       content = VBox(
           Left(content_before_input),
-          VSpacing(3),
+          VSpacing(2),
           Left(content_input),
-          VSpacing(3),
+          VSpacing(2),
           Frame(_("Advanced Options"), Left(content_advanced_ops))
       )
-      # Render the wizard
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,
@@ -668,6 +683,15 @@ module Yast
       do_default_values(wizard)
       @sourceDir = ""
       @umountSource = false
+      # Special case for SAP_CD being network location
+      if SAPInst.importSAPCDs && wizard == "inst_master"
+          # Activate the first installation master option
+          UI.ChangeWidget(Id(:scheme), :Value, "dir")
+          UI.ChangeWidget(Id(:scheme), :Enabled, false)
+          UI.ChangeWidget(Id(:link), :Enabled, false)
+          UI.ChangeWidget(Id(:location), :Value, SAPInst.mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value)))
+          UI.ChangeWidget(Id(:location), :Enabled, false)
+      end
       while true
         case UI.UserInput
         when :back
@@ -703,7 +727,7 @@ module Yast
             @locationCache  = Convert.to_string(UI.QueryWidget(Id(:location), :Value))
             if scheme == "local"
                 #This value can be reset by MountSource if the target is iso file.
-                SAPInst.createLinks =!!UI.QueryWidget(Id(:link), :Value)
+                SAPInst.createLinks = SAPInst.importSAPCDs || !!UI.QueryWidget(Id(:link), :Value)
             end
             @sourceDir      = @locationCache
 
