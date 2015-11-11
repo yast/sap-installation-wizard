@@ -147,7 +147,9 @@ module Yast
       Wizard.SetDesktopTitleAndIcon("sap")
 
       ret = Sequencer.Run(aliases, sequence)
-      Wizard.CloseDialog
+      if Stage.cont
+         Wizard.CloseDialog
+      end
       Convert.to_symbol(ret)
     end
 
