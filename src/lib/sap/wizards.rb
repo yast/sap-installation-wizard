@@ -58,6 +58,10 @@ module Yast
       Yast.import "Wizard"
       Yast.import "Label"
       Yast.import "Stage"
+
+      # mark if the dialog must be closed at the and.
+      close_dialog = false
+
       aliases = {
         "read"    => lambda { ReadDialog()  },
         "readIM"  => lambda { ReadInstallationMaster()   },
@@ -138,8 +142,9 @@ module Yast
                       }
       }
 
-      if Stage.cont
+      if !Wizard.IsWizardDialog
         Wizard.CreateDialog
+        close_dialog = true
       else
         Wizard.OpenNextBackDialog
         Wizard.HideAbortButton
@@ -147,7 +152,7 @@ module Yast
       Wizard.SetDesktopTitleAndIcon("sap")
 
       ret = Sequencer.Run(aliases, sequence)
-      if Stage.cont
+      if close_dialog
          Wizard.CloseDialog
       end
       Convert.to_symbol(ret)
