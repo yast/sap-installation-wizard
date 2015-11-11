@@ -37,17 +37,17 @@ module Yast
       sap    = false
       wizard = false
       @caption = _("Product Installation Mode")
-      @help    = _("<p>Use this menu to select the basic installation profile types.<b>Start SAP Product Setup after Installation</b> if you want the SAP Installation Wizard to start after the base system was installed.</p>")
+      @help    = _("<p><b>Select basic installation profile:</b> Select which installation template you want to use: Option "Proceed with standard SLES installation" will result in a standard SLES installation - all default values are those of a standard SLES installation. Option "Proceed with standard SLES for SAP Applications installation" will result in an installation workflow which is prepared for the installation of SAP products. Default package selection and partitioning profiles are adapted. In case of the SLES for SAP Applications installation profile it is possible to select the "Installation Wizard" to be started automatically after the installation of the Operating System has settled. Select if you want the Installation Wizard to be started autmatically.</p>")
       @contents = VBox(
             RadioButtonGroup(
               Id(:rb),
               VBox(
-                Heading(_("Select the Mode of the Product Installation!")),
+                Heading(_("Select the Profile of the Product Installation!")),
                 Left(
                   RadioButton(
                     Id("sles"),
                     Opt(:notify),
-                    _("Proceed normal SLES installation."),
+                    _("Proceed with standard SLES installation."),
                     sles
                   )
                 ),
@@ -55,7 +55,7 @@ module Yast
                   RadioButton(
                        Id("sap"),
                        Opt(:notify),
-                       _("Proceed SAP customized SLES installation."),
+                       _("Proceed with standard SLES for SAP Applications installation."),
                        sap
                      )
                    ),
@@ -63,7 +63,7 @@ module Yast
                     Left(
                       CheckBox(
                         Id("wizard"),
-                        _("Start the SAP Installation Wizard at the end of installation."),
+                        _("Start the SAP Installation Wizard right after the OS installation."),
                         wizard
                       )
                     )
