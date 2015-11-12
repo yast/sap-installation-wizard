@@ -48,6 +48,10 @@ module SAPInstaller
                 # In wizard workflow, the dialog is only shown when instmaster is HANA.
                 return :next
             end
+            if Yast::SAPInst.instMode == "preauto"
+                # Skip the dialog if installation is only collecting profiles (i.e. not actually installing SAP software)
+                return :next
+            end
             # Install HANA package
             if !Yast::Package.Installed("HANA-Firewall")
                 if !Yast::Popup.YesNo(_("Do you plan to make use of HANA firewall to enhance network security?\n" +

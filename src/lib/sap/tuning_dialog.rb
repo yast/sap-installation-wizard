@@ -60,6 +60,10 @@ module SAPInstaller
 
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
+            if Yast::SAPInst.instMode == "preauto"
+                # Skip the dialog if installation is only collecting profiles (i.e. not actually installing SAP software)
+                return :next
+            end
             # Must have sapconf and tuned installed
             pkg_to_install = []
             if !Yast::Package.Installed("sapconf")

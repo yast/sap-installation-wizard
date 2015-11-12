@@ -4,6 +4,7 @@
 # ex: set tabstop=4 expandtab:
 # vim: set tabstop=4:expandtab
 require "yast"
+require "fileutils"
 
 module Yast
   class SAPInstClass < Module
@@ -188,25 +189,28 @@ module Yast
          }
       end
 
-      # New feature in SLE12 (pre installation)
-      # If installing supliment products we have to increase @prodCount
+      # If there are installation profiles waiting to be installed, ask user what they want to do with them.
       while Dir.exists?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
         @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
-
-        # If the product was not installed only copied and the runSapInstall is true
-        # we have to read the product.data becouse the sap installer will be started
-        # after finishing the work.
         if !File.exists?(@instDir + "/installationSuccesfullyFinished.dat") && File.exists?(@instDir + "/product.data")
           productData2 = Convert.convert(
             SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
             :from => "any",
             :to   => "map <string, any>"
           )
-          if Popup.YesNo(_("Previous installation was interrupted unexpectedly:") + "\n" +
-                         Ops.get_string(productData2,"PRODUCT_NAME","") + "\n" +
-                         Ops.get_string(productData2,"PRODUCT_ID","")   + "\n\n" +
-                         _("Would you like to resume from it?"))
-             WriteProductDatas(productData2)
+          # User has three choices: do nothing, ignore, or run it at end of the wizard workflow
+          case Popup.AnyQuestion3(_("Pending installation from previous wizard run"),
+                                _("Installation profile was previously collected for the following product, however it has not been installed yet:\n\n") +
+                               productData2["PRODUCT_NAME"].to_s + "\n(" + productData2["PRODUCT_ID"].to_s + ")\n\n" +
+                               _("Would you like to delete it, install the product at the last wizard step, or ignore it?"),
+                                _("Delete"), _("Install"), _("Ignore and do nothing"), :focus_retry) # Focus on ignore
+          when :yes # Delete
+              ::FileUtils.remove_entry_secure(@instDir, true)
+          when :no # Install
+              # It will be installed at the last wizard step (i.e. the installation step)
+              WriteProductDatas(productData2)
+          when :retry # Do nothing
+              # Do nothing about it
           end
         end
         @prodCount = @prodCount.next
@@ -1004,16 +1008,14 @@ module Yast
         cdServer = Table(Id(:servers))
 	cdServer << Header("Server","Provided media")
 	items    = []
-	i = 0
 	serverList.each { |server|
 		items  << Item(Id(server[2]),server[0],server[1]) 
-		i = i.next
 	}
-	items  << Item(Id("local"),"Local","")
+	items  << Item(Id("local"),"(Local)","(do not use network installation server)")
 	cdServer << items
 	UI.OpenDialog(VBox(
-		Heading(_("Select a Detected SLES4SAP Installation Server")),
-		MinSize(60,i+2,cdServer),
+		Heading(_("SLES4SAP installation servers are detected")),
+		MinHeight(10, cdServer),
 		PushButton("&OK")
 	))
 	UI.UserInput
@@ -1044,15 +1046,26 @@ module Yast
        if ! exported
           nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
-       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => @mediaList.join(",") },"sles4sapinst.reg")
+
+       # The service description lists all medium names
+       desc_list = []
+       if File.exist?(SAPInst.mediaDir)
+           desc_list = Dir.entries(SAPInst.mediaDir)
+           desc_list.delete('.')
+           desc_list.delete('..')
+       end
+       desc_list.uniq!
+       desc_list.sort!
+
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
        NfsServer.Set(nfs_server)
        NfsServer.Write
        # Open Firewall
        SuSEFirewall.Read
        SuSEFirewall.SetServicesForZones( ["service:openslp","service:nfs-kernel-server"],["EXT", "DMZ"],true)
        SuSEFirewall.Write
-       Service.Enable("slp")
-       Service.Restart("slp")
+       Service.Enable("slpd")
+       Service.Restart("slpd")
     end
 
     #Published functions
@@ -1074,6 +1087,7 @@ module Yast
     # Published module variables
     publish :variable => :createLinks,       :type => "boolean"
     publish :variable => :importSAPCDs,      :type => "boolean"
+    publish :variable => :sapCDsURL,         :type => "string"
     publish :variable => :mediaList,         :type => "list"
     publish :variable => :productList,       :type => "list"
     publish :variable => :PRODUCT_ID,        :type => "string"
@@ -1295,6 +1309,13 @@ module Yast
     end
 
     def mount_sap_cds
+        # Un-mount it, in case if the location was previously mounted
+        # Run twice to umount it forcibly and surely
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
+        # Make sure the mount point exists
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/mkdir -p " + @mediaDir)
+        # Mount new network location
         url     = URL.Parse(@sapCDsURL)
 	command = ""
 	case url["scheme"]
@@ -1314,7 +1335,9 @@ module Yast
 	out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
         if Ops.get_string(out, "stderr", "") != ""
 	  @importSAPCDs = false
-	  Popup.ErrorDetails("Can not mount " + @sapCDsURL,Ops.get_string(out, "stderr", ""))
+	  Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
+                         "The wizard will move on without using network installation server.",
+                        Ops.get_string(out, "stderr", ""))
         else
 	  @importSAPCDs = true
         end
