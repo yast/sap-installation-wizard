@@ -1042,7 +1042,16 @@ module Yast
        if ! exported
           nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
-       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => @mediaList.join(",") },"sles4sapinst.reg")
+
+       # The service description lists all medium names
+       desc_list = []
+       if File.exist?(SAPInst.mediaDir)
+           desc_list = Dir.entries(SAPInst.mediaDir)
+           desc_list.delete('.')
+           desc_list.delete('..')
+       end
+
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
        NfsServer.Set(nfs_server)
        NfsServer.Write
        # Open Firewall
