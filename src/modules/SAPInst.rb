@@ -4,6 +4,7 @@
 # ex: set tabstop=4 expandtab:
 # vim: set tabstop=4:expandtab
 require "yast"
+require "fileutils"
 
 module Yast
   class SAPInstClass < Module
@@ -188,25 +189,28 @@ module Yast
          }
       end
 
-      # New feature in SLE12 (pre installation)
-      # If installing supliment products we have to increase @prodCount
+      # If there are installation profiles waiting to be installed, ask user what they want to do with them.
       while Dir.exists?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
         @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
-
-        # If the product was not installed only copied and the runSapInstall is true
-        # we have to read the product.data becouse the sap installer will be started
-        # after finishing the work.
         if !File.exists?(@instDir + "/installationSuccesfullyFinished.dat") && File.exists?(@instDir + "/product.data")
           productData2 = Convert.convert(
             SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
             :from => "any",
             :to   => "map <string, any>"
           )
-          if Popup.YesNo(_("The following product did not finish its installation:") + "\n" +
-                         Ops.get_string(productData2,"PRODUCT_NAME","") + "\n" +
-                         Ops.get_string(productData2,"PRODUCT_ID","")   + "\n\n" +
-                         _("Would you like to resume its installation later?"))
-             WriteProductDatas(productData2)
+          # User has three choices: do nothing, ignore, or run it at end of the wizard workflow
+          case Popup.AnyQuestion3(_("Pending installation from previous wizard run"),
+                                _("Installation profile was previously collected for the following product, however it has not been installed yet:\n\n") +
+                               productData2["PRODUCT_NAME"].to_s + "\n(" + productData2["PRODUCT_ID"].to_s + ")\n\n" +
+                               _("Would you like to delete it, install the product at the last wizard step, or ignore it?"),
+                                _("Delete"), _("Install"), _("Ignore and do nothing"), :focus_retry) # Focus on ignore
+          when :yes # Delete
+              ::FileUtils.remove_entry_secure(@instDir, true)
+          when :no # Install
+              # It will be installed at the last wizard step (i.e. the installation step)
+              WriteProductDatas(productData2)
+          when :retry # Do nothing
+              # Do nothing about it
           end
         end
         @prodCount = @prodCount.next
@@ -1050,6 +1054,8 @@ module Yast
            desc_list.delete('.')
            desc_list.delete('..')
        end
+       desc_list.uniq!
+       desc_list.sort!
 
        SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
        NfsServer.Set(nfs_server)
