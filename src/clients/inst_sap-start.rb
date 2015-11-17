@@ -110,9 +110,11 @@ module Yast
         ProductControl.ReadControlFile("/sap-control.xml")
         if(start_wizard)
            PackagesProposal.AddResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
+	   IO.write("/root/start_sap_wizard","true");
            ProductControl.EnableModule("sap")
 	else
            PackagesProposal.AddResolvables('sap-wizard',:package,['sap-installation-wizard'])
+           PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot'])
            ProductControl.DisableModule("sap")
 	end
     end
