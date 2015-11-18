@@ -17,15 +17,11 @@ module Yast
 
       @contents  = nil
       @help_text = ""
-      @start     = ""
+      @closeMe   = false
 
-      # Check if we have to start at the end of the installation
-      if File.exists?("/root/start_sap_wizard")
-         @start = IO.read("/root/start_sap_wizard")
-         File.delete("/root/start_sap_wizard")
-         if @start == "false"
-           return :next
-         end
+      if !Wizard.IsWizardDialog
+         Wizard.CreateDialog
+         @closeMe = true
       end
 
       # Check if hostname -f is set
@@ -77,7 +73,7 @@ module Yast
       Wizard.SetDesktopIcon("sap-installation-wizard")
       Wizard.SetContents(
         @caption,
-        @contents,
+        @content,
         @help,
         true,
         true
@@ -86,7 +82,7 @@ module Yast
       ret = nil
       begin
         ret = Wizard.UserInput
-        Builtin.y2milestone("ret %1",ret)
+        Builtins.y2milestone("ret %1",ret)
         case ret
         when :abort
           break if Popup.ConfirmAbort(:incomplete)
@@ -97,8 +93,10 @@ module Yast
           case install
           when "sap_install"
               WFM.CallFunction("sap-installation-wizard", [])
+	      ret = :next
           when "hana_partitioning"
               SAPInst.CreateHANAPartitions("")
+	      ret = :next
           end
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
@@ -107,8 +105,8 @@ module Yast
           SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
         end
       end until ret == :next || ret == :back
-
-      ret
+      Wizard.CloseDialog() if @closeMe
+      return ret
     end
   end
 end

@@ -128,6 +128,7 @@ module Yast
     def constumize_sles_installation()
         ProductControl.ReadControlFile("/control.xml")
         PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
+        ProductControl.DisableModule("sap")
     end
   end
 end
