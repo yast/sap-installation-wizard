@@ -29,6 +29,7 @@ module Yast
   class InstSapStart < Client
     def main
       textdomain "users"
+      Yast.import "Pkg"
       Yast.import "PackagesProposal"
       Yast.import "ProductControl"
       Yast.import "GetInstArgs"
@@ -36,6 +37,11 @@ module Yast
       sles   = false
       sap    = false
       wizard = false
+      @sap_control = Pkg.SourceProvideOptionalFile(
+        0, # optional
+        1,
+        "/sap-control.xml"      )
+
       @caption = _("Product Installation Mode")
       @help    = _("<p><b>Select basic installation profile:</b> Select which installation template you want to use: Option \"Proceed with standard SLES installation\" will result in a standard SLES installation - all default values are those of a standard SLES installation. Option \"Proceed with standard SLES for SAP Applications installation\" will result in an installation workflow which is prepared for the installation of SAP products. Default package selection and partitioning profiles are adapted. In case of the SLES for SAP Applications installation profile it is possible to select the \"Installation Wizard\" to be started automatically after the installation of the Operating System has settled. Select if you want the Installation Wizard to be started autmatically.</p>")
       @contents = VBox(
@@ -107,7 +113,7 @@ module Yast
     end
 
     def constumize_sap_installation(start_wizard)
-        ProductControl.ReadControlFile("/sap-control.xml")
+        ProductControl.ReadControlFile( @sap_control )
         if(start_wizard)
            PackagesProposal.AddResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
 	   IO.write("/root/start_sap_wizard","true");
