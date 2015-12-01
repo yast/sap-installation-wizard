@@ -181,8 +181,44 @@ cat /data/SAP_CDs/0/ay_q_sapinstnr
   </ask-list>
 </general>
 <software>
-  <post-patterns config:type="list">
+  <!-- post-patterns config:type="list">
     <pattern>sap-b1</pattern>
-  </post-patterns>
+  </post-patterns -->
+  <post-packages config:type="list">
+	<package>bash</package>
+	<package>coreutils</package>
+	<package>curl</package>
+	<package>cyrus-sasl-32bit</package>
+	<package>glibc-32bit</package>
+	<package>gawk</package>
+	<package>glibc-devel</package>
+	<package>glibc-i18ndata</package>
+	<package>keyutils-libs-32bit</package>
+	<package>krb5-32bit</package>
+	<package>libaio1</package>
+	<package>libcom_err2-32bit</package>
+	<package>libcurl4-32bit</package>
+	<package>libgpg-error0-32bit</package>
+	<package>libgthread-2_0-0-32bit</package>
+	<package>libldap-2_4-2-32bit</package>
+	<package>libstdc++6</package>
+	<package>libgcrypt20</package>
+	<package>libgcrypt20-32bit</package>
+	<package>libaio1-32bit</package>
+	<package>net-tools</package>
+	<package>openssl</package>
+	<package>pam</package>
+	<package>perl</package>
+	<package>SuSEfirewall2</package>
+	<package>samba</package>
+	<package>sapconf</package>
+	<package>tuned</package>
+	<package>unixODBC</package>
+	<package>zlib-32bit</package>
+	<package>unzip</package>
+	<package>clone-master-clean-up</package>
+	<package>kiwi-template-sap</package>
+	<package>sapvnc</package>
+  </post-packages>
 </software>
 </profile>
