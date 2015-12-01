@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------------
 
 # Package:      SAP Installation
-# Summary:      Ask for starting sap installation wizard
+# Summary:      Select basic installation profile.
 # Authors:      Peter Varkoly <varkoly@suse.com>
 #
 # $Id$
@@ -30,6 +30,7 @@ module Yast
     def main
       textdomain "users"
       Yast.import "Pkg"
+      Yast.import "Popup"
       Yast.import "PackagesProposal"
       Yast.import "ProductControl"
       Yast.import "GetInstArgs"
@@ -43,7 +44,7 @@ module Yast
         "/sap-control.xml"      )
 
       @caption = _("Product Installation Mode")
-      @help    = _("<p><b>Select basic installation profile:</b> Select which installation template you want to use: Option \"Proceed with standard SLES installation\" will result in a standard SLES installation - all default values are those of a standard SLES installation. Option \"Proceed with standard SLES for SAP Applications installation\" will result in an installation workflow which is prepared for the installation of SAP products. Default package selection and partitioning profiles are adapted. In case of the SLES for SAP Applications installation profile it is possible to select the \"Installation Wizard\" to be started automatically after the installation of the Operating System has settled. Select if you want the Installation Wizard to be started autmatically.</p>")
+      @help    = _("<p><b>Select basic installation profile:</b></p><p>Select which installation template you want to use: Option \"Proceed with standard SLES installation\" will result in a standard SLES installation - all default values are those of a standard SLES installation.</p><p>Option \"Proceed with standard SLES for SAP Applications installation\" will result in an installation workflow which is prepared for the installation of SAP products. Default package selection and partitioning profiles are adapted. In case of the SLES for SAP Applications installation profile it is possible to select the \"Installation Wizard\" to be started automatically after the installation of the Operating System has settled. Select if you want the Installation Wizard to be started autmatically.</p>")
       @contents = VBox(
             RadioButtonGroup(
               Id(:rb),
@@ -106,6 +107,9 @@ module Yast
 	    constumize_sap_installation(Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)) )
           when "sles"
 	    constumize_sles_installation
+          else
+            Popup.Error("You have to select one Product Installation Mode!")
+            ret = nil
           end
         end
       end until ret == :next || ret == :back
