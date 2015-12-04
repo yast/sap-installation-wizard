@@ -602,11 +602,15 @@ module Yast
                   Label(Id(:mediums), Opt(:hstretch), product_media.join("\n"))
               )
           end
-          content_input = HBox(
-              ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-              InputField(Id(:location),Opt(:hstretch),
-              _("Prepare SAP installation medium (such as SAP kernel, database and exports, Java components)"),
-              @locationCache)
+          content_input = VBox(
+            Left(RadioButton(Id(:do_copy_medium), Opt(:notify), _("Copy a medium"), true)),
+            Left(HBox(
+                HSpacing(6.0),
+                ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
+                InputField(Id(:location),Opt(:hstretch),
+                    _("Prepare SAP installation medium (such as SAP kernel, database and exports)"),
+                    @locationCache),
+                HSpacing(6.0))),
           )
           content_advanced_ops = VBox(
               Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
@@ -663,14 +667,28 @@ module Yast
           )
       end
 
+      after_advanced_ops = Empty()
+      advanced_ops_left = Empty()
+
+      if wizard == "sapmedium"
+          after_advanced_ops = VBox(
+            VSpacing(2.0),
+            Left(RadioButton(Id(:skip_copy_medium), Opt(:notify), _("Skip copying of medium")))
+          )
+          advanced_ops_left = HSpacing(6.0)
+      end
+      
+
       # Render the wizard
       content = VBox(
           Left(content_before_input),
           VSpacing(2),
           Left(content_input),
           VSpacing(2),
-          Frame(_("Advanced Options"), Left(content_advanced_ops))
+          HBox(advanced_ops_left, Frame(_("Advanced Options"), Left(content_advanced_ops))),
+          Left(after_advanced_ops)
       )
+
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,
@@ -698,6 +716,16 @@ module Yast
             return :back
         when :abort, :cancel
             return :abort
+        when :skip_copy_medium
+          [:scheme, :location, :link].each { |widget|
+            UI.ChangeWidget(Id(widget), :Enabled, false)
+          }
+          UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
+        when :do_copy_medium
+          [:scheme, :location, :link].each { |widget|
+            UI.ChangeWidget(Id(widget), :Enabled, true)
+          }
+          UI.ChangeWidget(Id(:skip_copy_medium), :Value, false)
         when :local_im
             # Choosing an already prepared installation master
             im = UI.QueryWidget(Id(:local_im), :Value)
@@ -731,6 +759,9 @@ module Yast
             end
             @sourceDir      = @locationCache
 
+            if UI.QueryWidget(Id(:skip_copy_medium), :Value)
+                return :forw
+            end
             # Break the loop for a chosen installation master, without executing check_media
             if UI.WidgetExists(Id(:local_im)) && UI.QueryWidget(Id(:local_im), :Value).to_s != "---"
                 return :forw
