@@ -123,9 +123,7 @@ module Yast
           end
           Ops.set(@LVGs, n, Ops.get(@profile, ["partitioning", @i]))
         else
-           if @needSWAP
-              @SWAP = Ops.get(@profile, ["partitioning", @i])
-           end
+           @SWAP = Ops.get(@profile, ["partitioning", @i])
         end
       end
       Builtins.y2milestone(
@@ -288,7 +286,7 @@ module Yast
         end
       end
 
-      #First we are creating the swap if necessary
+      #First we are creating the swap if necessary or resizing it
       if @needSWAP
         Wizard.SetContents(_("Processing Partitioning"),RichText(_("The SWAP partiton will be created. Depending on your system this may take some time.")),"",false,false)
         Stage.Set("initial")
@@ -298,6 +296,15 @@ module Yast
         AutoinstLVM.Write if AutoinstLVM.Init
         AutoinstRAID.Write if AutoinstRAID.Init
         Storage.CommitChanges
+      else
+	if File.exists?( "/dev/mapper/system-swap" )
+           swapSIZE = Ops.get_string(@SWAP, ["partitions", 0, "size"], "2G")
+           command  = "swapoff /dev/mapper/system-swap; "
+	   command << "lvresize  -L " << swapSIZE << "/dev/mapper/system-swap; "
+	   command << "mkswap /dev/mapper/system-swap; "
+           command  = "swapon /dev/mapper/system-swap; "
+           SCR.Execute(path(".target.bash"), command )
+	end
       end
 
       #Now we are creating the needed LVMs
