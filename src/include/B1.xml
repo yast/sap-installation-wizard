@@ -28,10 +28,10 @@
 function check_masterpwd() {
         # search for pwd from HANA input
         [ -f /dev/shm/ay_q_masterpass ] && return 0
-        for i in `ls /data/SAP_CDs/`; do
-           grep HANA /data/SAP_CDs/$i/product.data > /dev/null 2>&1
+        for i in `ls /data/SAP_INST/`; do
+           grep HANA /data/SAP_INST/$i/product.data > /dev/null 2>&1
            if [ $? -eq 0 ]; then
-              [ -f /data/SAP_CDs/$i/ay_q_masterpass ] && return 0
+              [ -f /data/SAP_INST/$i/ay_q_masterpass ] && return 0
               break
            fi
         done
@@ -66,8 +66,8 @@ check_masterpwd "$VAL"
 if [ -f /dev/shm/ay_q_masterpass ];then
    cat /dev/shm/ay_q_masterpass
 else
-   if [ -f /data/SAP_CDs/0/ay_q_masterpass ];then
-      cat /data/SAP_CDs/0/ay_q_masterpass
+   if [ -f /data/SAP_INST/0/ay_q_masterpass ];then
+      cat /data/SAP_INST/0/ay_q_masterpass
    fi
 fi
 ]]>
@@ -93,7 +93,7 @@ fi
               <environment config:type="boolean">true</environment>
               <source><![CDATA[
 function check_sid() {
-        [ -f /data/SAP_CDs/0/ay_q_sid ] && exit 0
+        [ -f /data/SAP_INST/0/ay_q_sid ] && exit 0
         [ -f /dev/shm/ay_q_sid ] && exit 0
 
         local sid=$1 reserved_sids rsid
@@ -126,7 +126,7 @@ check_sid "$VAL"
             </script>
              <default_value_script>
                  <source> <![CDATA[
-cat /data/SAP_CDs/0/ay_q_sid
+cat /data/SAP_INST/0/ay_q_sid
 ]]>
              </source>
              </default_value_script>
@@ -149,7 +149,7 @@ cat /data/SAP_CDs/0/ay_q_sid
               <environment config:type="boolean">true</environment>
               <source><![CDATA[
 function check_instance_no() {
-        [ -f /data/SAP_CDs/0/ay_q_sapinstnr ] && return 0
+        [ -f /data/SAP_INST/0/ay_q_sapinstnr ] && return 0
         [ -f /dev/shm/ay_q_sapinstnr ] && return 0
 
         local ino=$1
@@ -171,7 +171,7 @@ check_instance_no "$VAL"
             </script>
              <default_value_script>
                  <source> <![CDATA[
-cat /data/SAP_CDs/0/ay_q_sapinstnr
+cat /data/SAP_INST/0/ay_q_sapinstnr
 ]]>
              </source>
              </default_value_script>
