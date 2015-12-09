@@ -996,11 +996,13 @@ module Yast
             SuSEFirewall.SetModified()
             SuSEFirewall.Write()
         end
+        out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+        hostname = Ops.get_string(out, "stdout", "")
         serverList = []
 	sles4sapinst=SLP.FindSrvs("service:sles4sapinst","")
 	sles4sapinst.each { |server|
 	    attrs = SLP.GetUnicastAttrMap("service:sles4sapinst",server["ip"])
-	    if attrs.has_key?("provided-media")
+	    if attrs.has_key?("provided-media") and server["pcHost"] != hostname
 	        serverList << [ server["pcHost"], attrs["provided-media"], server["srvurl"] ] 
 	    end
         }
