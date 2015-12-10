@@ -991,6 +991,7 @@ module Yast
     end
 
     def FindSAPCDServer()
+	SuSEFirewall.ReadCurrentConfiguration()
 	slpopen=SuSEFirewall.GetAcceptExpertRules('EXT')
 	if slpopen !~ /udp,0:65535,svrloc/
             SuSEFirewall.SetAcceptExpertRules('EXT','0/0,udp,0:65535,svrloc')
