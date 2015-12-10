@@ -999,6 +999,7 @@ module Yast
         end
         out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
         hostname = Ops.get_string(out, "stdout", "")
+	hostname = hostname.strip!
         serverList = []
 	sles4sapinst=SLP.FindSrvs("service:sles4sapinst","")
 	sles4sapinst.each { |server|
