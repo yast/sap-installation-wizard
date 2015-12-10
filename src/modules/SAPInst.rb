@@ -812,6 +812,7 @@ module Yast
         if productPartitioning == Convert.to_string(SAPMedia.ConfigValue("HANA", "partitioning"))
           if !Builtins.contains(
               [
+                "LENOVO",
                 "FUJITSU",
                 "IBM",
                 "HP",
