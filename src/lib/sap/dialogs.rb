@@ -381,6 +381,8 @@ module Yast
               end
            when :back
               return :back
+           when :forw
+              return :next
            else
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
