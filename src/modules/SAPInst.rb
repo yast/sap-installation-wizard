@@ -997,6 +997,7 @@ module Yast
             SuSEFirewall.SetAcceptExpertRules('EXT','0/0,udp,0:65535,svrloc')
             SuSEFirewall.SetModified()
             SuSEFirewall.Write()
+            SCR.Execute(path(".target.bash"), "/usr/sbin/SuSEfirewall2" )
         end
         out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
         hostname = Ops.get_string(out, "stdout", "")
