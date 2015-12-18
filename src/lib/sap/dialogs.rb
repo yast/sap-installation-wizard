@@ -98,7 +98,7 @@ module Yast
                           _("Installation of SAP NetWeaver in a high-availability setup.</p>") +
                           '<p><b>' + _("System Rename") + '</p></b>' +
                           _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>"),
-             "name"    => _("What would you like to install?")
+             "name"    => _("Choose the Installation Type!")
              },
          "nwSelectProduct" => {
              "help"    => _("<p>Please choose the SAP product you wish to install.</p>"),
@@ -227,20 +227,20 @@ module Yast
           VBox(
             HBox(
                 VBox(
-                    Label(_("The SAP product is ..")),
+                    Left(Label(_("Installation Type"))),
                     RadioButtonGroup( Id(:type),
                     VBox(
                         RadioButton( Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
-                        RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
                         RadioButton( Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
                         #RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
                         RadioButton( Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
+                        RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
                         RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
                     )),
                 ),
                 HSpacing(3),
                 VBox(
-                    Label(_("The back-end database system is ..")),
+                    Left(Label(_("Back-end Databases"))),
                     RadioButtonGroup( Id(:db),
                     VBox(
                         RadioButton( Id("ADA"),    Opt(:notify, :hstretch), _("SAP MaxDB"), false),
