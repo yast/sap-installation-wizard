@@ -577,6 +577,7 @@ module Yast
     def media_dialog(wizard)
       Builtins.y2milestone("-- Start media_dialog ---")
       @dbMap = {}
+      has_back = true
 
       # Find the already-prepared mediums
       media = []
@@ -619,6 +620,7 @@ module Yast
           )
       when "inst_master"
           # List installation masters
+          has_back = false
           instmaster_media = media.select {|name| name =~ /Instmaster-/}
           if !instmaster_media.empty?
               if SAPInst.importSAPCDs
@@ -695,7 +697,7 @@ module Yast
         _("SAP Installation Wizard"),
         content,
         @dialogs[wizard]["help"],
-        true,
+        has_back,
         true
       )
       Wizard.RestoreAbortButton()
