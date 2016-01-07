@@ -1,5 +1,18 @@
 <software>
-  <post-patterns config:type="list">
+  <!-- post-patterns config:type="list">
     <pattern>sap-nw</pattern>
-  </post-patterns>
+  </post-patterns -->
+  <post-packages config:type="list">
+        <package>libstdc++33</package>
+        <package>libstdc++33-32bit</package>
+        <package>sles-release</package>
+        <package>sapconf</package>
+        <package>tuned</package>
+        <package>util-linux</package>
+        <package>uuidd</package>
+        <package>util-linux-systemd</package>
+        <package>clone-master-clean-up</package>
+        <package>kiwi-template-sap</package>
+        <package>sapvnc</package>
+  </post-packages>
 </software>

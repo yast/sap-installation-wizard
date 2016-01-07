@@ -188,6 +188,7 @@ check_instance_no "$VAL"
 	<package>sensors</package>
 	<package>sudo</package>
 	<package>tcsh</package>
+	<package>tuned</package>
 	<package>sapconf</package>
 	<package>xfsprogs</package>
 	<package>xrdp</package>
