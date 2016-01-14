@@ -31,7 +31,7 @@ module Yast
       @hostname = Ops.get_string(@out, "stdout", "")
       if @hostname == ""
         if( Popup.AnyQuestion(_("The fully qualified hostname (FQHN) could not be detected."),
-                              _("Do you want to return to network setup or break the SAP product installation and start the installed system?"),
+                              _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
                               _("Return to Network Setup"),
                               _("Abort"),
                               :focus_yes
