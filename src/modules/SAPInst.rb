@@ -397,7 +397,12 @@ module Yast
         )
         AutoInstall.Save
         Wizard.CreateDialog
+
+        # SUSE firewall behaves differently in auto installation mode.
+        # Because SUSE firewall is configured (later) by this module, hence the current YaST mode must be preserved.
+        original_mode = Mode.mode()
         Mode.SetMode("autoinstallation")
+
         Stage.Set("continue")
         WFM.CallFunction("inst_autopost", [])
         AutoinstSoftware.addPostPackages(
@@ -413,6 +418,9 @@ module Yast
         Pkg.TargetInit("/", false)
         WFM.CallFunction("inst_rpmcopy", [])
         WFM.CallFunction("inst_autoconfigure", [])
+
+        Mode.SetMode(original_mode)
+
         Wizard.CloseDialog
         SCR.Execute(path(".target.remove"), "/tmp/current_media_path")
         ret = true
@@ -991,14 +999,16 @@ module Yast
     end
 
     def FindSAPCDServer()
-	SuSEFirewall.ReadCurrentConfiguration()
-	slpopen=SuSEFirewall.GetAcceptExpertRules('EXT')
-	if slpopen !~ /udp,0:65535,svrloc/
-            SuSEFirewall.SetAcceptExpertRules('EXT','0/0,udp,0:65535,svrloc')
-            SuSEFirewall.SetModified()
-            SuSEFirewall.Write()
-            SCR.Execute(path(".target.bash"), "/usr/sbin/SuSEfirewall2" )
-        end
+        # Allow SLP to discover exported SAP mediums in the network
+        SuSEFirewall.Read()
+        ["INT", "EXT", "DMZ"].each { |zone|
+            zone_custom_rules = SuSEFirewall.GetAcceptExpertRules(zone)
+            if zone_custom_rules !~ /udp,0:65535,svrloc/
+                SuSEFirewall.SetAcceptExpertRules(zone,"0/0,udp,0:65535,svrloc")
+                SuSEFirewall.SetModified()
+            end
+        }
+        SuSEFirewall.Write()
         out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
         hostname = Ops.get_string(out, "stdout", "")
 	hostname = hostname.strip!
@@ -1039,39 +1049,38 @@ module Yast
     # and publish it via slp
     #
     def ExportSAPCDs()
+       # Make sure the directory exists before using it
+       ::FileUtils.mkdir_p @mediaDir
+       # Configure NFS service
        NfsServer.Read
-       nfs_server = NfsServer.Export
-       nfs_server["start_nfsserver"] = true
-       exported = false
-       nfs_server["nfs_exports"].each { |exp|
-          if exp["mountpoint"] == @mediaDir
-             exported = true
-             break
-          end
-       }
-       if ! exported
-          nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
+       nfs_conf = NfsServer.Export
+       if ! (nfs_conf["nfs_exports"].any? {|entry| entry["mountpoint"] == @mediaDir})
+           nfs_conf["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
-
-       # The service description lists all medium names
+       nfs_conf["start_nfsserver"] = true
+       NfsServer.Set(nfs_conf)
+       NfsServer.Write
+       Service.Enable("nfs-server")
+       if !(Service.Active("nfs-server") ? Service.Restart("nfs-server") : Service.Start("nfs-server"))
+           Report.Error(_("Failed to start NFS server. SAP mediums will not be available via NFS share."))
+       end
+       # Expose NFS service via SLP
+       # The SLP service description lists all medium names
        desc_list = []
-       if File.exist?(SAPInst.mediaDir)
-           desc_list = Dir.entries(SAPInst.mediaDir)
-           desc_list.delete('.')
-           desc_list.delete('..')
-       end
+       desc_list = Dir.entries(SAPInst.mediaDir)
+       desc_list.delete('.')
+       desc_list.delete('..')
        desc_list.uniq!
        desc_list.sort!
-
        SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
-       NfsServer.Set(nfs_server)
-       NfsServer.Write
-       # Open Firewall
-       SuSEFirewall.Read
-       SuSEFirewall.SetServicesForZones( ["service:openslp","service:nfs-kernel-server"],["EXT", "DMZ"],true)
-       SuSEFirewall.Write
        Service.Enable("slpd")
-       Service.Restart("slpd")
+       if !(Service.Active("slpd") ? Service.Restart("slpd") : Service.Start("slpd"))
+           Report.Error(_("Failed to start SLP server. SAP mediums will not be discovered by other computers."))
+       end
+       # Configure firewall
+       SuSEFirewall.Read
+       SuSEFirewall.SetServicesForZones(["service:openslp","service:nfs-kernel-server"], ["INT", "EXT", "DMZ"], true)
+       SuSEFirewall.Write
     end
 
     #Published functions
