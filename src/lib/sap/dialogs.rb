@@ -257,7 +257,11 @@ module Yast
         true,
         true
       )
-    
+      if SAPInst.importSAPCDs
+	 UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
+	 UI.ChangeWidget(Id("STANDALONE"), :Enabled, false)
+	 UI.ChangeWidget(Id("SBC"), :Enabled, false)
+      end
       while run
         case UI.UserInput
           when /STANDARD|DISTRIBUTED|SUSE-HA-ST|HA/
