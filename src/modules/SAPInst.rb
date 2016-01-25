@@ -1009,39 +1009,46 @@ module Yast
             end
         }
         SuSEFirewall.Write()
-        out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
-        hostname = Ops.get_string(out, "stdout", "")
-	hostname = hostname.strip!
-        serverList = []
-	sles4sapinst=SLP.FindSrvs("service:sles4sapinst","")
-	sles4sapinst.each { |server|
-	    attrs = SLP.GetUnicastAttrMap("service:sles4sapinst",server["ip"])
-	    if attrs.has_key?("provided-media") and server["pcHost"] != hostname
-	        serverList << [ server["pcHost"], attrs["provided-media"], server["srvurl"] ] 
-	    end
+        # Find NFS servres registered on SLP, filter out my own host name from the list.
+        hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+        my_hostname = Ops.get_string(hostname_out, "stdout", "")
+        my_hostname.strip!
+        slp_nfs_list = []
+        slp_svcs = SLP.FindSrvs("service:sles4sapinst","")
+        slp_svcs.each { |svc|
+            host = svc["pcHost"]
+            slp_attrs = SLP.GetUnicastAttrMap("service:sles4sapinst",svc["pcHost"])
+            if host != my_hostname && slp_attrs.has_key?("provided-media")
+                slp_nfs_list << [host, slp_attrs["provided-media"], svc["srvurl"]]
+            end
         }
-	return if serverList.empty?
-        cdServer = Table(Id(:servers))
-	cdServer << Header("Server","Provided media")
-	items    = []
-	serverList.each { |server|
-		items  << Item(Id(server[2]),server[0],server[1]) 
-	}
-	items  << Item(Id("local"),"(Local)","(do not use network installation server)")
-	cdServer << items
-	UI.OpenDialog(VBox(
-		Heading(_("SLES4SAP installation servers are detected")),
-		MinHeight(10, cdServer),
-		PushButton("&OK")
-	))
-	UI.UserInput
-	ret = Convert.to_string(UI.QueryWidget(Id(:servers), :CurrentItem))
-	if ret != "local"
-	   /service:sles4sapinst:(?<url>.*)/ =~ ret
-	   @sapCDsURL = url
-	   mount_sap_cds
-	end
-	UI.CloseDialog();
+        # Dismiss if there is not any NFS server on SLP
+        return if slp_nfs_list.empty?
+
+        svc_table = Table(Id(:servers))
+        svc_table << Header("Server","Provided Media")
+
+        table_items = []
+        table_items << Item(Id("local"),"(Local)","(do not use network installation server)")
+        slp_nfs_list.each { |svc|
+            table_items << Item(Id(svc[2]), svc[0], svc[1])
+        }
+
+        svc_table << table_items
+        # Display a dialog to let user choose a server
+        UI.OpenDialog(VBox(
+            Heading(_("SLES4SAP installation servers are detected")),
+            MinHeight(10, svc_table),
+            PushButton("&OK")
+        ))
+        UI.UserInput
+        ret = Convert.to_string(UI.QueryWidget(Id(:servers), :CurrentItem))
+        if ret != "local"
+            /service:sles4sapinst:(?<url>.*)/ =~ ret
+            @sapCDsURL = url
+            mount_sap_cds
+        end
+        UI.CloseDialog()
     end
 
     # ***********************************
@@ -1072,7 +1079,8 @@ module Yast
        desc_list.delete('..')
        desc_list.uniq!
        desc_list.sort!
-       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => de
+sc_list.join(",") },"sles4sapinst.reg")
        Service.Enable("slpd")
        if !(Service.Active("slpd") ? Service.Restart("slpd") : Service.Start("slpd"))
            Report.Error(_("Failed to start SLP server. SAP mediums will not be discovered by other computers."))
@@ -1335,7 +1343,7 @@ module Yast
 	command = ""
 	case url["scheme"]
 	   when "nfs"
-		command = "mount -o nolock "    + url["host"] + ":" + url["path"] + " " + @mediaDir
+		command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @mediaDir
 	   when "smb"
 		mopts = "-o ro"
 		if url["workgroup"] != ""
@@ -1351,7 +1359,7 @@ module Yast
         if Ops.get_string(out, "stderr", "") != ""
 	  @importSAPCDs = false
 	  Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
-                         "The wizard will move on without using network installation server.",
+                         "The wizard will move on without using network media server.",
                         Ops.get_string(out, "stderr", ""))
         else
 	  @importSAPCDs = true
