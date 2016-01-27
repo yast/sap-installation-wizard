@@ -998,9 +998,38 @@ module Yast
       nil
     end
 
+    # Make SURE to save firewall configuration and restart it.
+    # Because firewall module has weird workaround that will prevent new configuration from being activated.
+    def SaveAndRestartFirewallWorkaround()
+       SuSEFirewall.WriteConfiguration
+       if Service.Active("SuSEfirewall2")
+           system("systemctl restart SuSEfirewall2")
+           system("nohup sh -c 'sleep 60 && systemctl restart SuSEfirewall2' > /dev/null &")
+       end
+    end
+
+    # Restart essential NFS services several times to get rid of "program not registered" error.
+    def RestartNFSWorkaround()
+       system("nohup sh -c 'sleep 16 && systemctl restart nfs-config' > /dev/null &")
+       system("nohup sh -c 'sleep 18 && systemctl restart rpcbind' > /dev/null &")
+       system("nohup sh -c 'sleep 20 && systemctl restart rpc.mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 22 && systemctl restart rpc.statd' > /dev/null &")
+       system("nohup sh -c 'sleep 24 && systemctl restart nfs-idmapd' > /dev/null &")
+       system("nohup sh -c 'sleep 26 && systemctl restart nfs-mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 28 && systemctl restart nfs-server' > /dev/null &")
+
+       system("nohup sh -c 'sleep 30 && systemctl restart nfs-config' > /dev/null &")
+       system("nohup sh -c 'sleep 32 && systemctl restart rpcbind' > /dev/null &")
+       system("nohup sh -c 'sleep 34 && systemctl restart rpc.mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 36 && systemctl restart rpc.statd' > /dev/null &")
+       system("nohup sh -c 'sleep 38 && systemctl restart nfs-idmapd' > /dev/null &")
+       system("nohup sh -c 'sleep 40 && systemctl restart nfs-mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 42 && systemctl restart nfs-server' > /dev/null &")
+    end
+
     def FindSAPCDServer()
         # Allow SLP to discover exported SAP mediums in the network
-        SuSEFirewall.Read()
+        SuSEFirewall.ReadCurrentConfiguration()
         ["INT", "EXT", "DMZ"].each { |zone|
             zone_custom_rules = SuSEFirewall.GetAcceptExpertRules(zone)
             if zone_custom_rules !~ /udp,0:65535,svrloc/
@@ -1008,7 +1037,10 @@ module Yast
                 SuSEFirewall.SetModified()
             end
         }
-        SuSEFirewall.Write()
+        SuSEFirewall.WriteConfiguration
+        if Service.Active("SuSEfirewall2")
+           system("systemctl restart SuSEfirewall2")
+        end
         # Find NFS servres registered on SLP, filter out my own host name from the list.
         hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
         my_hostname = Ops.get_string(hostname_out, "stdout", "")
@@ -1051,6 +1083,18 @@ module Yast
         UI.CloseDialog()
     end
 
+    # Copy /etc/sysconfig/SuSEfirewall2 to /tmp/sapinst-SuSEfirewall2.
+    def BackupSysconfigFirewall()
+      ::FileUtils.remove_file('/tmp/sapinst-SuSEfirewall2', true)
+      ::FileUtils.cp('/etc/sysconfig/SuSEfirewall2', '/tmp/sapinst-SuSEfirewall2')
+    end
+
+    # Copy /tmp/sapinst-SuSEfirewall2 to /etc/sysconfig/SuSEfirewall2 and remove the tmp file.
+    def RestoreAndRemoveBackupSysconfigFirewall()
+      ::FileUtils.cp('/tmp/sapinst-SuSEfirewall2', '/etc/sysconfig/SuSEfirewall2')
+      ::FileUtils.remove_file('/tmp/sapinst-SuSEfirewall2', true)
+    end
+
     # ***********************************
     # Function to export SAP installation media
     # and publish it via slp
@@ -1058,6 +1102,8 @@ module Yast
     def ExportSAPCDs()
        # Make sure the directory exists before using it
        ::FileUtils.mkdir_p @mediaDir
+       # NFS module will throw away firewall configuration during installation, hence back it up now.
+       BackupSysconfigFirewall()
        # Configure NFS service
        NfsServer.Read
        nfs_conf = NfsServer.Export
@@ -1066,11 +1112,8 @@ module Yast
        end
        nfs_conf["start_nfsserver"] = true
        NfsServer.Set(nfs_conf)
+       # Firewall configuration is wiped by calling the Write function
        NfsServer.Write
-       Service.Enable("nfs-server")
-       if !(Service.Active("nfs-server") ? Service.Restart("nfs-server") : Service.Start("nfs-server"))
-           Report.Error(_("Failed to start NFS server. SAP mediums will not be available via NFS share."))
-       end
        # Expose NFS service via SLP
        # The SLP service description lists all medium names
        desc_list = []
@@ -1079,16 +1122,19 @@ module Yast
        desc_list.delete('..')
        desc_list.uniq!
        desc_list.sort!
-       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => de
-sc_list.join(",") },"sles4sapinst.reg")
+       SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
        Service.Enable("slpd")
        if !(Service.Active("slpd") ? Service.Restart("slpd") : Service.Start("slpd"))
            Report.Error(_("Failed to start SLP server. SAP mediums will not be discovered by other computers."))
        end
-       # Configure firewall
-       SuSEFirewall.Read
+       # Restore and configure firewall
+       RestoreAndRemoveBackupSysconfigFirewall()
+       SuSEFirewall.ReadCurrentConfiguration
        SuSEFirewall.SetServicesForZones(["service:openslp","service:nfs-kernel-server"], ["INT", "EXT", "DMZ"], true)
-       SuSEFirewall.Write
+       SaveAndRestartFirewallWorkaround()
+       # Restarting NFS before restarting firewall may not work
+       Service.Enable("nfs-server")
+       RestartNFSWorkaround()
     end
 
     #Published functions
