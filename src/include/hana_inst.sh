@@ -178,31 +178,6 @@ EOF
 	rm ${tmpfile}
 }
 
-hana_check_prereq()
-{
-   if ! rpm --quiet -q java-1_7_1-ibm; then
-        if [ ! -e /opt/java ]; then
-                echo "No Java Runtime found."
-                do_exit $ERR_no_java_found
-        fi
-   else
-        if [ ! -e /opt/java ]; then
-                # Set JAVA_HOME
-                if [ -e /etc/alternatives/javac ]; then
-                        # found JDK
-                        ln -s `readlink -f /etc/alternatives/javac | awk -F 'bin/java' '{print $1}'` /opt/java
-
-                elif [ -e /etc/alternatives/java ]; then
-                        # found JRE
-                        ln -s `readlink -f /etc/alternatives/java | awk -F 'bin/java' '{print $1}'` /opt/java
-                else
-                        echo "No Java found."
-                        do_exit $ERR_no_java_found
-                fi
-        fi
-   fi
-}
-
 hana_check_components()
 {
    components_not_found=""
@@ -385,7 +360,6 @@ hana_lcm_workflow()
 {
    WORKDIR=/var/tmp/
    rc=0
-   hana_check_prereq
    hana_volumes
    hana_get_input
    hana_setenv_lcm
@@ -426,7 +400,6 @@ hana_unified_installer_workflow()
    DB_USER=SYSTEM
    rm -rf ${WORKDIR}
    mkdir -p ${WORKDIR}
-   hana_check_prereq
    hana_volumes
    hana_get_input
    hana_setenv_unified_installer
