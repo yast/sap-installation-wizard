@@ -111,6 +111,12 @@ module Yast
 
         # Write HANA firewall configuration files and immediately start HANA firewall service.
         def Write
+            if @global_conf == nil
+                @global_conf = {}
+            end
+            if @iface_conf == nil
+                @iface_conf = {}
+            end
             log.info "HANAFirewall.Write - global configuration is: " + @global_conf.to_s
             log.info "HANAFirewall.Write - interface services are: " + @iface_conf.to_s
             if !Package.Installed("HANA-Firewall")

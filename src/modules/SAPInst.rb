@@ -397,7 +397,12 @@ module Yast
         )
         AutoInstall.Save
         Wizard.CreateDialog
+
+        # SUSE firewall behaves differently in auto installation mode.
+        # Because SUSE firewall is configured (later) by this module, hence the current YaST mode must be preserved.
+        original_mode = Mode.mode()
         Mode.SetMode("autoinstallation")
+
         Stage.Set("continue")
         WFM.CallFunction("inst_autopost", [])
         AutoinstSoftware.addPostPackages(
@@ -413,6 +418,9 @@ module Yast
         Pkg.TargetInit("/", false)
         WFM.CallFunction("inst_rpmcopy", [])
         WFM.CallFunction("inst_autoconfigure", [])
+
+        Mode.SetMode(original_mode)
+
         Wizard.CloseDialog
         SCR.Execute(path(".target.remove"), "/tmp/current_media_path")
         ret = true
@@ -812,6 +820,7 @@ module Yast
         if productPartitioning == Convert.to_string(SAPMedia.ConfigValue("HANA", "partitioning"))
           if !Builtins.contains(
               [
+                "LENOVO",
                 "FUJITSU",
                 "IBM",
                 "HP",
@@ -989,45 +998,101 @@ module Yast
       nil
     end
 
+    # Make SURE to save firewall configuration and restart it.
+    # Because firewall module has weird workaround that will prevent new configuration from being activated.
+    def SaveAndRestartFirewallWorkaround()
+       SuSEFirewall.WriteConfiguration
+       if Service.Active("SuSEfirewall2")
+           system("systemctl restart SuSEfirewall2")
+           system("nohup sh -c 'sleep 60 && systemctl restart SuSEfirewall2' > /dev/null &")
+       end
+    end
+
+    # Restart essential NFS services several times to get rid of "program not registered" error.
+    def RestartNFSWorkaround()
+       system("nohup sh -c 'sleep 16 && systemctl restart nfs-config' > /dev/null &")
+       system("nohup sh -c 'sleep 18 && systemctl restart rpcbind' > /dev/null &")
+       system("nohup sh -c 'sleep 20 && systemctl restart rpc.mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 22 && systemctl restart rpc.statd' > /dev/null &")
+       system("nohup sh -c 'sleep 24 && systemctl restart nfs-idmapd' > /dev/null &")
+       system("nohup sh -c 'sleep 26 && systemctl restart nfs-mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 28 && systemctl restart nfs-server' > /dev/null &")
+
+       system("nohup sh -c 'sleep 30 && systemctl restart nfs-config' > /dev/null &")
+       system("nohup sh -c 'sleep 32 && systemctl restart rpcbind' > /dev/null &")
+       system("nohup sh -c 'sleep 34 && systemctl restart rpc.mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 36 && systemctl restart rpc.statd' > /dev/null &")
+       system("nohup sh -c 'sleep 38 && systemctl restart nfs-idmapd' > /dev/null &")
+       system("nohup sh -c 'sleep 40 && systemctl restart nfs-mountd' > /dev/null &")
+       system("nohup sh -c 'sleep 42 && systemctl restart nfs-server' > /dev/null &")
+    end
+
     def FindSAPCDServer()
-	slpopen=SuSEFirewall.GetAcceptExpertRules('EXT')
-	if slpopen !~ /udp,0:65535,svrloc/
-            SuSEFirewall.SetAcceptExpertRules('EXT','0/0,udp,0:65535,svrloc')
-            SuSEFirewall.SetModified()
-            SuSEFirewall.Write()
-        end
-        out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
-        hostname = Ops.get_string(out, "stdout", "")
-        serverList = []
-	sles4sapinst=SLP.FindSrvs("service:sles4sapinst","")
-	sles4sapinst.each { |server|
-	    attrs = SLP.GetUnicastAttrMap("service:sles4sapinst",server["ip"])
-	    if attrs.has_key?("provided-media") and server["pcHost"] != hostname
-	        serverList << [ server["pcHost"], attrs["provided-media"], server["srvurl"] ] 
-	    end
+        # Allow SLP to discover exported SAP mediums in the network
+        SuSEFirewall.ReadCurrentConfiguration()
+        ["INT", "EXT", "DMZ"].each { |zone|
+            zone_custom_rules = SuSEFirewall.GetAcceptExpertRules(zone)
+            if zone_custom_rules !~ /udp,0:65535,svrloc/
+                SuSEFirewall.SetAcceptExpertRules(zone,"0/0,udp,0:65535,svrloc")
+                SuSEFirewall.SetModified()
+            end
         }
-	return if serverList.empty?
-        cdServer = Table(Id(:servers))
-	cdServer << Header("Server","Provided media")
-	items    = []
-	serverList.each { |server|
-		items  << Item(Id(server[2]),server[0],server[1]) 
-	}
-	items  << Item(Id("local"),"(Local)","(do not use network installation server)")
-	cdServer << items
-	UI.OpenDialog(VBox(
-		Heading(_("SLES4SAP installation servers are detected")),
-		MinHeight(10, cdServer),
-		PushButton("&OK")
-	))
-	UI.UserInput
-	ret = Convert.to_string(UI.QueryWidget(Id(:servers), :CurrentItem))
-	if ret != "local"
-	   /service:sles4sapinst:(?<url>.*)/ =~ ret
-	   @sapCDsURL = url
-	   mount_sap_cds
-	end
-	UI.CloseDialog();
+        SuSEFirewall.WriteConfiguration
+        if Service.Active("SuSEfirewall2")
+           system("systemctl restart SuSEfirewall2")
+        end
+        # Find NFS servres registered on SLP, filter out my own host name from the list.
+        hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+        my_hostname = Ops.get_string(hostname_out, "stdout", "")
+        my_hostname.strip!
+        slp_nfs_list = []
+        slp_svcs = SLP.FindSrvs("service:sles4sapinst","")
+        slp_svcs.each { |svc|
+            host = svc["pcHost"]
+            slp_attrs = SLP.GetUnicastAttrMap("service:sles4sapinst",svc["pcHost"])
+            if host != my_hostname && slp_attrs.has_key?("provided-media")
+                slp_nfs_list << [host, slp_attrs["provided-media"], svc["srvurl"]]
+            end
+        }
+        # Dismiss if there is not any NFS server on SLP
+        return if slp_nfs_list.empty?
+
+        svc_table = Table(Id(:servers))
+        svc_table << Header("Server","Provided Media")
+
+        table_items = []
+        table_items << Item(Id("local"),"(Local)","(do not use network installation server)")
+        slp_nfs_list.each { |svc|
+            table_items << Item(Id(svc[2]), svc[0], svc[1])
+        }
+
+        svc_table << table_items
+        # Display a dialog to let user choose a server
+        UI.OpenDialog(VBox(
+            Heading(_("SLES4SAP installation servers are detected")),
+            MinHeight(10, svc_table),
+            PushButton("&OK")
+        ))
+        UI.UserInput
+        ret = Convert.to_string(UI.QueryWidget(Id(:servers), :CurrentItem))
+        if ret != "local"
+            /service:sles4sapinst:(?<url>.*)/ =~ ret
+            @sapCDsURL = url
+            mount_sap_cds
+        end
+        UI.CloseDialog()
+    end
+
+    # Copy /etc/sysconfig/SuSEfirewall2 to /tmp/sapinst-SuSEfirewall2.
+    def BackupSysconfigFirewall()
+      ::FileUtils.remove_file('/tmp/sapinst-SuSEfirewall2', true)
+      ::FileUtils.cp('/etc/sysconfig/SuSEfirewall2', '/tmp/sapinst-SuSEfirewall2')
+    end
+
+    # Copy /tmp/sapinst-SuSEfirewall2 to /etc/sysconfig/SuSEfirewall2 and remove the tmp file.
+    def RestoreAndRemoveBackupSysconfigFirewall()
+      ::FileUtils.cp('/tmp/sapinst-SuSEfirewall2', '/etc/sysconfig/SuSEfirewall2')
+      ::FileUtils.remove_file('/tmp/sapinst-SuSEfirewall2', true)
     end
 
     # ***********************************
@@ -1035,39 +1100,41 @@ module Yast
     # and publish it via slp
     #
     def ExportSAPCDs()
+       # Make sure the directory exists before using it
+       ::FileUtils.mkdir_p @mediaDir
+       # NFS module will throw away firewall configuration during installation, hence back it up now.
+       BackupSysconfigFirewall()
+       # Configure NFS service
        NfsServer.Read
-       nfs_server = NfsServer.Export
-       nfs_server["start_nfsserver"] = true
-       exported = false
-       nfs_server["nfs_exports"].each { |exp|
-          if exp["mountpoint"] == @mediaDir
-             exported = true
-             break
-          end
-       }
-       if ! exported
-          nfs_server["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
+       nfs_conf = NfsServer.Export
+       if ! (nfs_conf["nfs_exports"].any? {|entry| entry["mountpoint"] == @mediaDir})
+           nfs_conf["nfs_exports"] << { "allowed" => ["*(ro,no_root_squash,no_subtree_check)"], "mountpoint" => @mediaDir }
        end
-
-       # The service description lists all medium names
+       nfs_conf["start_nfsserver"] = true
+       NfsServer.Set(nfs_conf)
+       # Firewall configuration is wiped by calling the Write function
+       NfsServer.Write
+       # Expose NFS service via SLP
+       # The SLP service description lists all medium names
        desc_list = []
-       if File.exist?(SAPInst.mediaDir)
-           desc_list = Dir.entries(SAPInst.mediaDir)
-           desc_list.delete('.')
-           desc_list.delete('..')
-       end
+       desc_list = Dir.entries(SAPInst.mediaDir)
+       desc_list.delete('.')
+       desc_list.delete('..')
        desc_list.uniq!
        desc_list.sort!
-
        SLP.RegFile("service:sles4sapinst:nfs://$HOSTNAME/data/SAP_CDs,en,65535",{ "provided-media" => desc_list.join(",") },"sles4sapinst.reg")
-       NfsServer.Set(nfs_server)
-       NfsServer.Write
-       # Open Firewall
-       SuSEFirewall.Read
-       SuSEFirewall.SetServicesForZones( ["service:openslp","service:nfs-kernel-server"],["EXT", "DMZ"],true)
-       SuSEFirewall.Write
        Service.Enable("slpd")
-       Service.Restart("slpd")
+       if !(Service.Active("slpd") ? Service.Restart("slpd") : Service.Start("slpd"))
+           Report.Error(_("Failed to start SLP server. SAP mediums will not be discovered by other computers."))
+       end
+       # Restore and configure firewall
+       RestoreAndRemoveBackupSysconfigFirewall()
+       SuSEFirewall.ReadCurrentConfiguration
+       SuSEFirewall.SetServicesForZones(["service:openslp","service:nfs-kernel-server"], ["INT", "EXT", "DMZ"], true)
+       SaveAndRestartFirewallWorkaround()
+       # Restarting NFS before restarting firewall may not work
+       Service.Enable("nfs-server")
+       RestartNFSWorkaround()
     end
 
     #Published functions
@@ -1322,7 +1389,7 @@ module Yast
 	command = ""
 	case url["scheme"]
 	   when "nfs"
-		command = "mount -o nolock "    + url["host"] + ":" + url["path"] + " " + @mediaDir
+		command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @mediaDir
 	   when "smb"
 		mopts = "-o ro"
 		if url["workgroup"] != ""
@@ -1338,7 +1405,7 @@ module Yast
         if Ops.get_string(out, "stderr", "") != ""
 	  @importSAPCDs = false
 	  Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
-                         "The wizard will move on without using network installation server.",
+                         "The wizard will move on without using network media server.",
                         Ops.get_string(out, "stderr", ""))
         else
 	  @importSAPCDs = true
