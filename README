@@ -1,0 +1,288 @@
+Introduction
+
+The SAP Installation Wizard is a YAST2 module to supports the installation of
+SAP products on SLES4SAP. The installation ofwo kind of SAP products will 
+be supported: Netviewer and HANA based. The module provides manuall and 
+automatic product installation. Furthermore the module can create an SAP
+installation server for the distributed or installation of SAP products.
+
+
+1. Components
+1.1 Modules
+1.1.1 SAPInst 
+   Contains the main functions:
+   Read: 
+	* reads the configuration of the module from /etc/sysconfig/sap-installation-wizard
+	* mounts the SAP product repositoreis from sles4sap installation installarion server
+	  if its URL is set in /etc/sysconfig/sap-installation-wizard
+	* searches for sles4sap installation servers via SLP if the type of installation is manual
+	* searches for not completed SAP product installations
+   Write:
+        * creates the sles4sap installation server when the user selected this feature during the installation
+	* executes the SAP product installation(s)
+   ParseXML:
+        * Reads an autyast file and applies this inmediately on the system.
+	  The reason is
+	  o to install product specific packages
+	  o to ask some parameters for the product installation
+	  o to modify some system settings
+	  Each media wich will be read can contains such a file.
+	  Whit this feature 3th party products can provide its own settings.
+	  For differnet kind of SAP products we provide differnt autoyast files.
+   CreatePartitions:
+        Creates the SAP data partitions defined in a light modified autyast partitioning file.
+	We provides for different SAP products differnt partitioning files.
+	In case of HANA installation different partitiong files will be provided for
+	different hardware.
+   WriteProductDatas:
+        Writes the collected product datas into the file product.data in the installations directory.
+	Following datas will be saved:
+	* path to the installation master
+	* SAP Product ID
+	* Database type
+	* Type of the installation: Standard, Distributed, HA, Standalone
+	* path to the installation directory
+	* Partitioning type
+	Furthermore the executable to the SAP installation will be created.
+   FindSAPCDServer:
+	Searches sapinst server via SLP. To be able to do so the firewall will be configured.
+	The YAST2 SuSEFirewall module will be used for this work.
+   ExportSAPCDs:
+        Function to export SAP installation media and to publish it via slp
+        
+
+   Helper functions
+   MountSource:
+        Mounts the SAP media. This fuction has 2 parameter:
+	* scheme:  local, device, usb, nfs, smb, cdrom[N]
+	* location: the scheme specific URL
+   UmountSources:
+	Umounts the SAP media if necessary
+   MakeTemp:
+	Creates temporary directory for unpacking SAP archives
+   DirName:
+        Extracts the directory name from a full path
+   CopyFiles:
+        This function copies the content of a directory into an other directory
+	and provides a process bar if possible. The function has 4 parameter:
+	* sourceDir
+	* targetDir
+	* subDir subdirectory in the target directory whic will be created
+	  and the content of sourceDir will be copied here.
+	* localCheck deprecated and will not be used anymore
+	  Look if we have the media we need locally available
+   GetProductParameter:
+        This function reads a product parameter
+   ShowPartitions:
+        Shows the created partitions after successfull HANA partitioning
+   CreateHANAPartitions:
+        Creates HANA partitioning. The SAP Installation Wizard can be started to create
+	only the HANA data partitions. In this case this function will be called.
+   parse_sysconfig
+        Reads the /etc/sysconfig/sap-installation-wizard and sets the global variables
+   get_hw_info
+        Reads the hardware information of the server
+   usb_select
+        Select the usb media we want use. It is necessary when the scheme is usb 
+	and more then one usb devices will be found.
+	!! This function is not realy readable because of the ycp->ruby auto translation
+   set_date
+        Set the global variable @date by the actual values.
+   mount_sap_cds
+        Mounts the sap medias if SAP_CDS_URL was set in /etc/sysconfig/sap-installation-wizard
+
+1.1.2 SAPMedia
+   Perl module to recognize and analyze the SAP installation master.
+   is_instmaster:
+	Detects if the selected media is a SAP installation master.
+	If it is returns the type of the installation master.
+   ConfigValue:
+	Reads product settings from /etc/sap-installation-wizard.xml
+   read_labelfile:
+	Reads and analize the SAP LABEL.ASC from SAP media
+   get_nw_products:
+	Gets the list of avaiable netwiever products from installation master
+   This module contains a lot of deprecated functions which will be removed.
+   
+1.1.3 HANAFirewall
+   Module to configure SuSEFirewall for SAP HANA server.
+
+   Main functions
+   Read:
+     Reads current HANA firewall global configuration and per-interface configuration.
+
+   Helper functions:
+   GetNonHANAServiceNames:
+	Return list of all service names as seen by name service switch.
+   GetAllHANAServiceNames:
+	Return list of all HANA service names as defined in /etc/hana-firewall.d/
+   GetEligibleInterfaceNames
+	Return list of interface names eligible for use with HANA.
+   GetHANASystemNames
+	Figure out the names of currently running HANA systems. Name consists of SID and instance number.
+   PreWrite
+	Keep the new settings internally without writing them into system.
+	Make sure that HANA firewall package is installed.
+   Write
+	Write HANA firewall configuration files and immediately start HANA firewall service.
+
+1.2. Clients
+1.2.1. inst_sap-start
+	This module will be called during the installation in 1th stage to ask the user the kind of 
+	installation and if the SAP Installation Wizard shall be started after the installation.
+
+1.2.2. inst_sap
+	This module will be called during installation 2th stage to configure yast2 firstboot module
+  	to start SAP Installation Wizard by first boot if necessary.
+
+1.2.3. firstboot_inst_sap
+	Starts the SAP Installation Wizard by yast2 firstboot.
+
+1.2.4. hana_firewall
+	Starts the HANA firewall configuration
+
+1.2.5. sap_create_storage
+	Creates the SAP data partition(s) defined in product and hardware specific autoyast xml files.
+
+1.2.6. sap-installation-wizard
+	Starts the SAP Installation Wizard in running system
+   
+
+1.3. Includes
+	The include directory there contains following files:
+	* product installation scripts provided by SAP
+	* partitioning autoyast files
+	* prdocut description xml files
+
+1.3.1. Product installation scripts:
+	b1_inst.sh hana_inst.sh sap_inst_nodb.sh sap_inst.sh
+
+1.3.2. Partitioning xml files:
+	b1_partitioning.xml                               hana_partitioning_Dell Inc._PowerEdge R920.xml
+	base_partitioning.xml                             hana_partitioning_Dell Inc._PowerEdge RT30.xml
+	hana_partitioning_Dell Inc._PowerEdge FC630.xml   hana_partitioning_Dell Inc._PowerEdge T620.xml
+	hana_partitioning_Dell Inc._PowerEdge M630.xml    hana_partitioning_Dell Inc._PowerEdge T630.xml
+	hana_partitioning_Dell Inc._PowerEdge R620.xml    hana_partitioning_FUJITSU_generic.xml
+	hana_partitioning_Dell Inc._PowerEdge R630.xml    hana_partitioning_HP_generic.xml
+	hana_partitioning_Dell Inc._PowerEdge R670.xml    hana_partitioning_Huawei Technologies Co., Ltd._generic.xml
+	hana_partitioning_Dell Inc._PowerEdge R730xd.xml  hana_partitioning_IBM_generic.xml
+	hana_partitioning_Dell Inc._PowerEdge R730.xml    hana_partitioning_LENOVO_generic.xml
+	hana_partitioning_Dell Inc._PowerEdge R910.xml
+
+1.3.3.  Product description xml files:
+	AS-ABAP.xml
+	ASCS-ABAP.xml
+	B1.xml
+	DBI-ABAP.xml
+	GATEWAY.xml
+	HANA.xml
+	PRAS-ABAP.xml
+	TREX.xml
+	Webdispatcher.xml
+
+1.4. Library files:
+1.4.1. wizards.rb
+	Describes the workflow of the SAP Installation Wizard.
+
+1.4.2. dialogs.rb
+	Defines the main dialogs of the SAP Installation Wizard
+
+1.4.3. add_repo_dialog.rb
+	Calls the yat2 add on worklfow to add 3th party AddOn products
+
+1.4.4. config_hanafw_dialog.rb
+	GUI to configure HANA firewall.
+
+1.4.5. tuning_dialog.rb
+	GUI to activate the proper tuned profile.
+
+2. Workflow
+
+2.1. read
+	In the first step the konfiguration and the state of SAP product installations will be read by SAPInst.Read
+	Next Step:
+	* 2.11 if the SAP product intstallation mode is set to "auto" 
+
+2.2. readIM
+	Read Installation Master
+        If one sles4sap installation server was selected or SAP_CDS_URL is defined
+	no intsallation master will be read only the existing IM will be analized.
+	Next Step:
+	* 2.3. if the IM is SWPM.
+	* 2.6. if the IM is HANA.
+
+2.3. selectI
+	Select installation mode
+	Next Step:
+	* 2.4.
+
+2.4. selectP
+	Select the product to install
+	Next Step:
+	* 2.5.
+
+2.5. copy
+	Copy the necessary media
+	Next Step:
+	* 2.5. until all needed media will  be copied.
+	* 2.6. if all needed media are copied.
+
+2.6. 3th
+	Read the 3th party media
+	Next Step:
+	* 2.6. until all needed media will  be copied.
+	* 2.7. if all needed media are copied.
+
+2.7. add_repo
+	Configure AddOn repositories
+	Next Step:
+	* 2.8.
+
+2.8. readP
+	Reads the parameter for the SAP product installation.
+	Next Step:
+	* 2.3 if more the one product should be installed.
+	* 2.9 if no more product should be installed.
+
+2.9. tunnig
+	Tune the server according to the product(s) to be installed.
+	Next Step:
+	* 2.10. if HANA based product will be installed
+	* 2.11. if SWPM based product will be installed
+
+2.10. hanafw
+	Next Step:
+	* 2.11.
+
+2.11. write
+	If the SAP product installation mode is not preauto the installation
+	of the selected product(s) will be started. Otherwise next step.
+	Next Step:
+	* 2.12.
+
+2.12. hanafw_post
+	The post conmfiguration of the HANA firewall. Only if HANA based 
+	product was selected for the installation. 
+
+3. Used yast2 modules
+3.1. SuSEFirewall
+	Following functions will be used:
+	* Read
+	* GetAcceptExpertRules
+	* SetAcceptExpertRules
+	* SetServicesForZones
+	* SetModified
+	* Write
+
+3.2. SLP
+	Following functions will be used:
+	* FindSrvs
+	* GetUnicastAttrMap
+	* RegFile
+
+3.3. NfsServer
+	Following functions will be used:
+	* Read
+	* Export
+	* Set
+	* Write
