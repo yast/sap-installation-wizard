@@ -825,12 +825,14 @@ module Yast
                 "IBM",
                 "HP",
                 "Dell Inc.",
-                "Huawei Technologies Co., Ltd."
+                "Huawei Technologies Co., Ltd.",
+		"Huawei"
               ],
               manufacturer
             )
             warningText = "Found Machine Manufacturer " + manufacturer + ".\n" +
-                          "This manufacturer is not supported for SAP HANA with Business One!\n" +
+			  "This manufacturer is not supported by this installation method " +
+			  "or not supported for SAP HANA with Business One!\n" +
                           "For supported models check https://service.sap.com/pam.\n" +
                           "No proper storage partitioning scheme can be determined.\n" +
                           "SAP HANA will be installed into root file system.";
@@ -838,21 +840,14 @@ module Yast
             ret = false
             next deep_copy(ret)
           end
-          if manufacturer != "Dell Inc."
+	  # For comapitibility keep specific disk layout for Dell legacy models, but for new models use generic layout
+          if !Builtins.contains(
+		["PowerEdge FC630", "PowerEdge M630", "PowerEdge R620", "PowerEdge R630", "PowerEdge R670", "PowerEdge R730xd", "PowerEdge R730", "PowerEdge R910", "PowerEdge R920", "PowerEdge RT30", "PowerEdge T620", "PowerEdge T630"], 
+		model
+	    )
             partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
           else
-            # for Dell servers
             partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
-            if !FileUtils.Exists(partXML)
-              warningText = "Found machine model " + model + ".\n" +
-                            "This model is not supported for SAP HANA with Business One!\n" +
-                            "For supported models check https://service.sap.com/pam.\n" +
-                            "No proper storage partitioning scheme can be determined.\n" +
-                            "SAP HANA will be installed into root file system."
-              Popup.LongWarning(warningText)
-              ret = false
-              next deep_copy(ret)
-            end
           end
         end
         ret = WFM.CallFunction( "sap_create_storage", [ partXML ])
