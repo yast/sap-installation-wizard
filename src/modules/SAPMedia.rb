@@ -5,6 +5,7 @@
 # vim: set tabstop=4:expandtab
 require "yast"
 require "fileutils"
+require "nokogiri"
 
 module Yast
   class SAPMediaClass < Module
@@ -147,9 +148,12 @@ module Yast
       deep_copy(ret)
     end
 
-    #***********************************
-    # Starts the installation
-    # @return nil
+    #############################################################
+    #
+    # Writes the configuration environment of the installation
+    # @return :next
+    #
+    #############################################################
     def Write()
       Builtins.y2milestone("-- SAPMedia.Write Start ---")
 
@@ -161,6 +165,169 @@ module Yast
     end
 
 
+    #############################################################
+    #
+    # Read and analize the installation master
+    #
+    ############################################################
+    def ReadInstallationMaster
+      Builtins.y2milestone("-- Start ReadInstallationMaster ---")
+      ret = nil
+      run = true
+      while run
+        ret = media_dialog("inst_master")
+        if ret == :abort || ret == :cancel
+            if Yast::Popup.ReallyAbort(false)
+                Yast::Wizard.CloseDialog
+                return :abort
+            end
+        end
+
+        # is_instmaster gives back a key-value pair to split for the BO workflow
+        #         KEY: SAPINST, BOBJ, HANA, B1
+        #       VALUE: complete path to the instmaster directory incl. sourceDir
+        Builtins.y2milestone("looking for instmaster in %1", @sourceDir)
+        instMasterList            = SAPMedia.is_instmaster(@sourceDir)
+        SAPInst.instMasterType    = Ops.get(instMasterList, 0, "")
+        SAPInst.instMasterPath    = Ops.get(instMasterList, 1, "")
+        @instMasterVersion        = Ops.get(instMasterList, 2, "")
+
+        Builtins.y2milestone(
+          "found SAP instmaster at %1 type %2 version %3",
+          SAPInst.instMasterPath,
+          SAPInst.instMasterType,
+          @instMasterVersion
+        )
+        if SAPInst.instMasterPath == nil || SAPInst.instMasterPath.size == 0
+           Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
+        else
+           #We have found the installation master
+           run = false
+        end
+      end
+      case SAPInst.instMasterType
+        when "SAPINST"
+          ret = :SAPINST
+        when "HANA"
+          SAPInst.DB             = "HDB"
+          SAPInst.instMasterType = "HANA"
+          SAPInst.PRODUCT_ID     = "HANA"
+          SAPInst.PRODUCT_NAME   = "HANA"
+          SAPInst.productList << { "name" => "HANA", "id" => "HANA", "ay_xml" => SAPMedia.ConfigValue("HANA","ay_xml"), "partitioning" => SAPMedia.ConfigValue("HANA","partitioning"), "script_name" => SAPMedia.ConfigValue("HANA","script_name") }
+          SAPInst.mediaDir = SAPInst.instDir
+          ret = :HANA
+        when /^B1/
+          SAPInst.DB             = ""
+          SAPInst.PRODUCT_ID     = SAPInst.instMasterType
+          SAPInst.PRODUCT_NAME   = SAPInst.instMasterType
+          SAPInst.productList << { "name" => SAPInst.instMasterType, "id" => SAPInst.instMasterType, "ay_xml" => SAPMedia.ConfigValue("B1","ay_xml"), "partitioning" => SAPMedia.ConfigValue("B1","partitioning"), "script_name" => SAPMedia.ConfigValue("B1","script_name") }
+          SAPInst.mediaDir = SAPInst.instDir
+          ret = :B1
+      end
+      if SAPInst.instMasterType != "SAPINST"
+         #We can only link SAPINST MEDIA
+         SAPInst.createLinks = false
+      end
+      Builtins.y2milestone("SAPInst.productList %1", SAPInst.productList)
+      if SAPInst.instMasterType == 'HANA'
+        # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
+        SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster", false)
+        SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster"
+      else
+        SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster-" + SAPInst.instMasterType, false)
+        SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster-" + SAPInst.instMasterType
+      end
+      SAPInst.UmountSources(@umountSource)
+      return ret
+    end
+
+    #############################################################
+    #
+    # Seach Label Files on the Media
+    # in  : path to start the search
+    # out : list of label files
+    #
+    ############################################################
+    def SearchLabelFiles(path)
+       Builtins.y2milestone("-- Start SAPMedia.SearchLabelFiles %1 ",path)
+       file_list = `find -L '$prod_path' -name LABEL.ASC -o -name info.txt`;
+       return file_list.split("\n")
+    end
+
+    #############################################################
+    #
+    # Evaulate if the media is an SAP installation master.
+    # If yes return the type of it.
+    # in  - start directory for label search 
+    # out - type of instmaster and path to installmaster
+    #
+    #############################################################
+    def IsInstallationMaster(path)
+       instmaster  = []
+       SearchLabelFiles(path).each { |label_file|
+         Builtins.y2milestone("-- Start SAPMedia.IsInstallationMaster  %1 ",label_file)
+         IO.read(label_file).each { |line|
+           fields = line.split(":")
+	   if File.basename(label_file) == "info.txt"
+	     fields = line.split(" ")
+	   end
+	   # HANA DB SERVER
+	   if fields[1] == "HANA ENTERPRISE"
+	      instmaster << "HANA"
+	      instmaster << File.dirname(label_file)
+              break
+	   else if fields[0] == "B1HA" or fields[0] == "B1A" or fields[0] == "B1H"
+	      instmaster << "B1HA"
+	      instmaster << File.dirname(label_file)
+              break
+           else if fields[1] == "SLTOOLSET" && ( fields[5] == @PLATFORM."_".@ARCH || fields[5] == "*" )
+	      instmaster << "SAPINST"
+	      instmaster << File.dirname(label_file)
+              instmaster << field[3]
+              break
+           else if fields[3] == "SAPINST" && ( fields[5] == @PLATFORM."_".@ARCH || fields[5] == "*" )
+	      instmaster << "SAPINST"
+	      instmaster << File.dirname(label_file)
+              instmaster << "NW70"
+              break
+           else if fields[1] == "BusinessObjects"
+	      instmaster << "BOBJ"
+	      instmaster << File.dirname(label_file)
+              break
+           end
+         }
+         break if ! instmaster.empty?
+       }
+       return instmaster
+    end
+
+    ##########################################################
+    #
+    # in  product name + parameter
+    # out value
+    #
+    #############################################################
+    def ConfigValue(prod,par)
+       
+       doc = Nokogiri::XML(File.open("/etc/sap-installation-wizard.xml"))
+       doc.xpath('//listentry').each { |node|
+         p  = Hash.new("")
+         f  = []
+	 ok = false
+	 node.children { |c|
+	   ok = true if c.name 'name' and c.content == prod
+	   if c.name == 'search'
+	     f << c.content
+	   end
+	   p[c.name] = c.content
+	 }
+         if ok
+	   return p[par]
+         end
+       }
+       return ""
+    end
+ 
     #***********************************
     # Umount sources.
     #  @param boolean doit
