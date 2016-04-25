@@ -38,6 +38,7 @@ EOF
 
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
+ARCH=$( uname -m | tr [:lower:] [:upper:] )
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:h\?" options; do
@@ -237,7 +238,7 @@ hana_setenv_unified_installer()
 {  
   # there are two versions of the HANA Unified Installer response file
   # Try the newer one if present
-  oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__X86_64/setuphana.slmodel.template
+  oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
   newfile=${oldfile}.v2
   if [ -f ${newfile} ]; then
     FILE=${newfile}
@@ -365,12 +366,12 @@ hana_lcm_workflow()
    hana_setenv_lcm
 
    # Does the HANA media have a full SPx DVD folder strucure, or a selected components folder structure ?
-   if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_X86_64 ]; then
+   if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
        # HANA SPx DVD folder structure: check for required HANA components
-       COMPONENTS='HDB_CLIENT_LINUX_X86_64 HDB_SERVER_LINUX_X86_64 HDB_AFL_LINUX_X86_64 HDB_STUDIO_LINUX_X86_64 HDB_CLIENT_LINUXINTEL' 
+       COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
        missing=$(hana_check_components)
        LCM_COMPONENTS=client,afl,studio,server
-       cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_X86_64
+       cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_${ARCH}
    else
        if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_DATABASE ]; then
            # check for required HANA components
@@ -379,7 +380,7 @@ hana_lcm_workflow()
            LCM_COMPONENTS=client,afl,studio,server
            cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_DATABASE
        else
-           missing='for full Service Pack: HDB_SERVER_LINUX_X86_64\nfor Revision Update: SAP_HANA_DATABASE'
+           missing="for full Service Pack: HDB_SERVER_LINUX_${ARCH}\nfor Revision Update: SAP_HANA_DATABASE"
        fi
    fi
 
@@ -404,7 +405,7 @@ hana_unified_installer_workflow()
    hana_get_input
    hana_setenv_unified_installer
 
-   oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__X86_64/setuphana.slmodel.template
+   oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
    newfile=${oldfile}.v2
    if [ -f ${newfile} ]; then
      FILE=${newfile}
@@ -413,7 +414,7 @@ hana_unified_installer_workflow()
    fi
 
    LINUX26_SUPPORT=/usr/bin/uname26  # workaround for saposcol bug (does not detect Linux kernel 3.x which is shipped with SLES11 SP2)
-   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterpass`\n`cat ${MEDIA_TARGET}/ay_q_masterpass`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__X86_64/setup.sh ${WORKDIR} ${FILE}
+   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterpass`\n`cat ${MEDIA_TARGET}/ay_q_masterpass`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
    # Unified Installer always returns rc 0, regardless of success :-(
    # workaround: test connection to HANA to determine success
    [ -f ${A_SID} ] && SID=`< ${A_SID}`
@@ -423,9 +424,9 @@ hana_unified_installer_workflow()
    rc=$?
 
    # install AFL (required for B1)
-   cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_X86_64
+   cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}
    if [ $? -eq 0 ]; then
-      ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__X86_64/SAPCAR -xvf ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_X86_64/IMDB_AFL100_*.SAR
+      ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/SAPCAR -xvf ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR
       if [ $? -eq 0 ]; then
           cd SAP_HANA_AFL
           ./hdbinst -b -p `cat ${MEDIA_TARGET}/ay_q_masterpass` -s ${SID}
@@ -434,10 +435,10 @@ hana_unified_installer_workflow()
              echo "could not install AFL, error=$rc"
           fi
       else
-         echo "could not extract ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_X86_64/IMDB_AFL100_*.SAR"
+         echo "could not extract ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR"
       fi
    else
-      echo "AFL directory ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_X86_64 does not exist"
+      echo "AFL directory ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH} does not exist"
       rc=1
    fi
    
@@ -458,7 +459,7 @@ hana_unified_installer_workflow()
    if [ -n "${HDBLCM}" ]; then
       hana_lcm_workflow
    else
-      COMPONENTS='HANA_IM_LINUX__X86_64 HDB_CLIENT_LINUX_X86_64 HDB_SERVER_LINUX_X86_64 SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_X86_64 HDB_STUDIO_LINUX_X86_64 HDB_CLIENT_LINUXINTEL'
+      COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
       if [ ! -z ${missing} ]; then
          yast_popup_wait "Cannot install, HANA component folders missing on media: ${missing}"

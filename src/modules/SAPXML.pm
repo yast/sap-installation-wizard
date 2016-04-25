@@ -1,4 +1,4 @@
-package SAPMedia;
+package SAPXML;
 
 use 5.000000;
 use strict;
@@ -23,7 +23,7 @@ our @ISA = qw(Exporter AutoLoader);
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration        use SAPMedia ':all';
+# This allows declaration        use SAPXML ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 #our %EXPORT_TAGS = ( 'all' => [ qw(
@@ -1143,7 +1143,7 @@ sub type_of_product {
 
 sub logger {
      my $line = shift || "";
-     my $logfile = "/var/log/SAPMedia.log";
+     my $logfile = "/var/log/SAPXML.log";
 
      open (FH, '>>',$logfile) or warn "Can't open $logfile: $!\n";
      print STDERR "$line\n";
@@ -1160,11 +1160,11 @@ __END__
 
 =head1 NAME
 
-SAPMedia - Perl extension for the SAP Universl MediaChanger
+SAPXML - Perl extension for analyzing XML files on the SAP medias.
 
 =head1 SYNOPSIS
 
-  use SAPMedia;
+  use SAPXML;
 
 =head1 DESCRIPTION
 

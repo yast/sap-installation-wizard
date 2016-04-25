@@ -106,12 +106,22 @@ module Yast
       #Local path to the sources
       @sourceDir    = ""
 
+      # The product counter
+      @prodCount = 0
+
+      #The installation will be prepared in this directory 
+      #In case of HANA and B1 instDir and mediaDir is the same
+      @instDir = ""
+
+      #The installations will be prepared in this directory
+      #For all installation a separate directory will be created
+      @instDirBase = ""
+
       @sapCDsURL   = ""
       @mediaDir    = ""
       @mediaList   = []
       @schemeCache = "local"
       @mmount      = ""
-      @instDirBase = ""
 
     end
 
@@ -145,7 +155,33 @@ module Yast
          }
       end
 
-      deep_copy(ret)
+      # If there are installation profiles waiting to be installed, ask user what they want to do with them.
+      while Dir.exists?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
+        @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
+        if !File.exists?(@instDir + "/installationSuccesfullyFinished.dat") && File.exists?(@instDir + "/product.data")
+          productData2 = Convert.convert(
+            SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+            :from => "any",
+            :to   => "map <string, any>"
+          )
+          # User has three choices: do nothing, ignore, or run it at end of the wizard workflow
+          case Popup.AnyQuestion3(_("Pending installation from previous wizard run"),
+                                _("Installation profile was previously collected for the following product, however it has not been installed yet:\n\n") +
+                               productData2["PRODUCT_NAME"].to_s + "\n(" + productData2["PRODUCT_ID"].to_s + ")\n\n" +
+                               _("Would you like to delete it, install the product at the last wizard step, or ignore it?"),
+                                _("Delete"), _("Install"), _("Ignore and do nothing"), :focus_retry) # Focus on ignore
+          when :yes # Delete
+              ::FileUtils.remove_entry_secure(@instDir, true)
+          when :no # Install
+              # It will be installed at the last wizard step (i.e. the installation step)
+              WriteProductDatas(productData2)
+          when :retry # Do nothing
+              # Do nothing about it
+          end
+        end
+        @prodCount = @prodCount.next
+      end
+
     end
 
     #############################################################
@@ -160,6 +196,7 @@ module Yast
       if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
           ExportSAPCDs()
       end
+      #TODO Write installation data in xml
 
       :next
     end
@@ -187,7 +224,7 @@ module Yast
         #         KEY: SAPINST, BOBJ, HANA, B1
         #       VALUE: complete path to the instmaster directory incl. sourceDir
         Builtins.y2milestone("looking for instmaster in %1", @sourceDir)
-        instMasterList            = SAPMedia.is_instmaster(@sourceDir)
+        instMasterList            = SAPXML.is_instmaster(@sourceDir)
         SAPInst.instMasterType    = Ops.get(instMasterList, 0, "")
         SAPInst.instMasterPath    = Ops.get(instMasterList, 1, "")
         @instMasterVersion        = Ops.get(instMasterList, 2, "")
@@ -213,14 +250,14 @@ module Yast
           SAPInst.instMasterType = "HANA"
           SAPInst.PRODUCT_ID     = "HANA"
           SAPInst.PRODUCT_NAME   = "HANA"
-          SAPInst.productList << { "name" => "HANA", "id" => "HANA", "ay_xml" => SAPMedia.ConfigValue("HANA","ay_xml"), "partitioning" => SAPMedia.ConfigValue("HANA","partitioning"), "script_name" => SAPMedia.ConfigValue("HANA","script_name") }
+          SAPInst.productList << { "name" => "HANA", "id" => "HANA", "ay_xml" => SAPXML.ConfigValue("HANA","ay_xml"), "partitioning" => SAPXML.ConfigValue("HANA","partitioning"), "script_name" => SAPXML.ConfigValue("HANA","script_name") }
           SAPInst.mediaDir = SAPInst.instDir
           ret = :HANA
         when /^B1/
           SAPInst.DB             = ""
           SAPInst.PRODUCT_ID     = SAPInst.instMasterType
           SAPInst.PRODUCT_NAME   = SAPInst.instMasterType
-          SAPInst.productList << { "name" => SAPInst.instMasterType, "id" => SAPInst.instMasterType, "ay_xml" => SAPMedia.ConfigValue("B1","ay_xml"), "partitioning" => SAPMedia.ConfigValue("B1","partitioning"), "script_name" => SAPMedia.ConfigValue("B1","script_name") }
+          SAPInst.productList << { "name" => SAPInst.instMasterType, "id" => SAPInst.instMasterType, "ay_xml" => SAPXML.ConfigValue("B1","ay_xml"), "partitioning" => SAPXML.ConfigValue("B1","partitioning"), "script_name" => SAPXML.ConfigValue("B1","script_name") }
           SAPInst.mediaDir = SAPInst.instDir
           ret = :B1
       end
@@ -1201,10 +1238,10 @@ module Yast
           Builtins.y2milestone("Local directory found: %1/%2", _Path, label)
     
           # Only if the LABEL.ASC are identical
-          srcLabel = SAPMedia.read_labelfile( sourceDir + "/" + "/LABEL.ASC")
+          srcLabel = SAPXML.read_labelfile( sourceDir + "/" + "/LABEL.ASC")
           next if srcLabel == ""
     
-          lclLabel = SAPMedia.read_labelfile( _Path + "/" + label + "/LABEL.ASC")
+          lclLabel = SAPXML.read_labelfile( _Path + "/" + label + "/LABEL.ASC")
           next if lclLabel == ""
     
           if srcLabel == lclLabel
@@ -1264,82 +1301,6 @@ module Yast
 	return
     end
 
-    #############################################################
-    #
-    # Read and analize the installation master
-    #
-    ############################################################
-    def ReadInstallationMaster
-      Builtins.y2milestone("-- Start ReadInstallationMaster ---")
-      ret = nil
-      run = true
-      while run  
-        ret = media_dialog("inst_master")
-        if ret == :abort || ret == :cancel
-            if Yast::Popup.ReallyAbort(false)
-                Yast::Wizard.CloseDialog
-                return :abort
-            end
-        end
-    
-        # is_instmaster gives back a key-value pair to split for the BO workflow
-        #         KEY: SAPINST, BOBJ, HANA, B1
-        #       VALUE: complete path to the instmaster directory incl. sourceDir
-        Builtins.y2milestone("looking for instmaster in %1", @sourceDir)
-        instMasterList            = SAPMedia.is_instmaster(@sourceDir)
-        SAPInst.instMasterType    = Ops.get(instMasterList, 0, "")
-        SAPInst.instMasterPath    = Ops.get(instMasterList, 1, "")
-        @instMasterVersion        = Ops.get(instMasterList, 2, "")
-    
-        Builtins.y2milestone(
-          "found SAP instmaster at %1 type %2 version %3",
-          SAPInst.instMasterPath,
-          SAPInst.instMasterType,
-          @instMasterVersion
-        )
-        if SAPInst.instMasterPath == nil || SAPInst.instMasterPath.size == 0
-           Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
-        else
-           #We have found the installation master
-           run = false
-        end
-      end
-      case SAPInst.instMasterType
-        when "SAPINST"
-          ret = :SAPINST
-        when "HANA"
-          SAPInst.DB             = "HDB"
-          SAPInst.instMasterType = "HANA"
-          SAPInst.PRODUCT_ID     = "HANA"
-          SAPInst.PRODUCT_NAME   = "HANA"
-          SAPInst.productList << { "name" => "HANA", "id" => "HANA", "ay_xml" => SAPMedia.ConfigValue("HANA","ay_xml"), "partitioning" => SAPMedia.ConfigValue("HANA","partitioning"), "script_name" => SAPMedia.ConfigValue("HANA","script_name") }
-          SAPInst.mediaDir = SAPInst.instDir
-          ret = :HANA
-        when /^B1/ 
-          SAPInst.DB             = ""
-          SAPInst.PRODUCT_ID     = SAPInst.instMasterType
-          SAPInst.PRODUCT_NAME   = SAPInst.instMasterType
-          SAPInst.productList << { "name" => SAPInst.instMasterType, "id" => SAPInst.instMasterType, "ay_xml" => SAPMedia.ConfigValue("B1","ay_xml"), "partitioning" => SAPMedia.ConfigValue("B1","partitioning"), "script_name" => SAPMedia.ConfigValue("B1","script_name") }
-          SAPInst.mediaDir = SAPInst.instDir
-          ret = :B1
-      end
-      if SAPInst.instMasterType != "SAPINST"
-         #We can only link SAPINST MEDIA
-         SAPInst.createLinks = false
-      end
-      Builtins.y2milestone("SAPInst.productList %1", SAPInst.productList)
-      if SAPInst.instMasterType == 'HANA'
-        # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
-        SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster", false)
-        SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster"
-      else
-        SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster-" + SAPInst.instMasterType, false)
-        SAPInst.instMasterPath = SAPInst.mediaDir + "/Instmaster-" + SAPInst.instMasterType
-      end
-      SAPInst.UmountSources(@umountSource)
-      return ret
-    end
-    
     #############################################################
     #
     # Copy the SAP Media
@@ -1678,7 +1639,7 @@ module Yast
         end # Case user input
       end # While true
       if @mediaList != [] and @labelHashRef != {}
-          @dbMap = SAPMedia.check_media(@sourceDir, @mediaList, @labelHashRef)
+          @dbMap = SAPXML.check_media(@sourceDir, @mediaList, @labelHashRef)
       end
     end # Function media_dialog
 
