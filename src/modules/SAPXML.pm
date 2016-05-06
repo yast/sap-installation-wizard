@@ -61,7 +61,7 @@ our %TYPEINFO;
 my $DEBUG=1;
 
 my $PLATFORM = "LINUX";
-my $ARCH     = "X86_64";
+my $ARCH     = `arch`; $ARCH=uc($ARCH); chomp($ARCH);
 my @STANDALONE = ("TREX","GATEWAY","WEBDISPATCHER");
 
 ####################################################################
