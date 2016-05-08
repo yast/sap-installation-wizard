@@ -8,7 +8,7 @@
         <partition>
           <create config:type="boolean">true</create>
           <crypt_fs config:type="boolean">false</crypt_fs>
-          <filesystem config:type="symbol">ext3</filesystem>
+          <filesystem config:type="symbol">xfs</filesystem>
           <format config:type="boolean">false</format>
           <loop_fs config:type="boolean">false</loop_fs>
           <lvm_group>vg_hana</lvm_group>

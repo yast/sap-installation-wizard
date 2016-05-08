@@ -306,7 +306,8 @@ B1S_SAMBA_AUTOSTART=true
 #Overwrite the existing B1 Shared folder?
 B1S_SHARED_FOLDER_OVERWRITE=true
 #HANA DB Server name or IP
-HANA_DATABASE_SERVER=`hostname`
+HANA_DATABASE_SERVER=localhost
+#HANA_DATABASE_SERVER=`hostname`
 #HANA DB Server Port
 HANA_DATABASE_SERVER_PORT=3${SAPINSTNR}15
 #HANA DB User ID
@@ -376,17 +377,51 @@ SL_THREAD_PER_SERVER=30
 EOF
 }
 
-
-b1h_post_install()
+b1h_92_install_properties()
 {
-    # activate HANA script server for B1 features
+   # append more install properties
+   cat >> "${FULLINSTPATH}/install.properties" <<-EOF
+#Compress backups
+BCKP_BACKUP_COMPRESS=false
+#Limit size of backups (in MBs)
+BCKP_BACKUP_SIZE_LIMIT=
+#Log files location
+#BCKP_PATH_LOG=
+#Backup location
+#BCKP_PATH_TARGET=
+#Working folder
+#BCKP_PATH_WORKING=
+#Remove databases of features during uninstallation
+#FEATURE_DATABASES_TO_REMOVE=
+#HANA DB Admin ID
+HANA_DATABASE_ADMIN_ID=${sid}adm
+#HANA DB Admin Password
+HANA_DATABASE_ADMIN_PASSWORD=${MASTERPASS}
+#HANA DB server will be restarted after installation/uninstallation
+HANA_OPTION_RESTART=true
+#Remove SLD Database during uninstallation
+HANA_SLD_DATABASE_UNINSTALL_REMOVE=true
+EOF
+}
+
+
+b1h_enable_hdb_scriptserver()
+{
+    # activate HANA script server for B1 features.
+    # will be enabled after next HANA restart
+    # either by b1h_restart_hana() or B1H 9.2 native installer
     sid=`echo $SID | tr '[:upper:]' '[:lower:]'`
     su - ${sid}adm -c "hdbsql -i ${SAPINSTNR} -u ${DB_USER} -p ${MASTERPASS} -jC \"alter system alter configuration ('daemon.ini','SYSTEM') set ('scriptserver','instances') = '1' with reconfigure\"" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
        yast_popup_wait "Could not activate HANA script server, please activate manually"
     fi
+}
 
+
+b1h_restart_hana()
+{
     # restart HANA to activate B1 features
+    sid=`echo $SID | tr '[:upper:]' '[:lower:]'`
     su - ${sid}adm -c "HDB stop > /dev/null 2>&1"
     if [ $? -eq 0 ]; then
        su - ${sid}adm -c "HDB start > /dev/null 2>&1"
@@ -398,7 +433,11 @@ b1h_post_install()
     else
        yast_popup_wait "Could not stop HANA instance nr ${SAPINSTNR}. Please restart SAP HANA to activate SAP BusinessOne features."
     fi
+}
 
+
+b1h_restart_sld()
+{
     # restart B1 SLD service
     /etc/init.d/sapb1servertools restart > /dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -428,8 +467,19 @@ b1h_installation()
        fi
     fi
 
-    INSTTOOL=install.bin
-    USER_INSTALL_LOGS=${USER_INSTALL_DIR}/logs/B1Installer.log
+    INSTTOOL_91=install.bin
+    INSTTOOL_92=install
+    if [ -f "${FULLINSTPATH=}/${INSTTOOL_92}" ]; then
+       INSTTOOL=${INSTTOOL_92}
+       if [ -f "${FULLINSTPATH}/Wizard/setup.sh" ]; then
+          chmod +x ${FULLINSTPATH}/Wizard/setup.sh
+       fi
+    else
+       INSTTOOL=${INSTTOOL_91}
+    fi
+    chmod +x ${FULLINSTPATH}/${INSTTOOL}
+
+    USER_INSTALL_LOGS=/var/log/SAPBusinessOne/B1Installer*.log
     if [ ! -f "${FULLINSTPATH}/${INSTTOOL}" ]; then
        yast_popup_wait "Cannot install BusinessOne ServerComponents:\npath to installation tool not found:\n${FULLINSTPATH}/${INSTTOOL}"
        rc=1
@@ -443,11 +493,15 @@ b1h_installation()
           b1h_install_properties
           if [ "${B1H_version}" == "90" ];then b1h_90_install_properties; fi
           if [ "${B1H_version}" == "91" ];then b1h_91_install_properties; fi
-          sh ./${INSTTOOL} -i silent -f ./install.properties > /dev/null 2>&1
-          if [ $? -eq 0 ]; then
-             b1h_post_install
+          if [ "${B1H_version}" == "92" ];then b1h_91_install_properties; b1h_92_install_properties; fi
+          ./${INSTTOOL} -i silent -f ./install.properties > /dev/null 2>&1
+          rc=$?
+          if [ $rc -eq 0 ]; then
+             # B1H 9.2 restarts HANA so we only do it for prior versions
+             if [ "${B1H_version}" -lt "92" ];then b1h_restart_hana; fi
+             b1h_restart_sld
           else
-             yast_popup_wait "Installation of SAP Business One ServerComponents failed. For details please check log file at ${USER_INSTALL_LOGS}"
+             yast_popup_wait "Installation of SAP Business One ServerComponents finished with error code ${rc}.\nFor details please check log file at ${USER_INSTALL_LOGS}"
              rc=1
           fi
        else
@@ -460,7 +514,7 @@ b1h_installation()
               USER_INSTALL_DIR=`grep INSTALLATION_FOLDER ${INSTALL_PROPERTIES} | awk -F'=' '{print $NF}'`
           fi
           if [ $rc -ne 0 ]; then
-             yast_popup_wait "Installation of SAP Business One ServerComponents failed. For details please check log file at ${USER_INSTALL_LOGS}"
+             yast_popup_wait "Installation of SAP Business One ServerComponents finished with error code ${rc}.\nFor details please check log file at ${USER_INSTALL_LOGS}"
              rc=1
           fi
        fi
@@ -512,7 +566,7 @@ b1a_installation()
 ###########################################
 # Main
 ###########################################
-   local rc=0
+   rc=0
    WORKDIR=/tmp
    DB_USER=SYSTEM
    USER_INSTALL_DIR=/usr/sap/SAPBusinessOne
@@ -561,6 +615,7 @@ b1a_installation()
         rc=$?
         ;;
       B1AH|B1H)
+        b1h_enable_hdb_scriptserver
         b1h_installation
         rc=$?
         ;;
