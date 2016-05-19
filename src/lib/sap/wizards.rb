@@ -158,6 +158,81 @@ module Yast
       Convert.to_symbol(ret)
     end
 
+    # SAP Media Handling Sequence to Create a SAP Intallation Envinroment
+    # @return sequence result
+    def SAPMediaSequence
+      Yast.import "UI"
+
+      textdomain "sap-installation-wizard"
+
+      Yast.import "Sequencer"
+      Yast.import "Wizard"
+      Yast.import "Label"
+      Yast.import "Stage"
+
+      # mark if the dialog must be closed at the and.
+      close_dialog = false
+      aliases = {
+        "read"    => lambda { SAPMedia::Read()  },
+        "readIM"  => lambda { SAPMedia::ReadInstallationMaster()   },
+        "selectI" => lambda { SAPMedia::SelectNWInstallationMode() },
+        "copy"    => lambda { SAPMedia::CopyNWMedia() },
+        "3th"     => lambda { SAPMedia::ReadSupplementMedium() },
+	"add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
+        "write"   => lambda { SAPMedia::Write() }
+      }
+
+      sequence = {
+        "ws_start" => "read",
+        "read"     => {
+                        :abort => :abort,
+                        :auto  => "write",
+                        :next  => "readIM"
+                      },
+        "readIM"   => {
+                        :abort   => :abort, 
+                        :HANA    => "3th",
+                        :B1      => "3th",
+                        :SAPINST => "selectI"
+                      },
+        "selectI"  => {
+                        :abort => :abort,
+                        :back  => "readIM",
+                        :next  => "copy"
+                      },
+        "copy"     => {
+                        :abort => :abort,
+                        :back  => "selectI",
+                        :next  => "3th"
+                      },
+        "3th"      => {
+                        :abort => :abort,
+                        :back  => "copy",
+                        :next  => "add_repo"
+                      },
+        "add_repo" => {
+                        :abort => :abort,
+                        :back => "copy",
+                        :auto  => "write",
+                        :next  => :next
+                      }
+      }
+
+      if !Wizard.IsWizardDialog
+        Wizard.CreateDialog
+        close_dialog = true
+      else
+        Wizard.OpenNextBackDialog
+        Wizard.HideAbortButton
+      end
+      Wizard.SetDesktopTitleAndIcon("sap")
+
+      ret = Sequencer.Run(aliases, sequence)
+      if close_dialog
+         Wizard.CloseDialog
+      end
+      Convert.to_symbol(ret)
+    end
   end
 end
 
