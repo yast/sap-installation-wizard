@@ -210,42 +210,41 @@ module Yast
 
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
-      	 @SAPMediaTODO["products"].each { |prod|
-	    @mediaList = []
-	    if prod["to-copy"]
-	       @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
-	       prod["medias"].each { |media|
-	          scheme  = media["url"][0,3]
-                  url     = media["url"][6..-1]
-		  urlPath = MountSource(scheme,url)
-		  if "ERROR:" == urlPath[0,6]
-		     Builtins.y2milestone("Can not mount media %1. Reason %2",media["url"],urlPath)
-		     return :next
-		  else
-		     case media["type"].downcase
-		     when "supplement"
-			   CopyFiles(@sourceDir, @instDir, "Supplement", false)     
-		     when "sap"
-                           instMasterList = SAPXML.is_instmaster(@sourceDir)
-			   if instMasterList.empty?
-                               media=find_sap_media(@sourceDir)
-                               media.each { |path,label|
-                                 CopyFiles(path, @mediaDir, label, false)
-                                 @mediaList << @mediaDir + "/" + label
-                               }
-			   else
-			       @instMasterType = instMasterList[0]
-			       @instMasterPath = instMasterList[1]
-                               CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
-			   end
-		      end
-			       
-		  end
-                  UmountSources(@umountSource)
-	       }
-               IO.write(@instDir + "/start_dir.cd" , @mediaList.join("\n"))
-	    end
-	 }
+        @SAPMediaTODO["products"].each { |prod|
+          @mediaList = []
+          if prod["to-copy"]
+            @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
+            prod["medias"].each { |media|
+              scheme  = media["url"][0,3]
+              url     = media["url"][6..-1]
+              urlPath = MountSource(scheme,url)
+              if "ERROR:" == urlPath[0,6]
+                 Builtins.y2milestone("Can not mount media %1. Reason %2",media["url"],urlPath)
+                 return :next
+              else
+                 case media["type"].downcase
+                 when "supplement"
+                   CopyFiles(@sourceDir, @instDir, "Supplement", false)
+                 when "sap"
+                   instMasterList = SAPXML.is_instmaster(@sourceDir)
+                   if instMasterList.empty?
+                                   media=find_sap_media(@sourceDir)
+                                   media.each { |path,label|
+                                     CopyFiles(path, @mediaDir, label, false)
+                                     @mediaList << @mediaDir + "/" + label
+                                   }
+                   else
+                       @instMasterType = instMasterList[0]
+                       @instMasterPath = instMasterList[1]
+                                   CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
+                   end
+                  end
+              end
+              UmountSources(@umountSource)
+            }
+            IO.write(@instDir + "/start_dir.cd" , @mediaList.join("\n"))
+          end
+        }
       end
       :next
     end
@@ -271,7 +270,7 @@ module Yast
     # @return true
     #
     #############################################################
-    def Import()
+    def Export()
       Builtins.y2milestone("-- SAPMedia.Export Start ---")
       #TODO
 
@@ -326,14 +325,26 @@ module Yast
           @instMasterType = "HANA"
           @PRODUCT_ID     = "HANA"
           @PRODUCT_NAME   = "HANA"
-          @productList << { "name" => "HANA", "id" => "HANA", "ay_xml" => SAPXML.ConfigValue("HANA","ay_xml"), "partitioning" => SAPXML.ConfigValue("HANA","partitioning"), "script_name" => SAPXML.ConfigValue("HANA","script_name") }
+          @productList << {
+                        "name"   => "HANA",
+                                "id"     => "HANA",
+                                "ay_xml" => SAPXML.ConfigValue("HANA","ay_xml"),
+                                "partitioning" => SAPXML.ConfigValue("HANA","partitioning"),
+                                "script_name" => SAPXML.ConfigValue("HANA","script_name")
+                        }
           @mediaDir = @instDir
           ret = :HANA
         when /^B1/
           @DB             = ""
           @PRODUCT_ID     = @instMasterType
           @PRODUCT_NAME   = @instMasterType
-          @productList << { "name" => @instMasterType, "id" => @instMasterType, "ay_xml" => SAPXML.ConfigValue("B1","ay_xml"), "partitioning" => SAPXML.ConfigValue("B1","partitioning"), "script_name" => SAPXML.ConfigValue("B1","script_name") }
+          @productList << {
+                        "name" => @instMasterType,
+                                "id"   => @instMasterType,
+                                "ay_xml"       => SAPXML.ConfigValue("B1","ay_xml"),
+                                "partitioning" => SAPXML.ConfigValue("B1","partitioning"),
+                                "script_name"  => SAPXML.ConfigValue("B1","script_name")
+                        }
           @mediaDir = @instDir
           ret = :B1
       end
@@ -1321,31 +1332,31 @@ module Yast
         SCR.Execute(path(".target.bash_output"), "/usr/bin/mkdir -p " + @mediaDir)
         # Mount new network location
         url     = URL.Parse(@sapCDsURL)
-	command = ""
-	case url["scheme"]
-	   when "nfs"
-		command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @mediaDir
-	   when "smb"
-		mopts = "-o ro"
-		if url["workgroup"] != ""
-		   mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
-		elsif url["user"] != ""
-		   mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
-		else
-		   mopts = mopts + ",guest"
-		end
-		command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
-	end
-	out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
-        if Ops.get_string(out, "stderr", "") != ""
-	  @importSAPCDs = false
-	  Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
-                         "The wizard will move on without using network media server.",
-                        Ops.get_string(out, "stderr", ""))
-        else
-	  @importSAPCDs = true
+        command = ""
+        case url["scheme"]
+           when "nfs"
+            command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @mediaDir
+           when "smb"
+            mopts = "-o ro"
+            if url["workgroup"] != ""
+               mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
+            elsif url["user"] != ""
+               mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
+            else
+               mopts = mopts + ",guest"
+            end
+            command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
         end
-	return
+        out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
+            if Ops.get_string(out, "stderr", "") != ""
+               @importSAPCDs = false
+               Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
+                             "The wizard will move on without using network media server.",
+                            Ops.get_string(out, "stderr", ""))
+            else
+               @importSAPCDs = true
+            end
+        return
     end
 
     
