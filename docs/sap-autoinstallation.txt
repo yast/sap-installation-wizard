@@ -1,0 +1,73 @@
+sap-inst_auto Client
+   The sap-inst_auto yast2 client controls the installation of SAP products using
+   the following yast2 modules:
+
+
+SAPMedia
+
+   This module is used for preparing the installations envinroment for a SAP product.
+   The installation envinroment will be build in in /data/SAP_INST/<Product Count> directory.
+   Except of the installation master all SAP media will be copied into /data/SAP_CDs.
+   The installation master must be saved into /data/SAP_INST/<Product Count>/Instmaster 
+   because the sap installer makes changes in this directory during the installation.
+
+   The SAPMedia module can detect the type of SAP-media. The type of supplement
+   media can not be detected. Thats why the type of media must be given. 
+   At the time 2 type of media are provided:
+   * sap         => All media provided by SAP
+   * spupplement => All 3th party media
+  
+
+SAPProduct
+   This module controls the installation of the SAP product. In NetWeaver case this module creates
+   the parameter.ini file and starts the sapints process with the appropriate parameter.
+
+The sap-inst control is a list containing of SAP products to be installed.
+The tags of this xml section are called "product". All product tags contains two more
+lists: 
+   * media:      This list contains the URLs to the SAP installation media.
+   * parameters: This list contains the SAP product installation parameters.
+
+<sap-inst config:type="list">
+  <product> 
+    <count config:type="integer">0</count>
+    <tocopy config:type="boolean">true</tocopy>
+    <media config:type="list">
+      <medium>
+        <url>nfs://server/path1</url>
+        <type>sap</type>
+      </medium>
+      <medium>
+        <url>nfs://server/path3</url>
+        <type>supplement</type>
+      </medium>
+    </medium>
+    <parameters config:type="list">
+       <productID>HANA</productID>
+       <sapMasterPW>blablabla</sapMasterPW>
+    </parameters>
+  </product> 
+  <product> 
+    <count config:type="integer">1</count>
+    <tocopy config:type="boolean">true</tocopy>
+    <media config:type="list">
+      <medium>
+        <url>nfs://server/path1</url>
+        <type>sap</type>
+      </medium>
+      <medium>
+        <url>nfs://server/path2</url>
+        <type>sap</type>
+      </medium>
+      <medium>
+        <url>nfs://server/path3</url>
+        <type>supplement</type>
+      </medium>
+    </medium>
+    <parameters config:type="list">
+       <productID>HANA</productID>
+       <sapMasterPW>blablabla</sapMasterPW>
+    </parameters>
+  </product> 
+</sap-inst> 
+
