@@ -175,7 +175,6 @@ module Yast
       aliases = {
         "read"    => lambda { SAPMedia::Read()  },
         "readIM"  => lambda { SAPMedia::ReadInstallationMaster()   },
-        "selectI" => lambda { SAPMedia::SelectNWInstallationMode() },
         "copy"    => lambda { SAPMedia::CopyNWMedia() },
         "3th"     => lambda { SAPMedia::ReadSupplementMedium() },
 	"add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
@@ -193,16 +192,10 @@ module Yast
                         :abort   => :abort, 
                         :HANA    => "3th",
                         :B1      => "3th",
-                        :SAPINST => "selectI"
-                      },
-        "selectI"  => {
-                        :abort => :abort,
-                        :back  => "readIM",
-                        :next  => "copy"
+                        :SAPINST => "copy"
                       },
         "copy"     => {
                         :abort => :abort,
-                        :back  => "selectI",
                         :next  => "3th"
                       },
         "3th"      => {
