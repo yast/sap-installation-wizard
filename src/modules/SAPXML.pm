@@ -461,7 +461,7 @@ sub get_products_for_media{
    my $self        = shift;
    my $prodEnvPath = shift;
    my @media       = split /\n/, `cat $prodEnvPath/start_dir.cd`;
-   my @packages    = split /\n/, `find $prodEnvPath -name "packages.xml"`;
+   my @packages    = split /\n/, `cd $prodEnvPath; find -name "packages.xml"`;
    my @labels      = ();
    my @valid       = ();
    foreach my $medium (@media)
@@ -473,7 +473,7 @@ sub get_products_for_media{
    foreach my $xml_file ( @packages )
    {
       my $x     = XML::LibXML->new() or        return ();
-      my $doc   = $x->parse_file($xml_file) or next;
+      my $doc   = $x->parse_file("$prodEnvPath/$xml_file") or next;
       my $found = 1;
       
       my $xpath = q{
@@ -505,6 +505,8 @@ sub get_products_for_media{
 	  last;
 	}
       }
+      $xml_file =~ s#./Instmaster/##;
+      $xml_file =~ s#/packages.xml##;
       push @valid, $xml_file if( $found );
    }
    return \@valid;
