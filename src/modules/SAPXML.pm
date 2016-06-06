@@ -455,6 +455,69 @@ sub get_nw_products
 # in : $INSTMASTER
 # out: list of path to files 
 #
+BEGIN { $TYPEINFO{get_products_for_media} = ["function", ["list", "string" ] , "string"]; }
+sub get_products_for_media{
+
+   my $self        = shift;
+   my $prodEnvPath = shift;
+   my @media       = split /\n/, `cat $prodEnvPath/start_dir.cd`;
+   my @packages    = split /\n/, `find $prodEnvPath -name "packages.xml"`;
+   my @labels      = ();
+   my @valid       = ();
+   foreach my $medium (@media)
+   {
+      my $label = `cat $medium/LABEL.ASC`; chomp $label;
+      push @labels, $label;
+   }
+
+   foreach my $xml_file ( @packages )
+   {
+      my $x     = XML::LibXML->new() or        return ();
+      my $doc   = $x->parse_file($xml_file) or next;
+      my $found = 1;
+      
+      my $xpath = q{
+          /packages/package
+      };
+
+      foreach my $label ( @labels )
+      {
+        my $foundLabel = 0;
+        foreach my $node ($doc->findnodes($xpath)) {
+           my $pattern = $node->getAttribute("label");
+           #Hide the brackets () as special characters within regex ()=grouping
+           $pattern =~ s/\Q(\E/\Q\(\E/;
+           $pattern =~ s/\Q)\E/\Q\)\E/;
+	   $pattern =~ s#/#\\/#g;
+           
+           # replace * with real regex operator group (.*)
+           $pattern =~ s/\*/\(\.\*\)/g;
+
+	   if( $label =~ /$pattern/ )
+	   {
+	     $foundLabel = 1;
+	     last;
+	   }
+        }
+	if( !$foundLabel )
+	{
+	  $found = 0;
+	  last;
+	}
+      }
+      push @valid, $xml_file if( $found );
+   }
+   return \@valid;
+}
+
+#TODO Do We need these:
+
+####################################################################
+# get_sapinst_path
+#
+# in : $INSTMASTER
+# out: list of path to files 
+#
 BEGIN { $TYPEINFO{get_sapinst_path} = ["function", ["map", "string", "string" ] , "string"]; }
 sub get_sapinst_path{
 
