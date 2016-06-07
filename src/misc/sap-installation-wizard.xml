@@ -44,39 +44,24 @@
       <type>STANDARD</type>
       <stack>ABAP</stack>
       <ay_xml>AS-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[@output-dir="INSTALL"]//components[display-name="Application Server ABAP"]//component[@name="NW_ABAP_OneHost"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[@output-dir="INSTALL"]//components[display-name="Application Server ABAP"]//component[@name="NW_ABAP_OneHost"]</search>
       <script_name>sap_inst.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-        <listentry>RDBMS</listentry>
-        <listentry>^EXPORT</listentry>
-      </media>
     </listentry>
     <listentry>
-      <name>Process Integration</name>
+      <name>Double Stack</name>
       <type>STANDARD</type>
       <stack>DOUBLE</stack>
-      <ay_xml>AS-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[@output-dir="INSTALL"]//components[display-name="Process Integration"]//component[@name="NW_Doublestack_OneHost"]</search>
+      <ay_xml>DOUBLE-STACK.xml</ay_xml>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[@output-dir="INSTALL"]//components[display-name="Process Integration"]//component[@name="NW_Doublestack_OneHost"]</search>
       <script_name>sap_inst.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-        <listentry>RDBMS</listentry>
-        <listentry>J2EE</listentry>
-        <listentry>^EXPORT</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Application Server JAVA</name>
       <type>STANDARD</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[@output-dir="INSTALL"]//components[display-name="Application Server Java"]//component[@name="NW_Java_OneHost"]</search>
+      <ay_xml>AS-JAVA.xml</ay_xml>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[@output-dir="INSTALL"]//components[display-name="Application Server Java"]//component[@name="NW_Java_OneHost"]</search>
       <script_name>sap_inst.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-        <listentry>RDBMS</listentry>
-        <listentry>J2EE</listentry>
-      </media>
     </listentry>
     <!-- SAP DISTRIBUTED SYSTEMS -->
     <!-- Application Server ABAP -->
@@ -86,12 +71,9 @@
       <type>SUSE-HA-ST</type>
       <stack>ABAP</stack>
       <ay_xml>ASCS-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_ASCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_ASCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Database Instance (AS-ABAP)</name>
@@ -99,12 +81,9 @@
       <type>SUSE-HA-ST</type>
       <stack>ABAP</stack>
       <ay_xml>DBI-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_DB"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_DB"]</search>
       <partitioning>base_partitioning</partitioning>
       <script_name>sap_inst.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (AS-ABAP)</name>
@@ -112,12 +91,9 @@
       <type>SUSE-HA-ST</type>
       <stack>ABAP</stack>
       <ay_xml>PRAS-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_CI"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_CI"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <!-- PROCESS INTEGRATION -->
     <listentry>
@@ -126,24 +102,18 @@
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
       <ay_xml>ASCS-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_ABAP_ASCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_ABAP_ASCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>SCS Instance (PI)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_SCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Database Instance (PI)</name>
@@ -151,12 +121,9 @@
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
       <ay_xml>DBI-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_DB"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_DB"]</search>
       <partitioning>base_partitioning</partitioning>
       <script_name>sap_inst.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (PI)</name>
@@ -164,12 +131,9 @@
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
       <ay_xml>PRAS-ABAP.xml</ay_xml>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_CI"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_CI"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <!-- AS JAVA -->
     <listentry>
@@ -177,160 +141,118 @@
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/JAVA"]//component[@name="NW_Java_SCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/JAVA"]//component[@name="NW_Java_SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Database Instance (AS-JAVA)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/JAVA"]//component[@name="NW_Java_DB"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/JAVA"]//component[@name="NW_Java_DB"]</search>
       <script_name>sap_inst.sh</script_name>
       <partitioning>base_partitioning</partitioning>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (AS-JAVA)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Java_CI"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Java_CI"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <!-- HA -->
     <listentry>
       <name>ASCS Instance</name>
       <type>HA</type>
       <stack>ABAP</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="ASCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="ASCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (Partner Connectivity Kit)</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="PCKHA"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="PCKHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Enqueue Replication Server Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
       <stack>ABAP</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="ERS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="ERS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>SCS Instance (Doublestack)</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="DS_SCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="DS_SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
       <stack>ABAP</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="APP1"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="APP1"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (AS-JAVA)</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="AEHA"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="AEHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>SCS Instance (Java)</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="SCS"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Additional Application Server Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="APPX"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="APPX"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Database Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="DB"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="DB"]</search>
       <partitioning>base_partitioning</partitioning>
       <script_name>sap_inst.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (PI)</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="PICPHA"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="PICPHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (Advanced Adapter Engine Extended)</name>
       <type>HA</type>
       <stack>JAVA</stack>
-      <search>//components[@output-dir="##DB##"]//components[display-name="High-Availability System"]//component[@output-dir="AEXHA"]</search>
+      <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="AEXHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <!-- STANDALONE Engines -->
     <listentry>
@@ -340,9 +262,6 @@
       <ay_xml>GATEWAY.xml</ay_xml>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>GATEWAY</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>Webdispatcher</name>
@@ -351,9 +270,6 @@
       <ay_xml>Webdispatcher.xml</ay_xml>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>UKERNEL</listentry>
-      </media>
     </listentry>
     <listentry>
       <name>TREX</name>
@@ -362,9 +278,6 @@
       <ay_xml>TREX.xml</ay_xml>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <media>
-        <listentry>TREXBIN</listentry>
-      </media>
     </listentry>
     <!-- SBC System Base Copy .. System Rename -->
     <listentry>
