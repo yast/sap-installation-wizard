@@ -32,24 +32,6 @@ module Yast
              "help"    => _("<p>Enter the location of your SAP medium.</p>"),
              "name"    => _("Location of the SAP product medium (e.g. SAP kernel, database, and database exports)")
              },
-         "nwInstType" => {
-             "help"    => _("<p>Choose SAP product installation and back-end database.</p>") +
-                          '<p><b>' + _("SAP Standard System") + '</p></b>' +
-                          _("<p>Installation of a SAP NetWeaver system with all servers on the same host.</p>") +
-                          '<p><b>' + _("SAP Standalone Engines") + '</p></b>' +
-                          _("<p>Standalone engines are SAP Trex, SAP Gateway, and Web Dispatcher.</p>") +
-                          '<p><b>' + _("Distributed System") + '</p></b>' +
-                          _("Installation of SAP NetWeaver with the servers distributed on separate hosts.</p>") +
-                          '<p><b>' + _("High-Availability System") + '</p></b>' +
-                          _("Installation of SAP NetWeaver in a high-availability setup.</p>") +
-                          '<p><b>' + _("System Rename") + '</p></b>' +
-                          _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>"),
-             "name"    => _("Choose the Installation Type!")
-             },
-         "nwSelectProduct" => {
-             "help"    => _("<p>Please choose the SAP product you wish to install.</p>"),
-             "name"    => _("Choose a Product")
-             },
          "database" => {
              "help"    => _("<p>Enter the location of your database medium. The database type is determined automatically.</p>"),
              "name"    => _("Location of the Database Medium")
@@ -213,7 +195,6 @@ module Yast
           if prod["to-copy"]
             @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
             prod["media"].each { |medium|
-	      #TODO das passt nicht:
 	      url = medium["url"].split("://")
               urlPath = MountSource(url[0],url[1])
               if "ERROR:" == urlPath[0,6]
@@ -321,7 +302,6 @@ module Yast
         when "SAPINST"
           ret = :SAPINST
         when "HANA"
-          @DB             = "HDB"
           @instMasterType = "HANA"
           @PRODUCT_ID     = "HANA"
           @PRODUCT_NAME   = "HANA"
@@ -335,7 +315,6 @@ module Yast
           @mediaDir = @instDir
           ret = :HANA
         when /^B1/
-          @DB             = ""
           @PRODUCT_ID     = @instMasterType
           @PRODUCT_NAME   = @instMasterType
           @productList << {
@@ -1098,8 +1077,6 @@ module Yast
     publish :function => :CopyFiles,           :type => "void ()"
     publish :function => :CreatePartitions,    :type => "void ()"
     publish :function => :ShowPartitions,      :type => "string ()"
-    publish :function => :CreateHANAPartitions,:type => "void()"
-    publish :function => :GetProductParameter, :type => "string ()"
     publish :function => :WriteProductDatas,   :type => "void ()"
     publish :function => :ExportSAPCDs,        :type => "void ()"
     
@@ -1117,7 +1094,6 @@ module Yast
     publish :variable => :instMasterVersion, :type => "string"
     publish :variable => :instMode,          :type => "string"
     publish :variable => :exportSAPCDs,      :type => "string"
-    publish :variable => :instType,          :type => "string"
     publish :variable => :mountPoint,        :type => "string"
     publish :variable => :mediaDir,          :type => "string"
     publish :variable => :mediaDirBase,      :type => "string"

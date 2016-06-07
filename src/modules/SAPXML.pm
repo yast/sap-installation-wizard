@@ -318,11 +318,13 @@ sub ConfigValue{
 BEGIN { $TYPEINFO{get_nw_products} = ["function",["list", ["map", "string", "string"]],"string","string","string"]; }
 sub get_nw_products
 {
-   my $self   = shift;
-   my $imPath = shift;
-   my $TYPE   = shift;
-   my $DB     = shift;
-   my @FILTER = ();
+   my $self    = shift;
+   my $instEnv = shift;
+   my $TYPE    = shift;
+   my $DB      = shift;
+   my $productDir = shift;
+   my $imPath  = "$instEnv/Instmaster";
+   my @FILTER  = ();
    my $PRODUCTS = {};
    my $x = XML::LibXML->new();
    #TODO Make it configurable
@@ -361,11 +363,15 @@ sub get_nw_products
    $d = $x->parse_file("$imPath/product.catalog");
    foreach my $tmp ( @FILTER )
    {
-      my $xmlpath = $tmp->[1];
-      $xmlpath =~ s/##DB##/$DB/;
-      foreach my $node ($d->findnodes($xmlpath))
+      foreach my $PD ( @{$productDir} )
       {
-         push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+         my $xmlpath = $tmp->[1];
+         $xmlpath =~ s/##DB##/$DB/;
+         $xmlpath =~ s/##PD##/$PD/;
+         foreach my $node ($d->findnodes($xmlpath))
+         {
+            push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+         }
       }
    }
    
@@ -425,7 +431,7 @@ sub get_nw_products
 # in : Path to the installation environment.
 # out: list of output-dir of the possible products 
 #
-BEGIN { $TYPEINFO{get_products_for_media} = ["function", ["list", "string" ] , "string"]; }
+BEGIN { $TYPEINFO{get_products_for_media} = ["function", ["map", "string", "any"  ] , "string"]; }
 sub get_products_for_media{
 
    my $self        = shift;
@@ -497,9 +503,9 @@ sub get_products_for_media{
       push @valid, $xml_file if( $found );
    }
    return {
-   		"product-dir" => \@valid,
-		"DB"          => $DB,
-		"TREX"        => $TREX
+   		"productDir" => \@valid,
+		"DB"         => $DB,
+		"TREX"       => $TREX
 	}
 }
 
