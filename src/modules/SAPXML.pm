@@ -35,11 +35,10 @@ our @ISA = qw(Exporter AutoLoader);
 our @EXPORT = qw( 
 find_local_IM
 is_instmaster
-needSaplup
-needIBMJava
 get_sapinst_version
 get_sapinst_path
 get_nw_products
+get_products_for_media
 set_sapinst_feature
 products_on_instmaster
 search_labelfiles
@@ -63,6 +62,14 @@ my $DEBUG=1;
 my $PLATFORM = "LINUX";
 my $ARCH     = `arch`; $ARCH=uc($ARCH); chomp($ARCH);
 my @STANDALONE = ("TREX","GATEWAY","WEBDISPATCHER");
+my @DATABASES  = ("ORA","SYB","DB2","HDB","MAX");
+my %DBMAP      = ( 
+			"ORA" => "ORA",
+			"SYB" => "SYB",
+			"DB2" => "DB6",
+			"HDB" => "HDB",
+			"MAX" => "ADA"
+		);
 
 ####################################################################
 # find_local_IM
@@ -212,43 +219,6 @@ sub is_instmaster {
    }
    return \@instmaster;
 }
-####################################################################
-# needSaplup
-#  in  - instmaster path
-#  out - boolean true or false
-#
-BEGIN{ $TYPEINFO{needSaplup} = ["function", "boolean", "string"]; } 
-sub needSaplup{
-   my $self = shift;
-   my $instmaster_path = shift;
-   
-   my $XML = `find '$instmaster_path' -name control.xml`;
-   my $NUM = `grep -c 'package label="" name="SAPLUP" copy="false"/>' $XML`;
-   if( $NUM > 0 )
-   {
-           return 1;
-   }
-   return 0;
-}
-
-
-####################################################################
-# needIBMJava
-#  in  - instmaster path + database type
-#  out - boolean true or false
-#
-BEGIN{ $TYPEINFO{needIBMJava} = ["function", "boolean", "string","string"]; } 
-sub needIBMJava{
-   my $self = shift;
-   my $instmaster_path = shift;
-   my $DB              = shift;
-
-   # TODO IBM Java not needed anymore with SWPM
-   # return 1 if ( -d "$instmaster_path/NW04S" || -d "$instmaster_path/NW701" || ( -d "$instmaster_path/NW702" && "SYB" ne $DB ));
-
-   return 0;
-}
-
 
 ####################################################################
 # get_sapinst_version
@@ -452,8 +422,8 @@ sub get_nw_products
 ####################################################################
 # get_sapinst_path
 #
-# in : $INSTMASTER
-# out: list of path to files 
+# in : Path to the installation environment.
+# out: list of output-dir of the possible products 
 #
 BEGIN { $TYPEINFO{get_products_for_media} = ["function", ["list", "string" ] , "string"]; }
 sub get_products_for_media{
@@ -464,6 +434,9 @@ sub get_products_for_media{
    my @packages    = split /\n/, `cd $prodEnvPath; find -name "packages.xml"`;
    my @labels      = ();
    my @valid       = ();
+   my $DB          = "";
+   my $TREX        = "";
+
    foreach my $medium (@media)
    {
       my $label = `cat $medium/LABEL.ASC`; chomp $label;
@@ -504,12 +477,30 @@ sub get_products_for_media{
 	  $found = 0;
 	  last;
 	}
+	# Is it a DB medium
+	foreach my $dbl ( @DATABASES )
+	{
+	   if( $label =~ /^$dbl/ )
+	   {
+	      $DB = $DBMAP{$dbl};
+	      last;
+	   }
+	}
+	# Is it a TREX medium
+	if( $label =~ /^TREX/ )
+	{
+	   $TREX = 1;
+	}
       }
       $xml_file =~ s#./Instmaster/##;
       $xml_file =~ s#/packages.xml##;
       push @valid, $xml_file if( $found );
    }
-   return \@valid;
+   return {
+   		"product-dir" => \@valid,
+		"DB"          => $DB,
+		"TREX"        => $TREX
+	}
 }
 
 #TODO Do We need these:
