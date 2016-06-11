@@ -442,26 +442,6 @@ module Yast
     end
 
     # ***********************************
-    # Get directory name
-    #  @param string path
-    #  @return  string dirname
-    def DirName(filePath)
-      Builtins.y2milestone("-- SAPMedia.DirName Start ---")
-      pathComponents = Builtins.splitstring(filePath, "/")
-      last = Ops.get_string(
-        pathComponents,
-        Ops.subtract(Builtins.size(pathComponents), 1),
-        ""
-      )
-      ret = Builtins.substring(
-        filePath,
-        0,
-        Ops.subtract(Builtins.size(filePath), Builtins.size(last))
-      )
-      ret
-    end
-
-    # ***********************************
     # Parse and merge our xml snipplets
     #
     def ParseXML(file)
@@ -470,7 +450,7 @@ module Yast
         SCR.Write(
           path(".target.string"),
           "/tmp/current_media_path",
-          DirName(file)
+          File.dirname(file)
         )
         profile = XML.XMLToYCPFile(file)
         if profile != {} && Builtins.size(profile) == 0
@@ -1071,7 +1051,6 @@ module Yast
     publish :function => :Write,               :type => "void ()"
     publish :function => :UmountSources,       :type => "void ()"
     publish :function => :MakeTemp,            :type => "string ()"
-    publish :function => :DirName,             :type => "string ()"
     publish :function => :ParseXML,            :type => "boolean ()"
     publish :function => :MountSource,         :type => "string ()"
     publish :function => :CopyFiles,           :type => "void ()"
