@@ -18,11 +18,14 @@ module Yast
       textdomain "sap-media"
       Builtins.y2milestone("----------------------------------------")
       Builtins.y2milestone("SAP Product Installer Started")
-      @instType    = ""
-      @DB          = ""
-      @sapInstEnv  = ""
-      @PRODUCT_ID  = ""
-      @productMap  = {}
+
+      #Some parameter of the actual selected product
+      @instType      = ""
+      @DB            = ""
+      @sapInstEnv    = ""
+      @PRODUCT_ID    = ""
+      @PRODUCT_NAME  = ""
+      @productMAP    = {}
 
       @dialogs = {
          "nwInstType" => {
@@ -45,6 +48,10 @@ module Yast
              }
       }
 
+      # @productList contains a list of hashes of the parameter of the products which can be installed
+      # withe the selected installation medium. The parameter of HANA and B1 are constant
+      # and can not be extracted from the datas on the IM of these products.
+
       @productList = []
       @productList << {
 			 "name"         => "HANA",
@@ -60,7 +67,37 @@ module Yast
 			 "partitioning" => SAPXML.ConfigValue("B1","partitioning"),
 			 "script_name"  => SAPXML.ConfigValue("B1","script_name")
 	}
+
+      # @installedProducts contains a list of the products which already are installen on the system
+      # The list consits of hashes of the parameter of the products:
+      # instEnv      : path to the installation environment
+      # instType     : The type of the installation: Standard, Distributed, HA, SUSE-HA, STANDALONE
+      # PRODUCT_NAME : the name of the product.
+      # PRODUCT_ID   : The product ID of the product.
+      # SID          : the SID of the installed product.
+      # STACK        : ABABP, JAVA, Double
+      # DB           : The selected database
+      @installedProducts = []
     end
+  end
+
+  #############################################################
+  #
+  # Read the installed products.
+  #
+  ############################################################
+  def Read()
+     prodCount = 0;
+     while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
+       if File.exists?( Builtins.sformat("%1/%2/%3", SAPMedia.instDirBase, prodCount, "installationSuccesfullyFinished.dat") ) && File.exists?(@instDir + "/product.data")
+         @installedProducts << Convert.convert(
+            SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+            :from => "any",
+            :to   => "map <string, any>"
+          )
+       end
+       prodCount = prodCount.next
+     end
   end
 
   #############################################################
@@ -72,11 +109,13 @@ module Yast
     Builtins.y2milestone("-- Start SelectNWInstallationMode ---")
     run = true
 
-    @productMap = SAPXML.get_products_for_media(sapInstEnv)
-    #Reset the selected installation type and DB
-    @instType   = ""
-    @DB         = ""
-    @sapInstEnv = sapInstEnv
+    #Reset the the selected product specific parameter
+    @productMAP = SAPXML.get_products_for_media(sapInstEnv)
+    @instType      = ""
+    @DB            = ""
+    @PRODUCT_ID    = ""
+    @PRODUCT_NAME  = ""
+    @sapInstEnv    = sapInstEnv
 
     Wizard.SetContents(
       @dialogs["nwInstType"]["name"],
@@ -198,13 +237,13 @@ module Yast
       case UI.UserInput
         when :next
           @PRODUCT_ID = Convert.to_string(UI.QueryWidget(Id(:products), :CurrentItem))
-          if SAPInst.PRODUCT_ID == nil
+          if @PRODUCT_ID == nil
             run = true
             Popup.Message(_("Select a product!"))
           else
             run = false
             @productList.each { |map|
-               SAPInst.PRODUCT_NAME = map["name"] if SAPInst.PRODUCT_ID == map["id"]
+               @PRODUCT_NAME = map["name"] if @PRODUCT_ID == map["id"]
             }
           end
         when :back
@@ -212,7 +251,6 @@ module Yast
         when :abort, :cancel
           if Yast::Popup.ReallyAbort(false)
               Yast::Wizard.CloseDialog
-              SAPInst.UmountSources(true)
               run = false
               return :abort
           end
@@ -224,9 +262,8 @@ module Yast
   #############################################################
   #
   # Read the installation parameter.
-  # The product xml will executed
+  # The product  ay_xml will executed to read the SAP installation parameter
   # Partitioning xml will be executed
-  # Sapinst will started to read the parameter.
   #
   ############################################################
   def ReadParameter
@@ -244,9 +281,9 @@ module Yast
     Wizard.RestoreAbortButton()
     ret=:next
     #First we execute the autoyast xml file of the product if this exeists
-    script_name  = SAPMedia.ayXMLPath + '/' +  SAPInst.GetProductParameter("script_name")
-    xml_path     = SAPInst.GetProductParameter("ay_xml") == ""       ? ""   : SAPInst.ayXMLPath + '/' +  SAPInst.GetProductParameter("ay_xml")
-    partitioning = SAPInst.GetProductParameter("partitioning") == "" ? "NO" : SAPInst.GetProductParameter("partitioning")
+    script_name  = SAPMedia.ayXMLPath + '/' +  GetProductParameter("script_name")
+    xml_path     = GetProductParameter("ay_xml") == ""       ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
+    partitioning = GetProductParameter("partitioning") == "" ? "NO" : GetProductParameter("partitioning")
     if File.exist?( xml_path )
       SAPMedia.ParseXML(xml_path)
       SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + @sapInstEnv )

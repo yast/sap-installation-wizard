@@ -41,7 +41,7 @@ module Yast
 
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
-        if SAPInst.instMasterType.downcase.match(/hana/)
+        if SAPMedia.instMasterType.downcase.match(/hana/)
             HANAFirewall.Write()
         end
         return :next
@@ -63,18 +63,18 @@ module Yast
       close_dialog = false
 
       aliases = {
-        "read"    => lambda { ReadDialog()  },
-        "readIM"  => lambda { ReadInstallationMaster()   },
-        "selectI" => lambda { SelectNWInstallationMode() },
-        "selectP" => lambda { SelectNWProduct() },
-        "copy"    => lambda { CopyNWMedia() },
-        "3th"     => lambda { ReadSupplementMedium() },
-        "readP"   => lambda { ReadParameter() },
-        "write"   => lambda { WriteDialog() },
-        "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
-        "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new(true).run },
-        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
-        "hanafw_post" => lambda { ApplyHANAFirewall() }
+        "read"          => lambda { SAPMedia::Read()  },
+        "readIM"        => lambda { SAPMedia::ReadInstallationMaster()   },
+        "copy"          => lambda { SAPMedia::CopyNWMedia() },
+        "3th"           => lambda { SAPMedia::ReadSupplementMedium() },
+        "selectInstMode"=> lambda { SAPProduct::SelectNWInstallationMode() },
+        "selectProduct" => lambda { SAPProduct::SelectNWProduct() },
+        "readParameter" => lambda { SAPProduct::ReadParameter() },
+        "write"         => lambda { SAPProduct::Write() },
+        "tuning"        => lambda { SAPInstaller::TuningWizardDialog.new.run },
+        "hanafw"        => lambda { SAPInstaller::ConfigHANAFirewallDialog.new(true).run },
+        "add_repo"      => lambda { SAPInstaller::AddRepoWizardDialog.new.run },
+        "hanafw_post"   => lambda { ApplyHANAFirewall() }
       }
 
       sequence = {
@@ -201,11 +201,16 @@ module Yast
         "3th"      => {
                         :abort => :abort,
                         :back  => "copy",
+                        :next  => "write"
+                      },
+        "write"     => {
+                        :abort => :abort,
+                        :back  => "copy",
                         :next  => "add_repo"
                       },
         "add_repo" => {
                         :abort => :abort,
-                        :back => "copy",
+                        :back  => "copy",
                         :auto  => "write",
                         :next  => :next
                       }
