@@ -51,7 +51,7 @@ search_sapinst_id
 type_of_product
 );
 
-our $VERSION = '0.08';
+our $VERSION = '0.98';
 
 # for YCP
 # ["function", return_TYPEINFO, argument0_TYPEINFO, argument1_TYPEINFO, ...]

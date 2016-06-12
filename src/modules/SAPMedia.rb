@@ -9,20 +9,21 @@ require "fileutils"
 module Yast
   class SAPMediaClass < Module
     def main
-     Yast.import "URL"
-     Yast.import "UI"
-     Yast.import "XML"
-     Yast.import "SAPXML"
+      Yast.import "URL"
+      Yast.import "UI"
+      Yast.import "XML"
+      Yast.import "Misc"
+      Yast.import "SAPXML"
 
-     textdomain "sap-media"
-     Builtins.y2milestone("----------------------------------------")
-     Builtins.y2milestone("SAP Media Reader Started")
+      textdomain "sap-installation-wizard"
+      Builtins.y2milestone("----------------------------------------")
+      Builtins.y2milestone("SAP Media Reader Started")
 
 
       #Hash for design the dialogs
-#Help text for the fututre. This will be available only in SP1
-#                          '<p><b>' + _("SUSE HA for SAP Simple Stack") + '</p></b>' +
-#                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
+      #Help text for the fututre. This will be available only in SP1
+      #                          '<p><b>' + _("SUSE HA for SAP Simple Stack") + '</p></b>' +
+      #                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
       @dialogs = {
          "inst_master" => {
              "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>"),
@@ -46,15 +47,15 @@ module Yast
          }
       }
 
-     # ***********************************
-     # Initialize global varaiables
-     # ***********************************
-     #*****************************************************
-     #
-     # Define some global variables relating the dialogs
-     #
-     #*****************************************************
-     @scheme_list = [
+      # ***********************************
+      # Initialize global varaiables
+      # ***********************************
+      #*****************************************************
+      #
+      # Define some global variables relating the dialogs
+      #
+      #*****************************************************
+      @scheme_list = [
           Item(Id("local"),  "dir://",    true),
           Item(Id("device"), "device://", false),
           Item(Id("usb"),    "usb://",    false),
@@ -172,6 +173,7 @@ module Yast
           end
         end
       end
+      @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
       return ret
     end
 
@@ -326,7 +328,6 @@ module Yast
          #We can only link SAPINST MEDIA
          @createLinks = false
       end
-      Builtins.y2milestone("@productList %1", @productList)
       if @instMasterType == 'HANA'
         # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
         CopyFiles(@instMasterPath, @mediaDir, "Instmaster", false)
@@ -748,7 +749,7 @@ module Yast
     #
     def CopyFiles(sourceDir, targetDir, subDir, localCheck)
       # Check if we have it local
-      Builtins.y2milestone("localCheck:%1", localCheck)
+      Builtins.y2milestone("CopyFiles called:%1,%2,%3,%4", sourceDir, targetDir, subDir, localCheck)
 
       if localCheck
         localPath = check_local_path(subDir, sourceDir)
@@ -831,7 +832,7 @@ module Yast
           return
         end
       end
-      Builtins.y2milestone("running %1 with pid %2", cmd, pid)
+      #Builtins.y2milestone("running %1 with pid %2", cmd, pid)
 
 
       while SCR.Read(path(".process.running"), pid) == true
@@ -846,7 +847,7 @@ module Yast
             )
           )
         )
-        Builtins.y2milestone("Target Tech-Size progress %1", out)
+        #Builtins.y2milestone("Target Tech-Size progress %1", out)
 
         Progress.Step(Builtins.tointeger(Ops.get_string(out, "stdout", "0")))
 
@@ -859,7 +860,7 @@ module Yast
             )
           )
         )
-        Builtins.y2milestone("Target Human-Size progress %1", out)
+        #Builtins.y2milestone("Target Human-Size progress %1", out)
 
         Progress.Title(
           "Copying Media " + subDir + " ( " + Ops.get_string(out, "stdout", "OM") + " of " + humansize + " )"
@@ -867,7 +868,7 @@ module Yast
 
         # Checking the exit code (0 = OK, nil = still running, 'else' = error)
         exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
-        Builtins.y2milestone("Exitcode: %1", exitcode)
+        #Builtins.y2milestone("Exitcode: %1", exitcode)
 
         if exitcode != nil && exitcode != 0
           Builtins.y2milestone(
@@ -1073,6 +1074,7 @@ module Yast
     publish :variable => :productXML,        :type => "string"
     publish :variable => :partXMLPath,       :type => "string"
     publish :variable => :ayXMLPath,         :type => "string"
+    publish :variable => :instDir,           :type => "string"
     publish :variable => :prodCount,         :type => "integer"
 
 
@@ -1086,7 +1088,7 @@ module Yast
     # Read in our configuration file in /etc/sysconfig
     # set some defaults if its not there
     #
-    def parse_sysconfig
+    def parse_sysconfig()
       @mountPoint = Misc.SysconfigRead(
         path(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
         "/mnt"

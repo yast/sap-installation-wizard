@@ -25,14 +25,12 @@
 # Authors:      Peter Varkoly <varkoly@suse.com>
 #
 
-require "sap/dialogs"
 require "sap/add_repo_dialog"
 require "sap/tuning_dialog"
 require "sap/config_hanafw_dialog"
 
 module Yast
   module SapInstallationWizardWizardsInclude
-    include SapInstallationWizardDialogsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
       # Do not remove the empty function
@@ -58,6 +56,7 @@ module Yast
       Yast.import "Wizard"
       Yast.import "Label"
       Yast.import "Stage"
+      Yast.import "SAPMedia"
 
       # mark if the dialog must be closed at the and.
       close_dialog = false
@@ -88,21 +87,21 @@ module Yast
                         :abort   => :abort, 
                         :HANA    => "3th",
                         :B1      => "3th",
-                        :SAPINST => "selectI"
-                      },
-        "selectI"  => {
-                        :abort => :abort,
-                        :back  => "readIM",
-                        :next  => "selectP"
-                      },
-        "selectP"  => {
-                        :abort => :abort,
-                        :back  => "selectI",
-                        :next  => "copy"
+                        :SAPINST => "copy"
                       },
         "copy"     => {
                         :abort => :abort,
-                        :back  => "selectP",
+                        :back  => "readIM",
+                        :next  => "selectInstMode"
+                      },
+        "selectInstMode"  => {
+                        :abort => :abort,
+                        :back  => "copy",
+                        :next  => "selectProduct"
+                      },
+        "selectProduct"  => {
+                        :abort => :abort,
+                        :back  => "selectInstMode",
                         :next  => "3th"
                       },
         "3th"      => {
@@ -114,13 +113,13 @@ module Yast
                         :abort => :abort,
                         :back => "copy",
                         :auto  => "write",
-                        :next  => "readP"
+                        :next  => "readParameter"
                       },
-        "readP"    => {
+        "readParameter"    => {
                         :abort   => :abort, 
                         :back    => "3th",
                         :next    => "tuning",
-                        :selectP => "selectP",
+                        :selectProduct => "selectProduct",
                         :readIM  => "readIM" 
                       },
         "tuning"     => {

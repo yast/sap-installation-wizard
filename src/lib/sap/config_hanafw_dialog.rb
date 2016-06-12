@@ -25,7 +25,7 @@ Yast.import "Label"
 Yast.import "Popup"
 Yast.import "Service"
 Yast.import "Package"
-Yast.import "SAPInst"
+Yast.import "SAPProduct"
 Yast.import "HANAFirewall"
 
 module SAPInstaller
@@ -44,11 +44,11 @@ module SAPInstaller
 
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
-            if @wizard_mode && !Yast::SAPInst.instMasterType.downcase.match(/hana/)
+            if @wizard_mode && !Yast::SAPProduct.instMasterType.downcase.match(/hana/)
                 # In wizard workflow, the dialog is only shown when instmaster is HANA.
                 return :next
             end
-            if Yast::SAPInst.instMode == "preauto"
+            if Yast::SAPProduct.instMode == "preauto"
                 # Skip the dialog if installation is only collecting profiles (i.e. not actually installing SAP software)
                 return :next
             end

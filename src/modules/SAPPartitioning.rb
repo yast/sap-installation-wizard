@@ -207,6 +207,7 @@ module Yast
       deep_copy(hwinfo)
     end
 
+  end
   SAPPartitioning = SAPPartitioningClass.new
   SAPPartitioning.main
 
