@@ -8,7 +8,7 @@ use warnings;
 use Fatal qw(:void open opendir chdir rename); 
 use XML::LibXML;
 use File::Basename;
-#use Data::Dumper;
+use Data::Dumper;
 use YaST::YCP qw(:LOGGING Boolean sformat);
 use Cwd;
 
@@ -321,7 +321,8 @@ sub get_nw_products
    my $self    = shift;
    my $instEnv = shift;
    my $TYPE    = shift;
-   my $DB      = shift;
+   my $DB      = shift || "IND";
+print "get_nw_products $instEnv $TYPE $DB\n";
    my $productDir = shift;
    my $imPath  = "$instEnv/Instmaster";
    my @FILTER  = ();
@@ -363,14 +364,27 @@ sub get_nw_products
    $d = $x->parse_file("$imPath/product.catalog");
    foreach my $tmp ( @FILTER )
    {
-      foreach my $PD ( @{$productDir} )
-      {
-         my $xmlpath = $tmp->[1];
-         $xmlpath =~ s/##DB##/$DB/;
-         $xmlpath =~ s/##PD##/$PD/;
+      my $xmlpath = $tmp->[1];
+      if( $xmlpath !~ /##PD##/ )
+      { #has no productDir
          foreach my $node ($d->findnodes($xmlpath))
          {
             push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+         }
+      }
+      else
+      {
+         $xmlpath =~ s/##DB##/$DB/;
+         foreach my $PD ( @{$productDir} )
+         {
+print "\nproductDir $PD ";
+            next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
+print " IND";
+            $xmlpath =~ s/##PD##/$PD/;
+            foreach my $node ($d->findnodes($xmlpath))
+            {
+               push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+            }
          }
       }
    }

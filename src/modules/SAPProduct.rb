@@ -158,7 +158,7 @@ module Yast
          UI.ChangeWidget(Id("STANDALONE"), :Enabled, false)
          UI.ChangeWidget(Id("SBC"),        :Enabled, false)
       end
-      adaptDB(@productMAP.DB)
+      adaptDB(@productMAP["DB"])
       while run
         case UI.UserInput
           when /STANDARD|DISTRIBUTED|SUSE-HA-ST|HA/
@@ -207,7 +207,7 @@ module Yast
       if @instType == 'STANDALONE'
         @DB = 'IND'
       end
-      @productList = SAPXML.get_nw_products(@sapInstEnv,@instType,@DB,@productMAP.productDir)
+      @productList = SAPXML.get_nw_products(@sapInstEnv,@instType,@DB,@productMAP["productDir"])
       if @productList == nil or @productList.empty?
          Popup.Error(_("The medium does not contain SAP installation data."))
          return :back

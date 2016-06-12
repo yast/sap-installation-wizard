@@ -9,11 +9,24 @@ require "fileutils"
 module Yast
   class SAPMediaClass < Module
     def main
+      #Basic yast stuff
       Yast.import "URL"
       Yast.import "UI"
       Yast.import "XML"
       Yast.import "Misc"
+
+      #Own stuff
       Yast.import "SAPXML"
+
+      #Autoyast stuff
+      Yast.import "AutoInstall"
+      Yast.import "AutoinstConfig"
+      Yast.import "AutoinstData"
+      Yast.import "AutoinstScripts"
+      Yast.import "AutoinstSoftware"
+      Yast.import "Mode"
+      Yast.import "Profile"
+
 
       textdomain "sap-installation-wizard"
       Builtins.y2milestone("----------------------------------------")
@@ -112,10 +125,12 @@ module Yast
       #environment but no installation was executed
       @instEnvList = []
 
-      @sapCDsURL   = ""
-      @mediaDir    = ""
-      @mediaList   = []
-      @mmount      = ""
+      #Hash for remember which media was selected.
+      @selectedMedia = {}
+
+      @sapCDsURL     = ""
+      @mediaDir      = ""
+      @mmount        = ""
 
       # read the global configuration
       parse_sysconfig
@@ -131,22 +146,6 @@ module Yast
       Builtins.y2milestone("-- SAPMedia.Read Start ---")
       if @sapCDsURL != ""
          mount_sap_cds()
-      end
-
-      # Read the existing media
-      if File.exist?(@mediaDir)
-         media = Dir.entries(@mediaDir)
-         media.delete('.')
-         media.delete('..')
-         media.each { |m|
-            n = @mediaDir + "/" + m
-            if File.symlink?(n)
-              n = File.readlink(n)
-            end
-            next if ! File.exists?(n)
-            next if ! File.directory?(n)
-            @mediaList << File.realpath(n)
-         }
       end
 
       # If there are installation profiles waiting to be installed, ask user what they want to do with them.
@@ -194,7 +193,7 @@ module Yast
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
         @SAPMediaTODO["products"].each { |prod|
-          @mediaList = []
+          mediaList = []
           if prod["to-copy"]
             @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
             prod["media"].each { |medium|
@@ -214,7 +213,7 @@ module Yast
                                    media=find_sap_media(@sourceDir)
                                    media.each { |path,label|
                                      CopyFiles(path, @mediaDir, label, false)
-                                     @mediaList << @mediaDir + "/" + label
+                                     mediaList << @mediaDir + "/" + label
                                    }
                    else
                        @instMasterType = instMasterList[0]
@@ -225,7 +224,7 @@ module Yast
               end
               UmountSources(@umountSource)
             }
-            IO.write(@instDir + "/start_dir.cd" , @mediaList.join("\n"))
+            IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
           end
 	  @instEnvList << @instDir
         }
@@ -367,15 +366,23 @@ module Yast
            when :back
               return :back
            when :forw
-              return :next
-           else
+              run = false
+           when :next 
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
                 CopyFiles(path, @mediaDir, label, false)
+                @selectedMedia[label] = true;
               }
               run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         end
       end
+      mediaList = []
+      @selectedMedia.each_key { |medium|
+        if @selectedMedia[medium]
+          mediaList << @mediaDir + "/" + medium
+	end
+      }
+      IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
       return :next
     end
     
@@ -765,12 +772,8 @@ module Yast
       #     "ln -s '%1' '%2'", sourceDir, targetDir + "/" + subDir
       #  )
       #  SCR.Execute(path(".target.bash"), cmd)
-      #  @mediaList << sourceDir
       #  return nil
       #end
-
-      # Add the target to the mediaList
-      @mediaList << targetDir + "/" + subDir
 
       # create target dir
       cmd = Builtins.sformat(
@@ -1059,7 +1062,6 @@ module Yast
     publish :variable => :createLinks,       :type => "boolean"
     publish :variable => :importSAPCDs,      :type => "boolean"
     publish :variable => :sapCDsURL,         :type => "string"
-    publish :variable => :mediaList,         :type => "list"
     publish :variable => :instEnvList,       :type => "list"
     publish :variable => :instDir,           :type => "string"
     publish :variable => :instDirBase,       :type => "string"
@@ -1293,7 +1295,7 @@ module Yast
           if !product_media.empty?
 	      mediaItems = []
               product_media.each {|medium|
-		 mediaItems << Item(Id(medium),  medium,    true)
+		 mediaItems << Item(Id(medium),  medium,  @selectedMedia.has_key?(medium) ? @selectedMedia[medium] : true )
 	      }
               content_before_input = VBox( MultiSelectionBox(Id("media"), _("Ready for use:"), mediaItems) )
           end
@@ -1364,7 +1366,7 @@ module Yast
       end
 
       after_advanced_ops = Empty()
-      advanced_ops_left = Empty()
+      advanced_ops_left  = Empty()
 
       if wizard == "sapmedium"
           after_advanced_ops = VBox(
@@ -1376,14 +1378,24 @@ module Yast
       
 
       # Render the wizard
-      content = VBox(
-          Left(content_before_input),
-          VSpacing(2),
-          Left(content_input),
-          VSpacing(2),
-          HBox(advanced_ops_left, Frame(_("Advanced Options"), Left(content_advanced_ops))),
-          Left(after_advanced_ops)
-      )
+      if( content_advanced_ops == Empty() )
+        content = VBox(
+            Left(content_before_input),
+            VSpacing(2),
+            Left(content_input),
+            VSpacing(2),
+            Left(after_advanced_ops)
+        )
+      else
+        content = VBox(
+            Left(content_before_input),
+            VSpacing(2),
+            Left(content_input),
+            VSpacing(2),
+            HBox(advanced_ops_left, Frame(_("Advanced Options"), Left(content_advanced_ops))),
+            Left(after_advanced_ops)
+        )
+      end
 
       Wizard.SetContents(
         _("SAP Installation Wizard"),
@@ -1448,6 +1460,17 @@ module Yast
             # Basically re-render layout
             do_default_values(wizard)
         when :next
+            #Set the selected Items
+            if UI.WidgetExists( Id("media") )
+	      @selectedMedia.each_key { |medium|
+	         @selectedMedia[medium] = false
+	      }
+              UI.QueryWidget(Id("media"),:SelectedItems).each {|medium|
+	         @selectedMedia[medium] = true
+	      }
+              Builtins.y2milestone("selectedMedia %1",@selectedMedia)
+            end
+
             # Export locally stored mediums over NFS
             @exportSAPCDs = true if !!UI.QueryWidget(Id(:export), :Value)
             # Set installation mode to preauto so that only installation profiles are collected
@@ -1486,9 +1509,7 @@ module Yast
             break # No more input
         end # Case user input
       end # While true
-      if @mediaList != [] and @labelHashRef != {}
-          @dbMap = SAPXML.check_media(@sourceDir, @mediaList, @labelHashRef)
-      end
+      return :next
     end # Function media_dialog
 
     # ***********************************
