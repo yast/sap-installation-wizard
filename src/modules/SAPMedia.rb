@@ -1060,7 +1060,7 @@ module Yast
     publish :variable => :instEnvList,       :type => "list"
     publish :variable => :instDir,           :type => "string"
     publish :variable => :instDirBase,       :type => "string"
-    publish :variable => :instMasterPath,    :type => "string"
+    publish :variable => :instMasterType,    :type => "string"
     publish :variable => :instMode,          :type => "string"
     publish :variable => :exportSAPCDs,      :type => "string"
     publish :variable => :mountPoint,        :type => "string"

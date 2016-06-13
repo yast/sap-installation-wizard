@@ -436,7 +436,7 @@ print "get_nw_products $instEnv $TYPE $DB\n";
 	   ay_xml         => $PRODUCTS->{$name}->{ay},
 	   partitioning   => $PRODUCTS->{$name}->{part},
 	   script_name    => $PRODUCTS->{$name}->{scr},
-	   inifile_params => $PRODUCTS->{$gname}->{ini}
+	   inifile_params => $PRODUCTS->{$name}->{ini}
        };
    }
    return \@ret;

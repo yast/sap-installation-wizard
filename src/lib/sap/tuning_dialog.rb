@@ -25,7 +25,7 @@ Yast.import "Label"
 Yast.import "Popup"
 Yast.import "Service"
 Yast.import "Package"
-Yast.import "SAPProduct"
+Yast.import "SAPMedia"
 
 module SAPInstaller
     class TuningWizardDialog
@@ -47,7 +47,7 @@ module SAPInstaller
 
         def initialize
             textdomain "sap-installation-wizard"
-            case Yast::SAPProduct.instMasterType.downcase
+            case Yast::SAPMedia.instMasterType.downcase
             when /hana/
                 @recommended_profile = "sap-hana"
             when /b1/
@@ -60,7 +60,7 @@ module SAPInstaller
 
         # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
         def run
-            if Yast::SAPProduct.instMode == "preauto"
+            if Yast::SAPMedia.instMode == "preauto"
                 # Skip the dialog if installation is only collecting profiles (i.e. not actually installing SAP software)
                 return :next
             end

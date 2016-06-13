@@ -14,7 +14,7 @@ module Yast
       Yast.import "XML"
       Yast.import "SAPXML"
       Yast.import "SAPMedia"
-      Yast.import "SAPPartitions"
+      Yast.import "SAPPartitioning"
 
       textdomain "sap-installation-wizard"
       Builtins.y2milestone("----------------------------------------")
@@ -312,7 +312,7 @@ module Yast
         end
 	#Create the parameter.ini file
 	if File.exists?(inifile_params)
-	  SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " SAPMedia.instDir + "/inifile.params"
+	  SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
 	  #TODO replace ay_q_sid values.
 	end
 
@@ -326,7 +326,7 @@ module Yast
              "PRODUCT_NAME"   => @PRODUCT_NAME,
              "PRODUCT_ID"     => @PRODUCT_ID,
              "PARTITIONING"   => partitioning,
-             "SID"            => did,
+             "SID"            => sid,
              "SCRIPT_NAME"    => script_name,
 	     "INIFILE_PARAMS" => inifile_params
           })
