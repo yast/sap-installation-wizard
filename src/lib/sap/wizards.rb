@@ -119,7 +119,6 @@ module Yast
                         :abort   => :abort, 
                         :back    => "3th",
                         :next    => "tuning",
-                        :selectProduct => "selectProduct",
                         :readIM  => "readIM" 
                       },
         "tuning"     => {

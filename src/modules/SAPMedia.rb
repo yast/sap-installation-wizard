@@ -95,7 +95,7 @@ module Yast
       #The selected schema.
       @schemeCache    = "local"
 
-      #The entered location. TODO check if we need it
+      #The entered location.
       @locationCache = ""
 
       #The selected product
@@ -113,6 +113,9 @@ module Yast
       #The installation will be prepared in this directory 
       #In case of HANA and B1 instDir and mediaDir is the same
       @instDir = ""
+
+      #The type of the actual read installation master
+      @instMasterType
 
       #The control hash for sap media
       @SAPMediaTODO = {}
@@ -313,19 +316,11 @@ module Yast
           ret = :SAPINST
         when "HANA"
           @instMasterType = "HANA"
-          @PRODUCT_ID     = "HANA"
-          @PRODUCT_NAME   = "HANA"
           @mediaDir = @instDir
           ret = :HANA
         when /^B1/
-          @PRODUCT_ID     = @instMasterType
-          @PRODUCT_NAME   = @instMasterType
           @mediaDir = @instDir
           ret = :B1
-      end
-      if @instMasterType != "SAPINST"
-         #We can only link SAPINST MEDIA
-         @createLinks = false
       end
       if @instMasterType == 'HANA'
         # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
@@ -1066,8 +1061,6 @@ module Yast
     publish :variable => :instDir,           :type => "string"
     publish :variable => :instDirBase,       :type => "string"
     publish :variable => :instMasterPath,    :type => "string"
-    publish :variable => :instMasterType,    :type => "string"
-    publish :variable => :instMasterVersion, :type => "string"
     publish :variable => :instMode,          :type => "string"
     publish :variable => :exportSAPCDs,      :type => "string"
     publish :variable => :mountPoint,        :type => "string"

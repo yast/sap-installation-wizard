@@ -14,6 +14,7 @@ module Yast
       Yast.import "XML"
       Yast.import "SAPXML"
       Yast.import "SAPMedia"
+      Yast.import "SAPPartitions"
 
       textdomain "sap-installation-wizard"
       Builtins.y2milestone("----------------------------------------")
@@ -22,7 +23,6 @@ module Yast
       #Some parameter of the actual selected product
       @instType      = ""
       @DB            = ""
-      @sapInstEnv    = ""
       @PRODUCT_ID    = ""
       @PRODUCT_NAME  = ""
       @productMAP    = {}
@@ -78,6 +78,10 @@ module Yast
       # STACK        : ABABP, JAVA, Double
       # DB           : The selected database
       @installedProducts = []
+
+      #List of product directories which must be installed
+      @productsToInstall = []
+
     end
 
     #############################################################
@@ -109,8 +113,7 @@ module Yast
       run = true
     
       #Reset the the selected product specific parameter
-      @sapInstEnv    = SAPMedia.instDir
-      @productMAP    = SAPXML.get_products_for_media(@sapInstEnv)
+      @productMAP    = SAPXML.get_products_for_media(SAPMedia.instDir)
       @instType      = ""
       @DB            = ""
       @PRODUCT_ID    = ""
@@ -207,7 +210,7 @@ module Yast
       if @instType == 'STANDALONE'
         @DB = 'IND'
       end
-      @productList = SAPXML.get_nw_products(@sapInstEnv,@instType,@DB,@productMAP["productDir"])
+      @productList = SAPXML.get_nw_products(SAPMedia.instDir,@instType,@DB,@productMAP["productDir"])
       if @productList == nil or @productList.empty?
          Popup.Error(_("The medium does not contain SAP installation data."))
          return :back
@@ -262,11 +265,25 @@ module Yast
     #
     # Read the installation parameter.
     # The product  ay_xml will executed to read the SAP installation parameter
-    # Partitioning xml will be executed
+    # The product.data file will be written
     #
     ############################################################
     def ReadParameter
+      ret = :next
+      sid =""
       Builtins.y2milestone("-- Start ReadParameter ---")
+
+      #For HANA B1 there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
+      case SAPMedia.instMasterType
+        when "HANA"
+	   @DB           = "HDB"
+	   @PRODUCT_NAME = "HANA"
+	   @PRODUCT_ID   = "HANA"
+	when /^B1/
+	   @DB           = ""
+	   @PRODUCT_NAME = "B1"
+	   @PRODUCT_ID   = "B1"
+      end
       # Display the empty dialog before running external SAP installer program
       Wizard.SetContents(
         _("Collecting installation profile for SAP product"),
@@ -280,17 +297,102 @@ module Yast
       Wizard.RestoreAbortButton()
       ret=:next
       #First we execute the autoyast xml file of the product if this exeists
-      script_name  = SAPMedia.ayXMLPath + '/' +  GetProductParameter("script_name")
-      xml_path     = GetProductParameter("ay_xml") == ""       ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
-      partitioning = GetProductParameter("partitioning") == "" ? "NO" : GetProductParameter("partitioning")
+      script_name    = SAPMedia.ayXMLPath + '/' +  GetProductParameter("script_name")
+      inifile_params = GetProductParameter("inifile_params") == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("inifile_params")
+      xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
+      partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
+
+      #inifile_params can be contains DB-name
+      inifile_params = inifile_params + @DB
+
       if File.exist?( xml_path )
         SAPMedia.ParseXML(xml_path)
-        SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + @sapInstEnv )
+        if File.exist?("/tmp/ay_q_sid")
+           sid = IO.read("/tmp/ay_q_sid").chomp    
+        end
+	#Create the parameter.ini file
+	if File.exists?(inifile_params)
+	  SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " SAPMedia.instDir + "/inifile.params"
+	  #TODO replace ay_q_sid values.
+	end
+
+        SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + SAPMedia.instDir )
       end
+      SCR.Write( path(".target.ycp"), SAPMedia.instDir + "/product.data",  {
+             "instDir"        => SAPMedia.instDir,
+             "instMaster"     => SAPMedia.instDir + "/Instmaster",
+             "TYPE"           => SAPMedia.instMasterType,
+             "DB"             => @DB,
+             "PRODUCT_NAME"   => @PRODUCT_NAME,
+             "PRODUCT_ID"     => @PRODUCT_ID,
+             "PARTITIONING"   => partitioning,
+             "SID"            => did,
+             "SCRIPT_NAME"    => script_name,
+	     "INIFILE_PARAMS" => inifile_params
+          })
+
+      @productsToInstall << SAPMedia.instDir
+
+      if Popup.YesNo(_("Installation profile is ready.\n" +
+                       "Are there more SAP products to be prepared for installation?"))
+         ret = :readIM
+         SAPMedia.prodCount = SAPMedia.prodCount.next
+         SAPMedia.instDir = Builtins.sformat("%1/%2", SAPMedia.instDirBase, SAPMedia.prodCount)
+         SCR.Execute(path(".target.bash"), "mkdir -p " + SAPMedia.instDir )
+      end
+      return ret
     end
-    
-    publish :variable => :installedProducts,     :type => "map"
-    
+
+    #############################################################
+    #
+    # Start the installation of the collected SAP products.
+    #
+    ############################################################
+    def Write
+      productScriptsList      = []
+      productPartitioningList = []
+      @productsToInstall.each { |instDir|
+        productData = Convert.convert(
+          SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+          :from => "any",
+          :to   => "map <string, any>"
+        )
+        out = Convert.to_map(
+          SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M")
+        )
+        date = Builtins.filterchars(
+          Ops.get_string(out, "stdout", ""),
+          "0123456789-."
+        )
+        params = Builtins.sformat(
+          " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"  > >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.log) 2> >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.err)",
+          Ops.get_string(productData, "instMaster", ""),
+          Ops.get_string(productData, "PRODUCT_ID", ""),
+          Ops.get_string(productData, "DB", ""),
+          Ops.get_string(productData, "TYPE", ""),
+          Ops.get_string(productData, "instDir", ""),
+          date
+        )
+        # Add script
+        productScriptsList << "/bin/sh -x " + Ops.get_string(productData, "SCRIPT_NAME", "") + params
+        
+        # Add product partitioning
+        ret = Ops.get_string(productData, "PARTITIONING", "")
+        if ret == nil
+          # Default is base_partitioning
+          ret = "base_partitioning"
+        end
+        productPartitioningList << ret if ret != "NO"
+      }
+      #Start create the partitions
+      SAPParttitions.CreatePartitions(productPartitioningList)
+
+      #Start execute the install scripts
+      productScriptsList.each { |installScript|
+            SCR.Execute(path(".target.bash"), "xterm -e '" + installScript + "'")
+      }
+    end
+
     private
     ############################################################
     #

@@ -336,21 +336,23 @@ print "get_nw_products $instEnv $TYPE $DB\n";
        my $a  = "";
        my $p  = "";
        my $s  = "";
+       my $i  = "";
        my $ok = 0;
        foreach my $c ( $node->getChildNodes )
        {
-         push @f, $c->string_value if( 'search'       eq $c->getName );
-         $n = $c->string_value     if( 'name'         eq $c->getName );
-         $a = $c->string_value     if( 'ay_xml'       eq $c->getName );
-         $p = $c->string_value     if( 'partitioning' eq $c->getName );
-         $s = $c->string_value     if( 'script_name'  eq $c->getName );
+         push @f, $c->string_value if( 'search'         eq $c->getName );
+         $n = $c->string_value     if( 'name'           eq $c->getName );
+         $a = $c->string_value     if( 'ay_xml'         eq $c->getName );
+         $p = $c->string_value     if( 'partitioning'   eq $c->getName );
+         $s = $c->string_value     if( 'script_name'    eq $c->getName );
+         $i = $c->string_value     if( 'inifile_params' eq $c->getName );
          $ok = 1 if( 'type' eq $c->getName and $c->string_value eq $TYPE );
        }
        if( $ok ) {
          foreach( @f ){
 	    $p = "base_partitioning" if ( $p eq "" );
 	    $s = "sap_inst.sh"       if ( $s eq "" );
-            push @FILTER, [ $n, $_ , $a, $p, $s ]
+            push @FILTER, [ $n, $_ , $a, $p, $s, $i ]
 	 }
        }
    }
@@ -369,7 +371,7 @@ print "get_nw_products $instEnv $TYPE $DB\n";
       { #has no productDir
          foreach my $node ($d->findnodes($xmlpath))
          {
-            push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+            push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
          }
       }
       else
@@ -377,13 +379,11 @@ print "get_nw_products $instEnv $TYPE $DB\n";
          $xmlpath =~ s/##DB##/$DB/;
          foreach my $PD ( @{$productDir} )
          {
-print "\nproductDir $PD ";
             next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
-print " IND";
             $xmlpath =~ s/##PD##/$PD/;
             foreach my $node ($d->findnodes($xmlpath))
             {
-               push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+               push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
             }
          }
       }
@@ -396,6 +396,7 @@ print " IND";
       my $ay    = $tmp->[2];
       my $part  = $tmp->[3];
       my $scr   = $tmp->[4];
+      my $ini   = $tmp->[5];
       my $gname = "";
       my $lname = "";
       #Get ID
@@ -424,16 +425,18 @@ print " IND";
       $PRODUCTS->{$gname}->{ay}   = $ay;
       $PRODUCTS->{$gname}->{part} = $part;
       $PRODUCTS->{$gname}->{scr}  = $scr;
+      $PRODUCTS->{$gname}->{ini}  = $ini;
    }
    my @ret = ();
    foreach my $name ( sort keys %$PRODUCTS )
    {
       push @ret, { 
-           name         => $name,
-	   id           => $PRODUCTS->{$name}->{id},
-	   ay_xml       => $PRODUCTS->{$name}->{ay},
-	   partitioning => $PRODUCTS->{$name}->{part},
-	   script_name  => $PRODUCTS->{$name}->{scr}
+           name           => $name,
+	   id             => $PRODUCTS->{$name}->{id},
+	   ay_xml         => $PRODUCTS->{$name}->{ay},
+	   partitioning   => $PRODUCTS->{$name}->{part},
+	   script_name    => $PRODUCTS->{$name}->{scr},
+	   inifile_params => $PRODUCTS->{$gname}->{ini}
        };
    }
    return \@ret;
