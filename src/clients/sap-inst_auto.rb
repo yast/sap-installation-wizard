@@ -1,10 +1,9 @@
 # encoding: utf-8
-
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # This program is free software; you can redistribute it and/or modify it under
-# the terms of version 2 of the GNU General Public License as published by the
+# the terms of version 3 of the GNU General Public License as published by the
 # Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
@@ -15,82 +14,90 @@
 # this program; if not, contact SUSE Linux GmbH.
 #
 # ------------------------------------------------------------------------------
+# Author: Peter Varkoly <varkoly@suse.com>
 
-# File: clients/sap-inst_auto.ycp
-# Module:       Configuration of authentication client
-# Summary:      Client file, including commandline handlers
-# Authors:      Peter Varkoly <varkoly@suse.com>
-#               Christian Kornacker <ckornacker@suse.com>
-#
-# This is a client for autoinstallation. It takes its arguments,
-# goes through the configuration and return the setting.
-# Does not do any changes to the configuration.
 
-# @param first a map of authentication settings
-# @return [Hash] edited settings or an empty map if canceled
-# @example map mm = $[ "FAIL_DELAY" : "77" ];
-# @example map ret = WFM::CallModule ("sap-inst_auto", [ mm ]);
+require 'yast'
+require 'installation/auto_client'
+Yast.import "SAPMedia"
+Yast.import "SAPProduct"
+Yast.import "SAPPartitioning"
 
-module Yast
-  class SAPInstAuto < Client
-    def main
-      textdomain "sap-media"
-      Builtins.y2milestone("----------------------------------------")
-      Builtins.y2milestone("sap-inst auto started")
-      Yast.import "SAPMedia"
-      Yast.import "SAPProduct"
-      @ret = nil
-      @func = ""
-      @param = {}
+module SapInst
+  class AutoClient < Installation::AutoClient
+        include Yast
+        include UIShortcuts
+        include I18n
+        include Logger
 
-      # Check arguments
-      if Ops.greater_than(Builtins.size(WFM.Args), 0) &&
-          Ops.is_string?(WFM.Args(0))
-        @func = Convert.to_string(WFM.Args(0))
-        if Ops.greater_than(Builtins.size(WFM.Args), 1) &&
-            Ops.is_map?(WFM.Args(1))
-          @param = Convert.to_map(WFM.Args(1))
+        def initialize
+            super
+            textdomain 'sapinst'
         end
-      end
-      #TODO make y2debug if it works correctly
-      Builtins.y2milestone("func=%1",  @func)
-      Builtins.y2milestone("param=%1", @param)
-      case @func
-        when "Import"
-          @ret = SAPMedia.Import(@param)
-        when "Summary"
-          @ret = SAPMedia.Summary()
-        when "Reset"
-          SAPMedia.Import({})
-          SAPMedia.SetModified(false)
-          @ret = {}
-        when "Change"
-          SAPMedia.SetModified(true)
-        when "Export"
-          @ret = SAPMedia.Export
-        when "Read"
-          SAPMedia.Read
-          @ret = SAPMedia.Export
-        when "GetModified"
-          @ret = SAPMedia.GetModified
-        when "SetModified"
-          SAPMedia.SetModified(true)
-          @ret = true
-        when "Write"
-          SAPMedia.Write
-        when "Packages"
-          @ret = { "install" => ["" ], "remove" => [] }
-        else
-          Builtins.y2error("Unknown function: %1", @func)
-          @ret = false
-      end
-      Builtins.y2debug("ret=%1", @ret)
-      Builtins.y2milestone("SAPInst auto finished")
-      Builtins.y2milestone("----------------------------------------")
 
-      deep_copy(@ret)
+        def run
+            progress_orig = Progress.set(false)
+            ret = super
+            Progress.set(progress_orig)
+            ret
+        end
+
+        # There is only one bool parameter to import.
+        def import(exported)
+            return SAPMedia.Import(exported)
+        end
+
+        # There is noting to export.
+	# TODO evtl we can export the copied directories and installed products
+        def export
+            return {}
+        end
+
+        # Insignificant to autoyast.
+        def modified?
+            return true
+        end
+
+        # Insignificant to autoyast.
+        def modified
+            return
+        end
+       # Return a readable text summary.
+        def summary
+	    _('SAP system tuning is not enabled.')
+        end
+
+        # Display dialog to let user turn saptune on/off.
+        def change
+            AutoMainDialog.new.run
+            return :finish
+        end
+
+        # Read the status of created SAP installation environments and installed products.
+        def read
+            SAPMedia.Read
+            SAPProduct.Read
+            return true
+        end
+
+        # If saptune should be enabled, automatically configure it and enable it. Otherwise disable it.
+        def write
+            SAPMedia.Write
+	    SAPProduct.productsToInstall = SAPMedia.instEnvList
+            SAPProduct.Write
+        end
+
+        # Set SapInst to "to be disabled".
+        def reset
+	    #TODO find a sence for it
+            return true
+        end
+
+        # Return package dependencies
+        def packages
+            return {'install' => ['sap-installation-wizard'], 'remove' => []}
+        end
     end
-  end
 end
 
-Yast::SAPMediaAuto.new.main
+SapInst::AutoClient.new.run

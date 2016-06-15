@@ -26,8 +26,8 @@
 #
 
 require "sap/add_repo_dialog"
-require "sap/tuning_dialog"
-require "sap/config_hanafw_dialog"
+require "hanafirewall/hanafirewall_conf"
+require "saptune/saptune"
 
 module Yast
   module SapInstallationWizardWizardsInclude
@@ -39,10 +39,18 @@ module Yast
 
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
-        if SAPMedia.instMasterType.downcase.match(/hana/)
-            HANAFirewall.Write()
-        end
+        hana_fw = HANAFirewallConfInst.gen_config
+	HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
+	HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
+	HANAFirewallConfInst.ifaces   = hana_fw[:ifaces]
+        HANAFirewallConfInst.save_config
+	HANAFirewallConfInst.set_state(true)
+	#TODO Please report the customer what we have done
         return :next
+    end
+
+    def TuneTheSystem
+        Saptune.auto_config
     end
 
     # SAP Installation Main Sequence
@@ -70,10 +78,9 @@ module Yast
         "selectProduct" => lambda { SAPProduct::SelectNWProduct() },
         "readParameter" => lambda { SAPProduct::ReadParameter() },
         "write"         => lambda { SAPProduct::Write() },
-        "tuning"        => lambda { SAPInstaller::TuningWizardDialog.new.run },
-        "hanafw"        => lambda { SAPInstaller::ConfigHANAFirewallDialog.new(true).run },
         "add_repo"      => lambda { SAPInstaller::AddRepoWizardDialog.new.run },
-        "hanafw_post"   => lambda { ApplyHANAFirewall() }
+        "tuning"        => lambda { TuneTheSystem() },
+        "hanafw"        => lambda { ApplyHANAFirewall() }
       }
 
       sequence = {
@@ -118,23 +125,18 @@ module Yast
         "readParameter"    => {
                         :abort   => :abort, 
                         :back    => "3th",
-                        :next    => "tuning",
+                        :next    => "write",
                         :readIM  => "readIM" 
-                      },
-        "tuning"     => {
-                        :abort => :abort,
-                        :auto  => "write",
-                        :next  => "hanafw"
-                      },
-        "hanafw"   => {
-                        :abort => :abort,
-                        :next  => "write"
                       },
         "write"    => {
                         :abort => :abort,
-                        :next => "hanafw_post"
+                        :next => "tuning"
                       },
-        "hanafw_post" => {
+        "tuning"     => {
+                        :abort => :abort,
+                        :next  => "hanafw"
+                      },
+        "hanafw" => {
                         :abort => :abort,
                         :next  => :next
                       }
