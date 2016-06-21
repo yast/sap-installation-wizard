@@ -33,7 +33,7 @@ module Yast
         # For HANA we have hardware-dependent partitioning and if we don't know the manufacturer
         # show warnings
         partXML=@partXMLPath + '/' + productPartitioning + ".xml"
-        if productPartitioning == Convert.to_string(SAPXML.ConfigValue("HANA", "partitioning"))
+        if productPartitioning == "hana_partitioning"
           if !Builtins.contains(
               [
                 "LENOVO",
@@ -47,7 +47,8 @@ module Yast
               manufacturer
             )
             partXML = @partXMLPath + "hana_generic.xml"
-        else
+            #TODO Do we hav to warn if generic partitioning happeds?
+          else
             # For comapitibility keep specific disk layout for Dell legacy models, but for new models use generic layout
             if !Builtins.contains(
                   [
@@ -71,7 +72,7 @@ module Yast
               partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
             end
           end
-        end
+        end #END HANA CASE
         ret = WFM.CallFunction( "sap_create_storage", [ partXML ])
       end
       Builtins.y2milestone("MANUFACTURER: %1", manufacturer)
@@ -206,6 +207,7 @@ module Yast
       deep_copy(hwinfo)
     end
 
+  end
   SAPPartitioning = SAPPartitioningClass.new
   SAPPartitioning.main
 

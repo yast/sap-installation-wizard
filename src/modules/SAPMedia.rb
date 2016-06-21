@@ -1,28 +1,42 @@
 # encoding: utf-8
-# Authors: Peter Varkoly <varkoly@suse.com>, Howard Guo <hguo@suse.com>
+# Authors: Peter Varkoly <varkoly@suse.com>
 
 # ex: set tabstop=4 expandtab:
-# vim: set tabstop=4:expandtab
+# vim: set tabstop=4: set expandtab
 require "yast"
 require "fileutils"
 
 module Yast
   class SAPMediaClass < Module
     def main
-     Yast.import "URL"
-     Yast.import "UI"
-     Yast.import "XML"
-     Yast.import "SAPXML"
+      #Basic yast stuff
+      Yast.import "URL"
+      Yast.import "UI"
+      Yast.import "XML"
+      Yast.import "Misc"
 
-     textdomain "sap-media"
-     Builtins.y2milestone("----------------------------------------")
-     Builtins.y2milestone("SAP Media Reader Started")
+      #Own stuff
+      Yast.import "SAPXML"
+
+      #Autoyast stuff
+      Yast.import "AutoInstall"
+      Yast.import "AutoinstConfig"
+      Yast.import "AutoinstData"
+      Yast.import "AutoinstScripts"
+      Yast.import "AutoinstSoftware"
+      Yast.import "Mode"
+      Yast.import "Profile"
+
+
+      textdomain "sap-installation-wizard"
+      Builtins.y2milestone("----------------------------------------")
+      Builtins.y2milestone("SAP Media Reader Started")
 
 
       #Hash for design the dialogs
-#Help text for the fututre. This will be available only in SP1
-#                          '<p><b>' + _("SUSE HA for SAP Simple Stack") + '</p></b>' +
-#                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
+      #Help text for the fututre. This will be available only in SP1
+      #                          '<p><b>' + _("SUSE HA for SAP Simple Stack") + '</p></b>' +
+      #                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
       @dialogs = {
          "inst_master" => {
              "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>"),
@@ -31,24 +45,6 @@ module Yast
          "sapmedium" => {
              "help"    => _("<p>Enter the location of your SAP medium.</p>"),
              "name"    => _("Location of the SAP product medium (e.g. SAP kernel, database, and database exports)")
-             },
-         "nwInstType" => {
-             "help"    => _("<p>Choose SAP product installation and back-end database.</p>") +
-                          '<p><b>' + _("SAP Standard System") + '</p></b>' +
-                          _("<p>Installation of a SAP NetWeaver system with all servers on the same host.</p>") +
-                          '<p><b>' + _("SAP Standalone Engines") + '</p></b>' +
-                          _("<p>Standalone engines are SAP Trex, SAP Gateway, and Web Dispatcher.</p>") +
-                          '<p><b>' + _("Distributed System") + '</p></b>' +
-                          _("Installation of SAP NetWeaver with the servers distributed on separate hosts.</p>") +
-                          '<p><b>' + _("High-Availability System") + '</p></b>' +
-                          _("Installation of SAP NetWeaver in a high-availability setup.</p>") +
-                          '<p><b>' + _("System Rename") + '</p></b>' +
-                          _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>"),
-             "name"    => _("Choose the Installation Type!")
-             },
-         "nwSelectProduct" => {
-             "help"    => _("<p>Please choose the SAP product you wish to install.</p>"),
-             "name"    => _("Choose a Product")
              },
          "database" => {
              "help"    => _("<p>Enter the location of your database medium. The database type is determined automatically.</p>"),
@@ -64,20 +60,20 @@ module Yast
          }
       }
 
-     # ***********************************
-     # Initialize global varaiables
-     # ***********************************
-     #*****************************************************
-     #
-     # Define some global variables relating the dialogs
-     #
-     #*****************************************************
-     @scheme_list = [
-          Item(Id("local"), "dir://", true),
+      # ***********************************
+      # Initialize global varaiables
+      # ***********************************
+      #*****************************************************
+      #
+      # Define some global variables relating the dialogs
+      #
+      #*****************************************************
+      @scheme_list = [
+          Item(Id("local"),  "dir://",    true),
           Item(Id("device"), "device://", false),
-          Item(Id("usb"), "usb://", false),
-          Item(Id("nfs"), "nfs://", false),
-          Item(Id("smb"), "smb://", false)
+          Item(Id("usb"),    "usb://",    false),
+          Item(Id("nfs"),    "nfs://",    false),
+          Item(Id("smb"),    "smb://",    false)
       ]
 
       #Detect how many cdrom we have:
@@ -99,7 +95,7 @@ module Yast
       #The selected schema.
       @schemeCache    = "local"
 
-      #The entered location. TODO check if we need it
+      #The entered location.
       @locationCache = ""
 
       #The selected product
@@ -118,6 +114,9 @@ module Yast
       #In case of HANA and B1 instDir and mediaDir is the same
       @instDir = ""
 
+      #The type of the actual read installation master
+      @instMasterType
+
       #The control hash for sap media
       @SAPMediaTODO = {}
 
@@ -125,10 +124,19 @@ module Yast
       #For all installation a separate directory will be created
       @instDirBase = ""
 
-      @sapCDsURL   = ""
-      @mediaDir    = ""
-      @mediaList   = []
-      @mmount      = ""
+      #List of directories which contains a whole SAP installation
+      #environment but no installation was executed
+      @instEnvList = []
+
+      #Hash for remember which media was selected.
+      @selectedMedia = {}
+
+      @sapCDsURL     = ""
+      @mediaDir      = ""
+      @mmount        = ""
+
+      # read the global configuration
+      parse_sysconfig
 
     end
 
@@ -139,42 +147,18 @@ module Yast
     def Read()
       ret=:next
       Builtins.y2milestone("-- SAPMedia.Read Start ---")
-      # read the global configuration
-      parse_sysconfig
-
       if @sapCDsURL != ""
          mount_sap_cds()
-      end
-
-      # Read the existing media
-      if File.exist?(@mediaDir)
-         media = Dir.entries(@mediaDir)
-         media.delete('.')
-         media.delete('..')
-         media.each { |m|
-            n = @mediaDir + "/" + m
-            if File.symlink?(n)
-              n = File.readlink(n)
-            end
-            next if ! File.exists?(n)
-            next if ! File.directory?(n)
-            @mediaList << File.realpath(n)
-         }
       end
 
       # If there are installation profiles waiting to be installed, ask user what they want to do with them.
       while Dir.exists?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
         @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
+        @prodCount = @prodCount.next
         if !File.exists?(@instDir + "/installationSuccesfullyFinished.dat") && File.exists?(@instDir + "/product.data")
           # Do not care about existing installations if we make autoinstallation
           next if Mode.mode() == "autoinstallation"
 
-          # If we are doing autoinstallation ask what to do with exiting product directories
-          productData2 = Convert.convert(
-            SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
-            :from => "any",
-            :to   => "map <string, any>"
-          )
           # User has three choices: do nothing, ignore, or run it at end of the wizard workflow
           case Popup.AnyQuestion3(_("Pending installation from previous wizard run"),
                                 _("Installation profile was previously collected for the following product, however it has not been installed yet:\n\n") +
@@ -185,13 +169,13 @@ module Yast
               FileUtils.remove_entry_secure(@instDir, true)
           when :no # Install
               # It will be installed at the last wizard step (i.e. the installation step)
-              WriteProductDatas(productData2)
+	      @instEnvList << @instDir
           when :retry # Do nothing
               # Do nothing about it
           end
         end
-        @prodCount = @prodCount.next
       end
+      @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
       return ret
     end
 
@@ -208,44 +192,53 @@ module Yast
           ExportSAPCDs()
       end
 
+
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
-      	 @SAPMediaTODO["products"].each { |prod|
-	    @mediaList = []
-	    if prod["to-copy"]
-	       @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
-	       prod["medias"].each { |media|
-	          scheme  = media["url"][0,3]
-                  url     = media["url"][6..-1]
-		  urlPath = MountSource(scheme,url)
-		  if "ERROR:" == urlPath[0,6]
-		     Builtins.y2milestone("Can not mount media %1. Reason %2",media["url"],urlPath)
-		     return :next
-		  else
-		     case media["type"].downcase
-		     when "supplement"
-			   CopyFiles(@sourceDir, @instDir, "Supplement", false)     
-		     when "sap"
-                           instMasterList = SAPXML.is_instmaster(@sourceDir)
-			   if instMasterList.empty?
-                               media=find_sap_media(@sourceDir)
-                               media.each { |path,label|
-                                 CopyFiles(path, @mediaDir, label, false)
-                                 @mediaList << @mediaDir + "/" + label
-                               }
-			   else
-			       @instMasterType = instMasterList[0]
-			       @instMasterPath = instMasterList[1]
-                               CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
-			   end
-		      end
-			       
-		  end
-                  UmountSources(@umountSource)
-	       }
-               IO.write(@instDir + "/start_dir.cd" , @mediaList.join("\n"))
-	    end
-	 }
+        @SAPMediaTODO["products"].each { |prod|
+          mediaList = []
+          if prod["to-copy"]
+            @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
+            prod["media"].each { |medium|
+	      url = medium["url"].split("://")
+              urlPath = MountSource(url[0],url[1])
+              if "ERROR:" == urlPath[0,6]
+                 Builtins.y2milestone("Can not mount medium %1. Reason %2",medium["url"],urlPath)
+                 return :next
+              else
+                 case medium["type"].downcase
+                 when "supplement"
+                   CopyFiles(@sourceDir, @instDir, "Supplement", false)
+                   #TODO execute profile.xml on media
+                 when "sap"
+                   instMasterList = SAPXML.is_instmaster(@sourceDir)
+                   if instMasterList.empty?
+                                   media=find_sap_media(@sourceDir)
+                                   media.each { |path,label|
+                                     CopyFiles(path, @mediaDir, label, false)
+                                     mediaList << @mediaDir + "/" + label
+                                   }
+                   else
+                       @instMasterType = instMasterList[0]
+                       @instMasterPath = instMasterList[1]
+                       CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
+                   end
+                 end
+              end
+              UmountSources(@umountSource)
+            }
+            IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
+          end
+	  @instEnvList << @instDir
+        }
+      else
+	@instEnvList << @instDir
+        if Popup.YesNo(_("Do you want to install another product?"))
+           @prodCount = @prodCount.next
+           @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
+           SCR.Execute(path(".target.bash"), "mkdir -p " + @instDir )
+           return ":readIM"
+        end
       end
       :next
     end
@@ -271,7 +264,7 @@ module Yast
     # @return true
     #
     #############################################################
-    def Import()
+    def Export()
       Builtins.y2milestone("-- SAPMedia.Export Start ---")
       #TODO
 
@@ -300,10 +293,10 @@ module Yast
         #         KEY: SAPINST, BOBJ, HANA, B1
         #       VALUE: complete path to the instmaster directory incl. sourceDir
         Builtins.y2milestone("looking for instmaster in %1", @sourceDir)
-        instMasterList            = SAPXML.is_instmaster(@sourceDir)
+        instMasterList     = SAPXML.is_instmaster(@sourceDir)
         @instMasterType    = Ops.get(instMasterList, 0, "")
         @instMasterPath    = Ops.get(instMasterList, 1, "")
-        @instMasterVersion        = Ops.get(instMasterList, 2, "")
+        @instMasterVersion = Ops.get(instMasterList, 2, "")
 
         Builtins.y2milestone(
           "found SAP instmaster at %1 type %2 version %3",
@@ -322,33 +315,24 @@ module Yast
         when "SAPINST"
           ret = :SAPINST
         when "HANA"
-          @DB             = "HDB"
           @instMasterType = "HANA"
-          @PRODUCT_ID     = "HANA"
-          @PRODUCT_NAME   = "HANA"
-          @productList << { "name" => "HANA", "id" => "HANA", "ay_xml" => SAPXML.ConfigValue("HANA","ay_xml"), "partitioning" => SAPXML.ConfigValue("HANA","partitioning"), "script_name" => SAPXML.ConfigValue("HANA","script_name") }
           @mediaDir = @instDir
           ret = :HANA
         when /^B1/
-          @DB             = ""
-          @PRODUCT_ID     = @instMasterType
-          @PRODUCT_NAME   = @instMasterType
-          @productList << { "name" => @instMasterType, "id" => @instMasterType, "ay_xml" => SAPXML.ConfigValue("B1","ay_xml"), "partitioning" => SAPXML.ConfigValue("B1","partitioning"), "script_name" => SAPXML.ConfigValue("B1","script_name") }
           @mediaDir = @instDir
           ret = :B1
       end
-      if @instMasterType != "SAPINST"
-         #We can only link SAPINST MEDIA
-         @createLinks = false
-      end
-      Builtins.y2milestone("@productList %1", @productList)
       if @instMasterType == 'HANA'
         # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
         CopyFiles(@instMasterPath, @mediaDir, "Instmaster", false)
         @instMasterPath = @mediaDir + "/Instmaster"
       else
-        CopyFiles(@instMasterPath, @mediaDir, "Instmaster-" + @instMasterType, false)
-        @instMasterPath = @mediaDir + "/Instmaster-" + @instMasterType
+        if ! File.exist?(@mediaDir + "/Instmaster-" + @instMasterType + '-' + @instMasterVersion  )
+	   #Make a local copy of the installation master
+           CopyFiles(@instMasterPath, @mediaDir, "Instmaster-" + @instMasterType + "-" + @instMasterVersion, false)
+        end
+        CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
+        @instMasterPath = @instDir + "/Instmaster"
       end
       UmountSources(@umountSource)
       return ret
@@ -377,15 +361,23 @@ module Yast
            when :back
               return :back
            when :forw
-              return :next
-           else
+              run = false
+           when :next 
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
                 CopyFiles(path, @mediaDir, label, false)
+                @selectedMedia[label] = true;
               }
               run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         end
       end
+      mediaList = []
+      @selectedMedia.each_key { |medium|
+        if @selectedMedia[medium]
+          mediaList << @mediaDir + "/" + medium
+	end
+      }
+      IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
       return :next
     end
     
@@ -448,26 +440,6 @@ module Yast
     end
 
     # ***********************************
-    # Get directory name
-    #  @param string path
-    #  @return  string dirname
-    def DirName(filePath)
-      Builtins.y2milestone("-- SAPMedia.DirName Start ---")
-      pathComponents = Builtins.splitstring(filePath, "/")
-      last = Ops.get_string(
-        pathComponents,
-        Ops.subtract(Builtins.size(pathComponents), 1),
-        ""
-      )
-      ret = Builtins.substring(
-        filePath,
-        0,
-        Ops.subtract(Builtins.size(filePath), Builtins.size(last))
-      )
-      ret
-    end
-
-    # ***********************************
     # Parse and merge our xml snipplets
     #
     def ParseXML(file)
@@ -476,7 +448,7 @@ module Yast
         SCR.Write(
           path(".target.string"),
           "/tmp/current_media_path",
-          DirName(file)
+          File.dirname(file)
         )
         profile = XML.XMLToYCPFile(file)
         if profile != {} && Builtins.size(profile) == 0
@@ -779,7 +751,7 @@ module Yast
     #
     def CopyFiles(sourceDir, targetDir, subDir, localCheck)
       # Check if we have it local
-      Builtins.y2milestone("localCheck:%1", localCheck)
+      Builtins.y2milestone("CopyFiles called:%1,%2,%3,%4", sourceDir, targetDir, subDir, localCheck)
 
       if localCheck
         localPath = check_local_path(subDir, sourceDir)
@@ -790,17 +762,13 @@ module Yast
       end
 
       # do not copy creat only a link
-      if @createLinks
-        cmd = Builtins.sformat(
-          "ln -s '%1' '%2'", sourceDir, targetDir + "/" + subDir
-        )
-        SCR.Execute(path(".target.bash"), cmd)
-        @mediaList << sourceDir
-        return nil
-      end
-
-      # Add the target to the mediaList
-      @mediaList << targetDir + "/" + subDir
+      #if @createLinks
+      #   cmd = Builtins.sformat(
+      #     "ln -s '%1' '%2'", sourceDir, targetDir + "/" + subDir
+      #  )
+      #  SCR.Execute(path(".target.bash"), cmd)
+      #  return nil
+      #end
 
       # create target dir
       cmd = Builtins.sformat(
@@ -862,7 +830,7 @@ module Yast
           return
         end
       end
-      Builtins.y2milestone("running %1 with pid %2", cmd, pid)
+      #Builtins.y2milestone("running %1 with pid %2", cmd, pid)
 
 
       while SCR.Read(path(".process.running"), pid) == true
@@ -877,7 +845,7 @@ module Yast
             )
           )
         )
-        Builtins.y2milestone("Target Tech-Size progress %1", out)
+        #Builtins.y2milestone("Target Tech-Size progress %1", out)
 
         Progress.Step(Builtins.tointeger(Ops.get_string(out, "stdout", "0")))
 
@@ -890,7 +858,7 @@ module Yast
             )
           )
         )
-        Builtins.y2milestone("Target Human-Size progress %1", out)
+        #Builtins.y2milestone("Target Human-Size progress %1", out)
 
         Progress.Title(
           "Copying Media " + subDir + " ( " + Ops.get_string(out, "stdout", "OM") + " of " + humansize + " )"
@@ -898,7 +866,7 @@ module Yast
 
         # Checking the exit code (0 = OK, nil = still running, 'else' = error)
         exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
-        Builtins.y2milestone("Exitcode: %1", exitcode)
+        #Builtins.y2milestone("Exitcode: %1", exitcode)
 
         if exitcode != nil && exitcode != 0
           Builtins.y2milestone(
@@ -1077,14 +1045,11 @@ module Yast
     publish :function => :Write,               :type => "void ()"
     publish :function => :UmountSources,       :type => "void ()"
     publish :function => :MakeTemp,            :type => "string ()"
-    publish :function => :DirName,             :type => "string ()"
     publish :function => :ParseXML,            :type => "boolean ()"
     publish :function => :MountSource,         :type => "string ()"
     publish :function => :CopyFiles,           :type => "void ()"
     publish :function => :CreatePartitions,    :type => "void ()"
     publish :function => :ShowPartitions,      :type => "string ()"
-    publish :function => :CreateHANAPartitions,:type => "void()"
-    publish :function => :GetProductParameter, :type => "string ()"
     publish :function => :WriteProductDatas,   :type => "void ()"
     publish :function => :ExportSAPCDs,        :type => "void ()"
     
@@ -1092,34 +1057,33 @@ module Yast
     publish :variable => :createLinks,       :type => "boolean"
     publish :variable => :importSAPCDs,      :type => "boolean"
     publish :variable => :sapCDsURL,         :type => "string"
-    publish :variable => :mediaList,         :type => "list"
-    publish :variable => :productList,       :type => "list"
-    publish :variable => :PRODUCT_ID,        :type => "string"
-    publish :variable => :PRODUCT_NAME,      :type => "string"
-    publish :variable => :DB,                :type => "string"
+    publish :variable => :instEnvList,       :type => "list"
     publish :variable => :instDir,           :type => "string"
     publish :variable => :instDirBase,       :type => "string"
-    publish :variable => :instMasterPath,    :type => "string"
     publish :variable => :instMasterType,    :type => "string"
-    publish :variable => :instMasterVersion, :type => "string"
     publish :variable => :instMode,          :type => "string"
     publish :variable => :exportSAPCDs,      :type => "string"
-    publish :variable => :instType,          :type => "string"
     publish :variable => :mountPoint,        :type => "string"
     publish :variable => :mediaDir,          :type => "string"
     publish :variable => :mediaDirBase,      :type => "string"
     publish :variable => :productXML,        :type => "string"
     publish :variable => :partXMLPath,       :type => "string"
     publish :variable => :ayXMLPath,         :type => "string"
+    publish :variable => :instDir,           :type => "string"
     publish :variable => :prodCount,         :type => "integer"
 
 
     private
+    #############################################################
+    #
+    # Private function to find relevant directories on the media
+    #
+    ############################################################
     #***********************************
     # Read in our configuration file in /etc/sysconfig
     # set some defaults if its not there
     #
-    def parse_sysconfig
+    def parse_sysconfig()
       @mountPoint = Misc.SysconfigRead(
         path(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
         "/mnt"
@@ -1170,33 +1134,6 @@ module Yast
       nil
     end
 
-    def get_hw_info
-      hwinfo = []
-      product = ""
-      product_vendor = ""
-      bios = Convert.to_list(SCR.Read(path(".probe.bios")))
-    
-      if Builtins.size(bios) != 1
-        Builtins.y2warning("Warning: BIOS list size is %1", Builtins.size(bios))
-      end
-    
-      biosinfo = Ops.get_map(bios, 0, {})
-      smbios = Ops.get_list(biosinfo, "smbios", [])
-    
-      sysinfo = {}
-    
-      Builtins.foreach(smbios) do |inf|
-        sysinfo = deep_copy(inf) if Ops.get_string(inf, "type", "") == "sysinfo"
-      end
-    
-      if Ops.greater_than(Builtins.size(sysinfo), 0)
-        Ops.set(hwinfo, 0, Ops.get_string(sysinfo, "manufacturer", "default"))
-        Ops.set(hwinfo, 1, Ops.get_string(sysinfo, "product", "default"))
-      end
-    
-      deep_copy(hwinfo)
-    end
-    
     # ***********************************
     # select the usb media we want use
     #
@@ -1265,96 +1202,6 @@ module Yast
       nil
     end
     
-    #***********************************
-    # Look if we have the media we need locally available
-    #
-    # returns string if found or empty string if not
-    #
-    # if we have same Instmaster, try to copy MEDIA from local Directory
-    # check if we have in our local dir's the same label e.g.:RDBMS-DB6
-    # if yes the copy from /data/SAP_CDs/x/RDBMS-DB6 instead of /mnt2/SAP_BS2008SR1/RDBMS-DB6
-    #       means          $localIMPathList/$key instead of $val
-    #
-    def check_local_path(label, sourceDir)
-      copyPath = ""
-      srcLabel = ""
-      lclLabel = ""
-    
-      Builtins.foreach(@localIMPathList) do |_Path|
-        if FileUtils.Exists(_Path + "/" + label)
-          Builtins.y2milestone("Local directory found: %1/%2", _Path, label)
-    
-          # Only if the LABEL.ASC are identical
-          srcLabel = SAPXML.read_labelfile( sourceDir + "/" + "/LABEL.ASC")
-          next if srcLabel == ""
-    
-          lclLabel = SAPXML.read_labelfile( _Path + "/" + label + "/LABEL.ASC")
-          next if lclLabel == ""
-    
-          if srcLabel == lclLabel
-            Builtins.y2milestone( "Local directory has same label - we can use it")
-            copyPath = _Path + "/" + label
-            raise Break
-          end
-        end
-      end
-      Builtins.y2milestone("Copy Media from :%1", copyPath)
-      copyPath
-    end
-
-    def set_date
-      @out = Convert.to_map(
-        SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M")
-      )
-      @date = Builtins.filterchars(
-        Ops.get_string(@out, "stdout", ""),
-        "0123456789-."
-      )
-    end
-
-    def mount_sap_cds
-        # Un-mount it, in case if the location was previously mounted
-        # Run twice to umount it forcibly and surely
-        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
-        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
-        # Make sure the mount point exists
-        SCR.Execute(path(".target.bash_output"), "/usr/bin/mkdir -p " + @mediaDir)
-        # Mount new network location
-        url     = URL.Parse(@sapCDsURL)
-	command = ""
-	case url["scheme"]
-	   when "nfs"
-		command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @mediaDir
-	   when "smb"
-		mopts = "-o ro"
-		if url["workgroup"] != ""
-		   mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
-		elsif url["user"] != ""
-		   mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
-		else
-		   mopts = mopts + ",guest"
-		end
-		command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
-	end
-	out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
-        if Ops.get_string(out, "stderr", "") != ""
-	  @importSAPCDs = false
-	  Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
-                         "The wizard will move on without using network media server.",
-                        Ops.get_string(out, "stderr", ""))
-        else
-	  @importSAPCDs = true
-        end
-	return
-    end
-
-    
-    private
-    #############################################################
-    #
-    # Private function to find relevant directories on the media
-    #
-    ############################################################
     def find_sap_media(base)
       Builtins.y2milestone("-- Start find_sap_media ---")
       make_hash = proc do |hash,key|
@@ -1439,10 +1286,11 @@ module Yast
           # List existing product installation mediums (excluding installation master)
           product_media = media.select {|name| !(name =~ /Instmaster-/)}
           if !product_media.empty?
-              content_before_input = Frame(
-                  _("Ready for use:"),
-                  Label(Id(:mediums), Opt(:hstretch), product_media.join("\n"))
-              )
+	      mediaItems = []
+              product_media.each {|medium|
+		 mediaItems << Item(Id(medium),  medium,  @selectedMedia.has_key?(medium) ? @selectedMedia[medium] : true )
+	      }
+              content_before_input = VBox( MultiSelectionBox(Id("media"), _("Ready for use:"), mediaItems) )
           end
           content_input = VBox(
             Left(RadioButton(Id(:do_copy_medium), Opt(:notify), _("Copy a medium"), true)),
@@ -1454,9 +1302,9 @@ module Yast
                     @locationCache),
                 HSpacing(6.0))),
           )
-          content_advanced_ops = VBox(
-              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
-          )
+#          content_advanced_ops = VBox(
+#              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
+#          )
       when "inst_master"
           # List installation masters
           has_back = false
@@ -1488,7 +1336,7 @@ module Yast
           if !@importSAPCDs
               # link & export options are not applicable if SAP_CD is mounted from network location
               advanced_ops += [
-                Left(CheckBox(Id(:link),_("Link to the installation master, without copying its content to local location (SAP NetWeaver only)."), false)),
+                # Left(CheckBox(Id(:link),_("Link to the installation master, without copying its content to local location (SAP NetWeaver only)."), false)),
                 Left(CheckBox(Id(:export),_("Serve all installation mediums (including master) to local network via NFS."), false))
               ]
           end
@@ -1505,13 +1353,13 @@ module Yast
               _("Prepare SAP supplementary medium"),
               @locationCache)
           )
-          content_advanced_ops = VBox(
-              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
-          )
+#          content_advanced_ops = VBox(
+#              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
+#          )
       end
 
       after_advanced_ops = Empty()
-      advanced_ops_left = Empty()
+      advanced_ops_left  = Empty()
 
       if wizard == "sapmedium"
           after_advanced_ops = VBox(
@@ -1523,14 +1371,24 @@ module Yast
       
 
       # Render the wizard
-      content = VBox(
-          Left(content_before_input),
-          VSpacing(2),
-          Left(content_input),
-          VSpacing(2),
-          HBox(advanced_ops_left, Frame(_("Advanced Options"), Left(content_advanced_ops))),
-          Left(after_advanced_ops)
-      )
+      if( content_advanced_ops == Empty() )
+        content = VBox(
+            Left(content_before_input),
+            VSpacing(2),
+            Left(content_input),
+            VSpacing(2),
+            Left(after_advanced_ops)
+        )
+      else
+        content = VBox(
+            Left(content_before_input),
+            VSpacing(2),
+            Left(content_input),
+            VSpacing(2),
+            HBox(advanced_ops_left, Frame(_("Advanced Options"), Left(content_advanced_ops))),
+            Left(after_advanced_ops)
+        )
+      end
 
       Wizard.SetContents(
         _("SAP Installation Wizard"),
@@ -1549,7 +1407,7 @@ module Yast
           # Activate the first installation master option
           UI.ChangeWidget(Id(:scheme), :Value, "dir")
           UI.ChangeWidget(Id(:scheme), :Enabled, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
+#         UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(Id(:location), :Value, @mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value)))
           UI.ChangeWidget(Id(:location), :Enabled, false)
       end
@@ -1560,12 +1418,18 @@ module Yast
         when :abort, :cancel
             return :abort
         when :skip_copy_medium
-          [:scheme, :location, :link].each { |widget|
+#          [:scheme, :location, :link].each { |widget|
+#            UI.ChangeWidget(Id(widget), :Enabled, false)
+#          }
+          [:scheme, :location].each { |widget|
             UI.ChangeWidget(Id(widget), :Enabled, false)
           }
           UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
         when :do_copy_medium
-          [:scheme, :location, :link].each { |widget|
+#         [:scheme, :location, :link].each { |widget|
+#           UI.ChangeWidget(Id(widget), :Enabled, true)
+#         }
+          [:scheme, :location].each { |widget|
             UI.ChangeWidget(Id(widget), :Enabled, true)
           }
           UI.ChangeWidget(Id(:skip_copy_medium), :Value, false)
@@ -1575,20 +1439,31 @@ module Yast
             if im == "---"
                 # Re-enable media input
                 UI.ChangeWidget(Id(:scheme), :Enabled, true)
-                UI.ChangeWidget(Id(:link), :Enabled, true)
+#               UI.ChangeWidget(Id(:link), :Enabled, true)
                 UI.ChangeWidget(Id(:location), :Enabled, true)
                 next
             end
             # Write down media location and disable media input
             UI.ChangeWidget(Id(:scheme), :Value, "dir")
             UI.ChangeWidget(Id(:scheme), :Enabled, false)
-            UI.ChangeWidget(Id(:link), :Enabled, false)
+#           UI.ChangeWidget(Id(:link), :Enabled, false)
             UI.ChangeWidget(Id(:location), :Value, @mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value)))
             UI.ChangeWidget(Id(:location), :Enabled, false)
         when :scheme
             # Basically re-render layout
             do_default_values(wizard)
         when :next
+            #Set the selected Items
+            if UI.WidgetExists( Id("media") )
+	      @selectedMedia.each_key { |medium|
+	         @selectedMedia[medium] = false
+	      }
+              UI.QueryWidget(Id("media"),:SelectedItems).each {|medium|
+	         @selectedMedia[medium] = true
+	      }
+              Builtins.y2milestone("selectedMedia %1",@selectedMedia)
+            end
+
             # Export locally stored mediums over NFS
             @exportSAPCDs = true if !!UI.QueryWidget(Id(:export), :Value)
             # Set installation mode to preauto so that only installation profiles are collected
@@ -1598,7 +1473,7 @@ module Yast
             @locationCache  = Convert.to_string(UI.QueryWidget(Id(:location), :Value))
             if scheme == "local"
                 #This value can be reset by MountSource if the target is iso file.
-                @createLinks = @importSAPCDs || !!UI.QueryWidget(Id(:link), :Value)
+#               @createLinks = @importSAPCDs || !!UI.QueryWidget(Id(:link), :Value)
             end
             @sourceDir      = @locationCache
 
@@ -1627,9 +1502,7 @@ module Yast
             break # No more input
         end # Case user input
       end # While true
-      if @mediaList != [] and @labelHashRef != {}
-          @dbMap = SAPXML.check_media(@sourceDir, @mediaList, @labelHashRef)
-      end
+      return :next
     end # Function media_dialog
 
     # ***********************************
@@ -1639,40 +1512,40 @@ module Yast
         val = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
         @schemeCache = val
         if val == "device"
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
+#         UI.ChangeWidget(Id(:link), :Value, false)
+#         UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(
             :location,
             :Value,
             @locationCache == "" ? "sda1/directory" : @locationCache
           )
         elsif val == "nfs"
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
+#         UI.ChangeWidget(Id(:link), :Value, false)
+#         UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(
             :location,
             :Value,
             @locationCache == "" ? "nfs.server.com/directory/" : @locationCache
           )
         elsif val == "usb"
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
+#         UI.ChangeWidget(Id(:link), :Value, false)
+#         UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(
             :location,
             :Value,
             @locationCache == "" ? "/directory/" : @locationCache
           )
         elsif val == "local"
-          UI.ChangeWidget(Id(:link), :Value, true)
-          UI.ChangeWidget(Id(:link), :Enabled, true)
+#         UI.ChangeWidget(Id(:link), :Value, true)
+#         UI.ChangeWidget(Id(:link), :Enabled, true)
           UI.ChangeWidget(
             :location,
             :Value,
             @locationCache == "" ? "/directory/" : @locationCache
           )
         elsif val == "smb"
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
+#         UI.ChangeWidget(Id(:link), :Value, false)
+#         UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(
             :location,
             :Value,
@@ -1682,8 +1555,8 @@ module Yast
           )
         else
           #This is cdrom1 cdrom2 and so on
-          UI.ChangeWidget(Id(:link), :Value, false)
-          UI.ChangeWidget(Id(:link), :Enabled, false)
+#         UI.ChangeWidget(Id(:link), :Value, false)
+#         UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(
             :location,
             :Value,
@@ -1692,6 +1565,90 @@ module Yast
         end
         nil
     end
+    #***********************************
+    # Look if we have the media we need locally available
+    #
+    # returns string if found or empty string if not
+    #
+    # if we have same Instmaster, try to copy MEDIA from local Directory
+    # check if we have in our local dir's the same label e.g.:RDBMS-DB6
+    # if yes the copy from /data/SAP_CDs/x/RDBMS-DB6 instead of /mnt2/SAP_BS2008SR1/RDBMS-DB6
+    #       means          $localIMPathList/$key instead of $val
+    #
+    def check_local_path(label, sourceDir)
+      copyPath = ""
+      srcLabel = ""
+      lclLabel = ""
+    
+      Builtins.foreach(@localIMPathList) do |_Path|
+        if FileUtils.Exists(_Path + "/" + label)
+          Builtins.y2milestone("Local directory found: %1/%2", _Path, label)
+    
+          # Only if the LABEL.ASC are identical
+          srcLabel = SAPXML.read_labelfile( sourceDir + "/" + "/LABEL.ASC")
+          next if srcLabel == ""
+    
+          lclLabel = SAPXML.read_labelfile( _Path + "/" + label + "/LABEL.ASC")
+          next if lclLabel == ""
+    
+          if srcLabel == lclLabel
+            Builtins.y2milestone( "Local directory has same label - we can use it")
+            copyPath = _Path + "/" + label
+            raise Break
+          end
+        end
+      end
+      Builtins.y2milestone("Copy Media from :%1", copyPath)
+      copyPath
+    end
+
+    def set_date
+      @out = Convert.to_map(
+        SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M")
+      )
+      @date = Builtins.filterchars(
+        Ops.get_string(@out, "stdout", ""),
+        "0123456789-."
+      )
+    end
+
+    def mount_sap_cds
+        # Un-mount it, in case if the location was previously mounted
+        # Run twice to umount it forcibly and surely
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @mediaDir)
+        # Make sure the mount point exists
+        SCR.Execute(path(".target.bash_output"), "/usr/bin/mkdir -p " + @mediaDir)
+        # Mount new network location
+        url     = URL.Parse(@sapCDsURL)
+        command = ""
+        case url["scheme"]
+           when "nfs"
+            command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @mediaDir
+           when "smb"
+            mopts = "-o ro"
+            if url["workgroup"] != ""
+               mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
+            elsif url["user"] != ""
+               mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
+            else
+               mopts = mopts + ",guest"
+            end
+            command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
+        end
+        out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
+            if Ops.get_string(out, "stderr", "") != ""
+               @importSAPCDs = false
+               Popup.ErrorDetails("Failed to mount " + @sapCDsURL + "\n" +
+                             "The wizard will move on without using network media server.",
+                            Ops.get_string(out, "stderr", ""))
+            else
+               @importSAPCDs = true
+            end
+        return
+    end
+
+    
   end   
 
   SAPMedia = SAPMediaClass.new

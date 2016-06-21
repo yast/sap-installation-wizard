@@ -9,7 +9,7 @@ module Yast
       Yast.import "Package"
       Yast.import "Stage"
       Yast.import "Popup"
-      Yast.import "SAPInst"
+      Yast.import "SAPPartitioning"
 
       # MAIN
 
@@ -95,7 +95,7 @@ module Yast
               WFM.CallFunction("sap-installation-wizard", [])
 	      ret = :next
           when "hana_partitioning"
-              SAPInst.CreateHANAPartitions("")
+              SAPPartitioning.CreateHANAPartitions("")
 	      ret = :next
           end
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")

@@ -30,7 +30,9 @@ module Yast
     include SapInstallationWizardWizardsInclude
     def main
       textdomain "sap-installation-wizard"
-      Yast.import "SAPInst"
+      Yast.import "SAPMedia"
+      Yast.import "SAPProduct"
+      Yast.import "SAPPartitioning"
       Yast.import "CommandLine"
       Yast.import "RichText"
       Builtins.y2milestone("sap-installation-wizard called with %1",WFM.Args)
@@ -41,19 +43,19 @@ module Yast
         "id"   => "sap-installation-wizard",
 	"help" => _("YAST Module to Install SAP Applications on SLES for SAP Applications."),
 	"guihandler" => fun_ref(method(:SAPInstSequence),  "symbol ()"),
-	"initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
-	"finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
+#	"initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
+#	"finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
 	"actions"    => {
             "hana_partitioning"   => {
-               "handler" => fun_ref(SAPInst.method(:CreateHANAPartitions),"void ()"),
+               "handler" => fun_ref(SAPPartitioning.method(:CreateHANAPartitions),"void ()"),
                "help"    => _("Create HANA Partitionint.")
             }
 	}
       }
       @ret = CommandLine.Run(@cmdline)
       deep_copy(@ret)
-      if SAPInst.importSAPCDs
-         SCR.Execute(path(".target.bash"), "umount " + SAPInst.mediaDir)
+      if SAPMedia.importSAPCDs
+         SCR.Execute(path(".target.bash"), "umount " + SAPMedia.mediaDir)
       end
     end
   end

@@ -8,7 +8,7 @@ use warnings;
 use Fatal qw(:void open opendir chdir rename); 
 use XML::LibXML;
 use File::Basename;
-#use Data::Dumper;
+use Data::Dumper;
 use YaST::YCP qw(:LOGGING Boolean sformat);
 use Cwd;
 
@@ -35,11 +35,10 @@ our @ISA = qw(Exporter AutoLoader);
 our @EXPORT = qw( 
 find_local_IM
 is_instmaster
-needSaplup
-needIBMJava
 get_sapinst_version
 get_sapinst_path
 get_nw_products
+get_products_for_media
 set_sapinst_feature
 products_on_instmaster
 search_labelfiles
@@ -52,7 +51,7 @@ search_sapinst_id
 type_of_product
 );
 
-our $VERSION = '0.08';
+our $VERSION = '0.98';
 
 # for YCP
 # ["function", return_TYPEINFO, argument0_TYPEINFO, argument1_TYPEINFO, ...]
@@ -63,6 +62,14 @@ my $DEBUG=1;
 my $PLATFORM = "LINUX";
 my $ARCH     = `arch`; $ARCH=uc($ARCH); chomp($ARCH);
 my @STANDALONE = ("TREX","GATEWAY","WEBDISPATCHER");
+my @DATABASES  = ("ORA","SYB","DB2","HDB","MAX");
+my %DBMAP      = ( 
+			"ORA" => "ORA",
+			"SYB" => "SYB",
+			"DB2" => "DB6",
+			"HDB" => "HDB",
+			"MAX" => "ADA"
+		);
 
 ####################################################################
 # find_local_IM
@@ -212,43 +219,6 @@ sub is_instmaster {
    }
    return \@instmaster;
 }
-####################################################################
-# needSaplup
-#  in  - instmaster path
-#  out - boolean true or false
-#
-BEGIN{ $TYPEINFO{needSaplup} = ["function", "boolean", "string"]; } 
-sub needSaplup{
-   my $self = shift;
-   my $instmaster_path = shift;
-   
-   my $XML = `find '$instmaster_path' -name control.xml`;
-   my $NUM = `grep -c 'package label="" name="SAPLUP" copy="false"/>' $XML`;
-   if( $NUM > 0 )
-   {
-           return 1;
-   }
-   return 0;
-}
-
-
-####################################################################
-# needIBMJava
-#  in  - instmaster path + database type
-#  out - boolean true or false
-#
-BEGIN{ $TYPEINFO{needIBMJava} = ["function", "boolean", "string","string"]; } 
-sub needIBMJava{
-   my $self = shift;
-   my $instmaster_path = shift;
-   my $DB              = shift;
-
-   # TODO IBM Java not needed anymore with SWPM
-   # return 1 if ( -d "$instmaster_path/NW04S" || -d "$instmaster_path/NW701" || ( -d "$instmaster_path/NW702" && "SYB" ne $DB ));
-
-   return 0;
-}
-
 
 ####################################################################
 # get_sapinst_version
@@ -348,11 +318,14 @@ sub ConfigValue{
 BEGIN { $TYPEINFO{get_nw_products} = ["function",["list", ["map", "string", "string"]],"string","string","string"]; }
 sub get_nw_products
 {
-   my $self   = shift;
-   my $imPath = shift;
-   my $TYPE   = shift;
-   my $DB     = shift;
-   my @FILTER = ();
+   my $self    = shift;
+   my $instEnv = shift;
+   my $TYPE    = shift;
+   my $DB      = shift || "IND";
+print "get_nw_products $instEnv $TYPE $DB\n";
+   my $productDir = shift;
+   my $imPath  = "$instEnv/Instmaster";
+   my @FILTER  = ();
    my $PRODUCTS = {};
    my $x = XML::LibXML->new();
    #TODO Make it configurable
@@ -363,21 +336,23 @@ sub get_nw_products
        my $a  = "";
        my $p  = "";
        my $s  = "";
+       my $i  = "";
        my $ok = 0;
        foreach my $c ( $node->getChildNodes )
        {
-         push @f, $c->string_value if( 'search'       eq $c->getName );
-         $n = $c->string_value     if( 'name'         eq $c->getName );
-         $a = $c->string_value     if( 'ay_xml'       eq $c->getName );
-         $p = $c->string_value     if( 'partitioning' eq $c->getName );
-         $s = $c->string_value     if( 'script_name'  eq $c->getName );
+         push @f, $c->string_value if( 'search'         eq $c->getName );
+         $n = $c->string_value     if( 'name'           eq $c->getName );
+         $a = $c->string_value     if( 'ay_xml'         eq $c->getName );
+         $p = $c->string_value     if( 'partitioning'   eq $c->getName );
+         $s = $c->string_value     if( 'script_name'    eq $c->getName );
+         $i = $c->string_value     if( 'inifile_params' eq $c->getName );
          $ok = 1 if( 'type' eq $c->getName and $c->string_value eq $TYPE );
        }
        if( $ok ) {
          foreach( @f ){
 	    $p = "base_partitioning" if ( $p eq "" );
 	    $s = "sap_inst.sh"       if ( $s eq "" );
-            push @FILTER, [ $n, $_ , $a, $p, $s ]
+            push @FILTER, [ $n, $_ , $a, $p, $s, $i ]
 	 }
        }
    }
@@ -392,10 +367,25 @@ sub get_nw_products
    foreach my $tmp ( @FILTER )
    {
       my $xmlpath = $tmp->[1];
-      $xmlpath =~ s/##DB##/$DB/;
-      foreach my $node ($d->findnodes($xmlpath))
+      if( $xmlpath !~ /##PD##/ )
+      { #has no productDir
+         foreach my $node ($d->findnodes($xmlpath))
+         {
+            push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
+         }
+      }
+      else
       {
-         push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4] ];
+         $xmlpath =~ s/##DB##/$DB/;
+         foreach my $PD ( @{$productDir} )
+         {
+            next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
+            $xmlpath =~ s/##PD##/$PD/;
+            foreach my $node ($d->findnodes($xmlpath))
+            {
+               push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
+            }
+         }
       }
    }
    
@@ -406,6 +396,7 @@ sub get_nw_products
       my $ay    = $tmp->[2];
       my $part  = $tmp->[3];
       my $scr   = $tmp->[4];
+      my $ini   = $tmp->[5];
       my $gname = "";
       my $lname = "";
       #Get ID
@@ -434,20 +425,108 @@ sub get_nw_products
       $PRODUCTS->{$gname}->{ay}   = $ay;
       $PRODUCTS->{$gname}->{part} = $part;
       $PRODUCTS->{$gname}->{scr}  = $scr;
+      $PRODUCTS->{$gname}->{ini}  = $ini;
    }
    my @ret = ();
    foreach my $name ( sort keys %$PRODUCTS )
    {
       push @ret, { 
-           name         => $name,
-	   id           => $PRODUCTS->{$name}->{id},
-	   ay_xml       => $PRODUCTS->{$name}->{ay},
-	   partitioning => $PRODUCTS->{$name}->{part},
-	   script_name  => $PRODUCTS->{$name}->{scr}
+           name           => $name,
+	   id             => $PRODUCTS->{$name}->{id},
+	   ay_xml         => $PRODUCTS->{$name}->{ay},
+	   partitioning   => $PRODUCTS->{$name}->{part},
+	   script_name    => $PRODUCTS->{$name}->{scr},
+	   inifile_params => $PRODUCTS->{$name}->{ini}
        };
    }
    return \@ret;
 }
+
+####################################################################
+# get_sapinst_path
+#
+# in : Path to the installation environment.
+# out: list of output-dir of the possible products 
+#
+BEGIN { $TYPEINFO{get_products_for_media} = ["function", ["map", "string", "any"  ] , "string"]; }
+sub get_products_for_media{
+
+   my $self        = shift;
+   my $prodEnvPath = shift;
+   my @media       = split /\n/, `cat $prodEnvPath/start_dir.cd`;
+   my @packages    = split /\n/, `cd $prodEnvPath; find -name "packages.xml"`;
+   my @labels      = ();
+   my @valid       = ();
+   my $DB          = "";
+   my $TREX        = "";
+
+   foreach my $medium (@media)
+   {
+      my $label = `cat $medium/LABEL.ASC`; chomp $label;
+      push @labels, $label;
+   }
+
+   foreach my $xml_file ( @packages )
+   {
+      my $x     = XML::LibXML->new() or        return ();
+      my $doc   = $x->parse_file("$prodEnvPath/$xml_file") or next;
+      my $found = 1;
+      
+      my $xpath = q{
+          /packages/package
+      };
+
+      foreach my $label ( @labels )
+      {
+        my $foundLabel = 0;
+        foreach my $node ($doc->findnodes($xpath)) {
+           my $pattern = $node->getAttribute("label");
+           #Hide the brackets () as special characters within regex ()=grouping
+           $pattern =~ s/\Q(\E/\Q\(\E/;
+           $pattern =~ s/\Q)\E/\Q\)\E/;
+	   $pattern =~ s#/#\\/#g;
+           
+           # replace * with real regex operator group (.*)
+           $pattern =~ s/\*/\(\.\*\)/g;
+
+	   if( $label =~ /$pattern/ )
+	   {
+	     $foundLabel = 1;
+	     last;
+	   }
+        }
+	if( !$foundLabel )
+	{
+	  $found = 0;
+	  last;
+	}
+	# Is it a DB medium
+	foreach my $dbl ( @DATABASES )
+	{
+	   if( $label =~ /^$dbl/ )
+	   {
+	      $DB = $DBMAP{$dbl};
+	      last;
+	   }
+	}
+	# Is it a TREX medium
+	if( $label =~ /^TREX/ )
+	{
+	   $TREX = 1;
+	}
+      }
+      $xml_file =~ s#./Instmaster/##;
+      $xml_file =~ s#/packages.xml##;
+      push @valid, $xml_file if( $found );
+   }
+   return {
+   		"productDir" => \@valid,
+		"DB"         => $DB,
+		"TREX"       => $TREX
+	}
+}
+
+#TODO Do We need these:
 
 ####################################################################
 # get_sapinst_path

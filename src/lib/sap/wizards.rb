@@ -25,14 +25,12 @@
 # Authors:      Peter Varkoly <varkoly@suse.com>
 #
 
-require "sap/dialogs"
 require "sap/add_repo_dialog"
-require "sap/tuning_dialog"
-require "sap/config_hanafw_dialog"
+require "hanafirewall/hanafirewall_conf"
+require "saptune/saptune"
 
 module Yast
   module SapInstallationWizardWizardsInclude
-    include SapInstallationWizardDialogsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
       # Do not remove the empty function
@@ -41,10 +39,18 @@ module Yast
 
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
-        if SAPInst.instMasterType.downcase.match(/hana/)
-            HANAFirewall.Write()
-        end
+        hana_fw = HANAFirewallConfInst.gen_config
+	HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
+	HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
+	HANAFirewallConfInst.ifaces   = hana_fw[:ifaces]
+        HANAFirewallConfInst.save_config
+	HANAFirewallConfInst.set_state(true)
+	#TODO Please report the customer what we have done
         return :next
+    end
+
+    def TuneTheSystem
+        Saptune.auto_config
     end
 
     # SAP Installation Main Sequence
@@ -58,23 +64,23 @@ module Yast
       Yast.import "Wizard"
       Yast.import "Label"
       Yast.import "Stage"
+      Yast.import "SAPMedia"
 
       # mark if the dialog must be closed at the and.
       close_dialog = false
 
       aliases = {
-        "read"    => lambda { ReadDialog()  },
-        "readIM"  => lambda { ReadInstallationMaster()   },
-        "selectI" => lambda { SelectNWInstallationMode() },
-        "selectP" => lambda { SelectNWProduct() },
-        "copy"    => lambda { CopyNWMedia() },
-        "3th"     => lambda { ReadSupplementMedium() },
-        "readP"   => lambda { ReadParameter() },
-        "write"   => lambda { WriteDialog() },
-        "tuning"  => lambda { SAPInstaller::TuningWizardDialog.new.run },
-        "hanafw"  => lambda { SAPInstaller::ConfigHANAFirewallDialog.new(true).run },
-        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
-        "hanafw_post" => lambda { ApplyHANAFirewall() }
+        "read"          => lambda { SAPMedia::Read()  },
+        "readIM"        => lambda { SAPMedia::ReadInstallationMaster()   },
+        "copy"          => lambda { SAPMedia::CopyNWMedia() },
+        "3th"           => lambda { SAPMedia::ReadSupplementMedium() },
+        "selectInstMode"=> lambda { SAPProduct::SelectNWInstallationMode() },
+        "selectProduct" => lambda { SAPProduct::SelectNWProduct() },
+        "readParameter" => lambda { SAPProduct::ReadParameter() },
+        "write"         => lambda { SAPProduct::Write() },
+        "add_repo"      => lambda { SAPInstaller::AddRepoWizardDialog.new.run },
+        "tuning"        => lambda { TuneTheSystem() },
+        "hanafw"        => lambda { ApplyHANAFirewall() }
       }
 
       sequence = {
@@ -88,21 +94,21 @@ module Yast
                         :abort   => :abort, 
                         :HANA    => "3th",
                         :B1      => "3th",
-                        :SAPINST => "selectI"
-                      },
-        "selectI"  => {
-                        :abort => :abort,
-                        :back  => "readIM",
-                        :next  => "selectP"
-                      },
-        "selectP"  => {
-                        :abort => :abort,
-                        :back  => "selectI",
-                        :next  => "copy"
+                        :SAPINST => "copy"
                       },
         "copy"     => {
                         :abort => :abort,
-                        :back  => "selectP",
+                        :back  => "readIM",
+                        :next  => "selectInstMode"
+                      },
+        "selectInstMode"  => {
+                        :abort => :abort,
+                        :back  => "copy",
+                        :next  => "selectProduct"
+                      },
+        "selectProduct"  => {
+                        :abort => :abort,
+                        :back  => "selectInstMode",
                         :next  => "3th"
                       },
         "3th"      => {
@@ -114,29 +120,23 @@ module Yast
                         :abort => :abort,
                         :back => "copy",
                         :auto  => "write",
-                        :next  => "readP"
+                        :next  => "readParameter"
                       },
-        "readP"    => {
+        "readParameter"    => {
                         :abort   => :abort, 
                         :back    => "3th",
-                        :next    => "tuning",
-                        :selectP => "selectP",
+                        :next    => "write",
                         :readIM  => "readIM" 
-                      },
-        "tuning"     => {
-                        :abort => :abort,
-                        :auto  => "write",
-                        :next  => "hanafw"
-                      },
-        "hanafw"   => {
-                        :abort => :abort,
-                        :next  => "write"
                       },
         "write"    => {
                         :abort => :abort,
-                        :next => "hanafw_post"
+                        :next => "tuning"
                       },
-        "hanafw_post" => {
+        "tuning"     => {
+                        :abort => :abort,
+                        :next  => "hanafw"
+                      },
+        "hanafw" => {
                         :abort => :abort,
                         :next  => :next
                       }
@@ -175,7 +175,6 @@ module Yast
       aliases = {
         "read"    => lambda { SAPMedia::Read()  },
         "readIM"  => lambda { SAPMedia::ReadInstallationMaster()   },
-        "selectI" => lambda { SAPMedia::SelectNWInstallationMode() },
         "copy"    => lambda { SAPMedia::CopyNWMedia() },
         "3th"     => lambda { SAPMedia::ReadSupplementMedium() },
 	"add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
@@ -193,26 +192,25 @@ module Yast
                         :abort   => :abort, 
                         :HANA    => "3th",
                         :B1      => "3th",
-                        :SAPINST => "selectI"
-                      },
-        "selectI"  => {
-                        :abort => :abort,
-                        :back  => "readIM",
-                        :next  => "copy"
+                        :SAPINST => "copy"
                       },
         "copy"     => {
                         :abort => :abort,
-                        :back  => "selectI",
                         :next  => "3th"
                       },
         "3th"      => {
+                        :abort => :abort,
+                        :back  => "copy",
+                        :next  => "write"
+                      },
+        "write"     => {
                         :abort => :abort,
                         :back  => "copy",
                         :next  => "add_repo"
                       },
         "add_repo" => {
                         :abort => :abort,
-                        :back => "copy",
+                        :back  => "copy",
                         :auto  => "write",
                         :next  => :next
                       }
