@@ -4,6 +4,8 @@
 #                                                                                                                                                                                                    #
 ######################################################################################################################################################################################################
 
+# USED PARAMETERS ##masterPwd## ##sid## ##ascsVirtualHostname## ##instanceNumber## ##scsVirtualHostname##
+
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
 
@@ -15,7 +17,7 @@ DiagnosticsAgent.domain =
 # The property is Microsoft Windows only.
 DiagnosticsAgent.sapServiceDASIDPassword = 
 
-NW_GetMasterPassword.masterPwd = des24(81|44|188|215|176|88|46|126|234|99|96|189|106|16|187|212|238|98|47|108|83|)
+NW_GetMasterPassword.masterPwd = ##masterPwd##
 
 # Human readable form of the Default Login language - used for instant in the preselection in SAPGUI. This Parameter is potentialy asked in addition in the dialog that also asks for the SID. It is not asked in all this dialogs, but only in systems that have ( potentialy beside others ) an ABAP stack. It is ask for installation but not for system copy. It is asked in those installations, that perform the ABAP load. That could be the Database Load installation in case of a distributed szenario, or in the Standard Installer, that is not distributed at all. This Parameter is saved in the Default Profile. It is has no influence on Language settings in a Java Stack. Valid names are stored in a table of the subcomponent NW_languagesInLoadChecks. The available languages must be declaired in the LANGUAGES_IN_LOAD parameter of the product.xml . In this file the one character representation of the languages is uses. Check the same table in the subcomponent mentioned above.
 NW_GetSidNoProfiles.SAP_GUI_DEFAULT_LANGUAGE = 
@@ -27,22 +29,22 @@ NW_GetSidNoProfiles.sapdrive =
 NW_GetSidNoProfiles.sapmnt = /sapmnt
 
 # The SAP System ID of the system to install
-NW_GetSidNoProfiles.sid = ASD
+NW_GetSidNoProfiles.sid = ##sid##
 
 # Will this system be unicode system?
 NW_GetSidNoProfiles.unicode = true
 
 NW_SCS_Instance.ascsInstanceNumber = 
 
-NW_SCS_Instance.ascsVirtualHostname = sgw
+NW_SCS_Instance.ascsVirtualHostname = ##ascsVirtualHostname##
 
-NW_SCS_Instance.instanceNumber = 02
+NW_SCS_Instance.instanceNumber = ##instanceNumber##
 
 NW_SCS_Instance.scsInstanceNumber = 
 
 NW_SCS_Instance.scsMSPort = 
 
-NW_SCS_Instance.scsVirtualHostname = sgw
+NW_SCS_Instance.scsVirtualHostname = ##scsVirtualHostname##
 
 NW_System.installSAPHostAgent = true
 
@@ -65,5 +67,4 @@ hostAgent.sapAdmPassword =
 nwUsers.sapDomain = 
 
 nwUsers.sapServiceSIDPassword = 
-
 nwUsers.sidadmPassword = des24(140|122|126|11|224|60|251|166|156|194|66|124|97|97|239|241|137|105|204|91|254|)
