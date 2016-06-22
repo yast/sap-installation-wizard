@@ -4,6 +4,8 @@
 #                                                                                                                                               #
 #################################################################################################################################################
 
+# ##gwVirtualHostname## ##masterPwd## ##sid## ##kernel##
+
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
 
@@ -15,7 +17,7 @@ DiagnosticsAgent.domain =
 # The property is Microsoft Windows only.
 DiagnosticsAgent.sapServiceDASIDPassword = 
 
-NW_GW_Instance.gwVirtualHostname = sgw
+NW_GW_Instance.gwVirtualHostname = ##gwVirtualHostname##
 
 NW_GetMasterPassword.masterPwd = ##masterPwd##
 
