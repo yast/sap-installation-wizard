@@ -4,7 +4,7 @@
 #                                                                                                                                               #
 #################################################################################################################################################
 
-# ##gwVirtualHostname## ##masterPwd## ##sid## ##kernel##
+# USED PARAMETERS ##gwVirtualHostname## ##masterPwd## ##sid## ##kernel##
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
