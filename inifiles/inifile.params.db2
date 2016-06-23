@@ -1,0 +1,84 @@
+############################################################################################################################################################################################################
+#                                                                                                                                                                                                          #
+# Installation service 'SAP NetWeaver 7.5 > IBM DB2 for Linux, UNIX, and Windows > SAP Systems > Application Server ABAP > Standard System > Standard System', product id 'NW_ABAP_OneHost:NW750.DB6.ABAP' #
+#                                                                                                                                                                                                          #
+############################################################################################################################################################################################################
+
+#USED PARAMETERS ##user## ##schema## ##masterPwd## ##sid## ##dbhost## ##dbsid##
+
+# Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
+DiagnosticsAgent.dasidAdmPassword = 
+
+# Windows domain in which the Diagnostics Agent users must be created.
+# The property is Microsoft Windows only. This is an optional property.
+DiagnosticsAgent.domain = 
+
+# Password for the Diagnostics Agent specific SAPService<DASID> user. Provided value may be encoded.
+# The property is Microsoft Windows only.
+DiagnosticsAgent.sapServiceDASIDPassword = 
+
+NW_CreateDBandLoad.movePVCforUsagePiAndDi = 
+
+NW_DB6_DB.db6.abap.connect.user = ##user##
+
+NW_DB6_DB.db6.abap.schema = ##schema##
+
+NW_DB6_DB.db6.java.connect.user = 
+
+NW_DB6_DB.db6.java.schema = 
+
+NW_GetMasterPassword.masterPwd = ##masterPwd##
+
+# Human readable form of the Default Login language - used for instant in the preselection in SAPGUI. This Parameter is potentialy asked in addition in the dialog that also asks for the SID. It is not asked in all this dialogs, but only in systems that have ( potentialy beside others ) an ABAP stack. It is ask for installation but not for system copy. It is asked in those installations, that perform the ABAP load. That could be the Database Load installation in case of a distributed szenario, or in the Standard Installer, that is not distributed at all. This Parameter is saved in the Default Profile. It is has no influence on Language settings in a Java Stack. Valid names are stored in a table of the subcomponent NW_languagesInLoadChecks. The available languages must be declaired in the LANGUAGES_IN_LOAD parameter of the product.xml . In this file the one character representation of the languages is uses. Check the same table in the subcomponent mentioned above.
+NW_GetSidNoProfiles.SAP_GUI_DEFAULT_LANGUAGE = 
+
+# The drive to use (windows only)
+NW_GetSidNoProfiles.sapdrive = 
+
+# The /sapmnt path (unix only)
+NW_GetSidNoProfiles.sapmnt = /sapmnt
+
+# The SAP System ID of the system to install
+NW_GetSidNoProfiles.sid = ##sid##
+
+# Will this system be unicode system?
+NW_GetSidNoProfiles.unicode = true
+
+NW_System.installSAPHostAgent = true
+
+NW_adaptProfile.templateFiles = 
+
+# The DB host
+NW_getDBInfoGeneric.dbhost = ##dbhost##
+
+# The DB SID
+NW_getDBInfoGeneric.dbsid = ##dbsid##
+
+# The FQDN of the system.
+NW_getFQDN.FQDN = 
+
+# Do we want to set the FQDN for the system?
+NW_getFQDN.setFQDN = false
+
+# The path to the jce policy archive to install into the java home directory if it is not already installed.
+NW_getJavaHome.jcePolicyArchive = 
+
+# Valid values are: SAP, STD, OBR, HCP, MDAThe loadtype chosen by the user.
+NW_getLoadType.loadType = SAP
+
+hostAgent.domain = 
+
+# Password for the SAP Host Agent specific sapadm user. Provided value may be encoded.
+hostAgent.sapAdmPassword = ##masterPwd##
+
+nwUsers.db6.db2sidPassword = ##masterPwd##
+
+nwUsers.db6.sapsidPassword = ##masterPwd##
+
+nwUsers.db6.sapsiddbPassword = 
+
+nwUsers.sapDomain = 
+
+nwUsers.sapServiceSIDPassword = 
+
+nwUsers.sidadmPassword = 
