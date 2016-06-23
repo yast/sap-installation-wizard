@@ -4,6 +4,8 @@
 #                                                                                                                                                                                                         #
 ###########################################################################################################################################################################################################
 
+#USED PARAMETERS ##dbhost## ##dbsid## ##masterPwd## ##sid##
+
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
 
@@ -61,10 +63,10 @@ Sdb_ClientSoftware_Dialogs.indep_prog_drive =
 Sdb_ClientSoftware_Dialogs.installation_drive = 
 
 # Password of Database System Administrator 'superdba'
-Sdb_DBUser.dbaPassword = des24(81|44|188|215|176|88|46|126|234|99|96|189|106|16|187|212|238|98|47|108|83|)
+Sdb_DBUser.dbaPassword = ##masterPwd##
 
 # Password of Database Manager Operator 'control'
-Sdb_DBUser.dbmPassword = des24(81|44|188|215|176|88|46|126|234|99|96|189|106|16|187|212|238|98|47|108|83|)
+Sdb_DBUser.dbmPassword = ##masterPwd##
 
 # Password of the database user
 Sdb_Schema_Dialogs.dbSchemaPassword = 
