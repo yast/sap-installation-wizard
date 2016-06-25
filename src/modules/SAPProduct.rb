@@ -302,22 +302,27 @@ module Yast
       xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
-      #inifile_params can be contains DB-name
-      inifile_params = inifile_params + @DB
-
       if File.exist?( xml_path )
         SAPMedia.ParseXML(xml_path)
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
         end
-	#Create the parameter.ini file
-	if File.exists?(inifile_params)
-	  SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
-	  #TODO replace ay_q_sid values.
-	end
-
         SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + SAPMedia.instDir )
       end
+
+      #inifile_params can be contains DB-name
+      inifile_params = inifile_params.gsub("##DB##",@DB)
+
+      #Create the parameter.ini file
+      if File.exists?(inifile_params)
+        SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
+	Dir.glob(SAPMedia.instDir + "ay_*").each { |param|
+	   par = param.gsub(/^.*\/ay_/,"")
+	   val = File.read(param).chomp
+	   SCR.Execute(path(".target.bash"), "sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params" )
+	}
+      end
+
       SCR.Write( path(".target.ycp"), SAPMedia.instDir + "/product.data",  {
              "instDir"        => SAPMedia.instDir,
              "instMaster"     => SAPMedia.instDir + "/Instmaster",
@@ -327,11 +332,17 @@ module Yast
              "PRODUCT_ID"     => @PRODUCT_ID,
              "PARTITIONING"   => partitioning,
              "SID"            => sid,
-             "SCRIPT_NAME"    => script_name,
-	     "INIFILE_PARAMS" => inifile_params
+             "SCRIPT_NAME"    => script_name
           })
 
       @productsToInstall << SAPMedia.instDir
+
+      cmd = "groupadd sapinst; " +
+            "usermod --groups sapinst root; " +
+            "chgrp sapinst " + SAPMedia.instDir + ";" +
+            "chmod 770 " + SAPMedia.instDir + ";"
+      Builtins.y2milestone("-- Prepare sapinst %1", cmd )
+      SCR.Execute(path(".target.bash"), cmd)
 
       if Popup.YesNo(_("Installation profile is ready.\n" +
                        "Are there more SAP products to be prepared for installation?"))
