@@ -51,40 +51,10 @@ NW_ABAP_Import_Dialog.useParallelExportImport = false
 NW_ABAP_SSFS_CustomKey.ssfsKeyInputFile = 
 
 # The DB host
-NW_ADA_getDBInfo.dbhost = ##dbhost##
+NW_ADA_getDBInfo.dbhost = 
 
 # The DB SID
-NW_ADA_getDBInfo.dbsid = ##dbsid##
-
-NW_CI_Instance.ascsInstanceNumber = ##ascsInstanceNumber##
-
-NW_CI_Instance.ascsVirtualHostname = ##ascsVirtualHostname##
-
-NW_CI_Instance.ciInstanceNumber = ##ciInstanceNumber##
-
-NW_CI_Instance.ciMSPort = 
-
-NW_CI_Instance.ciVirtualHostname = ##ciVirtualHostname##
-
-NW_CI_Instance.createGlobalProxyInfoFile = false
-
-NW_CI_Instance.createGlobalRegInfoFile = false
-
-NW_CI_Instance.scsInstanceNumber = 
-
-NW_CI_Instance.scsVirtualHostname = ##scsVirtualHostname##
-
-NW_CI_Instance_ABAP_Reports.askDepoolingReportExecution = false
-
-NW_CI_Instance_ABAP_Reports.enableActivateICFService = false
-
-NW_CI_Instance_ABAP_Reports.enableSPAMUpdateWithoutStackXml = false
-
-NW_CI_Instance_ABAP_Reports.enableTMSConfigWithoutStackXml = false
-
-NW_CI_Instance_ABAP_Reports.enableTransportsWithoutStackXml = false
-
-NW_CI_Instance_ABAP_Reports.executeReportsForDepooling = true
+NW_ADA_getDBInfo.dbsid = ##sid##
 
 NW_CreateDBandLoad.movePVCforUsagePiAndDi = 
 
