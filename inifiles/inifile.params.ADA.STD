@@ -4,7 +4,7 @@
 #                                                                                                                                                                           #
 #############################################################################################################################################################################
 
-#USED PARAMETERS ##dbhost## ##dbsid## ##ascsInstanceNumber## ##ascsVirtualHostname## ##ciInstanceNumber## ##ciVirtualHostname## ##scsVirtualHostname## ##masterPwd## ##sid##
+#USED PARAMETERS ##masterPwd## ##sid##
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
