@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # liste aus nstallation-wizard.xm
-for PROD in AS-ABAP ASCS-ABAP DBI-ABAP PRAS-ABAP Webdispatcher GATEWAY TREX
+for PROD in STD DIST-ASCS DIST-DB DIST-APP1 HA-ERS Webdispatcher GATEWAY TREX
 do
 
 echo '<?xml version="1.0"?>
@@ -13,26 +13,26 @@ echo '<?xml version="1.0"?>
 
 
 case "$PROD" in
-	AS-ABAP)
-		for i in VIRT_NETWORK TSHIRT
+	STD)
+		for i in masterPwd sid 
 		do
 			cat $i.xml >> ../src/include/$PROD.xml
 		done
 		;;
-	ASCS-ABAP)
-		for i in VIRT_NETWORK TSHIRT
+	DIST-ASCS)
+		for i in masterPwd sid ascsVirtualHostname instanceNumber scsVirtualHostname
 		do
 			cat $i.xml >> ../src/include/$PROD.xml
 		done
 		;;
-	DBI-ABAP)
-		for i in VIRT_NETWORK TSHIRT
+	DIST-DB)
+		for i in masterPwd sid dbsid
 		do
 			cat $i.xml >> ../src/include/$PROD.xml
 		done
 		;;
-	PRAS-ABAP)
-		for i in VIRT_NETWORK TSHIRT
+	DIST-APP1)
+		for i in masterPwd ascsVirtualHostname ciVirtualHostname scsVirtualHostname dbsid instanceNumber profileDir
 		do
 			cat $i.xml >> ../src/include/$PROD.xml
 		done

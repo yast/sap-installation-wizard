@@ -316,8 +316,8 @@ module Yast
       #Create the parameter.ini file
       if File.exists?(inifile_params)
         SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
-	Dir.glob(SAPMedia.instDir + "ay_*").each { |param|
-	   par = param.gsub(/^.*\/ay_/,"")
+	Dir.glob(SAPMedia.instDir + "ay_q_*").each { |param|
+	   par = param.gsub(/^.*\/ay_q_/,"")
 	   val = File.read(param).chomp
 	   SCR.Execute(path(".target.bash"), "sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params" )
 	}
