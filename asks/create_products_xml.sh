@@ -1,5 +1,5 @@
 #!/bin/bash
-
+DIR=$1
 # liste aus nstallation-wizard.xm
 for PROD in STD DIST-ASCS DIST-DB DIST-APP1 HA-ERS Webdispatcher GATEWAY TREX
 do
@@ -9,50 +9,50 @@ echo '<?xml version="1.0"?>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
 <general>
   <ask-list config:type="list">
-  ' > ../src/include/$PROD.xml
+  ' > ../$DIR/include/$PROD.xml
 
 
 case "$PROD" in
 	STD)
 		for i in masterPwd sid 
 		do
-			cat $i.xml >> ../src/include/$PROD.xml
+			cat $i.xml >> ../$DIR/include/$PROD.xml
 		done
 		;;
 	DIST-ASCS)
 		for i in masterPwd sid ascsVirtualHostname instanceNumber scsVirtualHostname
 		do
-			cat $i.xml >> ../src/include/$PROD.xml
+			cat $i.xml >> ../$DIR/include/$PROD.xml
 		done
 		;;
 	DIST-DB)
 		for i in masterPwd sid dbsid
 		do
-			cat $i.xml >> ../src/include/$PROD.xml
+			cat $i.xml >> ../$DIR/include/$PROD.xml
 		done
 		;;
 	DIST-APP1)
 		for i in masterPwd ascsVirtualHostname ciVirtualHostname scsVirtualHostname dbsid instanceNumber profileDir
 		do
-			cat $i.xml >> ../src/include/$PROD.xml
+			cat $i.xml >> ../$DIR/include/$PROD.xml
 		done
 		;;
 #	GATEWAY)
 #		for i in MY_MASTERPASS MY_GW_INSTANCE_NR
 #		do
-#			cat $i.xml >> ../src/include/$PROD.xml
+#			cat $i.xml >> ../$DIR/include/$PROD.xml
 #		done
 #		;;
 #	Webdispatcher)
 #		for i in MY_MASTERPASS MY_WD_ICF_CONFIG MY_WD_MS_PARAM MY_WD_PARAM
 #		do
-#			cat $i.xml >> ../src/include/$PROD.xml
+#			cat $i.xml >> ../$DIR/include/$PROD.xml
 #		done
 #		;;
 #	TREX)
 #		for i in MY_MASTERPASS 
 #		do
-#			cat $i.xml >> ../src/include/$PROD.xml
+#			cat $i.xml >> ../$DIR/include/$PROD.xml
 #		done
 #		;;
 	*)
@@ -61,13 +61,13 @@ case "$PROD" in
 esac
 
 echo ' </ask-list>
-</general>' >> ../src/include/$PROD.xml
+</general>' >> ../$DIR/include/$PROD.xml
 if [ -e $PROD.post-packages.xml ]; then
-	cat $PROD.post-packages.xml >> ../src/include/$PROD.xml
+	cat $PROD.post-packages.xml >> ../$DIR/include/$PROD.xml
 else
-	cat post-packages.xml >> ../src/include/$PROD.xml
+	cat post-packages.xml >> ../$DIR/include/$PROD.xml
 fi
-echo '</profile>' >> ../src/include/$PROD.xml
+echo '</profile>' >> ../$DIR/include/$PROD.xml
 #now we check if it is OK
-xmllint --noout ../src/include/$PROD.xml 
+xmllint --noout ../$DIR/include/$PROD.xml 
 done

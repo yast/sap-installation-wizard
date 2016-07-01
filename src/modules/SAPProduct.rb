@@ -321,6 +321,11 @@ module Yast
 	   val = File.read(param).chomp
 	   SCR.Execute(path(".target.bash"), "sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params" )
 	}
+        #Replace ##VirtualHostname## by the real hostname.
+        hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+        my_hostname = Ops.get_string(hostname_out, "stdout", "")
+        my_hostname.strip!
+	SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + SAPMedia.instDir + "/inifile.params" )
       end
 
       SCR.Write( path(".target.ycp"), SAPMedia.instDir + "/product.data",  {
