@@ -1,10 +1,10 @@
 #############################################################################################################################################################################
 #                                                                                                                                                                           #
-# Installation service 'SAP NetWeaver 7.5 > MaxDB > SAP Systems > Application Server ABAP > Standard System > Standard System', product id 'NW_ABAP_OneHost:NW750.ADA.ABAP' #
+# Installation service 'SAP NetWeaver 7.5 > SAP ASE > SAP Systems > Application Server ABAP > Distributed System > ASCS Instance', product id 'NW_ABAP_ASCS:NW750.SYB.ABAP' #
 #                                                                                                                                                                           #
 #############################################################################################################################################################################
 
-#USED PARAMETERS ##masterPwd## ##sid##
+#USED PARAMETERS ##masterPwd## ##sid## ##kernel## ##ascsVirtualHostname## ##instanceNumber## ##scsVirtualHostname##
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
@@ -16,53 +16,6 @@ DiagnosticsAgent.domain =
 # Password for the Diagnostics Agent specific SAPService<DASID> user. Provided value may be encoded.
 # The property is Microsoft Windows only.
 DiagnosticsAgent.sapServiceDASIDPassword = 
-
-InitDeclusteringForExport.decluster = 
-
-MessageServer.configureAclInfo = false
-
-# SAP code page. Unicode: 4103 on little endian (intel), 4102 on big endian. Non-unicode: 1100 or country specific.
-NW_ABAP_Import_Dialog.dbCodepage = 4103
-
-# Communication port for Migration Monitor.
-NW_ABAP_Import_Dialog.migmonComPort = 
-
-# Communication type for Migration Monitor ('EXCHANGE', 'SOCKETS' or none).
-NW_ABAP_Import_Dialog.migmonComType = EXCHANGE
-
-# Exchange directory for Migration Monitor.
-NW_ABAP_Import_Dialog.migmonExchangeDir = 
-
-# Number of parallel Migration Monitor jobs.
-NW_ABAP_Import_Dialog.migmonJobNum = 3
-
-# Additional R3load arguments for the LOAD phase.
-NW_ABAP_Import_Dialog.migmonLoadArgs = -nolog -c 50000 -force_repeat -para_cnt 3
-
-# Additional R3load arguments for the TASK phase.
-NW_ABAP_Import_Dialog.migmonTaskArgs = 
-
-# Enables dialog to set advanced R3load options.
-NW_ABAP_Import_Dialog.useAdvancedLoadConfig = false
-
-# Enables dialog to set attribues for parallel export/import.
-NW_ABAP_Import_Dialog.useParallelExportImport = false
-
-NW_ABAP_SSFS_CustomKey.ssfsKeyInputFile = 
-
-# The DB host
-NW_ADA_getDBInfo.dbhost = 
-
-# The DB SID
-NW_ADA_getDBInfo.dbsid = ##sid##
-
-NW_CreateDBandLoad.movePVCforUsagePiAndDi = 
-
-# Password for the DDIC user in client 000
-NW_DDIC_Password.ddic000Password = 
-
-# Password for the DDIC user in client 001
-NW_DDIC_Password.ddic001Password = 
 
 NW_GetMasterPassword.masterPwd = ##masterPwd##
 
@@ -81,19 +34,19 @@ NW_GetSidNoProfiles.sid = ##sid##
 # Will this system be unicode system?
 NW_GetSidNoProfiles.unicode = true
 
-NW_SAPCrypto.SAPCryptoFile = /SAPINST/peter/NWKERNEL745/DATA_UNITS/K_745_U_LINUX_X86_64/DBINDEP/SAPEXE.SAR
+NW_SAPCrypto.SAPCryptoFile = ##kernel##/DATA_UNITS/K_745_U_LINUX_X86_64/DBINDEP/SAPEXE.SAR
 
-NW_SLD_Configuration.configureSld = false
+NW_SCS_Instance.ascsInstanceNumber = 
 
-NW_SLD_Configuration.sldHost = 
+NW_SCS_Instance.ascsVirtualHostname = ##ascsVirtualHostname##
 
-NW_SLD_Configuration.sldPort = 
+NW_SCS_Instance.instanceNumber = ##instanceNumberg##
 
-NW_SLD_Configuration.sldUseHttps = false
+NW_SCS_Instance.scsInstanceNumber = 
 
-NW_SLD_Configuration.sldUser = 
+NW_SCS_Instance.scsMSPort = 
 
-NW_SLD_Configuration.sldUserPassword = 
+NW_SCS_Instance.scsVirtualHostname = ##scsVirtualHostname##
 
 NW_System.installSAPHostAgent = true
 
@@ -120,58 +73,10 @@ NW_getFQDN.setFQDN = false
 # The path to the jce policy archive to install into the java home directory if it is not already installed.
 NW_getJavaHome.jcePolicyArchive = 
 
-# Valid values are: SAP, STD, OBR, HCP, MDAThe loadtype chosen by the user.
-NW_getLoadType.loadType = SAP
-
-SdbPreInstanceDialogs.UseRecreateInstance = ask_user
-
-Sdb_ClientSoftware_Dialogs.indep_data_drive = 
-
-Sdb_ClientSoftware_Dialogs.indep_prog_drive = 
-
-Sdb_ClientSoftware_Dialogs.installation_drive = 
-
-# Password of Database System Administrator 'superdba'
-Sdb_DBUser.dbaPassword = ##masterPwd##
-
-# Password of Database Manager Operator 'control'
-Sdb_DBUser.dbmPassword = ##masterPwd##
-
-# The Default Code for the Database Schema unicode/ascii
-Sdb_Schema.dbaPassword = 
-
-# The Default Code for the Database Schema unicode/ascii
-Sdb_Schema.dbmPassword = 
-
-# Password of the database user
-Sdb_Schema_Dialogs.dbSchemaPassword = ##masterPwd##
-
-# Password of the database administrator
-Sdb_Schema_Dialogs.dbaPassword = 
-
-# Password of the database manager
-Sdb_Schema_Dialogs.dbmPassword = 
-
-Sdb_ServerSoftware_Dialogs.dependent_drive = 
-
-Sdb_ServerSoftware_Dialogs.indep_data_drive = 
-
-Sdb_ServerSoftware_Dialogs.indep_prog_drive = 
-
-# Password of superdba db user
-Sdb_Xuser.dbaPassword = 
-
-# Password of control db user
-Sdb_Xuser.dbmPassword = 
-
 hostAgent.domain = 
 
 # Password for the SAP Host Agent specific sapadm user. Provided value may be encoded.
 hostAgent.sapAdmPassword = ##masterPwd##
-
-nwUsers.ada.sqdsidId = 
-
-nwUsers.ada.sqdsidPassword = des24(64|44|27|129|192|254|249|136|167|255|215|83|10|203|180|178|19|153|36|18|37|)
 
 nwUsers.sapDomain = 
 
