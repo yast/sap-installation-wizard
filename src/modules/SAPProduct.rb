@@ -317,9 +317,12 @@ module Yast
       #Create the parameter.ini file
       if File.exists?(inifile_params)
         SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
-	Dir.glob(SAPMedia.instDir + "ay_q_*").each { |param|
+Builtins.y2milestone("Dir.glob %1",SAPMedia.instDir + "/ay_q_*")
+	Dir.glob(SAPMedia.instDir + "/ay_q_*").each { |param|
 	   par = param.gsub(/^.*\/ay_q_/,"")
 	   val = File.read(param).chomp
+Builtins.y2milestone("Reading parameterfile:%1 par:%2 val:%3",param,par,val)
+Builtins.y2milestone("sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params")
 	   SCR.Execute(path(".target.bash"), "sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params" )
 	}
         #Replace ##VirtualHostname## by the real hostname.
@@ -402,7 +405,7 @@ module Yast
         productPartitioningList << ret if ret != "NO"
       }
       #Start create the partitions
-      SAPParttitions.CreatePartitions(productPartitioningList)
+      SAPPartitioning.CreatePartitions(productPartitioningList)
 
       #Start execute the install scripts
       productScriptsList.each { |installScript|
