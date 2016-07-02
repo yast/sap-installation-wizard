@@ -114,6 +114,7 @@ module Yast
     
       #Reset the the selected product specific parameter
       @productMAP    = SAPXML.get_products_for_media(SAPMedia.instDir)
+      Builtins.y2milestone("@productMAP %1", @productMAP)
       @instType      = ""
       @DB            = ""
       @PRODUCT_ID    = ""
@@ -369,7 +370,7 @@ module Yast
       productPartitioningList = []
       @productsToInstall.each { |instDir|
         productData = Convert.convert(
-          SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+          SCR.Read(path(".target.ycp"), instDir + "/product.data"),
           :from => "any",
           :to   => "map <string, any>"
         )
@@ -427,24 +428,28 @@ module Yast
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "HDB"
            UI.ChangeWidget(Id("HDB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "SYB"
            UI.ChangeWidget(Id("SYB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "DB6"
            UI.ChangeWidget(Id("DB6"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "ORA"
            #FATE
            Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
