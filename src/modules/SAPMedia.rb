@@ -1465,6 +1465,10 @@ module Yast
         when "media"
 	  #We have modified the list of selected media
           UI.ChangeWidget(Id(:skip_copy_medium), :Value, true)
+          UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
+          [:scheme, :location].each { |widget|
+            UI.ChangeWidget(Id(widget), :Enabled, false)
+          }
         when :next
             #Set the selected Items
             if UI.WidgetExists( Id("media") )

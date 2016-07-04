@@ -272,6 +272,9 @@ module Yast
     def ReadParameter
       ret = :next
       sid =""
+      hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+      my_hostname = Ops.get_string(hostname_out, "stdout", "")
+      my_hostname.strip!
       Builtins.y2milestone("-- Start ReadParameter ---")
 
       #For HANA B1 there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
@@ -304,6 +307,7 @@ module Yast
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
       if File.exist?( xml_path )
+	SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
         SAPMedia.ParseXML(xml_path)
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
@@ -316,20 +320,16 @@ module Yast
 
       #Create the parameter.ini file
       if File.exists?(inifile_params)
-        SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
-Builtins.y2milestone("Dir.glob %1",SAPMedia.instDir + "/ay_q_*")
+	inifile = File.read(inifile_params)
 	Dir.glob(SAPMedia.instDir + "/ay_q_*").each { |param|
 	   par = param.gsub(/^.*\/ay_q_/,"")
-	   val = File.read(param).chomp
-Builtins.y2milestone("Reading parameterfile:%1 par:%2 val:%3",param,par,val)
-Builtins.y2milestone("sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params")
-	   SCR.Execute(path(".target.bash"), "sed -i s/##" + par + "##/" + val + "/g " + SAPMedia.instDir + "/inifile.params" )
+	   val = IO.read(param).chomp
+           pattern = "##" + par + "##"
+           a = inifile.gsub!(/#{pattern}/,val) 
 	}
         #Replace ##VirtualHostname## by the real hostname.
-        hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
-        my_hostname = Ops.get_string(hostname_out, "stdout", "")
-        my_hostname.strip!
-	SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + SAPMedia.instDir + "/inifile.params" )
+        inifile.gsub!(/##VirtualHostname##/,my_hostname) 
+        File.write(SAPMedia.instDir + "/inifile.params",inifile)
       end
 
       SCR.Write( path(".target.ycp"), SAPMedia.instDir + "/product.data",  {
