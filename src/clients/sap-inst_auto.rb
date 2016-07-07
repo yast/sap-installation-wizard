@@ -83,8 +83,6 @@ module SapInst
         # If saptune should be enabled, automatically configure it and enable it. Otherwise disable it.
         def write
             SAPMedia.Write
-	    SAPProduct.productsToInstall = SAPMedia.instEnvList
-            SAPProduct.Write
         end
 
         # Set SapInst to "to be disabled".

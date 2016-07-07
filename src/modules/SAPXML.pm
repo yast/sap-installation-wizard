@@ -379,8 +379,8 @@ print "get_nw_products $instEnv $TYPE $DB\n";
          $xmlpath =~ s/##DB##/$DB/;
          foreach my $PD ( @{$productDir} )
          {
-            next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
-	    next if( $PD !~ /$DB/ );
+            #next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
+	    #next if( $PD !~ /$DB/ );
 	    my $xmlpathPD = $xmlpath;
 	       $xmlpathPD =~ s/##PD##/$PD/;
 	    foreach my $node ($d->findnodes($xmlpathPD))
@@ -464,6 +464,7 @@ sub get_products_for_media{
 
    foreach my $medium (@media)
    {
+      next if( $medium =~ /Instmaster/ );
       my $label = `cat $medium/LABEL.ASC`; chomp $label;
       push @labels, $label;
    }

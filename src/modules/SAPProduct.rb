@@ -92,9 +92,10 @@ module Yast
     def Read()
        prodCount = 0;
        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
-         if File.exists?( Builtins.sformat("%1/%2/%3", SAPMedia.instDirBase, prodCount, "installationSuccesfullyFinished.dat") ) && File.exists?(@instDir + "/product.data")
+	 instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
+         if File.exists?( instDir + "installationSuccesfullyFinished.dat" ) && File.exists?( instDir + "/product.data")
            @installedProducts << Convert.convert(
-              SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+              SCR.Read(path(".target.ycp"), instDir + "/product.data"),
               :from => "any",
               :to   => "map <string, any>"
             )
@@ -272,7 +273,7 @@ module Yast
     def ReadParameter
       ret = :next
       sid =""
-      hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+      hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname"))
       my_hostname = Ops.get_string(hostname_out, "stdout", "")
       my_hostname.strip!
       Builtins.y2milestone("-- Start ReadParameter ---")

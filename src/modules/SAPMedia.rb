@@ -201,41 +201,62 @@ module Yast
 
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
+        SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ") 
+	prodCount = 0
         @SAPMediaTODO["products"].each { |prod|
           mediaList = []
-          if prod["to-copy"]
-            @instDir = Builtins.sformat("%1/%2", @instDirBase, prod["prod-count"])
-            prod["media"].each { |medium|
-	      url = medium["url"].split("://")
-              urlPath = MountSource(url[0],url[1])
-              if "ERROR:" == urlPath[0,6]
-                 Builtins.y2milestone("Can not mount medium %1. Reason %2",medium["url"],urlPath)
-                 return :next
-              else
-                 case medium["type"].downcase
-                 when "supplement"
-                   CopyFiles(@sourceDir, @instDir, "Supplement", false)
-                   #TODO execute profile.xml on media
-                 when "sap"
-                   instMasterList = SAPXML.is_instmaster(@sourceDir)
-                   if instMasterList.empty?
-                                   media=find_sap_media(@sourceDir)
-                                   media.each { |path,label|
-                                     CopyFiles(path, @mediaDir, label, false)
-                                     mediaList << @mediaDir + "/" + label
-                                   }
-                   else
-                       @instMasterType = instMasterList[0]
-                       @instMasterPath = instMasterList[1]
-                       CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
-                   end
+          @instDir = Builtins.sformat("%1/%2", @instDirBase, prodCount )
+          prod["media"].each { |medium|
+	    url = medium["url"].split("://")
+            urlPath = MountSource(url[0],url[1])
+            if "ERROR:" == urlPath[0,6]
+               Builtins.y2milestone("Can not mount medium %1. Reason %2",medium["url"],urlPath)
+               return :next
+            else
+               case medium["type"].downcase
+               when "supplement"
+                 CopyFiles(@sourceDir, @instDir, "Supplement", false)
+                 #TODO execute profile.xml on media
+               when "sap"
+                 instMasterList = SAPXML.is_instmaster(@sourceDir)
+                 if instMasterList.empty?
+                                 media=find_sap_media(@sourceDir)
+                                 media.each { |path,label|
+                                   CopyFiles(path, @mediaDir, label, false)
+                                   mediaList << @mediaDir + "/" + label
+                                 }
+                 else
+                     @instMasterType = instMasterList[0]
+                     @instMasterPath = instMasterList[1]
+                     CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
                  end
-              end
-              UmountSources(@umountSource)
-            }
-            IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
-          end
+               end
+            end
+            UmountSources(@umountSource)
+          }
+	  if( @instMasterType == "SAPINST" )
+             @DB           = prod.has_key?("DB")           ? prod["DB"]           : ""
+             @PRODUCT_NAME = prod.has_key?("PRODUCT_NAME") ? prod["PRODUCT_NAME"] : ""
+             @PRODUCT_ID   = prod.has_key?("PRODUCT_ID")   ? prod["PRODUCT_ID"]   : ""
+	  else
+             @DB           = "HANA"
+             @PRODUCT_NAME = "HANA"
+             @PRODUCT_ID   = "HANA"
+	  end
+	  SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
+	         "instDir"        => @instDir,
+	         "instMaster"     => @instDir + "/Instmaster",
+	         "TYPE"           => @instMasterType,
+	         "DB"             => @DB,
+	         "PRODUCT_NAME"   => @PRODUCT_NAME,
+	         "PRODUCT_ID"     => @PRODUCT_ID,
+	         "PARTITIONING"   => "",
+	         "SID"            => "",
+	         "SCRIPT_NAME"    => ""
+	      })
+          IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
 	  @instEnvList << @instDir
+	  SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir) 
         }
       else
 	@instEnvList << @instDir
@@ -387,6 +408,7 @@ module Yast
           mediaList << @mediaDir + "/" + medium
 	end
       }
+      mediaList << @instDir + "/" + "Instmaster"
       IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
       return :next
     end
@@ -1581,42 +1603,6 @@ module Yast
           )
         end
         nil
-    end
-    #***********************************
-    # Look if we have the media we need locally available
-    #
-    # returns string if found or empty string if not
-    #
-    # if we have same Instmaster, try to copy MEDIA from local Directory
-    # check if we have in our local dir's the same label e.g.:RDBMS-DB6
-    # if yes the copy from /data/SAP_CDs/x/RDBMS-DB6 instead of /mnt2/SAP_BS2008SR1/RDBMS-DB6
-    #       means          $localIMPathList/$key instead of $val
-    #
-    def check_local_path(label, sourceDir)
-      copyPath = ""
-      srcLabel = ""
-      lclLabel = ""
-    
-      Builtins.foreach(@localIMPathList) do |_Path|
-        if FileUtils.Exists(_Path + "/" + label)
-          Builtins.y2milestone("Local directory found: %1/%2", _Path, label)
-    
-          # Only if the LABEL.ASC are identical
-          srcLabel = SAPXML.read_labelfile( sourceDir + "/" + "/LABEL.ASC")
-          next if srcLabel == ""
-    
-          lclLabel = SAPXML.read_labelfile( _Path + "/" + label + "/LABEL.ASC")
-          next if lclLabel == ""
-    
-          if srcLabel == lclLabel
-            Builtins.y2milestone( "Local directory has same label - we can use it")
-            copyPath = _Path + "/" + label
-            raise Break
-          end
-        end
-      end
-      Builtins.y2milestone("Copy Media from :%1", copyPath)
-      copyPath
     end
 
     def set_date
