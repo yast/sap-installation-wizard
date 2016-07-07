@@ -380,8 +380,10 @@ print "get_nw_products $instEnv $TYPE $DB\n";
          foreach my $PD ( @{$productDir} )
          {
             next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
-            $xmlpath =~ s/##PD##/$PD/;
-            foreach my $node ($d->findnodes($xmlpath))
+	    next if( $PD !~ /$DB/ );
+	    my $xmlpathPD = $xmlpath;
+	       $xmlpathPD =~ s/##PD##/$PD/;
+	    foreach my $node ($d->findnodes($xmlpathPD))
             {
                push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
             }
