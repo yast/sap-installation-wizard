@@ -109,7 +109,7 @@ module Yast
     #
     ############################################################
     def SelectNWInstallationMode()
-      Builtins.y2milestone("-- Start SelectNWInstallationMode ---")
+      Builtins.y2milestone("-- Start SelectNWInstallationMode --- for instDir %1", SAPMedia.instDir)
       run = true
     
       #Reset the the selected product specific parameter
