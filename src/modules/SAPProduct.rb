@@ -114,6 +114,7 @@ module Yast
     
       #Reset the the selected product specific parameter
       @productMAP    = SAPXML.get_products_for_media(SAPMedia.instDir)
+      Builtins.y2milestone("@productMAP %1", @productMAP)
       @instType      = ""
       @DB            = ""
       @PRODUCT_ID    = ""
@@ -271,6 +272,9 @@ module Yast
     def ReadParameter
       ret = :next
       sid =""
+      hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname -f"))
+      my_hostname = Ops.get_string(hostname_out, "stdout", "")
+      my_hostname.strip!
       Builtins.y2milestone("-- Start ReadParameter ---")
 
       #For HANA B1 there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
@@ -302,22 +306,32 @@ module Yast
       xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
-      #inifile_params can be contains DB-name
-      inifile_params = inifile_params + @DB
-
       if File.exist?( xml_path )
+	SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
         SAPMedia.ParseXML(xml_path)
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
         end
-	#Create the parameter.ini file
-	if File.exists?(inifile_params)
-	  SCR.Execute(path(".target.bash"), "cp " + inifile_params + " " + SAPMedia.instDir + "/inifile.params")
-	  #TODO replace ay_q_sid values.
-	end
-
         SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + SAPMedia.instDir )
       end
+
+      #inifile_params can be contains DB-name
+      inifile_params = inifile_params.gsub("##DB##",@DB)
+
+      #Create the parameter.ini file
+      if File.exists?(inifile_params)
+	inifile = File.read(inifile_params)
+	Dir.glob(SAPMedia.instDir + "/ay_q_*").each { |param|
+	   par = param.gsub(/^.*\/ay_q_/,"")
+	   val = IO.read(param).chomp
+           pattern = "##" + par + "##"
+           a = inifile.gsub!(/#{pattern}/,val) 
+	}
+        #Replace ##VirtualHostname## by the real hostname.
+        inifile.gsub!(/##VirtualHostname##/,my_hostname) 
+        File.write(SAPMedia.instDir + "/inifile.params",inifile)
+      end
+
       SCR.Write( path(".target.ycp"), SAPMedia.instDir + "/product.data",  {
              "instDir"        => SAPMedia.instDir,
              "instMaster"     => SAPMedia.instDir + "/Instmaster",
@@ -327,11 +341,17 @@ module Yast
              "PRODUCT_ID"     => @PRODUCT_ID,
              "PARTITIONING"   => partitioning,
              "SID"            => sid,
-             "SCRIPT_NAME"    => script_name,
-	     "INIFILE_PARAMS" => inifile_params
+             "SCRIPT_NAME"    => script_name
           })
 
       @productsToInstall << SAPMedia.instDir
+
+      cmd = "groupadd sapinst; " +
+            "usermod --groups sapinst root; " +
+            "chgrp sapinst " + SAPMedia.instDir + ";" +
+            "chmod 770 " + SAPMedia.instDir + ";"
+      Builtins.y2milestone("-- Prepare sapinst %1", cmd )
+      SCR.Execute(path(".target.bash"), cmd)
 
       if Popup.YesNo(_("Installation profile is ready.\n" +
                        "Are there more SAP products to be prepared for installation?"))
@@ -353,7 +373,7 @@ module Yast
       productPartitioningList = []
       @productsToInstall.each { |instDir|
         productData = Convert.convert(
-          SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+          SCR.Read(path(".target.ycp"), instDir + "/product.data"),
           :from => "any",
           :to   => "map <string, any>"
         )
@@ -385,7 +405,7 @@ module Yast
         productPartitioningList << ret if ret != "NO"
       }
       #Start create the partitions
-      SAPParttitions.CreatePartitions(productPartitioningList)
+      SAPPartitioning.CreatePartitions(productPartitioningList)
 
       #Start execute the install scripts
       productScriptsList.each { |installScript|
@@ -411,24 +431,28 @@ module Yast
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "HDB"
            UI.ChangeWidget(Id("HDB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "SYB"
            UI.ChangeWidget(Id("SYB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "DB6"
            UI.ChangeWidget(Id("DB6"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
+	   @DB = dataBase
          when "ORA"
            #FATE
            Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))

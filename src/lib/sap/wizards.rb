@@ -27,7 +27,7 @@
 
 require "sap/add_repo_dialog"
 require "hanafirewall/hanafirewall_conf"
-require "saptune/saptune"
+require "saptune/saptune_conf"
 
 module Yast
   module SapInstallationWizardWizardsInclude
@@ -50,7 +50,7 @@ module Yast
     end
 
     def TuneTheSystem
-        Saptune.auto_config
+        SaptuneConf.auto_config
     end
 
     # SAP Installation Main Sequence

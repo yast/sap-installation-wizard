@@ -8,7 +8,7 @@
              <p><b>SAP SCS Instance Number</b><br>Enter the SAP system's instance number.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_sapscsinstnr</file>
+             <file>/tmp/ay_q_scsInstanceNumber</file>
              <question>SAP SCS Instance Number</question>
              <stage>cont</stage>
              <script>

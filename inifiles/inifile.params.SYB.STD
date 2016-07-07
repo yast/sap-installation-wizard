@@ -4,6 +4,8 @@
 #                                                                                                                                                                             #
 ###############################################################################################################################################################################
 
+#USED PARAMETERS ##masterPwd## ##sid## ##dbhost## ##dbsid##
+
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
 
@@ -17,7 +19,7 @@ DiagnosticsAgent.sapServiceDASIDPassword =
 
 NW_CreateDBandLoad.movePVCforUsagePiAndDi = 
 
-NW_GetMasterPassword.masterPwd = des24(210|91|36|59|213|122|141|153|108|17|187|78|101|112|219|212|239|162|66|152|177|)
+NW_GetMasterPassword.masterPwd = ##masterPwd##
 
 # Human readable form of the Default Login language - used for instant in the preselection in SAPGUI. This Parameter is potentialy asked in addition in the dialog that also asks for the SID. It is not asked in all this dialogs, but only in systems that have ( potentialy beside others ) an ABAP stack. It is ask for installation but not for system copy. It is asked in those installations, that perform the ABAP load. That could be the Database Load installation in case of a distributed szenario, or in the Standard Installer, that is not distributed at all. This Parameter is saved in the Default Profile. It is has no influence on Language settings in a Java Stack. Valid names are stored in a table of the subcomponent NW_languagesInLoadChecks. The available languages must be declaired in the LANGUAGES_IN_LOAD parameter of the product.xml . In this file the one character representation of the languages is uses. Check the same table in the subcomponent mentioned above.
 NW_GetSidNoProfiles.SAP_GUI_DEFAULT_LANGUAGE = 
@@ -29,7 +31,7 @@ NW_GetSidNoProfiles.sapdrive =
 NW_GetSidNoProfiles.sapmnt = /sapmnt
 
 # The SAP System ID of the system to install
-NW_GetSidNoProfiles.sid = T00
+NW_GetSidNoProfiles.sid = ##sid##
 
 # Will this system be unicode system?
 NW_GetSidNoProfiles.unicode = true
@@ -39,10 +41,10 @@ NW_System.installSAPHostAgent = true
 NW_adaptProfile.templateFiles = 
 
 # The DB host
-NW_getDBInfoGeneric.dbhost = 
+NW_getDBInfoGeneric.dbhost = ##dbhost##
 
 # The DB SID
-NW_getDBInfoGeneric.dbsid = 
+NW_getDBInfoGeneric.dbsid = ##dbsid##
 
 # The FQDN of the system.
 NW_getFQDN.FQDN = 

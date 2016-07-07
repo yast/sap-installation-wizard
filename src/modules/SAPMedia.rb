@@ -159,14 +159,20 @@ module Yast
           # Do not care about existing installations if we make autoinstallation
           next if Mode.mode() == "autoinstallation"
 
+          productData = Convert.convert(
+              SCR.Read(path(".target.ycp"), @instDir + "/product.data"),
+              :from => "any",
+              :to   => "map <string, any>"
+            )
+
           # User has three choices: do nothing, ignore, or run it at end of the wizard workflow
           case Popup.AnyQuestion3(_("Pending installation from previous wizard run"),
                                 _("Installation profile was previously collected for the following product, however it has not been installed yet:\n\n") +
-                               productData2["PRODUCT_NAME"].to_s + "\n(" + productData2["PRODUCT_ID"].to_s + ")\n\n" +
+                               productData["PRODUCT_NAME"].to_s + "\n(" + productData["PRODUCT_ID"].to_s + ")\n\n" +
                                _("Would you like to delete it, install the product at the last wizard step, or ignore it?"),
                                 _("Delete"), _("Install"), _("Ignore and do nothing"), :focus_retry) # Focus on ignore
           when :yes # Delete
-              FileUtils.remove_entry_secure(@instDir, true)
+              SCR.Execute(path(".target.bash"), "rm -rf --preserve-root " + @instDir)
           when :no # Install
               # It will be installed at the last wizard step (i.e. the installation step)
 	      @instEnvList << @instDir
@@ -361,10 +367,14 @@ module Yast
            when :back
               return :back
            when :forw
-              run = false
+              run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
            when :next 
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
+		if File.extist(@mediaDir + label)
+		   Popup.Warning(Builtins.sformat(_("The selected medium '%1' was already copied."),label))
+		   next
+                end	
                 CopyFiles(path, @mediaDir, label, false)
                 @selectedMedia[label] = true;
               }
@@ -1290,7 +1300,7 @@ module Yast
               product_media.each {|medium|
 		 mediaItems << Item(Id(medium),  medium,  @selectedMedia.has_key?(medium) ? @selectedMedia[medium] : true )
 	      }
-              content_before_input = VBox( MultiSelectionBox(Id("media"), _("Ready for use:"), mediaItems) )
+              content_before_input = VBox( MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), mediaItems) )
           end
           content_input = VBox(
             Left(RadioButton(Id(:do_copy_medium), Opt(:notify), _("Copy a medium"), true)),
@@ -1452,6 +1462,13 @@ module Yast
         when :scheme
             # Basically re-render layout
             do_default_values(wizard)
+        when "media"
+	  #We have modified the list of selected media
+          UI.ChangeWidget(Id(:skip_copy_medium), :Value, true)
+          UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
+          [:scheme, :location].each { |widget|
+            UI.ChangeWidget(Id(widget), :Enabled, false)
+          }
         when :next
             #Set the selected Items
             if UI.WidgetExists( Id("media") )

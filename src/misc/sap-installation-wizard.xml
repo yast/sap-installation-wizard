@@ -23,7 +23,7 @@
        ...
    </media>
 
-   <ay_xml>AS-ABAP_PD.xml</ay_xml>                    <= Optional: the ask dialog used 
+   <ay_xml>STD.xml</ay_xml>                           <= Optional: the ask dialog used. This is an xml which can also contains package list.
 
    <search>NW_ABAP_OneHost</search>                   <= Optional: the search key for xml-search in the file product.catalog
 
@@ -43,28 +43,28 @@
       <name>Application Server ABAP</name>
       <type>STANDARD</type>
       <stack>ABAP</stack>
-      <ay_xml>AS-ABAP.xml</ay_xml>
+      <ay_xml>STD.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[@output-dir="INSTALL"]//components[display-name="Application Server ABAP"]//component[@name="NW_ABAP_OneHost"]</search>
       <script_name>sap_inst.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.STD</inifile_params>
     </listentry>
     <listentry>
       <name>Double Stack</name>
       <type>STANDARD</type>
       <stack>DOUBLE</stack>
-      <ay_xml>DOUBLE-STACK.xml</ay_xml>
+      <ay_xml>STD.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[@output-dir="INSTALL"]//components[display-name="Process Integration"]//component[@name="NW_Doublestack_OneHost"]</search>
       <script_name>sap_inst.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.STD</inifile_params>
     </listentry>
     <listentry>
       <name>Application Server JAVA</name>
       <type>STANDARD</type>
       <stack>JAVA</stack>
-      <ay_xml>AS-JAVA.xml</ay_xml>
+      <ay_xml>STD.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[@output-dir="INSTALL"]//components[display-name="Application Server Java"]//component[@name="NW_Java_OneHost"]</search>
       <script_name>sap_inst.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.STD</inifile_params>
     </listentry>
     <!-- SAP DISTRIBUTED SYSTEMS -->
     <!-- Application Server ABAP -->
@@ -73,33 +73,33 @@
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>ABAP</stack>
-      <ay_xml>ASCS-ABAP.xml</ay_xml>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_ASCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>Database Instance (AS-ABAP)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>ABAP</stack>
-      <ay_xml>DBI-ABAP.xml</ay_xml>
+      <ay_xml>DIST-DB.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_DB"]</search>
       <partitioning>base_partitioning</partitioning>
       <script_name>sap_inst.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.DB</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (AS-ABAP)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>ABAP</stack>
-      <ay_xml>PRAS-ABAP.xml</ay_xml>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server ABAP"]//components[@output-dir="DISTRIBUTED/ABAP"]//component[@name="NW_ABAP_CI"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <!-- PROCESS INTEGRATION -->
     <listentry>
@@ -107,43 +107,44 @@
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
-      <ay_xml>ASCS-ABAP.xml</ay_xml>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_ABAP_ASCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>SCS Instance (PI)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>Database Instance (PI)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
-      <ay_xml>DBI-ABAP.xml</ay_xml>
+      <ay_xml>DIST-DB.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_DB"]</search>
       <partitioning>base_partitioning</partitioning>
       <script_name>sap_inst.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.DB</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (PI)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>DOUBLE</stack>
-      <ay_xml>PRAS-ABAP.xml</ay_xml>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Process Integration"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Doublestack_CI"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <!-- AS JAVA -->
     <listentry>
@@ -151,132 +152,146 @@
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/JAVA"]//component[@name="NW_Java_SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>Database Instance (AS-JAVA)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-DB.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/JAVA"]//component[@name="NW_Java_DB"]</search>
       <script_name>sap_inst.sh</script_name>
       <partitioning>base_partitioning</partitioning>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.DB</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (AS-JAVA)</name>
       <type>DISTRIBUTED</type>
       <type>SUSE-HA-ST</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="Application Server Java"]//components[@output-dir="DISTRIBUTED/PI"]//component[@name="NW_Java_CI"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <!-- HA -->
     <listentry>
       <name>ASCS Instance</name>
       <type>HA</type>
       <stack>ABAP</stack>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="ASCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (Partner Connectivity Kit)</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="PCKHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <listentry>
       <name>Enqueue Replication Server Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
       <stack>ABAP</stack>
+      <ay_xml>HA-ERS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="ERS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.HA.ERS</inifile_params>
     </listentry>
     <listentry>
       <name>SCS Instance (Doublestack)</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="DS_SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
       <stack>ABAP</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="APP1"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (AS-JAVA)</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="AEHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <listentry>
       <name>SCS Instance (Java)</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-ASCS.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="SCS"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.ASCS</inifile_params>
     </listentry>
     <listentry>
       <name>Additional Application Server Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="APPX"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <listentry>
       <name>Database Instance</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="DB"]</search>
       <partitioning>base_partitioning</partitioning>
       <script_name>sap_inst.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.DB</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (PI)</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="PICPHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <listentry>
       <name>Primary Application Server Instance (Advanced Adapter Engine Extended)</name>
       <type>HA</type>
       <stack>JAVA</stack>
+      <ay_xml>DIST-APP1.xml</ay_xml>
       <search>//components[@output-dir="##DB##"][@product-dir="##PD##"]//components[display-name="High-Availability System"]//component[@output-dir="AEXHA"]</search>
       <partitioning>NO</partitioning>
       <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.params</inifile_params>
+      <inifile_params>inifile.params.##DB##.DIST.APP1</inifile_params>
     </listentry>
     <!-- STANDALONE Engines -->
     <listentry>

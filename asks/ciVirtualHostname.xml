@@ -1,0 +1,39 @@
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the CI</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_ciVirtualHostname</file>
+             <question>CI Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#	exit 0
+#	
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+

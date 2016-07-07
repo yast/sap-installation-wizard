@@ -1,10 +1,10 @@
-######################################################################################################################################################################################################
-#                                                                                                                                                                                                    #
-# Installation service 'SAP NetWeaver 7.4 Support Release 2 > MaxDB > SAP Systems > Application Server ABAP > High-Availability System > ASCS Instance', product id 'NW_ABAP_ASCS:NW740SR2.ADA.PIHA' #
-#                                                                                                                                                                                                    #
-######################################################################################################################################################################################################
+##########################################################################################################################################################################################################
+#                                                                                                                                                                                                        #
+# Installation service 'SAP NetWeaver 7.5 > IBM DB2 for Linux, UNIX, and Windows > SAP Systems > Application Server ABAP > Distributed System > ASCS Instance', product id 'NW_ABAP_ASCS:NW750.DB6.ABAP' #
+#                                                                                                                                                                                                        #
+##########################################################################################################################################################################################################
 
-# USED PARAMETERS ##masterPwd## ##sid## ##ascsVirtualHostname## ##instanceNumber## ##scsVirtualHostname##
+#USED PARAMETERS ##masterPwd## ##sid## ##kernel## ##ascsVirtualHostname## ##instanceNumber## ##scsVirtualHostname##
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
@@ -34,6 +34,8 @@ NW_GetSidNoProfiles.sid = ##sid##
 # Will this system be unicode system?
 NW_GetSidNoProfiles.unicode = true
 
+NW_SAPCrypto.SAPCryptoFile = ##kernel##/DATA_UNITS/K_745_U_LINUX_X86_64/DBINDEP/SAPEXE.SAR
+
 NW_SCS_Instance.ascsInstanceNumber = 
 
 NW_SCS_Instance.ascsVirtualHostname = ##ascsVirtualHostname##
@@ -47,6 +49,18 @@ NW_SCS_Instance.scsMSPort =
 NW_SCS_Instance.scsVirtualHostname = ##scsVirtualHostname##
 
 NW_System.installSAPHostAgent = true
+
+NW_Unpack.igsExeSar = 
+
+NW_Unpack.igsHelperSar = 
+
+NW_Unpack.sapExeDbSar = 
+
+NW_Unpack.sapExeSar = 
+
+NW_Unpack.sapJvmSar = 
+
+NW_Unpack.xs2Sar = 
 
 NW_adaptProfile.templateFiles = 
 
@@ -62,9 +76,10 @@ NW_getJavaHome.jcePolicyArchive =
 hostAgent.domain = 
 
 # Password for the SAP Host Agent specific sapadm user. Provided value may be encoded.
-hostAgent.sapAdmPassword = 
+hostAgent.sapAdmPassword = ##masterPwd##
 
 nwUsers.sapDomain = 
 
 nwUsers.sapServiceSIDPassword = 
-nwUsers.sidadmPassword = des24(140|122|126|11|224|60|251|166|156|194|66|124|97|97|239|241|137|105|204|91|254|)
+
+nwUsers.sidadmPassword = 

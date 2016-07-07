@@ -1,8 +1,10 @@
-###############################################################################################################################################################################
-#                                                                                                                                                                             #
-# Installation service 'SAP NetWeaver 7.5 > SAP ASE > SAP Systems > Application Server ABAP > Standard System > Standard System', product id 'NW_ABAP_OneHost:NW750.SYB.ABAP' #
-#                                                                                                                                                                             #
-###############################################################################################################################################################################
+############################################################################################################################################################################################################
+#                                                                                                                                                                                                          #
+# Installation service 'SAP NetWeaver 7.5 > IBM DB2 for Linux, UNIX, and Windows > SAP Systems > Application Server ABAP > Standard System > Standard System', product id 'NW_ABAP_OneHost:NW750.DB6.ABAP' #
+#                                                                                                                                                                                                          #
+############################################################################################################################################################################################################
+
+#USED PARAMETERS ##user## ##schema## ##masterPwd## ##sid## ##dbhost## ##dbsid##
 
 # Password for the Diagnostics Agent specific <dasid>adm user. Provided value may be encoded.
 DiagnosticsAgent.dasidAdmPassword = 
@@ -16,6 +18,14 @@ DiagnosticsAgent.domain =
 DiagnosticsAgent.sapServiceDASIDPassword = 
 
 NW_CreateDBandLoad.movePVCforUsagePiAndDi = 
+
+NW_DB6_DB.db6.abap.connect.user = ##user##
+
+NW_DB6_DB.db6.abap.schema = ##schema##
+
+NW_DB6_DB.db6.java.connect.user = 
+
+NW_DB6_DB.db6.java.schema = 
 
 NW_GetMasterPassword.masterPwd = ##masterPwd##
 
@@ -56,61 +66,19 @@ NW_getJavaHome.jcePolicyArchive =
 # Valid values are: SAP, STD, OBR, HCP, MDAThe loadtype chosen by the user.
 NW_getLoadType.loadType = SAP
 
-# database autoextend: free space treshold size of database (GB)
-SYB.NW_DB.autoExpandFreeSpaceTresholdSize = 1
-
-# database autoextend: increment size (GB)
-SYB.NW_DB.autoExpandIncrementSize = 1
-
-# homogeneous system copy, copy method
-SYB.NW_DB.databaseCopyMethod = 
-
-# database device information like "type,folder,size,maxsize,growsize,name,"
-SYB.NW_DB.databaseDevices = 
-
-# database load method
-SYB.NW_DB.databaseLoadMethod = folder
-
-# enable database autoextend feature
-SYB.NW_DB.enableDataDeviceAutoExpansion = false
-
-# path to dataserver system devices
-SYB.NW_DB.folderSystemDevices = 
-
-# path to dataserver temp device
-SYB.NW_DB.folderTempdbDevice = 
-
-# a value of false prevents the installer to stop in case there is not enough disk space
-SYB.NW_DB.freeSpaceAlert = 
-
-# extend ASE interface file with additional connection information like "hostname1:4901,hostname2:4901"
-SYB.NW_DB.interfaceAdditionalConnections = 
-
-# number of database connections
-SYB.NW_DB.sqlServerConnections = 
-
-# number of CPU cores to use for ASE database server
-SYB.NW_DB.sqlServerCores = 
-
-# host name of ASE database server
-SYB.NW_DB.sqlServerHostname = 
-
-# physical memory (GB) to use for ASE database server
-SYB.NW_DB.sqlServerMemory = 
-
 hostAgent.domain = 
 
 # Password for the SAP Host Agent specific sapadm user. Provided value may be encoded.
-hostAgent.sapAdmPassword = 
+hostAgent.sapAdmPassword = ##masterPwd##
+
+nwUsers.db6.db2sidPassword = ##masterPwd##
+
+nwUsers.db6.sapsidPassword = ##masterPwd##
+
+nwUsers.db6.sapsiddbPassword = 
 
 nwUsers.sapDomain = 
 
 nwUsers.sapServiceSIDPassword = 
 
-nwUsers.sidadmPassword = des24(210|91|36|59|213|122|141|153|108|17|187|78|101|112|219|212|239|162|66|152|177|)
-
-nwUsers.syb.sybsidId = 
-
-nwUsers.syb.sybsidPassword = des24(210|91|36|59|213|122|141|153|108|17|187|78|101|112|219|212|239|162|66|152|177|)
-
-storageBasedCopy.masterPassword = 
+nwUsers.sidadmPassword = 
