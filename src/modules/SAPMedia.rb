@@ -392,7 +392,7 @@ module Yast
            when :next 
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
-		if File.extist?(@mediaDir + "/" + label)
+		if File.exist?(@mediaDir + "/" + label)
 		   Popup.Warning(Builtins.sformat(_("The selected medium '%1' was already copied."),label))
 		   next
                 end	
