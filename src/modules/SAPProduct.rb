@@ -164,6 +164,21 @@ module Yast
          UI.ChangeWidget(Id("SBC"),        :Enabled, false)
       end
       adaptDB(@productMAP["DB"])
+      media = File.read(SAPMedia.instDir + "/start_dir.cd")
+      if ! media.include?("KERNEL")
+         UI.ChangeWidget(Id("STANDARD"),    :Enabled, false)
+         UI.ChangeWidget(Id("DISTRIBUTED"), :Enabled, false)
+         UI.ChangeWidget(Id("HA"),          :Enabled, false)
+	 #Does not exists at the time
+         #UI.ChangeWidget(Id("SUSE-HA-ST"),  :Enabled, false)
+         UI.ChangeWidget(Id("STANDARD"),    :Enabled, false)
+         UI.ChangeWidget(Id("STANDALONE"),  :Enabled, false)
+         UI.ChangeWidget(Id("ADA"), :Enabled, false)
+         UI.ChangeWidget(Id("HDB"), :Enabled, false)
+         UI.ChangeWidget(Id("SYB"), :Enabled, false)
+         UI.ChangeWidget(Id("DB6"), :Enabled, false)
+         UI.ChangeWidget(Id("ORA"), :Enabled, false)
+      end
       while run
         case UI.UserInput
           when /STANDARD|DISTRIBUTED|SUSE-HA-ST|HA/
