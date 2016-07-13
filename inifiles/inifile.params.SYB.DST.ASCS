@@ -34,7 +34,7 @@ NW_GetSidNoProfiles.sid = ##sid##
 # Will this system be unicode system?
 NW_GetSidNoProfiles.unicode = true
 
-NW_SAPCrypto.SAPCryptoFile = ##kernel##/DATA_UNITS/K_745_U_LINUX_X86_64/DBINDEP/SAPEXE.SAR
+NW_SAPCrypto.SAPCryptoFile = ##kernel##/DBINDEP/SAPEXE.SAR
 
 NW_SCS_Instance.ascsInstanceNumber = 
 

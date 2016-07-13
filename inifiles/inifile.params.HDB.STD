@@ -137,7 +137,7 @@ NW_HDB_getDBInfo.systemDbSid =
 # Password of user system inside the SAP HANA Database Server
 NW_HDB_getDBInfo.systemPassword = ##masterPwd##
 
-NW_SAPCrypto.SAPCryptoFile = ##kernel##/DATA_UNITS/K_745_U_LINUX_X86_64/DBINDEP/SAPEXE.SAR
+NW_SAPCrypto.SAPCryptoFile = ##kernel##/DBINDEP/SAPEXE.SAR
 
 NW_SLD_Configuration.configureSld = false
 
