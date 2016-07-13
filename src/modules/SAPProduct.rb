@@ -8,6 +8,7 @@ require "fileutils"
 
 module Yast
   class SAPProductClass < Module
+    attr_reader :installedProducts
     def main
       Yast.import "URL"
       Yast.import "UI"

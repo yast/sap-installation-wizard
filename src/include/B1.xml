@@ -211,7 +211,7 @@ cat /data/SAP_INST/0/ay_q_sapinstnr
 	<package>perl</package>
 	<package>SuSEfirewall2</package>
 	<package>samba</package>
-	<package>sapconf</package>
+	<package>saptune</package>
 	<package>tuned</package>
 	<package>unixODBC</package>
 	<package>zlib-32bit</package>

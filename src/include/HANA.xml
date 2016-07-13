@@ -189,7 +189,7 @@ check_instance_no "$VAL"
 	<package>sudo</package>
 	<package>tcsh</package>
 	<package>tuned</package>
-	<package>sapconf</package>
+	<package>saptune</package>
 	<package>xfsprogs</package>
 	<package>xrdp</package>
 	<package>yast2-ncurses</package>
