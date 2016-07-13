@@ -343,7 +343,14 @@ module Yast
            a = inifile.gsub!(/#{pattern}/,val) 
 	}
         #Replace ##VirtualHostname## by the real hostname.
-        inifile.gsub!(/##VirtualHostname##/,my_hostname) 
+        inifile.gsub!(/##VirtualHostname##/,my_hostname)
+	#Replace kernel base
+        File.readlines(SAPMedia.instDir + "/start_dir.cd").each { |path|
+	  if path.include?("KERNEL")
+            inifile.gsub!(/##kernel##/,path.chomp)
+	    break
+	  end
+	}
         File.write(SAPMedia.instDir + "/inifile.params",inifile)
       end
       if SAPMedia.instMasterType == "SAPINST" 

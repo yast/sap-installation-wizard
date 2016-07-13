@@ -205,8 +205,9 @@ module Yast
           mediaList = []
 	  script    = "/bin/sh -x "
           prodCount = prodCount.next
+	  sid       = ""
           @instDir = Builtins.sformat("%1/%2", @instDirBase, prodCount )
-	  if !prod.has_key("media")
+	  if !prod.has_key?("media")
 	     Popup.Error("You have to define the location of the installation media in the autoyast xml.")
 	     next
           end
@@ -220,12 +221,12 @@ module Yast
             else
                case medium["type"].downcase
                when "supplement"
-                 CopyFiles(@sourceDir, @instDir, "Supplement", false)
+                 CopyFiles(@mountPoint, @instDir, "Supplement", false)
                  #TODO execute profile.xml on media
                when "sap"
-                 instMasterList = SAPXML.is_instmaster(@sourceDir)
+                 instMasterList = SAPXML.is_instmaster(@mountPoint)
                  if instMasterList.empty?
-                                 media=find_sap_media(@sourceDir)
+                                 media=find_sap_media(@mountPoint)
                                  media.each { |path,label|
                                    CopyFiles(path, @mediaDir, label, false)
                                    mediaList << @mediaDir + "/" + label
@@ -234,17 +235,18 @@ module Yast
                      @instMasterType = instMasterList[0]
                      @instMasterPath = instMasterList[1]
                      CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
+                     mediaList << @instDir + "/" + "Instmaster"
                  end
                end
             end
-            UmountSources(@umountSource)
+            UmountSources(true)
           }
 	  if( @instMasterType == "SAPINST" )
-             @DB           = prod.has_key?("DB")           ? prod["DB"]           : ""
-             @PRODUCT_NAME = prod.has_key?("PRODUCT_NAME") ? prod["PRODUCT_NAME"] : ""
-             @PRODUCT_ID   = prod.has_key?("PRODUCT_ID")   ? prod["PRODUCT_ID"]   : ""
-	     if prod.has_key("inifile")
-	        File.write(@instDir + "/inifile.params",  prod["inifile"])
+             @DB           = prod.has_key?("DB")          ? prod["DB"]          : ""
+             @PRODUCT_NAME = prod.has_key?("productName") ? prod["productName"] : ""
+             @PRODUCT_ID   = prod.has_key?("productID")   ? prod["productID"]   : ""
+	     if prod.has_key?("iniFile")
+	        File.write(@instDir + "/inifile.params",  prod["iniFile"])
 	     end
 	     if @PRODUCT_ID == ""
 	        Popup.Error("The SAP PRODUCT_ID is not defined.")
@@ -257,13 +259,14 @@ module Yast
              @DB           = "HANA"
              @PRODUCT_NAME = @instMasterType
              @PRODUCT_ID   = @instMasterType
-	     if ! prod.has_key("masterpass") or ! prod.has_key("sid") or ! prod.has_key("sapinstnr")
+	     if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
 	        Popup.Error("Some of the required parameters are not defined.")
 		next
 	     end
-	     File.write(@instDir + "/ay_q_masterpass", prod["masterpass"])
+	     File.write(@instDir + "/ay_q_masterpass", prod["sapMasterPW"])
 	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
-	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapinstnr"])
+	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
+             sid = prod["sid"]
 	  end
 	  SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
 	         "instDir"        => @instDir,
@@ -273,7 +276,7 @@ module Yast
 	         "PRODUCT_NAME"   => @PRODUCT_NAME,
 	         "PRODUCT_ID"     => @PRODUCT_ID,
 	         "PARTITIONING"   => "",
-	         "SID"            => "",
+	         "SID"            => sid,
 	         "SCRIPT_NAME"    => ""
 	      })
 	  SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir) 
@@ -322,9 +325,9 @@ module Yast
     #
     #############################################################
     def Import(settings)
-      Builtins.y2milestone("-- SAPMedia.Import Start ---")
 
-      @SAPMediaTODO = deepcopy(settings)
+      @SAPMediaTODO = settings
+      Builtins.y2milestone("-- SAPMedia.Import Start ---%1",@SAPMediaTODO)
 
       true
     end
@@ -1279,7 +1282,7 @@ module Yast
     end
     
     def find_sap_media(base)
-      Builtins.y2milestone("-- Start find_sap_media ---")
+      Builtins.y2milestone("-- Start find_sap_media --- %1",base)
       make_hash = proc do |hash,key|
          hash[key] = Hash.new(&make_hash)
       end
