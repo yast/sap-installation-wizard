@@ -33,6 +33,9 @@ module Yast
       Builtins.y2milestone("SAP Media Reader Started")
 
 
+      #String to save the date. Will be set by set_date
+      @date   = ""
+
       #Hash for design the dialogs
       #Help text for the fututre. This will be available only in SP1
       #                          '<p><b>' + _("SUSE HA for SAP Simple Stack") + '</p></b>' +
@@ -194,17 +197,13 @@ module Yast
     def Write()
       Builtins.y2milestone("-- SAPMedia.Write Start ---")
 
-      if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
-          ExportSAPCDs()
-      end
-
-
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
         SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ") 
 	prodCount = 0
         @SAPMediaTODO["products"].each { |prod|
           mediaList = []
+	  script    = "/bin/sh -x "
           @instDir = Builtins.sformat("%1/%2", @instDirBase, prodCount )
           prod["media"].each { |medium|
 	    url = medium["url"].split("://")
@@ -238,10 +237,24 @@ module Yast
              @DB           = prod.has_key?("DB")           ? prod["DB"]           : ""
              @PRODUCT_NAME = prod.has_key?("PRODUCT_NAME") ? prod["PRODUCT_NAME"] : ""
              @PRODUCT_ID   = prod.has_key?("PRODUCT_ID")   ? prod["PRODUCT_ID"]   : ""
+	     if prod.has_key("inifile")
+	        File.write(@instDir + "/inifile.params",  prod["inifile"])
+	     end
+	     if @PRODUCT_ID == ""
+	        Popup.error("The SAP PRODUCT_ID is not defined.")
+		next
+	     end
 	  else
              @DB           = "HANA"
-             @PRODUCT_NAME = "HANA"
-             @PRODUCT_ID   = "HANA"
+             @PRODUCT_NAME = @instMasterType
+             @PRODUCT_ID   = @instMasterType
+	     if ! prod.has_key("masterpass") or ! prod.has_key("sid") or ! prod.has_key("sapinstnr")
+	        Popup.error("Some of the required parameters are not defined.")
+		next
+	     end
+	     File.write(@instDir + "/ay_q_masterpass", prod["masterpass"])
+	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
+	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapinstnr"])
 	  end
 	  SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
 	         "instDir"        => @instDir,
@@ -254,11 +267,35 @@ module Yast
 	         "SID"            => "",
 	         "SCRIPT_NAME"    => ""
 	      })
-          IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
+          File.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
 	  @instEnvList << @instDir
 	  SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir) 
+	  #Now we start the product installation
+          case @instMasterType
+            when "SAPINST"
+	       script << " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
+            when "HANA"
+	       script << " /usr/share/YaST2/include/sap-installation-wizard/hana_inst.sh"
+            when /^B1/
+	       script << " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh"
+	  end
+	  set_date()
+	  script << Builtins.sformat(
+            " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"  > >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.log) 2> >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.err)",
+	    @instDir + "/Instmaster",
+	    @PRODUCT_ID,
+	    @DB,
+	    @instMasterType,
+	    @instDir,
+	    @date
+	    )
+	  Builtins.y2milestone("Starting Installation : %1 ",script)
+	  SCR.Execute(path(".target.bash"), script)
         }
       else
+	if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
+	    ExportSAPCDs()
+	end
 	@instEnvList << @instDir
         if Popup.YesNo(_("Do you want to install another product?"))
            @prodCount = @prodCount.next
