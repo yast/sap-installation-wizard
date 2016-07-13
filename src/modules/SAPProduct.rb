@@ -172,8 +172,6 @@ module Yast
          UI.ChangeWidget(Id("HA"),          :Enabled, false)
 	 #Does not exists at the time
          #UI.ChangeWidget(Id("SUSE-HA-ST"),  :Enabled, false)
-         UI.ChangeWidget(Id("STANDARD"),    :Enabled, false)
-         UI.ChangeWidget(Id("STANDALONE"),  :Enabled, false)
          UI.ChangeWidget(Id("ADA"), :Enabled, false)
          UI.ChangeWidget(Id("HDB"), :Enabled, false)
          UI.ChangeWidget(Id("SYB"), :Enabled, false)
