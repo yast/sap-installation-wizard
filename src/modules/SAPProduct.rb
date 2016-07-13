@@ -347,6 +347,10 @@ module Yast
         inifile.gsub!(/##VirtualHostname##/,my_hostname) 
         File.write(SAPMedia.instDir + "/inifile.params",inifile)
       end
+      if SAPMedia.instMasterType == "SAPINST" 
+         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/doc.dtd "   + SAPMedia.instDir) 
+         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/keydb.dtd " + SAPMedia.instDir) 
+      end
 
       SCR.Write( path(".target.ycp"), SAPMedia.instDir + "/product.data",  {
              "instDir"        => SAPMedia.instDir,

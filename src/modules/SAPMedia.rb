@@ -200,11 +200,17 @@ module Yast
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
         SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ") 
-	prodCount = 0
+	prodCount = -1
         @SAPMediaTODO["products"].each { |prod|
           mediaList = []
 	  script    = "/bin/sh -x "
+          prodCount = prodCount.next
           @instDir = Builtins.sformat("%1/%2", @instDirBase, prodCount )
+	  if !prod.has_key("media")
+	     Popup.Error("You have to define the location of the installation media in the autoyast xml.")
+	     next
+          end
+          #Start copying media
           prod["media"].each { |medium|
 	    url = medium["url"].split("://")
             urlPath = MountSource(url[0],url[1])
@@ -241,15 +247,18 @@ module Yast
 	        File.write(@instDir + "/inifile.params",  prod["inifile"])
 	     end
 	     if @PRODUCT_ID == ""
-	        Popup.error("The SAP PRODUCT_ID is not defined.")
+	        Popup.Error("The SAP PRODUCT_ID is not defined.")
 		next
 	     end
+	     SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/doc.dtd " + @instDir) 
+	     SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/keydb.dtd " + @instDir) 
+             File.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
 	  else
              @DB           = "HANA"
              @PRODUCT_NAME = @instMasterType
              @PRODUCT_ID   = @instMasterType
 	     if ! prod.has_key("masterpass") or ! prod.has_key("sid") or ! prod.has_key("sapinstnr")
-	        Popup.error("Some of the required parameters are not defined.")
+	        Popup.Error("Some of the required parameters are not defined.")
 		next
 	     end
 	     File.write(@instDir + "/ay_q_masterpass", prod["masterpass"])
@@ -267,8 +276,6 @@ module Yast
 	         "SID"            => "",
 	         "SCRIPT_NAME"    => ""
 	      })
-          File.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
-	  @instEnvList << @instDir
 	  SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir) 
 	  #Now we start the product installation
           case @instMasterType
