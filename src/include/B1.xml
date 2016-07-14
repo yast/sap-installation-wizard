@@ -215,7 +215,6 @@ cat /data/SAP_INST/0/ay_q_sapinstnr
     <package>perl</package>
     <package>samba</package>
     <package>SAPHanaSR</package>
-    <package>SAPHanaSR-ScaleOut</package>
     <package>sap-installation-wizard</package>
     <package>sap-netscape-link</package>
     <package>saprouter-systemd</package>

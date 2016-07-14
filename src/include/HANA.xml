@@ -187,7 +187,6 @@ check_instance_no "$VAL"
     <package>ntp</package>
     <package>numactl</package>
     <package>SAPHanaSR</package>
-    <package>SAPHanaSR-ScaleOut</package>
     <package>sap-installation-wizard</package>
     <package>sap-netscape-link</package>
     <package>saprouter-systemd</package>
