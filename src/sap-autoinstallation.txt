@@ -23,7 +23,7 @@ The tags of this xml section are called "product". All product tags contains a l
 and some parameter.
 
 
-Sample for SAP HANA Installation
+Sample for SAP HANA or B1 Installation
 <?xml version="1.0"?>
 <!DOCTYPE profile>
 <profile
@@ -61,16 +61,16 @@ Sample for SAP NW Installation
       <product> 
         <media config:type="list">
           <medium>
-    	<url>nfs://server/path1</url>
-    	<type>sap</type>
+    	    <url>nfs://server/path1</url>
+    	    <type>sap</type>
           </medium>
           <medium>
-    	<url>nfs://server/path2</url>
-    	<type>sap</type>
+    	    <url>nfs://server/path2</url>
+    	    <type>sap</type>
           </medium>
           <medium>
-    	<url>nfs://server/path3</url>
-    	<type>supplement</type>
+    	    <url>nfs://server/path3</url>
+    	    <type>supplement</type>
           </medium>
         </media>
         <productID>NW_ABAP_ASCS:NW750.ADA.ABAP</productID>
