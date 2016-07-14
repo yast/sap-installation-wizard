@@ -11,16 +11,22 @@
     <pattern>sap-nw</pattern>
   </post-patterns -->
   <post-packages config:type="list">
-        <package>libstdc++33</package>
-        <package>libstdc++33-32bit</package>
-        <package>saptune</package>
-        <package>tuned</package>
-        <package>util-linux</package>
-        <package>uuidd</package>
-        <package>util-linux-systemd</package>
-        <package>clone-master-clean-up</package>
-        <package>kiwi-template-sap</package>
-        <package>sapvnc</package>
+    <package>clamsap</package>
+    <package>ClusterTools2</package>
+    <package>cryptctl</package>
+    <package>libstdc++33</package>
+    <package>libstdc++33-32bit</package>
+    <package>sap-installation-wizard</package>
+    <package>sap-netscape-link</package>
+    <package>saprouter-systemd</package>
+    <package>saptune</package>
+    <package>sles4sap-white-papers</package>
+    <package>tuned</package>
+    <package>util-linux</package>
+    <package>util-linux-systemd</package>
+    <package>uuidd</package>
+    <package>yast2-sap-ha</package>
+    <package>yast2-saptune</package>
   </post-packages>
 </software>
 </profile>
