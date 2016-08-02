@@ -13,6 +13,7 @@ X-SuSE-YaST-Argument=
 X-SuSE-YaST-RootOnly=true
 X-SuSE-YaST-Geometry=
 X-SuSE-YaST-SortKey=
+X-SuSE-YaST-Keywords=sap,install
 
 X-SuSE-YaST-AutoInst=all
 X-SuSE-YaST-AutoInstClonable=true
@@ -21,8 +22,9 @@ X-SuSE-YaST-AutoInstResource=sap-inst
 X-SuSE-translate=false
 
 Icon=yast-sw_single
-Exec=/sbin/yast2 sap-installation-wizard
+Exec=xdg-su -c "/sbin/yast2 sap-installation-wizard"
 
-Name=SAP Product Installer
-GenericName=SAP Product Installer
+Name=SAP Installation Wizard
+GenericName=SAP Installation Wizard
+StartupNotify=true
 X-KDE-SubstituteUID=true
