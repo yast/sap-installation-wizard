@@ -225,6 +225,8 @@ cat /data/SAP_INST/0/ay_q_sapinstnr
     <package>unzip</package>
     <package>yast2-hana-firewall</package>
     <package>yast2-sap-ha</package>
+    <package>yast2-sap-scp</package>
+    <package>yast2-sap-scp-prodlist</package>
     <package>yast2-saptune</package>
     <package>zlib-32bit</package>
   </post-packages>
