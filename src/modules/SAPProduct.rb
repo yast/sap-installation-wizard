@@ -372,10 +372,12 @@ module Yast
 
       @productsToInstall << SAPMedia.instDir
 
+      instDirMode = SAPMedia.instMasterType == "SAPINST" ? "770" : "775" 
+
       cmd = "groupadd sapinst; " +
             "usermod --groups sapinst root; " +
             "chgrp sapinst " + SAPMedia.instDir + ";" +
-            "chmod 770 " + SAPMedia.instDir + ";"
+            "chmod " + instDirMode + " " + SAPMedia.instDir + ";"
       Builtins.y2milestone("-- Prepare sapinst %1", cmd )
       SCR.Execute(path(".target.bash"), cmd)
 

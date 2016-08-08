@@ -365,22 +365,52 @@ hana_lcm_workflow()
    hana_get_input
    hana_setenv_lcm
 
-   # Does the HANA media have a full SPx DVD folder strucure, or a selected components folder structure ?
+   # Does the HANA media have 
+   # 1. a full SPx DVD folder strucure ?
+   # 2. or a selected components folder structure ?
+   # 3. or a selected components folder structure built specifically for B1 ?
    if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
        # HANA SPx DVD folder structure: check for required HANA components
-       COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
        missing=$(hana_check_components)
-       LCM_COMPONENTS=client,afl,studio,server
+       if [ "${ARCH}" == "X86_64" ];then
+           COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
+           LCM_COMPONENTS=client,afl,studio,server
+       else
+           if [ "${ARCH}" == "PPC64" ];then
+              COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH}"
+              LCM_COMPONENTS=client,afl,server
+           else
+              yast_popup_wait "Cannot install HANA. Platform ${ARCH} not supported by SUSE installation wizard."
+              rc=1
+           fi
+       fi
        cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_${ARCH}
    else
        if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_DATABASE ]; then
            # check for required HANA components
-           COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_CLIENT32 SAP_HANA_DATABASE SAP_HANA_STUDIO'
+           if [ "${ARCH}" == "X86_64" ];then
+              COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_CLIENT32 SAP_HANA_DATABASE SAP_HANA_STUDIO'
+              LCM_COMPONENTS=client,afl,studio,server
+           else
+              if [ "${ARCH}" == "PPC64" ];then
+                 COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_DATABASE'
+                 LCM_COMPONENTS=client,afl,server
+              else
+                 yast_popup_wait "Cannot install HANA. Platform ${ARCH} not supported by SUSE installation wizard."
+                 rc=1
+              fi
+           fi
            missing=$(hana_check_components)
            LCM_COMPONENTS=client,afl,studio,server
            cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_DATABASE
        else
-           missing="for full Service Pack: HDB_SERVER_LINUX_${ARCH}\nfor Revision Update: SAP_HANA_DATABASE"
+           if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ DATABASE\ 1.0\ FOR\ B1 ]; then
+              LCM_COMPONENTS=all
+              LCM_COMPONENTS_ROOT="--component_root=${MEDIA_TARGET}/Instmaster/DATA_UNITS"
+              cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ DATABASE\ 1.0\ FOR\ B1/LINX64SUSE/SAP_HANA_DATABASE
+           else
+              missing='for full Service Pack: HDB_SERVER_LINUX_${ARCH}\nfor Revision Update: SAP_HANA_DATABASE'
+           fi
        fi
    fi
 
@@ -388,7 +418,7 @@ hana_lcm_workflow()
        yast_popup_wait "Cannot install HANA. The following folders are expected on the media:\n${missing}"
        rc=1
    else
-      cat ~/pwds.xml | ./hdblcm --batch --action=install --components=${LCM_COMPONENTS} --sid=${SID} --number=${SAPINSTNR} --read_password_from_stdin=xml
+      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} --components=${LCM_COMPONENTS} --sid=${SID} --number=${SAPINSTNR} --read_password_from_stdin=xml
       rc=$?
       rm  ~/pwds.xml
    fi
@@ -445,6 +475,17 @@ hana_unified_installer_workflow()
    return $rc
 }
 
+extract_media_archives()
+{
+   # try to extract all SAR archives on SAP media in the respective directories, if possible
+   SAPCAR=`find ${MEDIA_TARGET}/Instmaster -name SAPCAR`
+   if [ -n ${SAPCAR} ]; then
+      if [ ! -x ${SAPCAR} ]; then
+         chmod +x ${SAPCAR}
+      fi
+      find ${MEDIA_TARGET}/Instmaster -name "*.SAR" -type f -execdir ${SAPCAR} -manifest SIGNATURE.SMF -xf '{}' +
+   fi
+}
 
 ###########################################
 # Main
@@ -455,6 +496,7 @@ hana_unified_installer_workflow()
    # determine proper installation tool:
    # HANA 1.0 <= SP6: Unified Installer
    # HANA 1.0 => SP7: Life Cycle Manager (hdblcm)
+   extract_media_archives
    HDBLCM=`find ${MEDIA_TARGET}/Instmaster/DATA_UNITS/ -name hdblcm`
    if [ -n "${HDBLCM}" ]; then
       hana_lcm_workflow
@@ -470,32 +512,32 @@ hana_unified_installer_workflow()
       fi
    fi
 
-   if [ $rc -eq  0 ]
-   then
+   if [ $rc -eq  0 ]; then
       # HDB 64-bit client: B1 expects client under /usr/sap.
       # Unified Installer does not allow to customize client path, so we set a link
       if [ ! -h /usr/sap/hdbclient ]; then
             ln -s /hana/shared/${SID}/hdbclient /usr/sap/hdbclient
       fi
 
-      # HDB 32-it client required for B1 Server/ServerTools
-      if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
-         ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
-      else
-         if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/hdbinst ]; then
-            ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/hdbinst --batch
+      # HDB 32-bit client required for B1 Server/ServerTools
+      if [ "${ARCH}" == "X86_64" ]; then 
+         if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
+            ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
          else
             if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/SAP_HANA_CLIENT/hdbinst ]; then
                ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/SAP_HANA_CLIENT/hdbinst --batch
             else
-               rc=1
+               if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 1.0\ FOR\ B1/LINX32SUSE/SAP_HANA_CLIENT/hdbinst ]; then
+                  ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 1.0\ FOR\ B1/LINX32SUSE/SAP_HANA_CLIENT/hdbinst --batch
+               else
+                  yast_popup_wait "Cannot find HANA 32-bit client, please install manually before SAP BusinessOne installation"
+               fi
             fi
          fi
       fi
    fi
 
-   if [ $rc -eq 0 ]
-   then
+   if [ $rc -eq 0 ]; then
       # Cleanup-PopUp
       #yast_popup "Installation finished."
       hana_installation_summary
@@ -505,5 +547,5 @@ hana_unified_installer_workflow()
 
    cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
    cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
-   cp ${MEDIA_TARGET}/ay_q_masterpass /dev/shm
+   #cp ${MEDIA_TARGET}/ay_q_masterpass /dev/shm
    cleanup

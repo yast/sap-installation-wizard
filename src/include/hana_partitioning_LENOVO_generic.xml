@@ -59,7 +59,7 @@
           <raid_options/>
           <resize config:type="boolean">false</resize>
           <size_min>RAM*1</size_min>
-          <size>14%</size>
+          <size>20%</size>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -75,7 +75,7 @@
           <raid_options/>
           <resize config:type="boolean">false</resize>
           <size_min>RAM*1</size_min>
-          <size>14%</size>
+          <size>20%</size>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -91,7 +91,7 @@
           <raid_options/>
           <resize config:type="boolean">false</resize>
           <size_min>RAM*1</size_min>
-          <size>4%</size>
+          <size>10%</size>
         </partition>
       </partitions>
       <pesize>4M</pesize>

@@ -494,8 +494,14 @@ b1h_installation()
           if [ "${B1H_version}" == "90" ];then b1h_90_install_properties; fi
           if [ "${B1H_version}" == "91" ];then b1h_91_install_properties; fi
           if [ "${B1H_version}" == "92" ];then b1h_91_install_properties; b1h_92_install_properties; fi
-          ./${INSTTOOL} -i silent -f ./install.properties > /dev/null 2>&1
+          ./${INSTTOOL} -i silent -f ./install.properties > /dev/null 2>&1 &
+          pid_installer=$!
+          while [ ! -f ${USER_INSTALL_LOGS} ]; do sleep 1; done
+          tail -f ${USER_INSTALL_LOGS} &
+          pid_logging=$!
+          wait ${pid_installer}
           rc=$?
+          kill -9 ${pid_logging}
           if [ $rc -eq 0 ]; then
              # B1H 9.2 restarts HANA so we only do it for prior versions
              if [ "${B1H_version}" -lt "92" ];then b1h_restart_hana; fi
@@ -506,7 +512,7 @@ b1h_installation()
           fi
        else
           # run B1 wizard to customize installation parameters
-          sh ./${INSTTOOL} > /dev/null 2>&1
+          ./${INSTTOOL} > /dev/null 2>&1
           rc=$?
           # re-read B1H installation folder because it may have been customized
           INSTALL_PROPERTIES=`find / -name .installer.properties`
@@ -580,7 +586,7 @@ b1a_installation()
    if [ $? -ne 0 ]; then
       yast_popup_wait "SAP HANA is not running, please start it now. If SAP HANA is not yet installed, please install it now. Afterwards install SAP Business One."
       cleanup
-      return
+      exit
    fi
 
    # get parameters from previous HANA installation

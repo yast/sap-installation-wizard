@@ -142,8 +142,10 @@ sub is_instmaster {
             }
             # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
             # HANA DB server component is found first!!
-            if ($fields[1] eq "HANA ENTERPRISE" ) {
+            if ($fields[1] =~ /^HANA/ ) {
                #HDB:HANA ENTERPRISE:1.0:LINUXX86_64:media delivery SAP High-Performance Analytic Appliance Enterprise 1.0::D51041779
+               #HDB:HANA:1.0:LINUX_PPC64:HANA PLATFORM 1.0 for Linux on Power::D51050340
+               #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
                $instmaster[0] = "HANA";
                $instmaster[1] = dirname($label_file);
                last;
