@@ -302,7 +302,7 @@ cleanup() {
   sed -i "s${MASTERPASS}**********g" /var/log/YaST2/y2log
   sed -i "s${MASTERPASS}**********g" /var/adm/autoinstall/logs/*
 
-  rm -rf ${MEDIA_TARGET}
+  rm -rf ${SAPCD_INSTMASTER}
   # delete since created via mktemp
   rm -rf ${TMPDIR}
 }
