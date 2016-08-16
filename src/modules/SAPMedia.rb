@@ -1296,7 +1296,9 @@ module Yast
         lf=d+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-          path_map[d]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-")
+	  if label.length > 2
+            path_map[d]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-")
+	  end
         end
       }
       #Searching the EXPORTS
@@ -1307,7 +1309,9 @@ module Yast
         lf=d+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-          path_map[d]=label[4].chop.gsub(/\W/,"-")
+	  if label.length > 3
+            path_map[d]=label[4].chop.gsub(/\W/,"-")
+	  end
         end
       }
 
@@ -1319,7 +1323,9 @@ module Yast
         lf=d+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-          path_map[d]=label[2].gsub(/\W/,"-") + label[3].gsub(/\W/,"-") + label[4].chop.gsub(/\W/,"-")
+	  if label.length > 3
+            path_map[d]=label[2].gsub(/\W/,"-") + label[3].gsub(/\W/,"-") + label[4].chop.gsub(/\W/,"-")
+	  end
         end
       }
 
@@ -1328,7 +1334,9 @@ module Yast
         lf=base+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-          path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
+	  if label.length > 2
+            path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
+	  end
         else
           #This is not a real SAP medium.
           Popup.Error( _("The location does not contain SAP installation data."))
