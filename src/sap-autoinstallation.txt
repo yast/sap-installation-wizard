@@ -34,12 +34,12 @@ Sample for SAP HANA or B1 Installation
       <product> 
         <media config:type="list">
           <medium>
-    	<url>nfs://server/path1</url>
-    	<type>sap</type>
+            <url>nfs://server/path1</url>
+            <type>sap</type>
           </medium>
           <medium>
-    	<url>nfs://server/path3</url>
-    	<type>supplement</type>
+           <url>nfs://server/path3</url>
+           <type>supplement</type>
           </medium>
         </media>
         <sapMasterPW>blablabla</sapMasterPW>
