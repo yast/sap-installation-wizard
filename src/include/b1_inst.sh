@@ -70,8 +70,9 @@ MEDIA_TARGET=$( dirname $SAPCD_INSTMASTER)
 # <n>th installation on this host. Specified by installation sub-directory. For multiple installations on a single host
 INSTALL_COUNT=$( echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}' )
 
+IP_ADDR=`host \`hostname\` | awk {'print $4'}`
+
 # YaST Uebergabeparameterdateien
-A_IP_ADDR="${TMPDIR}/may_q_ip_addr"
 A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterpass"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
@@ -381,6 +382,8 @@ b1h_92_install_properties()
 {
    # append more install properties
    cat >> "${FULLINSTPATH}/install.properties" <<-EOF
+#Password for B1 tech user.
+B1S_TECHUSER_PASSWORD=${MASTERPASS}
 #Compress backups
 BCKP_BACKUP_COMPRESS=false
 #Limit size of backups (in MBs)
@@ -401,6 +404,8 @@ HANA_DATABASE_ADMIN_PASSWORD=${MASTERPASS}
 HANA_OPTION_RESTART=true
 #Remove SLD Database during uninstallation
 HANA_SLD_DATABASE_UNINSTALL_REMOVE=true
+#Network address of local machine
+LOCAL_ADDRESS=${IP_ADDR}
 EOF
 }
 
