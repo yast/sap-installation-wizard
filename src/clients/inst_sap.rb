@@ -3,11 +3,21 @@
 module Yast
   class InstSapClient < Client
     def main
-      Yast.import "Mode"
+      Yast.import "Service"
+      Yast.import "SuSEFirewall"
 
       # MAIN
       textdomain "autoinst"
 
+      if File.exists?("/root/inst-sys/start_sap_wizard")
+         rdp = IO.read("/root/inst-sys/start_sap_wizard")
+	 rdp.strip
+	 if rdp != "false"
+	    Service.Enable("xrdp")
+	    SuSEFirewall.ReadCurrentConfiguration
+	    SuSEFirewall.SetServicesForZones(["service:xrdp"], ["INT", "EXT", "DMZ"], true)
+	 end
+      end
       # Check if we have to start at the end of the installation
       if !File.exists?("/root/inst-sys/start_sap_wizard")
 	 return :next

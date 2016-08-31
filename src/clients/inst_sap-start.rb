@@ -38,6 +38,7 @@ module Yast
       sles   = false
       sap    = false
       wizard = false
+      rdp    = true
       @sap_control = Pkg.SourceProvideOptionalFile(
         0, # optional
         1,
@@ -76,6 +77,13 @@ module Yast
                         _("Launch SAP product installation wizard right after operating system is installed"),
                         wizard
                       )
+                    ),
+                    Left(
+                      CheckBox(
+                        Id("rdp"),
+                        _("Enable RDP (Remote Desktop Protocol) Service and open in Firewall"),
+                        wizard
+                      )
                     )
                )
             )
@@ -90,6 +98,7 @@ module Yast
         GetInstArgs.enable_next
       )
       UI.ChangeWidget(Id("wizard"),:Enabled,false)
+      UI.ChangeWidget(Id("rdp"),:Enabled,false)
       ret = nil
       begin
         ret = Wizard.UserInput
@@ -101,13 +110,15 @@ module Yast
           Wizard.ShowHelp(@help)
 	when "sles"
 	  UI.ChangeWidget(Id("wizard"),:Enabled,false)
+	  UI.ChangeWidget(Id("rdp"),:Enabled,false)
 	when "sap"
 	  UI.ChangeWidget(Id("wizard"),:Enabled,true)
+	  UI.ChangeWidget(Id("rdp"),:Enabled,true)
         when :next
           install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
           case install
           when "sap"
-	    constumize_sap_installation(Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)) )
+	    constumize_sap_installation(Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)), (Convert.to_boolean( UI.QueryWidget(Id("rdp"), :Value)) )
           when "sles"
 	    constumize_sles_installation
           else
@@ -119,22 +130,36 @@ module Yast
       ret
     end
 
-    def constumize_sap_installation(start_wizard)
+    def constumize_sap_installation(start_wizard,start_rdp)
+        to_install = []
+        to_remove  = []
         ProductControl.ReadControlFile( @sap_control )
+        ProductControl.EnableModule("sap")
         if(start_wizard)
-           PackagesProposal.AddResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
-	   IO.write("/root/start_sap_wizard","true");
-           ProductControl.EnableModule("sap")
+           to_install << 'yast2-firstboot'
+	   to_install << 'sap-installation-wizard'
+	   IO.write("/root/start_sap_wizard","true")
 	else
-           PackagesProposal.AddResolvables('sap-wizard',:package,['sap-installation-wizard'])
-           PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot'])
-           ProductControl.DisableModule("sap")
+	   to_install << 'sap-installation-wizard'
+	   to_remove  << 'yast2-firstboot'
+	   IO.write("/root/start_sap_wizard","false")
+	end
+        if(start_rdp)
+	   to_install << 'sap-installation-wizard'
+	   IO.write("/root/start_rdp_service","true")
+	else
+	   to_remove  << 'sap-installation-wizard'
+	   IO.write("/root/start_rdp_service","false")
+	end
+        PackagesProposal.AddResolvables('sap-wizard',   :package, to_install)
+        if to_remove.size > 0
+	   PackagesProposal.RemoveResolvables('sap-wizard',:package, to_remove)
 	end
     end
 
     def constumize_sles_installation()
         ProductControl.ReadControlFile("/control.xml")
-        PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard'])
+        PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard','xrdp'])
         ProductControl.DisableModule("sap")
     end
   end
