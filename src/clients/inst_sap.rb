@@ -8,9 +8,8 @@ module Yast
 
       # MAIN
       textdomain "autoinst"
-
-      if File.exists?("/root/inst-sys/start_sap_wizard")
-         rdp = IO.read("/root/inst-sys/start_sap_wizard")
+      if File.exists?("/root/inst-sys/start_rdp_service")
+         rdp = IO.read("/root/inst-sys/start_rdp_service")
 	 rdp.strip
 	 if rdp != "false"
 	    Service.Enable("xrdp")

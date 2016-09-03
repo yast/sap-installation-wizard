@@ -71,6 +71,7 @@ module Yast
                      )
                    ),
                 Frame("",
+		  VBox(
                     Left(
                       CheckBox(
                         Id("wizard"),
@@ -85,6 +86,7 @@ module Yast
                         wizard
                       )
                     )
+		 )
                )
             )
           )
@@ -118,7 +120,7 @@ module Yast
           install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
           case install
           when "sap"
-	    constumize_sap_installation(Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)), (Convert.to_boolean( UI.QueryWidget(Id("rdp"), :Value)) )
+	    constumize_sap_installation(Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)), (Convert.to_boolean( UI.QueryWidget(Id("rdp"), :Value)) ))
           when "sles"
 	    constumize_sles_installation
           else
@@ -145,10 +147,10 @@ module Yast
 	   IO.write("/root/start_sap_wizard","false")
 	end
         if(start_rdp)
-	   to_install << 'sap-installation-wizard'
+	   to_install << 'xrdp'
 	   IO.write("/root/start_rdp_service","true")
 	else
-	   to_remove  << 'sap-installation-wizard'
+	   to_remove  << 'xrdp'
 	   IO.write("/root/start_rdp_service","false")
 	end
         PackagesProposal.AddResolvables('sap-wizard',   :package, to_install)

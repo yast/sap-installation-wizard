@@ -203,7 +203,7 @@ module Yast
 	prodCount = -1
         @SAPMediaTODO["products"].each { |prod|
           mediaList = []
-	  script    = "/bin/sh -x "
+	  script    = ""
           prodCount = prodCount.next
 	  sid       = ""
           @instDir = Builtins.sformat("%1/%2", @instDirBase, prodCount )
@@ -283,24 +283,30 @@ module Yast
 	  #Now we start the product installation
           case @instMasterType
             when "SAPINST"
-	       script << " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
+	       script = " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
             when "HANA"
-	       script << " /usr/share/YaST2/include/sap-installation-wizard/hana_inst.sh"
+	       script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst_nogui.sh"
             when /^B1/
-	       script << " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh"
+	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst_nogui.sh"
 	  end
 	  set_date()
+          logfile = "/var/adm/autoinstall/logs/sap_inst." + @date + ".log"
 	  script << Builtins.sformat(
-            " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"  > >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.log) 2> >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.err)",
+            " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
 	    @instDir + "/Instmaster",
 	    @PRODUCT_ID,
 	    @DB,
 	    @instMasterType,
 	    @instDir,
-	    @date
 	    )
 	  Builtins.y2milestone("Starting Installation : %1 ",script)
-	  SCR.Execute(path(".target.bash"), script)
+          require "open3"
+          Open3.popen2e(script) {|i,o,t|
+             i.close
+             o.each_line {|line|
+		Builtins.y2milestone("%1",line)
+             }
+          }
         }
       else
 	if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
