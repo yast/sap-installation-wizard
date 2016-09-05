@@ -32,6 +32,7 @@ usage () {
 		#  p ) MASTERPASS - SAP Masterpassword to use
 		#  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
 		#  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
+		#  g ) Do not use gui. All message should be put into STOUT
 		#
 		#######################################################################
 EOF
@@ -42,7 +43,7 @@ SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
 
 # Optionally overrule parameters from answer files by command line arguments
-while getopts "i:m:s:n:p:k:d:l:g:t:y:h\?" options; do
+while getopts "i:m:s:n:p:k:d:l:gt:y:h\?" options; do
 	case $options in
 		i ) SAPINST_PRODUCT_ID=$OPTARG;;  # SAPINST Product ID
 		m ) SAPCD_INSTMASTER=${OPTARG};; # Path to the SAP Installation Master Medium (has to be full-qualified)
@@ -52,6 +53,7 @@ while getopts "i:m:s:n:p:k:d:l:g:t:y:h\?" options; do
 		p ) MASTERPASS=$OPTARG;;  # Masterpassword
 		t ) DBTYPE=${OPTARG};; # Database type, e.g. ADA, DB6, ORA, SYB or HDB
 		y ) PRODUCT_TYPE=${OPTARG};; # Product Type, eg. HANA, B1
+		g ) NOGUI="yes";;
 		h | \? ) usage
 		        exit $ERR_invalid_args;;
 		* ) usage
@@ -92,6 +94,12 @@ err_message[15]=""
 
 
 yast_popup () {
+
+	if [ "$NOGUI" = "yes" ]; then
+		echo $1
+		return
+	fi
+
 	# open a YaST popup with the given text
 	local tmpfile
 
@@ -110,6 +118,12 @@ EOF
 
 
 yast_popup_timed () {
+
+	if [ "$NOGUI" = "yes" ]; then
+		echo $1
+		return
+	fi
+
 	# open a YaST popup with the given text
 	local tmpfile
 
@@ -128,6 +142,11 @@ EOF
 
 
 yast_popup_wait () {
+
+	if [ "$NOGUI" = "yes" ]; then
+		echo $1
+		return
+	fi
 	# open a YaST popup with the given text and wait for user input
         # used for program termination message
 	local tmpfile
@@ -195,6 +214,10 @@ b1_installation_summary () {
         # `basename $0` ended at `date +"%Y/%m/%d, %T (%Z)"`
         #########################################################################
 EOF
+	if [ "$NOGUI" = "yes" ]; then
+		cat ${summary_file}
+		return
+	fi
 
         cat > ${tmpfile} <<-EOF
                 {
@@ -492,7 +515,9 @@ b1h_installation()
     else
        b1h_install_parameters
        cd "${FULLINSTPATH}"
-       [ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
+       if [ "$NOGUI" != "yes" ]; then
+            [ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
+       fi
        if [ $? -eq 0 ]; then
           # start unattended installation with default parameters
           b1h_install_properties

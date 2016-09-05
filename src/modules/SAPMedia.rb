@@ -279,15 +279,17 @@ module Yast
 	         "SID"            => sid,
 	         "SCRIPT_NAME"    => ""
 	      })
-	  SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir) 
 	  #Now we start the product installation
           case @instMasterType
             when "SAPINST"
+	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
             when "HANA"
+	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst_nogui.sh"
             when /^B1/
-	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst_nogui.sh"
+	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
+	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh -g"
 	  end
 	  set_date()
           logfile = "/var/adm/autoinstall/logs/sap_inst." + @date + ".log"
