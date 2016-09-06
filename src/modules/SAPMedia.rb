@@ -286,7 +286,7 @@ module Yast
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
             when "HANA"
 	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
-	       script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst_nogui.sh"
+	       script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst.sh -g"
             when /^B1/
 	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh -g"
