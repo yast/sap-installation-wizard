@@ -116,6 +116,7 @@ module Yast
 	when "sap"
 	  UI.ChangeWidget(Id("wizard"),:Enabled,true)
 	  UI.ChangeWidget(Id("rdp"),:Enabled,true)
+	  UI.ChangeWidget(Id("rdp"),:Value,true)
         when :next
           install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
           case install

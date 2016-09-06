@@ -13,8 +13,10 @@ module Yast
 	 rdp.strip
 	 if rdp != "false"
 	    Service.Enable("xrdp")
+	    Service.Start("xrdp")
 	    SuSEFirewall.ReadCurrentConfiguration
 	    SuSEFirewall.SetServicesForZones(["service:xrdp"], ["INT", "EXT", "DMZ"], true)
+	    SuSEFirewall.WriteConfiguration
 	 end
       end
       # Check if we have to start at the end of the installation
