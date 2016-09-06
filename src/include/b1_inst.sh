@@ -32,7 +32,7 @@ usage () {
 		#  p ) MASTERPASS - SAP Masterpassword to use
 		#  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
 		#  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
-		#  g ) Do not use gui. All message should be put into STOUT
+		#  g ) Do not use gui. All message should be put into STDOUT
 		#
 		#######################################################################
 EOF
