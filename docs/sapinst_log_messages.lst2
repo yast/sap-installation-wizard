@@ -5,13 +5,18 @@ Files
 sapinst.log
 import_monitor.java.log
 
-INFO <>
-<>
 
-WARNING <>
-<>
+structure of sapinst.log
+INFO <YYYY-MM-DD hh:mm:ss.id>
+<details>
+--empty row--
+WARNING <YYYY-MM-DD hh:mm:ss.id>
+<details>
+--empty row--
+ERROR <YYYY-MM-DD hh:mm:ss.id>
+<details>
+--empty row--
 
-ERROR <>
-<>
 
+structure of import_monitor.java.log
 Import Monitor jobs: running <a>, waiting <b>, completed <c>, failed <d>, total <e>. 
