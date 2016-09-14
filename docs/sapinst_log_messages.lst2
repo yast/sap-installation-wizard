@@ -1,3 +1,10 @@
+Working directory
+cat /tmp/sapinst_instdir/.lastInstallationLocation
+
+Files
+sapinst.log
+import_monitor.java.log
+
 INFO <>
 <>
 
