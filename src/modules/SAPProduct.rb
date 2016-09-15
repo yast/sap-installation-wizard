@@ -405,9 +405,6 @@ module Yast
           :from => "any",
           :to   => "map <string, any>"
         )
-        out = Convert.to_map(
-          SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M")
-        )
         params = Builtins.sformat(
           " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
           Ops.get_string(productData, "instMaster", ""),
@@ -433,6 +430,7 @@ module Yast
       #Start execute the install scripts
       require "open3"
       productScriptsList.each { |installScript|
+          out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M"))
           date = Builtins.filterchars( Ops.get_string(out, "stdout", ""), "0123456789-.")
 	  logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
 	  f = File.new( logfile, "w")

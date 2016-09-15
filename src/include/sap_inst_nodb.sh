@@ -579,18 +579,20 @@ export PRC_DEACTIVATE_CHECKS=true
 cd ${SAPINST_DIR}
 SAPINST_CMD="${SAPCD_INSTMASTER}/sapinst \
 	SAPINST_EXECUTE_PRODUCT_ID=${SAPINST_PRODUCT_ID} \
-	SAPINST_DETAIL_SUMMARY=true SAPINST_SKIP_SUCCESSFULLY_FINISHED_DIALOG=true \
+	SAPINST_DETAIL_SUMMARY=false \
+	SAPINST_SKIP_DIALOGS=true \
+	SAPINST_SKIP_SUCCESSFULLY_FINISHED_DIALOG=true \
 	SAPINST_INPUT_PARAMETERS_URL=${SAPINST_DIR}/inifile.params "
 
 if [ -e ${SAPINST_DIR}/ay_q_virt_hostname ]; then
 	SAPINST_CMD="$SAPINST_CMD SAPINST_USE_HOSTNAME=${virt_hostname} "
 fi
 
-if [ "GUI" != "${INSTALLATION_TYPE}" ]; then
-	# run in dark installation mode - without SAPINST GUI
-	# SAPINST_CMD="$SAPINST_CMD SAPINST_START_GUI=false" # TODO war anscheinend schon immer falsch...
-	SAPINST_CMD="$SAPINST_CMD SAPINST_SKIP_DIALOGS=true "
-fi
+#if [ "GUI" != "${INSTALLATION_TYPE}" ]; then
+#	# run in dark installation mode - without SAPINST GUI
+#	# SAPINST_CMD="$SAPINST_CMD SAPINST_START_GUI=false" # TODO war anscheinend schon immer falsch...
+#	SAPINST_CMD="$SAPINST_CMD SAPINST_SKIP_DIALOGS=true "
+#fi
 
 # run SAPINST
 ${SAPINST_CMD}
