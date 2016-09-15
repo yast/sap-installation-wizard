@@ -217,6 +217,7 @@
                 <module>
                     <label>Finish Setup</label>
                     <name>inst_congratulate</name>
+                    <enabled config:type="boolean">false</enabled>
                 </module>
 
             </modules>
