@@ -408,18 +408,13 @@ module Yast
         out = Convert.to_map(
           SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M")
         )
-        date = Builtins.filterchars(
-          Ops.get_string(out, "stdout", ""),
-          "0123456789-."
-        )
         params = Builtins.sformat(
-          " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"  > >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.log) 2> >(tee -a /var/adm/autoinstall/logs/sap_inst.%6.err)",
+          " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
           Ops.get_string(productData, "instMaster", ""),
           Ops.get_string(productData, "PRODUCT_ID", ""),
           Ops.get_string(productData, "DB", ""),
           Ops.get_string(productData, "TYPE", ""),
           Ops.get_string(productData, "instDir", ""),
-          date
         )
         # Add script
         productScriptsList << "/bin/sh -x " + Ops.get_string(productData, "SCRIPT_NAME", "") + params
@@ -436,8 +431,23 @@ module Yast
       SAPPartitioning.CreatePartitions(productPartitioningList)
 
       #Start execute the install scripts
+      require "open3"
       productScriptsList.each { |installScript|
-            SCR.Execute(path(".target.bash"), "xterm -e '" + installScript + "'")
+          date = Builtins.filterchars( Ops.get_string(out, "stdout", ""), "0123456789-.")
+	  logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
+	  f = File.new( logfile, "w")
+          #pid = 0
+          Open3.popen2e(installScript) {|i,o,t|
+	     #stdin, stdout_and_stderr, wait_thr = Open3.popen2e(gucken)
+	     #stdin.close
+	     #pid = wait_thr.pid
+             i.close
+             o.each_line {|line|
+		f << line
+             }
+          }
+	  f.close
+	  #Process.kill("TERM", pid)
       }
     end
 

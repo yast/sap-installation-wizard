@@ -299,16 +299,18 @@ module Yast
 	    @PRODUCT_ID,
 	    @DB,
 	    @instMasterType,
-	    @instDir,
+	    @instDir
 	    )
 	  Builtins.y2milestone("Starting Installation : %1 ",script)
           require "open3"
+	  f = File.new(logfile,"w")
           Open3.popen2e(script) {|i,o,t|
              i.close
              o.each_line {|line|
-		Builtins.y2milestone("%1",line)
+		f << line
              }
           }
+	  f.close
         }
       else
 	if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
