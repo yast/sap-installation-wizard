@@ -12,6 +12,8 @@ install:
 	install -d $(DESTDIR)/usr/lib/YaST2/bin/
 	install -m 755 include/*sh  $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
 	install -m 644 include/*xml $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
+	install -m 644 include/inifile.params.* $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
+	install -m 644 include/*.dtd            $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
 	install -m 644 lib/sap/* $(DESTDIR)/usr/share/YaST2/lib/sap/
 	install -m 644 clients/* $(DESTDIR)/usr/share/YaST2/clients/
 	install -m 644 modules/* $(DESTDIR)/usr/share/YaST2/modules/

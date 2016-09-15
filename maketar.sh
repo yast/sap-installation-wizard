@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
 find . -name '*.kdev4' -delete
 
