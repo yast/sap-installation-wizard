@@ -20,3 +20,6 @@ ERROR <YYYY-MM-DD hh:mm:ss.id>
 
 structure of import_monitor.java.log
 Import Monitor jobs: running <a>, waiting <b>, completed <c>, failed <d>, total <e>. 
+
+Installation starts (after dialogs)
+Execute step runChecksStep - this is the log entry of showing the parameters for the last check, then comes the installation.
