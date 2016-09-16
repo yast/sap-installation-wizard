@@ -23,3 +23,7 @@ Import Monitor jobs: running <a>, waiting <b>, completed <c>, failed <d>, total 
 
 Installation starts (after dialogs)
 Execute step runChecksStep - this is the log entry of showing the parameters for the last check, then comes the installation.
+
+Installation fails:
+ERROR 2016-09-15 12:41:24.108 (root/sapinst) id=nw.programError errno=CJS-30022
+Program 'Migration Monitor' exits with error code 103.
