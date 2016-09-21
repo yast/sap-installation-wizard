@@ -94,7 +94,7 @@ module Yast
        prodCount = 0;
        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
 	 instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
-         if File.exists?( instDir + "installationSuccesfullyFinished.dat" ) && File.exists?( instDir + "/product.data")
+         if File.exists?( instDir + "/installationSuccesfullyFinished.dat" ) && File.exists?( instDir + "/product.data")
            @installedProducts << Convert.convert(
               SCR.Read(path(".target.ycp"), instDir + "/product.data"),
               :from => "any",

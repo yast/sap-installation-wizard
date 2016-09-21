@@ -361,6 +361,8 @@ hana_installation_summary ()
         #########################################################################
 EOF
 
+	cp ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
+
         if [ "$NOGUI" = "yes" ]; then
                 cat ${summary_file}
                 return
