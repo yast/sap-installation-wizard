@@ -27,3 +27,13 @@ Execute step runChecksStep - this is the log entry of showing the parameters for
 Installation fails:
 ERROR 2016-09-15 12:41:24.108 (root/sapinst) id=nw.programError errno=CJS-30022
 Program 'Migration Monitor' exits with error code 103.
+
+Installation finishes (sapinst starts the installed instance):
+
+GetProcessList
+OK
+name, description, dispstatus, textstatus, starttime, elapsedtime, pid
+sapwebdisp, Web Dispatcher, GREEN, Running, 2016 09 21 08:58:04, 0:00:23, 27968
+
+INFO       2016-09-21 08:58:27.395 (root/sapinst) [iaxxbjsmod.cpp:97] id=nw.progress.instanceRunning
+Startup of instance WAS/W00 finished: [ACTIVE]. Elapsed time: 0:20 minutes.
