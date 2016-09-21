@@ -37,3 +37,10 @@ sapwebdisp, Web Dispatcher, GREEN, Running, 2016 09 21 08:58:04, 0:00:23, 27968
 
 INFO       2016-09-21 08:58:27.395 (root/sapinst) [iaxxbjsmod.cpp:97] id=nw.progress.instanceRunning
 Startup of instance WAS/W00 finished: [ACTIVE]. Elapsed time: 0:20 minutes.
+
+At starting sapinst opens the port 21212
+"Starting SL Controller listening on port 21212"
+
+Finishing the installation it closes the port 21212
+"CGuiProxy::receive(): connection on child process at (7:8) closed by peer
+guiengine: 2016-09-21 09:49:25 Client connection ended (1)"
