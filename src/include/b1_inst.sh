@@ -214,6 +214,8 @@ b1_installation_summary () {
         # `basename $0` ended at `date +"%Y/%m/%d, %T (%Z)"`
         #########################################################################
 EOF
+	cp ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
+
 	if [ "$NOGUI" = "yes" ]; then
 		cat ${summary_file}
 		return
