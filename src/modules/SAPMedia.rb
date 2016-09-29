@@ -302,12 +302,28 @@ module Yast
 	    @instDir
 	    )
 	  Builtins.y2milestone("Starting Installation : %1 ",script)
+          Wizard.SetContents( _("SAP Product Installation"),
+                                        LogView(Id("LOG"),"",30,400),
+                                        "Help",
+                                        true,
+                                        true
+                                        )
           require "open3"
 	  f = File.new(logfile,"w")
           Open3.popen2e(script) {|i,o,t|
              i.close
+             n=0
+             text=""
              o.each_line {|line|
 		f << line
+                text << line
+                if n > 30
+                    UI::ChangeWidget(Id("LOG"), :LastLine, text );
+                    n    = 0
+                    text = ""
+                else
+                    n = n.next
+                end
              }
           }
 	  f.close

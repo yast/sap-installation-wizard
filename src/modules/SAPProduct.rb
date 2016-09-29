@@ -435,13 +435,29 @@ module Yast
 	  logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
 	  f = File.new( logfile, "w")
           #pid = 0
+          Wizard.SetContents( _("SAP Product Installation"),
+                                        LogView(Id("LOG"),"",30,400),
+                                        "Help",
+                                        true,
+                                        true
+                                        )
           Open3.popen2e(installScript) {|i,o,t|
 	     #stdin, stdout_and_stderr, wait_thr = Open3.popen2e(gucken)
 	     #stdin.close
 	     #pid = wait_thr.pid
              i.close
+             n = 0
+             text = ""
              o.each_line {|line|
 		f << line
+                text << line
+                if n > 30
+                    UI::ChangeWidget(Id("LOG"), :LastLine, text );
+                    n    = 0
+                    text = ""
+                else
+                    n = n.next
+                end
              }
           }
 	  f.close
