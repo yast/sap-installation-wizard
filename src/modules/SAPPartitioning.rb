@@ -46,7 +46,7 @@ module Yast
               ],
               manufacturer
             )
-            partXML = @partXMLPath + "hana_generic.xml"
+            partXML = @partXMLPath + "/hana_partitioning.xml"
             #TODO Do we hav to warn if generic partitioning happeds?
           else
             # For comapitibility keep specific disk layout for Dell legacy models, but for new models use generic layout
