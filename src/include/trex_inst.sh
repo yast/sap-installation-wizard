@@ -59,3 +59,55 @@ done
 MASTERPW=$( cat $SAPINST_DIR/ay_q_masterPwd )
 SID=$( cat $SAPINST_DIR/ay_q_sid )
 INST=$( cat $SAPINST_DIR/ay_q_instanceNumber )
+VIRTHOSTNAME=$( cat $SAPINST_DIR/ay_q_virt_hostname )
+
+# Functions
+yast_popup () {
+    # open a YaST popup with the given text
+    local tmpfile
+        tmpfile="${TMPDIR}/yast_popup.ycp"
+    cat > ${tmpfile} <<-EOF
+        {
+            import "Popup";
+            Popup::AnyTimedMessage ( "", "$1", 10 );
+        }
+EOF
+    [ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
+    rm ${tmpfile}
+}
+
+
+# Check if /sapmnt exists or create it
+
+if [ ! -d "/sapmnt" ]; then
+    mkdir /sapmnt
+fi
+
+# Run installation
+$SAPINST_DIR/tx_trex_content/TX_LINUX_X86_64/install.sh \
+        --action=install \
+        --logdir=/tmp/sapinst_instdir/GENERIC/TREX/APP1 \
+        --sid=$SID \
+        --instance=$INST \
+        --target=/sapmnt \
+        --host=$VIRTHOSTNAME \
+        --sidadmid= \
+        --sapsysid=79 \
+        --usershell=/bin/bash \
+        --userhome=/home/${sid}adm \
+        --password=$MASTERPW
+
+# Provide return code
+INST_RETURN_VALUE=$?
+
+# Ignore return code if installationSuccesfullyFinished.dat can be found
+while [ 0 -ne ${INST_RETURN_VALUE} ] && [ ! -f ${SAPINST_DIR}/installationSuccesfullyFinished.dat ]; do
+        # SAPINST crashed?
+        echo "It seems as if the SAP installation crashed? This should not happen..."
+        yast_popup_wait "The SAP installation seems to have crashed...\nCheck the log files in '${SAPINST_DIR}'\nor /var/adm/autoinstall/logs/sap_inst.log\nand try to fix the problem manually.\n\nAfterwards press <OK> to restart the SAP installation tool."
+
+done
+# Continue - SAPINST finished with return code 0
+
+# Cleanup-PopUp
+yast_popup "SAPINST finished.\nCleaning up and starting SAP system."
