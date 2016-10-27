@@ -11,7 +11,6 @@
     <package>sap-installation-wizard</package>
     <package>sap-netscape-link</package>
     <package>saprouter-systemd</package>
-    <package>saptune</package>
     <package>sles4sap-white-papers</package>
     <package>tuned</package>
     <package>util-linux</package>
@@ -20,6 +19,5 @@
     <package>yast2-sap-ha</package>
     <package>yast2-sap-scp</package>
     <package>yast2-sap-scp-prodlist</package>
-    <package>yast2-saptune</package>
   </post-packages>
 </software>
