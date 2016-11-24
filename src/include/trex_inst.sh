@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# sap_inst.sh - is a script used to install SAP products
+# trex_inst.sh - is a script used to install SAP TREX
 #
-# Copyright (c) 2016 SUSE G,bH 
+# Copyright (c) 2016 SUSE GmbH 
 #
 # This program is free software; you can redistribute it and/or 
 # modify it under the terms of the GNU General Public License as 
@@ -98,16 +98,16 @@ $SAPINST_DIR/tx_trex_content/TX_LINUX_X86_64/install.sh \
         --password=$MASTERPW
 
 # Provide return code
-INST_RETURN_VALUE=$?
+#INST_RETURN_VALUE=$?
 
 # Ignore return code if installationSuccesfullyFinished.dat can be found
-while [ 0 -ne ${INST_RETURN_VALUE} ] && [ ! -f ${SAPINST_DIR}/installationSuccesfullyFinished.dat ]; do
-        # SAPINST crashed?
-        echo "It seems as if the SAP installation crashed? This should not happen..."
-        yast_popup_wait "The SAP installation seems to have crashed...\nCheck the log files in '${SAPINST_DIR}'\nor /var/adm/autoinstall/logs/sap_inst.log\nand try to fix the problem manually.\n\nAfterwards press <OK> to restart the SAP installation tool."
-
-done
+#while [ 0 -ne ${INST_RETURN_VALUE} ] && [ ! -f ${SAPINST_DIR}/installationSuccesfullyFinished.dat ]; do
+#        # SAPINST crashed?
+#        echo "It seems as if the SAP installation crashed? This should not happen..."
+#        yast_popup_wait "The SAP installation seems to have crashed...\nCheck the log files in '${SAPINST_DIR}'\nor /var/adm/autoinstall/logs/sap_inst.log\nand try to fix the problem manually.\n\nAfterwards press <OK> to restart the SAP installation tool."
+#
+#done
 # Continue - SAPINST finished with return code 0
-
+#
 # Cleanup-PopUp
-yast_popup "SAPINST finished.\nCleaning up and starting SAP system."
+#yast_popup "SAPINST finished.\nCleaning up and starting SAP system."
