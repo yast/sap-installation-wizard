@@ -68,6 +68,13 @@ module Yast
 			 "partitioning" => SAPXML.ConfigValue("B1","partitioning"),
 			 "script_name"  => SAPXML.ConfigValue("B1","script_name")
 	}
+	  @productList << {
+			 "name"         => "TREX",
+			 "id"           => "TREX",
+			 "ay_xml"       => SAPXML.ConfigValue("TREX","ay_xml"),
+			 "partitioning" => SAPXML.ConfigValue("TREX","partitioning"),
+			 "script_name"  => SAPXML.ConfigValue("TREX","script_name")
+	}
 
       # @installedProducts contains a list of the products which already are installen on the system
       # The list consits of hashes of the parameter of the products:
@@ -298,10 +305,14 @@ module Yast
 	   @DB           = "HDB"
 	   @PRODUCT_NAME = "HANA"
 	   @PRODUCT_ID   = "HANA"
-	when /^B1/
+	    when /^B1/
 	   @DB           = ""
 	   @PRODUCT_NAME = "B1"
 	   @PRODUCT_ID   = "B1"
+	    when "HANA"
+	   @DB           = ""
+	   @PRODUCT_NAME = "TREX"
+	   @PRODUCT_ID   = "TREX"
       end
       # Display the empty dialog before running external SAP installer program
       Wizard.SetContents(

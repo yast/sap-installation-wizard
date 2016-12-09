@@ -179,6 +179,11 @@ sub is_instmaster {
                $instmaster[0] = "BOBJ";
                $instmaster[1] = dirname($label_file);
                last;
+            }elsif ($fields[1] =~ /^TREX/ ) {
+               #SAP:TREXBINARIES
+               $instmaster[0] = "TREX";
+               $instmaster[1] = dirname($label_file);
+               last;
             }elsif ($fields[1] eq "ROOT-LABEL-DVD-SWPM" && ($fields[5] =~ $PLATFORM."_".$ARCH || $fields[5] eq "*")) { # TODO fields[1] ggf. verallgemeinern auf "*SWPM*" ?
                # Zweiter Versuch, SWPM ist noch nicht entpackt
                #LABEL.ASC: SAP:ROOT-LABEL-DVD-SWPM:720-2:IM-CD:*:AIX_PPC64 LINUX_I386 HPUX_IA64 OS390_32 OS400_PPC64 LINUX_S390X_64 LINUX_IA64 LINUX_PPC64 HPUX_PARISC SOLARIS_SPARC SOLARIS_X86_64 WINDOWS_I386 LINUX_X86_64 WINDOWS_X86_64 WINDOWS_IA64:*

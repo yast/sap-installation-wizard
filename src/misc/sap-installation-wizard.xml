@@ -318,8 +318,7 @@
       <search>//component[@name="TREX_INSTALL"]</search>
       <ay_xml>TREX.xml</ay_xml>
       <partitioning>NO</partitioning>
-      <script_name>sap_inst_nodb.sh</script_name>
-      <inifile_params>inifile.paramsTREX</inifile_params>
+      <script_name>trex_inst.sh</script_name>
     </listentry>
     <!-- SBC System Base Copy .. System Rename -->
     <listentry>

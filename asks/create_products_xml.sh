@@ -49,12 +49,12 @@ case "$PROD" in
 #			cat $i.xml >> ../$DIR/include/$PROD.xml
 #		done
 #		;;
-#	TREX)
-#		for i in MY_MASTERPASS 
-#		do
-#			cat $i.xml >> ../$DIR/include/$PROD.xml
-#		done
-#		;;
+	TREX)
+		for i in masterPwd sid instanceNumber
+		do
+			cat $i.xml >> ../$DIR/include/$PROD.xml
+		done
+		;;
 	*)
 		echo "No ask dialog for $PROD."
 		;;
