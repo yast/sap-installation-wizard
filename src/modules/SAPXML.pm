@@ -61,6 +61,10 @@ my $DEBUG=1;
 
 my $PLATFORM = "LINUX";
 my $ARCH     = `arch`; $ARCH=uc($ARCH); chomp($ARCH);
+if( $ARCH eq "PPC64LE" )
+{
+    $ARCH = "PPC64";
+}
 my @STANDALONE = ("TREX","GATEWAY","WEBDISPATCHER");
 my @DATABASES  = ("ORA","SYB","DB2","HDB","MAX");
 my %DBMAP      = ( 

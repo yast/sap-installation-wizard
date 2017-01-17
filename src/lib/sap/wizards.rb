@@ -27,9 +27,9 @@
 
 require "sap/add_repo_dialog"
 require "hanafirewall/hanafirewall_conf"
-require "saptune/saptune_conf"
 
 module Yast
+  import "Arch"
   module SapInstallationWizardWizardsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
@@ -50,7 +50,10 @@ module Yast
     end
 
     def TuneTheSystem
-        SaptuneConf.auto_config
+        if Arch.x86_64
+           require "saptune/saptune_conf"
+           SaptuneConf.auto_config 
+        end
     end
 
     # SAP Installation Main Sequence

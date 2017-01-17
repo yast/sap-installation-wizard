@@ -68,7 +68,6 @@ module SapInst
 	    return _('SAP Product Automatic Installation.')
         end
 
-        # Display dialog to let user turn saptune on/off.
         def change
             AutoMainDialog.new.run
             return :finish
@@ -81,7 +80,7 @@ module SapInst
             return true
         end
 
-        # If saptune should be enabled, automatically configure it and enable it. Otherwise disable it.
+        # Write the configuration.
         def write
             SAPMedia.Write
         end
