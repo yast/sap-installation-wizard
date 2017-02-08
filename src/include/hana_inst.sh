@@ -79,6 +79,7 @@ A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterpass"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
 A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
+A_SAPMDC="${MEDIA_TARGET}/ay_q_sapmdc"
 
 ###########################################
 # Define ERRORS section
@@ -448,7 +449,18 @@ hana_lcm_workflow()
        yast_popup_wait "Cannot install HANA. The following folders are expected on the media:\n${missing}"
        rc=1
    else
-      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} --components=${LCM_COMPONENTS} --sid=${SID} --number=${SAPINSTNR} --read_password_from_stdin=xml
+      case $A_SAPMDC in
+	no )
+	  echo -e "db_mode=\n"  > ${MEDIA_TARGET}/hana_mdc.conf
+	;;
+	low )
+	  echo -e "db_mode=multidb\ndb_isolation=low\n"  > ${MEDIA_TARGET}/hana_mdc.conf
+	;;
+	high )
+	  echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
+	;;
+      esac
+      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} --components=${LCM_COMPONENTS} --sid=${SID} --number=${SAPINSTNR} --read_password_from_stdin=xml --configfile=${MEDIA_TARGET}/hana_mdc.conf
       rc=$?
       rm  ~/pwds.xml
    fi
