@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <deploy_image>
+    <image_installation config:type="boolean">false</image_installation>
+  </deploy_image>
+  <groups config:type="list"/>
+  <hanafirewall>
+    <enable config:type="boolean">false</enable>
+    <open_ssh config:type="boolean">false</open_ssh>
+  </hanafirewall>
+  <login_settings/>
+  <partitioning config:type="list">
+    <drive>
+      <device>/dev/hda</device>
+      <disklabel>msdos</disklabel>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <format config:type="boolean">false</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lvm_group>system</lvm_group>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>max</size>
+          <subvolumes config:type="list"/>
+        </partition>
+      </partitions>
+      <pesize/>
+      <type config:type="symbol">CT_DISK</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/hdb</device>
+      <disklabel>msdos</disklabel>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <format config:type="boolean">false</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lvm_group>vg_hana</lvm_group>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>max</size>
+          <subvolumes config:type="list"/>
+        </partition>
+      </partitions>
+      <pesize/>
+      <type config:type="symbol">CT_DISK</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/system</device>
+      <disklabel>msdos</disklabel>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">btrfs</filesystem>
+          <format config:type="boolean">true</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>root</lv_name>
+          <mount>/</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>60G</size>
+          <subvolumes config:type="list"/>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">swap</filesystem>
+          <format config:type="boolean">true</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>swap</lv_name>
+          <mount>swap</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">130</partition_id>
+          <partition_nr config:type="integer">2</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>20G</size>
+          <subvolumes config:type="list"/>
+        </partition>
+      </partitions>
+      <pesize/>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/vg_hana</device>
+      <disklabel>msdos</disklabel>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_hanadata</lv_name>
+          <mount>/hana/data</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>192G</size>
+          <subvolumes config:type="list"/>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_hanalog</lv_name>
+          <mount>/hana/log</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <partition_nr config:type="integer">2</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>64G</size>
+          <subvolumes config:type="list"/>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_hahashared</lv_name>
+          <mount>/hana/shared</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <partition_nr config:type="integer">3</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>64G</size>
+          <subvolumes config:type="list"/>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_user_sap</lv_name>
+          <mount>/usr/sap</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <partition_nr config:type="integer">4</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>64G</size>
+          <subvolumes config:type="list"/>
+        </partition>
+      </partitions>
+      <pesize/>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+  </partitioning>
+  <software>
+    <image/>
+    <instsource>/data1/ISOS/SLES12-SAP-SP2</instsource>
+    <patterns config:type="list">
+      <pattern>Minimal</pattern>
+      <pattern>gnome-basic</pattern>
+      <pattern>sap-hana</pattern>
+      <pattern>x11</pattern>
+    </patterns>
+  </software>
+  <user_defaults>
+    <expire/>
+    <group>500</group>
+    <groups/>
+    <home>/home</home>
+    <inactive/>
+    <no_groups config:type="boolean">true</no_groups>
+    <shell/>
+    <skel/>
+    <umask>022</umask>
+  </user_defaults>
+  <users config:type="list">
+    <user>
+      <encrypted config:type="boolean">false</encrypted>
+      <user_password>S3cur3pw</user_password>
+      <username>root</username>
+    </user>
+  </users>
+  <sap-inst>
+    <products config:type="list">
+      <product>
+        <media config:type="list">
+          <medium>
+            <url>nfs://kodaly.suse.de//home/peter/HANA</url>
+            <type>sap</type>
+          </medium>
+        </media>
+        <sapMasterPW>S3cur3pw</sapMasterPW>
+        <sid>HA1</sid>
+        <sapInstNr>00</sapInstNr>
+      </product>
+    </products>
+  </sap-inst>
+</profile>
