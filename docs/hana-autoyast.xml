@@ -5,10 +5,6 @@
     <image_installation config:type="boolean">false</image_installation>
   </deploy_image>
   <groups config:type="list"/>
-  <hanafirewall>
-    <enable config:type="boolean">false</enable>
-    <open_ssh config:type="boolean">false</open_ssh>
-  </hanafirewall>
   <login_settings/>
   <partitioning config:type="list">
     <drive>
@@ -205,6 +201,43 @@
     <skel/>
     <umask>022</umask>
   </user_defaults>
+  <networking>
+    <dhcp_options>
+      <dhclient_client_id/>
+      <dhclient_hostname_option/>
+    </dhcp_options>
+    <dns>
+      <dhcp_hostname config:type="boolean">true</dhcp_hostname>
+      <resolv_conf_policy>auto</resolv_conf_policy>
+      <write_hostname config:type="boolean">false</write_hostname>
+    </dns>
+    <interfaces config:type="list">
+      <interface>
+        <bootproto>dhcp</bootproto>
+        <device>eth0</device>
+        <dhclient_set_default_route>yes</dhclient_set_default_route>
+        <startmode>auto</startmode>
+      </interface>
+      <interface>
+        <bootproto>static</bootproto>
+        <device>lo</device>
+        <firewall>no</firewall>
+        <ipaddr>127.0.0.1</ipaddr>
+        <netmask>255.0.0.0</netmask>
+        <network>127.0.0.0</network>
+        <prefixlen>8</prefixlen>
+        <startmode>nfsroot</startmode>
+        <usercontrol>no</usercontrol>
+      </interface>
+    </interfaces>
+    <ipv6 config:type="boolean">true</ipv6>
+    <keep_install_network config:type="boolean">false</keep_install_network>
+    <managed config:type="boolean">false</managed>
+    <routing>
+      <ipv4_forward config:type="boolean">false</ipv4_forward>
+      <ipv6_forward config:type="boolean">false</ipv6_forward>
+    </routing>
+  </networking>
   <users config:type="list">
     <user>
       <encrypted config:type="boolean">false</encrypted>
