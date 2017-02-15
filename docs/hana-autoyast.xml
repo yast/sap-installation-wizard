@@ -12,7 +12,7 @@
   <login_settings/>
   <partitioning config:type="list">
     <drive>
-      <device>/dev/hda</device>
+      <device>/dev/sda</device>
       <disklabel>msdos</disklabel>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
@@ -37,7 +37,7 @@
       <use>all</use>
     </drive>
     <drive>
-      <device>/dev/hdb</device>
+      <device>/dev/sdb</device>
       <disklabel>msdos</disklabel>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
