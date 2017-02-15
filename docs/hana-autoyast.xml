@@ -190,17 +190,6 @@
       <pattern>x11</pattern>
     </patterns>
   </software>
-  <user_defaults>
-    <expire/>
-    <group>500</group>
-    <groups/>
-    <home>/home</home>
-    <inactive/>
-    <no_groups config:type="boolean">true</no_groups>
-    <shell/>
-    <skel/>
-    <umask>022</umask>
-  </user_defaults>
   <networking>
     <dhcp_options>
       <dhclient_client_id/>
@@ -238,6 +227,33 @@
       <ipv6_forward config:type="boolean">false</ipv6_forward>
     </routing>
   </networking>
+  <service-manager>
+    <default_target>graphical</default_target>
+    <services>
+      <enable config:type="list">
+        <service>uuidd</service>
+      </enable>
+    </services>
+  </service-manager>
+  <timezone>
+    <hwclock>UTC</hwclock>
+    <timezone>UTC</timezone>
+  </timezone>
+  <language>
+    <language>en_US</language>
+    <languages>en_US</languages>
+  </language>
+  <user_defaults>
+    <expire/>
+    <group>500</group>
+    <groups/>
+    <home>/home</home>
+    <inactive/>
+    <no_groups config:type="boolean">true</no_groups>
+    <shell/>
+    <skel/>
+    <umask>022</umask>
+  </user_defaults>
   <users config:type="list">
     <user>
       <encrypted config:type="boolean">false</encrypted>
