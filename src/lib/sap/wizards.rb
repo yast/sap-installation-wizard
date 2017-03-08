@@ -30,6 +30,8 @@ require "hanafirewall/hanafirewall_conf"
 
 module Yast
   import "Arch"
+  Yast.import "SAPMedia"
+  Yast.import "SAPProduct"
   module SapInstallationWizardWizardsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
@@ -39,12 +41,15 @@ module Yast
 
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
-        hana_fw = HANAFirewallConfInst.gen_config
-	HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
-	HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
-	HANAFirewallConfInst.ifaces   = hana_fw[:ifaces]
-        HANAFirewallConfInst.save_config
-	HANAFirewallConfInst.set_state(true)
+	if SAPMedia.instMasterType != "HANA"
+           return :next
+        end
+        hana_fw = HANAFirewall::HANAFirewallConfInst.gen_config
+        HANAFirewall::HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
+        HANAFirewall::HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
+        HANAFirewall::HANAFirewallConfInst.ifaces   = hana_fw[:ifaces]
+        HANAFirewall::HANAFirewallConfInst.save_config
+        HANAFirewall::HANAFirewallConfInst.set_state(true)
 	#TODO Please report the customer what we have done
         return :next
     end
@@ -52,8 +57,9 @@ module Yast
     def TuneTheSystem
         if Arch.x86_64
            require "saptune/saptune_conf"
-           SaptuneConf.auto_config 
+           Saptune::SaptuneConfInst.auto_config 
         end
+	return :next
     end
 
     # SAP Installation Main Sequence
@@ -67,7 +73,6 @@ module Yast
       Yast.import "Wizard"
       Yast.import "Label"
       Yast.import "Stage"
-      Yast.import "SAPMedia"
 
       # mark if the dialog must be closed at the and.
       close_dialog = false
@@ -97,6 +102,7 @@ module Yast
                         :abort   => :abort, 
                         :HANA    => "3th",
                         :B1      => "3th",
+                        :TREX    => "3th",
                         :SAPINST => "copy"
                       },
         "copy"     => {
@@ -195,6 +201,7 @@ module Yast
                         :abort   => :abort, 
                         :HANA    => "3th",
                         :B1      => "3th",
+                        :TREX    => "3th",
                         :SAPINST => "copy"
                       },
         "copy"     => {

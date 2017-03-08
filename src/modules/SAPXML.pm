@@ -134,6 +134,15 @@ sub is_instmaster {
    logger("in Function: is_instmaster") if ($DEBUG);
    logger("in Function: is_instmaster, prod_path='$prod_path'") if ($DEBUG);
 
+   
+   if( -d "$prod_path/tx_trex_content" and -e "$prod_path/tx_trex_content/TX_LINUX_X86_64/install.sh") {
+      #TREX is totaly other
+      $instmaster[0] = "TREX";
+      $instmaster[1] = "$prod_path/tx_trex_content/TX_LINUX_X86_64/";
+      return \@instmaster;
+      
+   }
+
    foreach my $label_file( search_labelfiles($prod_path) ){
       logger(" Checking Labelfile: $label_file") if ($DEBUG);
       my @filepath = split("/", $label_file);
@@ -144,6 +153,7 @@ sub is_instmaster {
             if ($filepath[-1] eq "info.txt") {
                @fields = split(" ");
             }
+	    logger(" Field 1 : ".$fields[1]) if ($DEBUG);
 	    next if (! defined $fields[1] );
             # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
             # HANA DB server component is found first!!
