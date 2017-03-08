@@ -114,7 +114,7 @@ module Yast
 	  #Evaluate the required size of the partition
           size  = Ops.get_string(drive, ["partitions", 0, "size_min"], "max")
 	  specialSize = size.scan(/RAM\*(.*)/)[0]
-          if specialSize != ""
+          if specialSize != nil && specialSize != ""
 	    size = specialSize * @memory
             Ops.set(
               @profile,
@@ -122,7 +122,7 @@ module Yast
               size
             )
           end
-          Ops.set(@LVGs, n, Ops.get(@profile, ["partitioning", @i]))
+          Ops.set(@LVGs, device, Ops.get(@profile, ["partitioning", @i]))
         else
            @SWAP = Ops.get(@profile, ["partitioning", @i])
         end
@@ -156,10 +156,10 @@ module Yast
         slots = slots_ref.value
         free = 0
         Builtins.y2milestone("SLOTS %1",slots)
-        slots.each { do |slot|
+        Builtins.foreach(slots) do |slot|
           free = free + Ops.get_integer(slot, [:region, 1], 0) * Ops.get_integer(dev, "cyl_size", 0)
           Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops.get_integer(slot, ["region", 1], 0), Ops.get_integer(dev, "cyl_size", 0), free )
-        }
+        end
         if free > 1073741824
           Ops.set(@cylSize, name, Ops.get_integer(dev, "cyl_size", 0))
           Ops.set(@freeDevices, name, free)
@@ -179,7 +179,7 @@ module Yast
           @sdev = Ops.get(@freeDevices, d, 0)
         end
         Builtins.y2milestone("Selecting the free device %1", @dev)
-        @neededLVG.each { do |_LVG|
+        Builtins.foreach(@neededLVG) do |_LVG|
           rat = Ops.get_integer(@LVGs, [_LVG, "partitions", 0, "size_ratio"])
           if rat != nil
 	    cylinders =  Ops.get(@cylSize, @dev, 1048576)
@@ -209,7 +209,7 @@ module Yast
               }
             )
           )
-        }
+        end 
       else
          ret = selectDevices()
          if ret == :abort or ret == :back  
