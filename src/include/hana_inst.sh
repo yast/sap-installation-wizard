@@ -79,7 +79,7 @@ A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterpass"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
 A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
-A_SAPMDC="${MEDIA_TARGET}/ay_q_sapmdc"
+A_SAPMDC=`< ${MEDIA_TARGET}/ay_q_sapmdc`
 
 ###########################################
 # Define ERRORS section
