@@ -44,6 +44,7 @@ module Yast
 	if SAPMedia.instMasterType != "HANA"
            return :next
         end
+	HANAFirewall::HANAFirewallConfInst.load(IO.read('/etc/sysconfig/hana-firewall'))
         hana_fw = HANAFirewall::HANAFirewallConfInst.gen_config
         HANAFirewall::HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
         HANAFirewall::HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
