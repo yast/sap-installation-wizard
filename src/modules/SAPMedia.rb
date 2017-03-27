@@ -290,7 +290,7 @@ module Yast
             when /^B1/
 	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh -g"
-	        when "TREX"
+	    when "TREX"
 	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/trex_inst.sh"
 	  end

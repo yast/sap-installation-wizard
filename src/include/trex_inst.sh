@@ -84,9 +84,9 @@ if [ ! -d "/sapmnt" ]; then
 fi
 
 # Run installation
-$SAPINST_DIR/tx_trex_content/TX_LINUX_X86_64/install.sh \
+$SAPCD_INSTMASTER/install.sh \
         --action=install \
-        --logdir=/tmp/sapinst_instdir/GENERIC/TREX/APP1 \
+        --logdir=/tmp/sapinst_log_${SID} \
         --sid=$SID \
         --instance=$INST \
         --target=/sapmnt \
@@ -98,16 +98,18 @@ $SAPINST_DIR/tx_trex_content/TX_LINUX_X86_64/install.sh \
         --password=$MASTERPW
 
 # Provide return code
-#INST_RETURN_VALUE=$?
+INST_RETURN_VALUE=$?
 
 # Ignore return code if installationSuccesfullyFinished.dat can be found
-#while [ 0 -ne ${INST_RETURN_VALUE} ] && [ ! -f ${SAPINST_DIR}/installationSuccesfullyFinished.dat ]; do
-#        # SAPINST crashed?
-#        echo "It seems as if the SAP installation crashed? This should not happen..."
-#        yast_popup_wait "The SAP installation seems to have crashed...\nCheck the log files in '${SAPINST_DIR}'\nor /var/adm/autoinstall/logs/sap_inst.log\nand try to fix the problem manually.\n\nAfterwards press <OK> to restart the SAP installation tool."
-#
-#done
-# Continue - SAPINST finished with return code 0
-#
-# Cleanup-PopUp
-#yast_popup "SAPINST finished.\nCleaning up and starting SAP system."
+if [ 0 -ne ${INST_RETURN_VALUE} ]; then
+         # SAPINST crashed?
+        yast_popup "The SAP installation seems to have crashed...\nCheck the log files in '/tmp/sapinst_log_${SID}'"
+	rm ${SAPINST_DIR}/ay_*
+else
+	# Cleanup-PopUp
+	mv /tmp/sapinst_log_${SID}/installationSuccesfullyFinished.dat ${SAPINST_DIR}/installationSuccesfullyFinished.dat
+	yast_popup "SAPINST finished.\nCleaning up and starting SAP system."
+	rm ${SAPINST_DIR}/ay_*
+	rm -rf ${$SAPCD_INSTMASTER}
+	rm -rf /tmp/sapinst_log_${SID}
+fi

@@ -70,6 +70,7 @@ module Yast
         Storage.CommitChanges
         return :next
       end
+
       #Get Memory Size in bytes
       @memories = Convert.to_list(SCR.Read(path(".probe.memory")))
       @memory = Ops.get_integer(
@@ -77,22 +78,24 @@ module Yast
         [0, "resource", "phys_mem", 0, "range"],
         0
       )
-      #reed the mtab
+
+      #Read the mtab
       @mounts = Convert.convert(
         SCR.Read(path(".etc.mtab")),
         :from => "any",
         :to   => "list <map>"
       )
-      @i = -1
+
+      @i = -1 #Counter for the partition
+
+      #Read the partitiong section from the xml
       Builtins.foreach(Ops.get_list(@profile, "partitioning", [])) do |drive|
         Builtins.y2milestone("getDrive %1", drive)
         @i = Ops.add(@i, 1)
         if Ops.get_boolean(drive, "is_lvm_vg", false)
-          @ltmp = Builtins.regexptokenize(
-            Ops.get_string(drive, "device", ""),
-            "/dev/(.*)"
-          )
-          n = Ops.get_string(@ltmp, 0, "")
+
+          device = Ops.get_string(drive, "device", "")
+	  device = device.scan(/\/dev\/(.*)/)[0]
           #Evaluate if some of the needed LVG was already created
           mountPoint = Ops.get_string(
             drive,
@@ -103,29 +106,28 @@ module Yast
           Builtins.foreach(@mounts) do |dev|
             created = true if Ops.get_string(dev, "file", "") == mountPoint
           end
+          #If the mount point already exists we do not need to do anything for this partition
           next if created
 
-          @neededLVG = Builtins.add(@neededLVG, n)
-          s = Ops.get_string(drive, ["partitions", 0, "size_min"], "max")
-          @ltmp = Builtins.regexptokenize(s, "RAM.(.*)")
-          if Ops.get_string(@ltmp, 0, "") != ""
-            s = Builtins.tostring(
-              Ops.multiply(
-                Builtins.tointeger(Ops.get_string(@ltmp, 0, "")),
-                @memory
-              )
-            )
+          @neededLVG << device
+
+	  #Evaluate the required size of the partition
+          size  = Ops.get_string(drive, ["partitions", 0, "size_min"], "max")
+	  specialSize = size.scan(/RAM\*(.*)/)[0]
+          if specialSize != nil && specialSize != ""
+	    size = specialSize * @memory
             Ops.set(
               @profile,
               ["partitioning", @i, "partitions", 0, "size_min"],
-              s
+              size
             )
           end
-          Ops.set(@LVGs, n, Ops.get(@profile, ["partitioning", @i]))
+          Ops.set(@LVGs, device, Ops.get(@profile, ["partitioning", @i]))
         else
            @SWAP = Ops.get(@profile, ["partitioning", @i])
         end
-      end
+      end #END foreach @profile partitioning
+
       Builtins.y2milestone(
         "Partitioning profile after parsing partition sizes %1",
         @profile
@@ -158,10 +160,10 @@ module Yast
           free = free + Ops.get_integer(slot, [:region, 1], 0) * Ops.get_integer(dev, "cyl_size", 0)
           Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops.get_integer(slot, ["region", 1], 0), Ops.get_integer(dev, "cyl_size", 0), free )
         end
-        if Ops.greater_than(free, 1073741824)
+        if free > 1073741824
           Ops.set(@cylSize, name, Ops.get_integer(dev, "cyl_size", 0))
           Ops.set(@freeDevices, name, free)
-          @devices = Ops.add(@devices, 1)
+          @devices = @devices + 1
         end
       end
       Builtins.y2milestone("freeDevices %1", @freeDevices)
@@ -180,28 +182,9 @@ module Yast
         Builtins.foreach(@neededLVG) do |_LVG|
           rat = Ops.get_integer(@LVGs, [_LVG, "partitions", 0, "size_ratio"])
           if rat != nil
-            @slvg = Builtins.tostring(
-              Ops.multiply(
-                Ops.divide(
-                  Ops.subtract(
-                    Ops.divide(
-                      Ops.multiply(
-                        Ops.multiply(
-                          Ops.divide(Ops.get(@freeDevices, @dev, 0), 4096),
-                          4096
-                        ),
-                        rat
-                      ),
-                      100
-                    ),
-                    Ops.get(@cylSize, @dev, 1048576)
-                  ),
-                  Ops.get(@cylSize, @dev, 1048576)
-                ),
-                Ops.get(@cylSize, @dev, 1048576)
-              )
-            )
-            Ops.set(@LVGsize, _LVG, Builtins.tointeger(@slvg))
+	    cylinders =  Ops.get(@cylSize, @dev, 1048576)
+	    slvg = Ops.get(@freeDevices, @dev, 0) / 4096 * 4096 * rat / 100 - cylinders / cylinders * cylinders
+            Ops.set(@LVGsize, _LVG, Builtins.tointeger(slvg))
           else
             Ops.set(@LVGsize, _LVG, @sdev)
           end
@@ -226,7 +209,7 @@ module Yast
               }
             )
           )
-        end
+        end 
       else
          ret = selectDevices()
          if ret == :abort or ret == :back  
@@ -244,12 +227,9 @@ module Yast
           min = Builtins.tointeger(
             Ops.get_string(@LVGs, [_LVG, "partitions", 0, "size_min"], "0")
           )
-          if Ops.greater_than(min, Ops.get(@LVGsize, _LVG, 0))
-            min = Ops.divide(Ops.divide(Ops.divide(min, 1024), 1024), 1024)
-            have = Ops.divide(
-              Ops.divide(Ops.divide(Ops.get(@LVGsize, _LVG, 0), 1024), 1024),
-              1024
-            )
+          if min > Ops.get(@LVGsize, _LVG, 0)
+            min  = min/1024/1024/1024
+            have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/102
             message = _("<size=30><b><color=red>Warning</color></b></size><br>")
             message << Builtins.sformat(_("There is less disk space than recommended for this LVG %1.<br>"), _LVG)
             message << Builtins.sformat(_("The recommended amount of %1 GB is not available.<br>"), min )
@@ -332,7 +312,7 @@ module Yast
       Builtins.foreach(@neededLVG) do |_LVG|
         buttons = VBox()
         Builtins.foreach(@freeDevices) do |dev, tmp|
-          tmp1 = Ops.add(Ops.add(Ops.add("CHECK", _LVG), "#"), dev)
+          tmp1 = "CHECK"+LVG + "#" + dev
           tmp2 = Builtins.sformat("%1 %2GB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
           buttons = Builtins.add(
             buttons,

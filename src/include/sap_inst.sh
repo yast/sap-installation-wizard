@@ -687,7 +687,7 @@ cleanup() {
   rm -f  ${SAPINST_DIR}/ay_*
   # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
 
-  rm -rf ${SAPINST_DIR}
+  rm -rf ${SAPCD_INSTMASTER}
   # delete since created via mktemp
   rm -rf ${TMPDIR}
 
@@ -942,15 +942,10 @@ case ${DBTYPE} in
 #        ;;
 esac
 
-# Add uname26 path if neccessary
-if [ -e /etc/security/uname26.conf ]; then
-	sed -i '1s#^.*$#\#!/usr/bin/uname26 /bin/sh#' /etc/init.d/sapinit
-fi
-
 su -c "startsap ${virt_hostname}" -l ${sid}adm
 
 echo "Installation successfully completed!"
 # yast_popup "Installation successfully completed!"
-installation_summary
+#installation_summary
 
-#cleanup
+cleanup
