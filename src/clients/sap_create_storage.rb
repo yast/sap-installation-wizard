@@ -78,6 +78,7 @@ module Yast
         [0, "resource", "phys_mem", 0, "range"],
         0
       )
+      Builtins.y2milestone("Available memory %1", @memory)
 
       #Read the mtab
       @mounts = Convert.convert(
@@ -95,7 +96,7 @@ module Yast
         if Ops.get_boolean(drive, "is_lvm_vg", false)
 
           device = Ops.get_string(drive, "device", "")
-	  device = device.scan(/\/dev\/(.*)/)[0]
+	  device = device.scan(/\/dev\/(.*)/)[0][0]
           #Evaluate if some of the needed LVG was already created
           mountPoint = Ops.get_string(
             drive,
@@ -113,8 +114,9 @@ module Yast
 
 	  #Evaluate the required size of the partition
           size  = Ops.get_string(drive, ["partitions", 0, "size_min"], "max")
-	  specialSize = size.scan(/RAM\*(.*)/)[0]
+	  specialSize = size.scan(/RAM\*(.*)/)[0][0].to_i
           if specialSize != nil && specialSize != ""
+            Builtins.y2milestone("Special size %1 on device %2", specialSize, device )
 	    size = specialSize * @memory
             Ops.set(
               @profile,
