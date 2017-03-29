@@ -437,7 +437,8 @@ module Yast
       }
       #Start create the partitions
       ret = SAPPartitioning.CreatePartitions(productPartitioningList)
-      if( ret = "abort" )
+      Builtins.y2milestone("SAPPartitioning.CreatePartitions returned: %1",ret)
+      if( ret == "abort" )
         return :abort
       end
       
