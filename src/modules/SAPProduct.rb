@@ -436,7 +436,11 @@ module Yast
         productPartitioningList << ret if ret != "NO"
       }
       #Start create the partitions
-      SAPPartitioning.CreatePartitions(productPartitioningList)
+      ret = SAPPartitioning.CreatePartitions(productPartitioningList)
+      if( ret = "abort" )
+        return :abort
+      end
+      
 
       #Start execute the install scripts
       require "open3"

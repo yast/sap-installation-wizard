@@ -170,8 +170,12 @@ module Yast
       end
       Builtins.y2milestone("freeDevices %1", @freeDevices)
       if @devices == 0
-        Popup.Error("There is no available disk space left.")
-        return false
+	if !Popup.YesNoHeadline(_("Do you want to continue the installation."),
+				_("Your system does not meet the TDI requirements. There is no guarantee that the system will work properly."))
+	    return "ok"
+        else
+            return "abort"
+        end
       elsif @devices == 1
         @dev = ""
         @sdev = 0
