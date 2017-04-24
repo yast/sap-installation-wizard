@@ -16,7 +16,6 @@ module Yast
 
       textdomain "installation"
 
-      @i = 0 #temp counter
       @devices = 0 #number of found free devices
       @neededLVG = [] #The list of the LVG have to be created
       @ltmp = [] #temp list
@@ -87,46 +86,52 @@ module Yast
         :to   => "list <map>"
       )
 
-      @i = -1 #Counter for the partition
+      i = -1 #Counter for the partition
 
       #Read the partitiong section from the xml
       Builtins.foreach(Ops.get_list(@profile, "partitioning", [])) do |drive|
         Builtins.y2milestone("getDrive %1", drive)
-        @i = Ops.add(@i, 1)
+        i = Ops.add(i, 1)
         if Ops.get_boolean(drive, "is_lvm_vg", false)
-
           device = Ops.get_string(drive, "device", "")
 	  device = device.scan(/\/dev\/(.*)/)[0][0]
-          #Evaluate if some of the needed LVG was already created
-          mountPoint = Ops.get_string(
-            drive,
-            ["partitions", 0, "mount"],
-            ""
-          )
-          created = false
-          Builtins.foreach(@mounts) do |dev|
-            created = true if Ops.get_string(dev, "file", "") == mountPoint
-          end
-          #If the mount point already exists we do not need to do anything for this partition
-          next if created
 
-          @neededLVG << device
+          #Evaluate the partitions
+          j = -1
+	  @created = false
+          Builtins.foreach(Ops.get_list(drive, "partitions", [])) do |partition|
+             j = Ops.add(j, 1)
+             #Evaluate if some of the needed LVG was already created
+             mountPoint = Ops.get_string(
+               drive,
+               ["partitions", j, "mount"],
+               ""
+             )
+             Builtins.foreach(@mounts) do |dev|
+               @created = true if Ops.get_string(dev, "file", "") == mountPoint
+             end
+             #If the mount point already exists we do not need to do anything for this partition
+             #
+             break if @created
 
-	  #Evaluate the required size of the partition
-          size  = Ops.get_string(drive, ["partitions", 0, "size_min"], "max")
-	  specialSize = size.scan(/RAM\*(.*)/)[0][0].to_i
-          if specialSize != nil && specialSize != ""
-            Builtins.y2milestone("Special size %1 on device %2", specialSize, device )
-	    size = specialSize * @memory
-            Ops.set(
-              @profile,
-              ["partitioning", @i, "partitions", 0, "size_min"],
-              size
-            )
+	     #Evaluate the required size of the partition
+             size  = Ops.get_string(drive, ["partitions", j, "size_min"], "max")
+             @ltmp = Builtins.regexptokenize(size, "RAM.(.*)")
+	     specialSize = Ops.get_string(@ltmp, 0, "")
+             if specialSize != ""
+               Builtins.y2milestone("Special size %1 on partition %2", specialSize, partition )
+	       size = specialSize.to_f * @memory
+               Ops.set(
+                 @profile,
+                 ["partitioning", i, "partitions", j, "size_min"],
+                 size
+               )
+             end
           end
-          Ops.set(@LVGs, device, Ops.get(@profile, ["partitioning", @i]))
+          @neededLVG << device if !@created
+          Ops.set(@LVGs, device, Ops.get(@profile, ["partitioning", i]))
         else
-           @SWAP = Ops.get(@profile, ["partitioning", @i])
+           @SWAP = Ops.get(@profile, ["partitioning", i])
         end
       end #END foreach @profile partitioning
 
@@ -225,14 +230,21 @@ module Yast
       end
 
       Builtins.y2milestone("Notre profiles %1", @profiles)
+      Builtins.y2milestone("@LVGs %1", @LVGs)
 
       #Check if the minimal sizes was met
       back = true
       while back
         Builtins.foreach(@neededLVG) do |_LVG|
-          min = Builtins.tointeger(
-            Ops.get_string(@LVGs, [_LVG, "partitions", 0, "size_min"], "0")
-          )
+	  min = 0
+	  j   = -1
+          Builtins.foreach(Ops.get_list(_LVG, "partitions", [])) do |partition|
+	      j = j + 1
+              min = min + Builtins.tointeger(
+                Ops.get_string(@LVGs, [_LVG, "partitions", j, "size_min"], "0")
+              )
+	  end
+          Builtins.y2milestone("Checking _LVG %1 min: %2 size %3", _LVG, min, Ops.get(@LVGsize, _LVG, 0))
           if min > Ops.get(@LVGsize, _LVG, 0)
             min  = min/1024/1024/1024
             have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/102

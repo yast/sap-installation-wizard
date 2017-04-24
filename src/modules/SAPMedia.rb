@@ -42,7 +42,8 @@ module Yast
       #                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
       @dialogs = {
          "inst_master" => {
-             "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>"),
+             "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>") +
+			  _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and BusienessOne media.")
              "name"    => _("Prepare the SAP installation master medium")
              },
          "sapmedium" => {
@@ -553,6 +554,7 @@ module Yast
     # Parse and merge our xml snipplets
     #
     def ParseXML(file)
+      Builtins.y2milestone("-- SAPMedia.ParseXML Start ---")
       ret = false
       if file != ""
         SCR.Write(

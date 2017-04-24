@@ -98,6 +98,7 @@ module Yast
     #
     ############################################################
     def Read()
+      Builtins.y2milestone("-- Start SAPProduct Read --")
        prodCount = 0;
        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
          instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
@@ -292,6 +293,7 @@ module Yast
     #
     ############################################################
     def ReadParameter
+      Builtins.y2milestone("-- Start SAPProduct ReadParameter --")
       ret = :next
       sid =""
       hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname"))
@@ -408,6 +410,7 @@ module Yast
     #
     ############################################################
     def Write
+      Builtins.y2milestone("-- Start SAPProduct Write --")
       productScriptsList      = []
       productPartitioningList = []
       @productsToInstall.each { |instDir|
@@ -490,6 +493,7 @@ module Yast
     #
     ############################################################
     def adaptDB(dataBase)
+      Builtins.y2milestone("-- Start SAPProduct adaptDB --")
       if dataBase == ""
          UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
       else
@@ -537,6 +541,7 @@ module Yast
     #
     ############################################################
     def GetProductParameter(productParameter)
+      Builtins.y2milestone("-- Start SAPProduct GetProductParameter --")
       @productList.each { |p|
           if p["id"] == @PRODUCT_ID
              return p.has_key?(productParameter) ? p[productParameter] : ""
