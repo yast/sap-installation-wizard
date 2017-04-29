@@ -114,19 +114,41 @@ module Yast
              #
              break if @created
 
-	     #Evaluate the required size of the partition
-             size  = Ops.get_string(drive, ["partitions", j, "size_min"], "max")
+	     #Evaluate the min size of the partition
+             size  = Ops.get_string(drive, ["partitions", j, "size_min"], "")
              @ltmp = Builtins.regexptokenize(size, "RAM.(.*)")
-	     specialSize = Ops.get_string(@ltmp, 0, "")
-             if specialSize != ""
-               Builtins.y2milestone("Special size %1 on partition %2", specialSize, partition )
-	       size = specialSize.to_f * @memory
-               Ops.set(
-                 @profile,
-                 ["partitioning", i, "partitions", j, "size_min"],
-                 size
-               )
-             end
+	     minSize = Ops.get_string(@ltmp, 0, "")
+             if minSize != ""
+               Builtins.y2milestone("Special size %1 on partition %2", minSize, partition )
+	       minSize = minSize.to_f * @memory
+               Ops.set( @profile, ["partitioning", i, "partitions", j, "size_min"], minSize)
+	     else
+	       minSize = 1
+	     end
+	     #Evaluate the max size of the partition
+             size  = Ops.get_string(drive, ["partitions", j, "size_max"], "")
+	     if( size != "" )
+               @ltmp = Builtins.regexptokenize(size, "(.*)([G|T])")
+	       maxSize = Ops.get_string(@ltmp, 0, "")
+	       maxSizeDim = Ops.get_string(@ltmp, 1, "")
+	       case maxSizeDim
+	       when "G"
+                  maxSize = maxSize.to_i*1024*1024*1024
+		  break
+	       when "T"
+                  maxSize = maxSize.to_*1024*1024*1024*1024
+		  break
+	       end
+               Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
+               size  = Ops.get_string(drive, ["partitions", j, "size"], "")
+	       if size == ""
+	          if minSize > maxSize
+                     Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], maxSize)
+	          else
+                     Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], minSize)
+	          end
+	       end
+	     end
           end
           @neededLVG << device if !@created
           Ops.set(@LVGs, device, Ops.get(@profile, ["partitioning", i]))
