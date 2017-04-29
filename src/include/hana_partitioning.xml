@@ -76,7 +76,7 @@
           <resize config:type="boolean">false</resize>
           <size_min>RAM*0.5</size_min>
           <size_max>512G</size_max>
-          <size>17%</size>
+          <size></size>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -93,7 +93,7 @@
           <resize config:type="boolean">false</resize>
           <size_min>RAM*1</size_min>
           <size_max>1T</size_max>
-          <size>17%</size>
+          <size></size>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
