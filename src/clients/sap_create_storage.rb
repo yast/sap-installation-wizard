@@ -102,11 +102,7 @@ module Yast
           Builtins.foreach(Ops.get_list(drive, "partitions", [])) do |partition|
              j = Ops.add(j, 1)
              #Evaluate if some of the needed LVG was already created
-             mountPoint = Ops.get_string(
-               drive,
-               ["partitions", j, "mount"],
-               ""
-             )
+             mountPoint = Ops.get_string( drive, ["partitions", j, "mount"], "")
              Builtins.foreach(@mounts) do |dev|
                @created = true if Ops.get_string(dev, "file", "") == mountPoint
              end
@@ -127,27 +123,27 @@ module Yast
 	     end
 	     #Evaluate the max size of the partition
              size  = Ops.get_string(drive, ["partitions", j, "size_max"], "")
-	     if( size != "" )
-               @ltmp = Builtins.regexptokenize(size, "(.*)([G|T])")
-	       maxSize = Ops.get_string(@ltmp, 0, "")
-	       maxSizeDim = Ops.get_string(@ltmp, 1, "")
-	       case maxSizeDim
+             @ltmp = Builtins.regexptokenize(size, "(.*)([G|T])")
+	     maxSize = Ops.get_string(@ltmp, 0, "")
+	     maxSizeDim = Ops.get_string(@ltmp, 1, "")
+	     case maxSizeDim
 	       when "G"
                   maxSize = maxSize.to_i*1024*1024*1024
-		  break
 	       when "T"
-                  maxSize = maxSize.to_*1024*1024*1024*1024
-		  break
-	       end
-               Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
-               size  = Ops.get_string(drive, ["partitions", j, "size"], "")
-	       if size == ""
-	          if minSize > maxSize
-                     Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], maxSize)
-	          else
-                     Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], minSize)
-	          end
-	       end
+                  maxSize = maxSize.to_i*1024*1024*1024*1024
+               else
+                  maxSize = minSize.to_i
+	     end
+             Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
+             size  = Ops.get_string(drive, ["partitions", j, "size"], "")
+	     if size == ""
+	        if minSize > maxSize
+                   maxSize = maxSize/1024/1024/1024
+                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], maxSize.to_s + "G")
+	        else
+                   minSize = minSize/1024/1024/1024
+                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], minSize.to_s + "G" )
+	        end
 	     end
           end
           @neededLVG << device if !@created
@@ -205,23 +201,11 @@ module Yast
         end
       elsif @devices == 1
         @dev = ""
-        @sdev = 0
-        @slvg = "max"
         Builtins.foreach(@freeDevices) do |d, t|
           @dev = d
-          @sdev = Ops.get(@freeDevices, d, 0)
         end
         Builtins.y2milestone("Selecting the free device %1", @dev)
         Builtins.foreach(@neededLVG) do |_LVG|
-          rat = Ops.get_integer(@LVGs, [_LVG, "partitions", 0, "size_ratio"])
-          if rat != nil
-	    cylinders =  Ops.get(@cylSize, @dev, 1048576)
-	    slvg = Ops.get(@freeDevices, @dev, 0) / 4096 * 4096 * rat / 100 - cylinders / cylinders * cylinders
-            Ops.set(@LVGsize, _LVG, Builtins.tointeger(slvg))
-          else
-            Ops.set(@LVGsize, _LVG, @sdev)
-          end
-          Ops.set(@LVGs, [_LVG, "partitions", 0, "size"], @slvg)
           Ops.set(
             @profiles,
             _LVG,
@@ -236,7 +220,7 @@ module Yast
                     "create"       => true,
                     "lvm_group"    => _LVG,
                     "partition_id" => 142,
-                    "size"         => @slvg
+                    "size"         => "max"
                   }
                 ]
               }
