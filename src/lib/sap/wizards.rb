@@ -56,7 +56,7 @@ module Yast
     end
 
     def TuneTheSystem
-        if Arch.x86_64
+        if Arch.x86_64 && ! File.exist?("/.dockerenv")
            require "saptune/saptune_conf"
            Saptune::SaptuneConfInst.auto_config 
         end
