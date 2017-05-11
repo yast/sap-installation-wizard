@@ -336,7 +336,7 @@ module Yast
       Builtins.foreach(@neededLVG) do |_LVG|
         buttons = VBox()
         Builtins.foreach(@freeDevices) do |dev, tmp|
-          tmp1 = "CHECK"+LVG + "#" + dev
+          tmp1 = "CHECK"+_LVG + "#" + dev
           tmp2 = Builtins.sformat("%1 %2GB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
           buttons = Builtins.add(
             buttons,
