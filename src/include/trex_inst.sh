@@ -59,7 +59,13 @@ done
 MASTERPW=$( cat $SAPINST_DIR/ay_q_masterPwd )
 SID=$( cat $SAPINST_DIR/ay_q_sid )
 INST=$( cat $SAPINST_DIR/ay_q_instanceNumber )
-VIRTHOSTNAME=$( cat $SAPINST_DIR/ay_q_virt_hostname )
+if [ -e $SAPINST_DIR/ay_q_virt_hostname ]; then
+	VIRTHOSTNAME=$( cat $SAPINST_DIR/ay_q_virt_hostname )
+else
+	VIRTHOSTNAME=$( hostname -f )
+fi
+
+sid=$( echo $SID | tr [:upper:] [:lower:] )
 
 # Functions
 yast_popup () {
