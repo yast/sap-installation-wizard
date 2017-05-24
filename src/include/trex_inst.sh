@@ -62,7 +62,7 @@ INST=$( cat $SAPINST_DIR/ay_q_instanceNumber )
 if [ -e $SAPINST_DIR/ay_q_virt_hostname ]; then
 	VIRTHOSTNAME=$( cat $SAPINST_DIR/ay_q_virt_hostname )
 else
-	VIRTHOSTNAME=$( hostname -f )
+	VIRTHOSTNAME=$( hostname )
 fi
 
 sid=$( echo $SID | tr [:upper:] [:lower:] )
