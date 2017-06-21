@@ -206,6 +206,7 @@ module Yast
         end
         Builtins.y2milestone("Selecting the free device %1", @dev)
         Builtins.foreach(@neededLVG) do |_LVG|
+	  Ops.set( @LVGsize, _LVG, Ops.get(@freeDevices, @dev, 0) )
           Ops.set(
             @profiles,
             _LVG,
@@ -244,22 +245,28 @@ module Yast
         Builtins.foreach(@neededLVG) do |_LVG|
 	  min = 0
 	  j   = -1
-          Builtins.foreach(Ops.get_list(_LVG, "partitions", [])) do |partition|
+          Builtins.foreach(Ops.get_list(@LVGs, [_LVG, "partitions"], [])) do |partition|
+              Builtins.y2milestone("Partition %1", partition)
+	      next if partition["size_min"] == nil
 	      j = j + 1
-              min = min + Builtins.tointeger(
-                Ops.get_string(@LVGs, [_LVG, "partitions", j, "size_min"], "0")
-              )
+              min = min + partition["size_min"]
 	  end
           Builtins.y2milestone("Checking _LVG %1 min: %2 size %3", _LVG, min, Ops.get(@LVGsize, _LVG, 0))
           if min > Ops.get(@LVGsize, _LVG, 0)
             min  = min/1024/1024/1024
-            have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/102
+            have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/1024
             message = _("<size=30><b><color=red>Warning</color></b></size><br>")
+	    message << _("Your system does not meet the TDI requirements.")
             message << Builtins.sformat(_("There is less disk space than recommended for this LVG %1.<br>"), _LVG)
             message << Builtins.sformat(_("The recommended amount of %1 GB is not available.<br>"), min )
-            message << Builtins.sformat(_("The total currently available amount of %1 GB will be used instead if you push <b>Next</b>.<br>"), have )
-            message << Builtins.sformat(_("Otherwise you can abort the installation or go back to select different partitions for the LVG %1."), _LVG )
-            Wizard.SetContents(_("Select the Partitions for the System"),RichText(message),"",true,true)
+            message << Builtins.sformat(_("The total currently available amount %1 GB can not be used for the SAP installation.<br>"), have )
+            message << _("There is no guarantee that the system will work properly if you continue the installation.")
+	    if( @devices > 1 )
+                message << Builtins.sformat(_("Otherwise you can abort the installation or go back to select different partitions for the LVG %1."), _LVG )
+                Wizard.SetContentsFocus(_("Select the Partitions for the System"),RichText(message),"",true,true,false)
+	    else
+                Wizard.SetContentsFocus(_("Select the Partitions for the System"),RichText(message),"",false,true,false)
+	    end
             while true
               event = UI.WaitForEvent
               ret = Ops.get(event, "ID")
@@ -272,7 +279,8 @@ module Yast
 		back = true
                 break
               when :next
-                back = false
+                Wizard.CloseDialog() if @closeMe
+                return :ok
                 break
               end
             end
