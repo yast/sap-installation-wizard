@@ -226,6 +226,8 @@ check_masterpwd "$VAL"
     <package>tcsh</package>
     <package>xfsprogs</package>
     <package>xrdp</package>
+    <package>wxWidgets-compat-lib-config</package>
+    <package>wxWidgets-lang</package>
     <package>yast2-hana-firewall</package>
     <package>yast2-ncurses</package>
     <package>yast2-sap-ha</package>
