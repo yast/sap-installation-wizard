@@ -227,14 +227,14 @@
       <ipv6_forward config:type="boolean">false</ipv6_forward>
     </routing>
   </networking>
-  <service-manager>
+  <services-manager>
     <default_target>graphical</default_target>
     <services>
       <enable config:type="list">
         <service>uuidd</service>
       </enable>
     </services>
-  </service-manager>
+  </services-manager>
   <timezone>
     <hwclock>UTC</hwclock>
     <timezone>UTC</timezone>
