@@ -264,9 +264,13 @@ module Yast
 	        Popup.Error("Some of the required parameters are not defined.")
 		next
 	     end
+	     if ! prod.has_key?("sapMDC")
+                  prod["sapMDC"] = "no"
+	     end
 	     File.write(@instDir + "/ay_q_masterpass", prod["sapMasterPW"])
 	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
 	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
+	     File.write(@instDir + "/ay_q_sapmdc",     prod["sapMDC"])
              sid = prod["sid"]
 	  end
 	  SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
@@ -314,6 +318,7 @@ module Yast
                                         )
           require "open3"
 	  f = File.new(logfile,"w")
+	  exit_status = nil
           Open3.popen2e(script) {|i,o,t|
              i.close
              n=0
@@ -329,8 +334,12 @@ module Yast
                     n = n.next
                 end
              }
+             exit_status = t.value.exitstatus
           }
 	  f.close
+	  if exit_status != 0
+	        Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
+	  end
         }
       else
 	if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs

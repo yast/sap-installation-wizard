@@ -45,6 +45,7 @@ Sample for SAP HANA or B1 Installation
         <sapMasterPW>blablabla</sapMasterPW>
         <sid>HA1</sid>
         <sapInstNr>00</sapInstNr>
+        <sapMDC>no</sapMDC>
       </product> 
     </products> 
   </sap-inst> 

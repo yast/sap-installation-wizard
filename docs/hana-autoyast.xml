@@ -273,6 +273,7 @@
         <sapMasterPW>S3cur3pw</sapMasterPW>
         <sid>HA1</sid>
         <sapInstNr>00</sapInstNr>
+        <sapMDC>no</sapMDC>
       </product>
     </products>
   </sap-inst>
