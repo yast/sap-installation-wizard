@@ -56,9 +56,9 @@ while getopts "i:m:d:t:g:y:h\?" options; do
         esac
 done
 
-MASTERPW=$( cat $SAPINST_DIR/ay_q_masterPwd )
+MASTERPW=$( cat $SAPINST_DIR/ay_q_masterpass )
 SID=$( cat $SAPINST_DIR/ay_q_sid )
-INST=$( cat $SAPINST_DIR/ay_q_instanceNumber )
+INST=$( cat $SAPINST_DIR/ay_q_sapinstnr )
 if [ -e $SAPINST_DIR/ay_q_virt_hostname ]; then
 	VIRTHOSTNAME=$( cat $SAPINST_DIR/ay_q_virt_hostname )
 else
@@ -119,3 +119,5 @@ else
 	rm -rf ${$SAPCD_INSTMASTER}
 	rm -rf /tmp/sapinst_log_${SID}
 fi
+
+exit $INST_RETURN_VALUE

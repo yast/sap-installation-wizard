@@ -652,3 +652,5 @@ echo "Installation successfully completed!"
 installation_summary
 
 #cleanup
+
+exit $SAPINST_RETURN_VALUE

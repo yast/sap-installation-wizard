@@ -271,6 +271,9 @@ module Yast
 	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
 	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
 	     File.write(@instDir + "/ay_q_sapmdc",     prod["sapMDC"])
+	     if prod.has_key?("sapVirtHostname")
+                File.write(@instDir + "/ay_q_virt_hostname",     prod["sapVirtHostname"])
+	     end
              sid = prod["sid"]
 	  end
 	  SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
@@ -300,7 +303,7 @@ module Yast
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/trex_inst.sh"
 	  end
 	  set_date()
-          logfile = "/var/adm/autoinstall/logs/sap_inst." + @date + ".log"
+          logfile = "/var/log/sap_inst." + @date + ".log"
 	  script << Builtins.sformat(
             " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
 	    @instDir + "/Instmaster",
@@ -337,6 +340,7 @@ module Yast
              exit_status = t.value.exitstatus
           }
 	  f.close
+	  Builtins.y2milestone("Exit code of script : %1 ",exit_status)
 	  if exit_status != 0
 	        Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
 	  end

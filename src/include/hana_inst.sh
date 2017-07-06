@@ -582,12 +582,15 @@ extract_media_archives()
    if [ $rc -eq 0 ]; then
       # Cleanup-PopUp
       #yast_popup "Installation finished."
+      
       hana_installation_summary
    else
-      yast_popup "Installation failed.\nFor details please check log files at /var/tmp and /var/adm/autoinstall/logs"
+      yast_popup_wait "Installation failed.\nFor details please check log files at /var/tmp and /var/adm/autoinstall/logs"
    fi
 
    cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
    cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
    #cp ${MEDIA_TARGET}/ay_q_masterpass /dev/shm
    cleanup
+
+exit $rc
