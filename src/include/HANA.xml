@@ -91,7 +91,7 @@ check_instance_no "$VAL"
              <element config:type="integer">30</element>
              <help><![CDATA[
              <p><b>SAP HANA Multitenant Database Container Setting.</p>
-Possible values are <b>no</b>, <b>low isalation</b> and <b>high isolation</b>.
+Possible values are <b>no</b>, <b>low isolation</b> and <b>high isolation</b>.
 <b>IMPORTANT</b> This feature is only available on Life Cycle Manager Installer Tool (since SP7).
 ]]>
 </help>
