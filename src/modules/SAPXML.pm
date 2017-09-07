@@ -344,8 +344,8 @@ sub get_nw_products
    my $instEnv = shift;
    my $TYPE    = shift;
    my $DB      = shift || "IND";
-print "get_nw_products $instEnv $TYPE $DB\n";
    my $productDir = shift;
+   logger( "get_nw_products $instEnv $TYPE $DB ".join(";",@{$productDir}) );
    my $imPath  = "$instEnv/Instmaster";
    my @FILTER  = ();
    my $PRODUCTS = {};
@@ -504,6 +504,9 @@ sub get_products_for_media{
       foreach my $label ( @labels )
       {
         my $foundLabel = 0;
+	my $label1 = $label;
+	#Dirty fix for new kernel media.
+        $label1 =~ s/:749:/:74:/;
         foreach my $node ($doc->findnodes($xpath)) {
            my $pattern = $node->getAttribute("label");
            #Hide the brackets () as special characters within regex ()=grouping
@@ -519,6 +522,11 @@ sub get_products_for_media{
 	     $foundLabel = 1;
 	     last;
 	   }
+           if( $label1 =~ /$pattern/ )
+           {
+             $foundLabel = 1;
+             last;
+           }
         }
 	if( !$foundLabel )
 	{
