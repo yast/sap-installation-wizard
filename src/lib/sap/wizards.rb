@@ -152,6 +152,13 @@ module Yast
                       }
       }
 
+      #When leaving the installation in a docker environment we need to save some settings
+      if File.exist?("/.dockerenv")
+           SCR.Execute(path(".target.bash"), "mkdir -p /data/SAP_DOCKER/etc/init.d/" )
+           SCR.Execute(path(".target.bash"), "cp /etc/passwd /etc/shadow  /data/SAP_DOCKER/etc" )
+           SCR.Execute(path(".target.bash"), "cp /etc/init.d/sapinit /data/SAP_DOCKER/etc/init.d/")
+      end
+
       if !Wizard.IsWizardDialog
         Wizard.CreateDialog
         close_dialog = true
