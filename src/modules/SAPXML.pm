@@ -311,7 +311,8 @@ sub get_nw_products
    my $PRODUCTS = {};
    my $xp = XML::XPath->new(filename => '/etc/sap-installation-wizard.xml');
    my $nodeset = $xp->find('//listentry');
-   foreach my $node ($nodeset->get_nodelist){
+   foreach my $node ($nodeset->get_nodelist)
+   {
        my @f  = ();
        my $n  = "";
        my $a  = "";
@@ -344,13 +345,14 @@ sub get_nw_products
    {
       return [];
    }
-   $d = $x->parse_file("$imPath/product.catalog");
+   $xp = XML::XPath->new(filename => "$imPath/product.catalog");
    foreach my $tmp ( @FILTER )
    {
       my $xmlpath = $tmp->[1];
       if( $xmlpath !~ /##PD##/ )
       { #has no productDir
-         foreach my $node ($d->findnodes($xmlpath))
+         $nodeset = $xp->find($xmlpath);
+         foreach my $node ($nodeset->get_nodelist)
          {
             push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
          }
@@ -364,7 +366,8 @@ sub get_nw_products
 	    #next if( $PD !~ /$DB/ );
 	    my $xmlpathPD = $xmlpath;
 	       $xmlpathPD =~ s/##PD##/$PD/;
-	    foreach my $node ($d->findnodes($xmlpathPD))
+            $nodeset = $xp->find($xmlpathPD);
+            foreach my $node ($nodeset->get_nodelist)
             {
                push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
             }
@@ -394,7 +397,8 @@ sub get_nw_products
       if( defined $1 ) {
         my $od = $1;
         $od =~ s#\.#/#;
-        my @n = $d->findnodes('//components[@output-dir="'.$od.'"]/display-name');
+        $nodeset = $xp->find('//components[@output-dir="'.$od.'"]/display-name');
+	my @n = $nodeset->get_nodelist;
         $gname = scalar @n ? $n[0]->string_value : $lname ;
       }
       else
