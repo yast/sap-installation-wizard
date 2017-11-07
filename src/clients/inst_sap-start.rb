@@ -109,9 +109,11 @@ module Yast
         if(start_wizard)
            to_install << 'yast2-firstboot'
 	   to_install << 'sap-installation-wizard'
+	   to_install << 'sap-installation-start'
 	   IO.write("/root/start_sap_wizard","true")
 	else
 	   to_install << 'sap-installation-wizard'
+	   to_remove  << 'sap-installation-start'
 	   to_remove  << 'yast2-firstboot'
 	   IO.write("/root/start_sap_wizard","false")
 	end
