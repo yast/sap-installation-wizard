@@ -25,6 +25,7 @@
 #
 # $Id$
 
+require "installation/services"
 module Yast
   class InstSapStart < Client
     def main
@@ -39,10 +40,6 @@ module Yast
       sap    = false
       wizard = false
       rdp    = true
-      @sap_control = Pkg.SourceProvideOptionalFile(
-        0, # optional
-        1,
-        "/sap-control.xml"      )
 
       @caption = _("Choose Operation System Edition")
       @help    = _("<p><b>Select operating system edition</b></p>" +
@@ -102,27 +99,22 @@ module Yast
     def constumize_sap_installation(start_wizard,start_rdp)
         to_install = []
         to_remove  = []
-	#We hope we can avoid it
-        #ProductControl.ReadControlFile( @sap_control )
-        ProductControl.EnableModule("sap")
 	ProductControl.DisableModule("user_first")
         if(start_wizard)
            to_install << 'yast2-firstboot'
 	   to_install << 'sap-installation-wizard'
 	   to_install << 'sap-installation-start'
-	   IO.write("/root/start_sap_wizard","true")
 	else
 	   to_install << 'sap-installation-wizard'
 	   to_remove  << 'sap-installation-start'
 	   to_remove  << 'yast2-firstboot'
-	   IO.write("/root/start_sap_wizard","false")
 	end
         if(start_rdp)
 	   to_install << 'xrdp'
-	   IO.write("/root/start_rdp_service","true")
+           Installation::Services.enabled << "xrdp"
 	else
 	   to_remove  << 'xrdp'
-	   IO.write("/root/start_rdp_service","false")
+           Installation::Services.enabled.delete("xrdp")
 	end
         PackagesProposal.AddResolvables('sap-wizard',   :package, to_install)
         if to_remove.size > 0
