@@ -3,7 +3,7 @@
 # b1_inst.sh - is a script used to install SAP Business One products:
 #   SAP Business One 9.2, version for SAP HANA including SAP Business One Analytics Powered by SAP HANA
 #
-# Copyright (c) 2013 SAP AG
+# Copyright (c) 2017 SAP AG
 #
 # This program is free software; you can redistribute it and/or 
 # modify it under the terms of the GNU General Public License as 
@@ -241,6 +241,30 @@ installation()
     return $rc
 }
 
+b1_post_process()
+{
+    # set samba security according to SAPNote 2359442
+    smb_conf="/etc/samba/smb.conf"
+    security_param="security=user"
+
+    if [ -f "/etc/samba/smb.conf" ];
+    then
+	param_check=`cat $smb_conf | grep ${security_param}`
+	
+	    if [ -z "$param_check" ];
+	    then
+    	    sed -i '/\[global\]/,+0{ a \
+	'${security_param}'
+    	    }' $smb_conf
+    	    
+    	    # restarting samba with the new configuration
+    	    /usr/bin/systemctl restart smb.service
+    	fi
+    else
+        yast_popup "Unable to find file smb.conf. Please find and adjust it manually according to the SAPNote 2359442."
+    fi
+}
+
 ###########################################
 # Main
 ###########################################
@@ -262,6 +286,7 @@ installation()
          yast_popup "Installation failed. For the details, see the logs."
          cleanup
       else
+         b1_post_process
          summary
          cleanup
       fi
