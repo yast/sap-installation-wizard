@@ -43,7 +43,7 @@ module Yast
       @dialogs = {
          "inst_master" => {
              "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>") +
-			  _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and BusienessOne media."),
+			  _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and Business One media."),
              "name"    => _("Prepare the SAP installation master medium")
              },
          "sapmedium" => {

@@ -60,7 +60,7 @@ module Yast
                     Left(
                       CheckBox(
                         Id("rdp"),
-                        _("Enable RDP (Remote Desktop Protocol) Service and open in Firewall"),
+                        _("Enable RDP (Remote Desktop Protocol) Service and open port in Firewall"),
                         true
                       )
                     )
