@@ -111,10 +111,10 @@ module Yast
 	end
         if(start_rdp)
 	   to_install << 'xrdp'
-           Installation::Services.enabled << "xrdp"
+           ::Installation::Services.enabled << "xrdp"
 	else
 	   to_remove  << 'xrdp'
-           Installation::Services.enabled.delete("xrdp")
+           ::Installation::Services.enabled.delete("xrdp")
 	end
         PackagesProposal.AddResolvables('sap-wizard',   :package, to_install)
         if to_remove.size > 0
