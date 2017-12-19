@@ -73,7 +73,7 @@ IP_ADDR=`gethostip -d $HOSTNAME`
 
 # YaST parameter take over
 A_MASTERPASS=`cat "${MEDIA_TARGET}/ay_q_masterpass"`
-A_SID=`cat "${MEDIA_TARGET}/ay_q_sid"`
+A_SID=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c1-3`
 A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sapinstnr"`
 
 
