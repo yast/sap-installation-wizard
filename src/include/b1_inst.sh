@@ -219,7 +219,7 @@ installation()
     INSTTOOL="${MEDIA_TARGET}/Instmaster/Packages.Linux/ServerComponents/install"
     chmod +x ${INSTTOOL}
 
-    USER_INSTALL_LOGS=/var/log/SAPBusinessOne/B1Installer*.log
+    USER_INSTALL_LOGS="/var/log/SAPBusinessOne/B1Installer*.log"
     if [ ! -f "${INSTTOOL}" ];
     then
        yast_popup "Cannot install BusinessOne ServerComponents:\npath to installation tool not found:\n${INSTTOOL}"
