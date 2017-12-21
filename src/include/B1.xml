@@ -177,6 +177,7 @@ fi
 	<package>pam</package>
 	<package>perl</package>
 	<package>python</package>
+	<package>rpm-build</package>
 	<package>samba</package>
 	<package>samba-client</package>
 	<package>SAPHanaSR</package>

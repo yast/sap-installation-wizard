@@ -231,13 +231,16 @@ installation()
           pid_installer=$!
           
           # start displaying the logs
-          LOG_LCK="/var/log/SAPBusinessOne/B1Installer*.log.lck"
-          while [ ! -f "${LOG_LCK}" ];
-          do 
-            sleep 2
-          done
+	  while true
+	  do
+	        USER_INSTALL_LOG=$( find /var/log/SAPBusinessOne/ -maxdepth 1 -name "B1Installer*.log" )
+		if [ "$USER_INSTALL_LOG" ]; then
+		   USER_INSTALL_LOG="/var/log/SAPBusinessOne/${USER_INSTALL_LOG}"
+		   break
+		fi
+		sleep 2
+	  done
           
-          USER_INSTALL_LOG=`ls -1 /var/log/SAPBusinessOne/B1Installer*.log.lck | rev | cut -c5- | rev`
           tail -f ${USER_INSTALL_LOG} &
           pid_logging=$!
           
