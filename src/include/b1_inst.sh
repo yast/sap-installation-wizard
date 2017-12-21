@@ -235,7 +235,6 @@ installation()
 	  do
 	        USER_INSTALL_LOG=$( find /var/log/SAPBusinessOne/ -maxdepth 1 -name "B1Installer*.log" )
 		if [ "$USER_INSTALL_LOG" ]; then
-		   USER_INSTALL_LOG="/var/log/SAPBusinessOne/${USER_INSTALL_LOG}"
 		   break
 		fi
 		sleep 2
