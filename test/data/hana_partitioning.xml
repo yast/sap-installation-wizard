@@ -1,0 +1,80 @@
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <partitioning config:type="list">
+    <drive>
+      <is_lvm_vg config:type="boolean">true</is_lvm_vg>
+      <device>/dev/vg_hana</device>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <fstopt>defaults</fstopt>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_hanadata</lv_name>
+          <mount>/hana/data</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size_min>RAM*1</size_min>
+          <size></size>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <fstopt>defaults</fstopt>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_hanalog</lv_name>
+          <mount>/hana/log</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size_min>RAM*0.5</size_min>
+          <size_max>512G</size_max>
+          <size></size>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <fstopt>defaults</fstopt>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_hanashared</lv_name>
+          <mount>/hana/shared</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size_min>RAM*1</size_min>
+          <size_max>1TB</size_max>
+          <size></size>
+        </partition>
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <format config:type="boolean">true</format>
+          <fstopt>defaults</fstopt>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lv_name>lv_usr_sap</lv_name>
+          <mount>/usr/sap</mount>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <raid_options/>
+          <resize config:type="boolean">false</resize>
+          <size>50G</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+  </partitioning>
+</profile>
