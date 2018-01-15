@@ -199,8 +199,6 @@ SLD_SERVER_ADDR=${IP_ADDR}" >> $PROPERTIES
 if [ $? -ne 0 ];
 then
   yast_popup "Creating parameters file has failed."
-else
-  yast_popup "The parameters file has been created."
 fi
 
 }
@@ -231,11 +229,25 @@ installation()
           parameters
           ${INSTTOOL} -i silent -f ${PROPERTIES} > /dev/null 2>&1 &
           pid_installer=$!
-          while [ ! -f "${USER_INSTALL_LOGS}" ]; do sleep 1; done
-          tail -f ${USER_INSTALL_LOGS} &
+          
+          # start displaying the logs
+	  while true
+	  do
+	        USER_INSTALL_LOG=$( find /var/log/SAPBusinessOne/ -maxdepth 1 -name "B1Installer*.log" )
+		if [ "$USER_INSTALL_LOG" ]; then
+		   break
+		fi
+		sleep 2
+	  done
+          
+          tail -f ${USER_INSTALL_LOG} &
           pid_logging=$!
+          
+          # waiting for the installation to be done
           wait ${pid_installer}
           rc=$?
+          
+          # stop log monitor
           kill -9 ${pid_logging}
     fi
     return $rc
