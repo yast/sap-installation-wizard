@@ -2,29 +2,6 @@
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
   <partitioning config:type="list">
     <drive>
-      <device>/dev/sdb</device>
-      <initialize config:type="boolean">true</initialize>
-      <partitions config:type="list">
-        <partition>
-          <create config:type="boolean">true</create>
-          <crypt_fs config:type="boolean">false</crypt_fs>
-          <filesystem config:type="symbol">ext3</filesystem>
-          <format config:type="boolean">false</format>
-          <loop_fs config:type="boolean">false</loop_fs>
-          <lvm_group>vg_hana</lvm_group>
-          <mountby config:type="symbol">device</mountby>
-          <partition_id config:type="integer">142</partition_id>
-          <partition_nr config:type="integer">1</partition_nr>
-          <raid_options/>
-          <resize config:type="boolean">false</resize>
-          <size>max</size>
-        </partition>
-      </partitions>
-      <pesize></pesize>
-      <type config:type="symbol">CT_DISK</type>
-      <use>all</use>
-    </drive>
-    <drive>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <device>/dev/vg_hana</device>
       <initialize config:type="boolean">true</initialize>

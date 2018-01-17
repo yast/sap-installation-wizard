@@ -73,8 +73,8 @@ module Yast
             end
           end
         end #END HANA CASE
-        ret = WFM.CallFunction( "sap_create_storage", [ partXML ])
-        Builtins.y2milestone("sap_create_storage returned: %1",ret)
+        ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
+        Builtins.y2milestone("sap_create_storage_ng returned: %1",ret)
 	if( ret == "abort" )
 	    return "abort"
 	end
