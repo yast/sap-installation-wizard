@@ -41,7 +41,7 @@ module Yast
       wizard = false
       rdp    = true
 
-      @caption = _("Choose Operation System Edition")
+      @caption = _("Choose _Operating_ System Edition")
       @help    = _("<p><b>Select operating system edition</b></p>" +
                    "<p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick the checkbox \"Launch SAP product installation wizard right after operating system is installed\".</p>")
       @contents = VBox(
@@ -60,7 +60,7 @@ module Yast
                     Left(
                       CheckBox(
                         Id("rdp"),
-                        _("Enable RDP (Remote Desktop Protocol) Service and open port in Firewall"),
+                        _("Enable Remote Desktop Protocol (RDP) Service and open _port_ in Firewall"),
                         true
                       )
                     )
