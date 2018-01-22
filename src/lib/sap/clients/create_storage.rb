@@ -47,6 +47,11 @@ module Y2Sap
           return :abort
         end
 
+        if check_mount_points( partitioning[0]["partitions"] )
+          Yast::Popup.Message("Required partitioning was allready created.")
+          return :next
+        end
+
         disk = select_disk
 
         if disk.nil?
@@ -126,6 +131,26 @@ module Y2Sap
       # @return [Y2Storage::StorageManager]
       def storage
         Y2Storage::StorageManager.instance
+      end
+
+      # Checks if the required directories do already exists
+      #
+      # @return [Boolean]
+      def check_mount_points(parts)
+        mounts = Yast::SCR.Read(Yast::path(".etc.mtab"))
+        log.debug "MOUNTS #{mounts}"
+        log.debug "PARTS  #{parts}"
+
+        parts.each { |part|
+            mounts.each { |mount|
+                if part["mount"] == mount["file"]
+                   log.info "Partition " + mount["file"] + " was allready created." 
+                   return true
+                end
+            }
+        }
+
+        return false
       end
     end
   end
