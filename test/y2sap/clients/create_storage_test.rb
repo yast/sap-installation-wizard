@@ -47,6 +47,7 @@ describe Y2Sap::Clients::CreateStorage do
   let(:disks) { [eligible_disk, other_disk] }
   let(:failed?) { false }
   let(:proposal) { instance_double(Y2Sap::StorageProposal, failed?: failed?, save: nil) }
+  let(:mtab) { [] }
 
   describe "#main" do
     let(:args) { [File.join(DATA_PATH, "hana_partitioning.xml")] }
@@ -55,6 +56,9 @@ describe Y2Sap::Clients::CreateStorage do
       allow(Yast::WFM).to receive(:Args).and_return(args)
       allow(Y2Storage::StorageManager).to receive(:instance).and_return(storage)
       allow(Y2Sap::StorageProposal).to receive(:new).and_return(proposal)
+      allow(Yast::SCR).to receive(:Read).and_call_original
+      allow(Yast::SCR).to receive(:Read).with(Yast::Path.new(".etc.mtab"))
+        .and_return(mtab)
     end
 
     it "creates a proposal" do
@@ -176,6 +180,21 @@ describe Y2Sap::Clients::CreateStorage do
           expect(Y2Sap::StorageProposal).to_not receive(:new)
           client.main
         end
+      end
+    end
+
+    context "when any wanted mount point already exist" do
+      let(:mtab) do
+        [{ "file" => "/hana/data" }]
+      end
+
+      it "returns :next" do
+        expect(client.main).to eq(:next)
+      end
+
+      it "does not tries to create a proposal" do
+        expect(Y2Sap::StorageProposal).to_not receive(:new)
+        client.main
       end
     end
   end
