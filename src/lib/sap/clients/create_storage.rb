@@ -137,14 +137,14 @@ module Y2Sap
       #
       # @return [Boolean]
       def check_mount_points(parts)
-        mounts = Yast::SCR.Read(Yast::path(".etc.mtab"))
+        mounts = devicegraph.filesystems.map(&:mount_point)
         log.debug "MOUNTS #{mounts}"
         log.debug "PARTS  #{parts}"
 
         parts.each { |part|
             mounts.each { |mount|
-                if part["mount"] == mount["file"]
-                   log.info "Partition " + mount["file"] + " was allready created." 
+                if part["mount"] == mount
+                   log.info "Partition " + mount + " was already created."
                    return true
                 end
             }

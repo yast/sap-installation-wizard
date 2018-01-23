@@ -26,7 +26,10 @@ require "sap/clients/create_storage"
 describe Y2Sap::Clients::CreateStorage do
   subject(:client) { described_class.new }
 
-  let(:devicegraph) { instance_double(Y2Storage::Devicegraph, disks: disks) }
+  let(:devicegraph) do
+    instance_double(Y2Storage::Devicegraph, disks: disks, filesystems: filesystems)
+  end
+
   let(:storage) do
     instance_double(
       Y2Storage::StorageManager,
@@ -47,7 +50,9 @@ describe Y2Sap::Clients::CreateStorage do
   let(:disks) { [eligible_disk, other_disk] }
   let(:failed?) { false }
   let(:proposal) { instance_double(Y2Sap::StorageProposal, failed?: failed?, save: nil) }
-  let(:mtab) { [] }
+
+  let(:usr) { instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_point: "/usr") }
+  let(:filesystems) { [usr] }
 
   describe "#main" do
     let(:args) { [File.join(DATA_PATH, "hana_partitioning.xml")] }
@@ -57,8 +62,6 @@ describe Y2Sap::Clients::CreateStorage do
       allow(Y2Storage::StorageManager).to receive(:instance).and_return(storage)
       allow(Y2Sap::StorageProposal).to receive(:new).and_return(proposal)
       allow(Yast::SCR).to receive(:Read).and_call_original
-      allow(Yast::SCR).to receive(:Read).with(Yast::Path.new(".etc.mtab"))
-        .and_return(mtab)
     end
 
     it "creates a proposal" do
@@ -184,9 +187,10 @@ describe Y2Sap::Clients::CreateStorage do
     end
 
     context "when any wanted mount point already exist" do
-      let(:mtab) do
-        [{ "file" => "/hana/data" }]
+      let(:hana_data) do
+        instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_point: "/hana/data")
       end
+      let(:filesystems) { [usr, hana_data] }
 
       it "returns :next" do
         expect(client.main).to eq(:next)
