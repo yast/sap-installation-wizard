@@ -200,6 +200,11 @@ describe Y2Sap::Clients::CreateStorage do
         expect(Y2Sap::StorageProposal).to_not receive(:new)
         client.main
       end
+
+      it "logs existing mount points" do
+        expect(client.log).to receive(:info).with(/\/hana\/data/).and_call_original
+        client.main
+      end
     end
   end
 end

@@ -47,7 +47,7 @@ module Y2Sap
           return :abort
         end
 
-        if check_mount_points( partitioning[0]["partitions"] )
+        if already_mounted?(partitioning)
           Yast::Popup.Message("Required partitioning was allready created.")
           return :next
         end
@@ -133,24 +133,26 @@ module Y2Sap
         Y2Storage::StorageManager.instance
       end
 
-      # Checks if the required directories do already exists
+      # Checks if any of the required directories do already exists
       #
+      # @param partitioning [Hash] Profile content
       # @return [Boolean]
-      def check_mount_points(parts)
-        mounts = devicegraph.filesystems.map(&:mount_point)
-        log.debug "MOUNTS #{mounts}"
-        log.debug "PARTS  #{parts}"
+      def already_mounted?(partitioning)
+        mounted = devicegraph.filesystems.map(&:mount_point)
+        wanted = partitioning.map do |drive|
+          drive.fetch("partitions", []).map { |p| p["mount"] }
+        end
+        wanted.flatten!
+        existing = mounted & wanted
 
-        parts.each { |part|
-            mounts.each { |mount|
-                if part["mount"] == mount
-                   log.info "Partition " + mount + " was already created."
-                   return true
-                end
-            }
-        }
+        log.debug "MOUNTS #{mounted}"
+        log.debug "PARTS #{wanted}"
 
-        return false
+        if !existing.empty?
+          log.info "These partitions were already created: #{existing.join(", ")}"
+        end
+
+        !existing.empty?
       end
     end
   end
