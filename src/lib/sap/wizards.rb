@@ -44,7 +44,7 @@ module Yast
 	if SAPMedia.instMasterType != "HANA"
            return :next
         end
-        log.info("--- Start ApplyHANAFirewall ---")
+        Builtins.y2milestone("--- Start ApplyHANAFirewall ---")
 	HANAFirewall::HANAFirewallConfInst.load(IO.read('/etc/sysconfig/hana-firewall'))
         hana_fw = HANAFirewall::HANAFirewallConfInst.gen_config
         HANAFirewall::HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
@@ -57,7 +57,7 @@ module Yast
     end
 
     def TuneTheSystem
-        log.info("--- Start TuneTheSystem ---")
+        Builtins.y2milestone("--- Start TuneTheSystem ---")
         if Arch.x86_64 && ! File.exist?("/.dockerenv")
            require "saptune/saptune_conf"
            Saptune::SaptuneConfInst.auto_config 
@@ -175,6 +175,7 @@ module Yast
       #   Wizard.CloseDialog
       #end
       Convert.to_symbol(ret)
+      return :next
     end
 
     # SAP Media Handling Sequence to Create a SAP Intallation Envinroment
