@@ -135,6 +135,9 @@ module Yast
       #Hash for remember which media was selected.
       @selectedMedia = {}
 
+      #Default file name for autoyast xml on third party media
+      @productXML    = "product.xml";
+
       @sapCDsURL     = ""
       @mediaDir      = ""
       @mmount        = ""
