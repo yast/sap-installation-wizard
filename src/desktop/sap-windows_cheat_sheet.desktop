@@ -6,7 +6,6 @@ X-KDE-ModuleType=Library
 X-KDE-RootOnly=true
 X-KDE-HasReadOnlyMode=true
 X-KDE-Library=yast2
-X-SuSE-YaST-Call=sap-installation-wizard
 
 X-SuSE-translate=false
 
@@ -16,3 +15,5 @@ Exec=/usr/bin/firefox /usr/share/doc/packages/sap-installation-wizard/windows_ch
 Name=Cheat Sheet for Windows Admins
 GenericName=Cheat Sheet
 X-KDE-SubstituteUID=true
+
+Trusted=true
