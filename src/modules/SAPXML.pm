@@ -447,6 +447,10 @@ sub get_products_for_media{
    my $DB          = "";
    my $TREX        = "";
 
+   #First we have to find a DTDFILE
+   my $DTDFILE = `find $prodEnvPath -name packages.dtd | head -n1`; chomp $DTDFILE;
+
+   #print Dumper("PACKAGES:".\@packages);
    foreach my $medium (@media)
    {
       next if( $medium =~ /Instmaster/ );
@@ -456,11 +460,19 @@ sub get_products_for_media{
 
    foreach my $xml_file ( @packages )
    {
+      my $dtd_file = $xml_file;
+      $dtd_file =~ s/.xml$/.dtd/;
+      if( ! -e "$prodEnvPath/$dtd_file" ) {
+            system("cp $DTDFILE $prodEnvPath/$dtd_file");
+            #print "$dtd_file\n";
+      }
       my $xp = XML::XPath->new(filename => "$prodEnvPath/$xml_file") or next;
       my $found = 1;
+      #print "$xml_file\n";
       
       foreach my $label ( @labels )
       {
+        #print "     $label\n";
         my $foundLabel = 0;
 	my $label1 = $label;
 	#Dirty fix for new kernel media.
