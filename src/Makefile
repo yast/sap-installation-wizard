@@ -22,7 +22,8 @@ install:
 	install -m 644 lib/sap/clients/*.rb $(DESTDIR)/usr/share/YaST2/lib/sap/clients/
 	install -m 644 clients/* $(DESTDIR)/usr/share/YaST2/clients/
 	install -m 644 modules/* $(DESTDIR)/usr/share/YaST2/modules/
-	install -m 755 desktop/*.desktop $(DESTDIR)/usr/share/applications/YaST2/
+	install -m 755 desktop/sap-installation-wizard.desktop $(DESTDIR)/usr/share/applications/YaST2/
+	install -m 755 desktop/sap-windows_cheat_sheet.desktop $(DESTDIR)/usr/share/applications/
 	install -m 644 misc/sap-installation-wizard     $(DESTDIR)/var/adm/fillup-templates/sysconfig.sap-installation-wizard
 	install -m 644 misc/sap-installation-wizard.xml $(DESTDIR)/etc/
 	install -m 755 misc/sap-profile.sh $(DESTDIR)/etc/profile.d/
