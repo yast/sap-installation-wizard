@@ -1,4 +1,3 @@
-#!/bin/bash
 
 if [ -e /usr/bin/xdg-desktop-icon -a ! -e $HOME/.sap-icons ]; then 
 	#gsettings set org.gnome.desktop.background show-desktop-icons true
