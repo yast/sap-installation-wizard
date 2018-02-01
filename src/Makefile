@@ -26,6 +26,5 @@ install:
 	install -m 755 desktop/sap-windows_cheat_sheet.desktop $(DESTDIR)/usr/share/applications/
 	install -m 644 misc/sap-installation-wizard     $(DESTDIR)/usr/share/fillup-templates/sysconfig.sap-installation-wizard
 	install -m 644 misc/sap-installation-wizard.xml $(DESTDIR)/etc/
-	install -m 755 misc/sap-profile.sh $(DESTDIR)/etc/profile.d/
 	install -m 755 misc/start_sap_docker.sh $(DESTDIR)/usr/sbin/
 
