@@ -163,14 +163,12 @@ module Yast
       #Read the device list
       @d = Storage.GetTargetMap
       Builtins.y2milestone("target map %1", @d)
-      @d.each { |dev| 
-         Builtins.y2milestone("TARGETMAP %1", dev)
-      }
       Builtins.foreach(@d) do |name, dev|
         type = Ops.get_symbol(dev, "type")
-        Builtins.y2milestone("DEVICE name %1 type %2 used_by", name, type,  Ops.get_map(dev, "used_by", {}) )
+	Builtins.y2milestone("TARGETMAP %1", dev)
+	Builtins.y2milestone("DEVICE name %1 type %2 used_by", name, type,  Ops.get_list(dev, "used_by", []) )
         if type == :CT_DISK
-          next if Ops.get_map(dev, "used_by", {}) != {}
+          next if Ops.get_list(dev, "used_by", []) != []
         elsif type != :CT_DMMULTIPATH
           next
         end
