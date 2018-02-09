@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Categories=Documentation;
+Categories=MIME;Documentation;
 
 X-KDE-ModuleType=Library
 X-KDE-RootOnly=true
@@ -9,11 +9,8 @@ X-KDE-Library=yast2
 
 X-SuSE-translate=false
 
-Icon=help-browser
 Exec=/usr/bin/firefox /usr/share/doc/packages/sap-installation-wizard/windows_cheat_sheet.pdf
 
 Name=Cheat Sheet for Windows Admins
 GenericName=Cheat Sheet
 X-KDE-SubstituteUID=true
-
-Trusted=true

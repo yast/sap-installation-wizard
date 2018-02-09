@@ -28,5 +28,3 @@ Name=SAP Installation Wizard
 GenericName=SAP Installation Wizard
 StartupNotify=true
 X-KDE-SubstituteUID=true
-
-Trusted=true

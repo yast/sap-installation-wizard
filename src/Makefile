@@ -6,7 +6,7 @@ install:
 	install -d $(DESTDIR)/usr/share/applications/YaST2/
 	install -d $(DESTDIR)/usr/share/YaST2/scrconf/
 	install -d $(DESTDIR)/usr/share/YaST2/modules/
-	install -d $(DESTDIR)/var/adm/fillup-templates/
+	install -d $(DESTDIR)/usr/share/fillup-templates/
 	install -d $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
 	install -d $(DESTDIR)/usr/share/YaST2/lib/sap/clients/
 	install -d $(DESTDIR)/usr/sbin/
@@ -24,8 +24,7 @@ install:
 	install -m 644 modules/* $(DESTDIR)/usr/share/YaST2/modules/
 	install -m 755 desktop/sap-installation-wizard.desktop $(DESTDIR)/usr/share/applications/YaST2/
 	install -m 755 desktop/sap-windows_cheat_sheet.desktop $(DESTDIR)/usr/share/applications/
-	install -m 644 misc/sap-installation-wizard     $(DESTDIR)/var/adm/fillup-templates/sysconfig.sap-installation-wizard
+	install -m 644 misc/sap-installation-wizard     $(DESTDIR)/usr/share/fillup-templates/sysconfig.sap-installation-wizard
 	install -m 644 misc/sap-installation-wizard.xml $(DESTDIR)/etc/
-	install -m 755 misc/sap-profile.sh $(DESTDIR)/etc/profile.d/
 	install -m 755 misc/start_sap_docker.sh $(DESTDIR)/usr/sbin/
 
