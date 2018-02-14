@@ -27,4 +27,5 @@ install:
 	install -m 644 misc/sap-installation-wizard     $(DESTDIR)/usr/share/fillup-templates/sysconfig.sap-installation-wizard
 	install -m 644 misc/sap-installation-wizard.xml $(DESTDIR)/etc/
 	install -m 755 misc/start_sap_docker.sh $(DESTDIR)/usr/sbin/
+	install -m 644 scrconf/*           $(DESTDIR)/usr/share/YaST2/scrconf/
 

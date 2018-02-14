@@ -272,6 +272,8 @@ sub ConfigValue{
        my $ok = 0;
        foreach my $c ( $node->getChildNodes )
        {
+	 next if( not defined $c->getName      or ! $c->getName );
+	 next if( not defined $c->string_value or ! $c->string_value );
          $ok = 1 if( 'name' eq $c->getName and $c->string_value eq $prod );
          if( 'search'       eq $c->getName ) {
 	        push @f, $c->string_value;
