@@ -29,7 +29,6 @@ require "sap/add_repo_dialog"
 require "hanafirewall/hanafirewall_conf"
 
 module Yast
-  import "Arch"
   Yast.import "SAPMedia"
   Yast.import "SAPProduct"
   module SapInstallationWizardWizardsInclude
@@ -56,7 +55,7 @@ module Yast
     end
 
     def TuneTheSystem
-        if Arch.x86_64 && ! File.exist?("/.dockerenv")
+        if ! File.exist?("/.dockerenv")
            require "saptune/saptune_conf"
            Saptune::SaptuneConfInst.auto_config 
         end
