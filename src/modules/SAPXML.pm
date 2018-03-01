@@ -6,8 +6,7 @@ use warnings;
 
 
 use Fatal qw(:void open opendir chdir rename); 
-use XML::XPath;
-use XML::XPath::XMLParser;
+use XML::LibXML;
 use File::Basename;
 use Data::Dumper;
 use YaST::YCP qw(:LOGGING Boolean sformat);
@@ -34,15 +33,21 @@ our @ISA = qw(Exporter AutoLoader);
 #our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw( 
+find_local_IM
 is_instmaster
 get_sapinst_version
+get_sapinst_path
 get_nw_products
 get_products_for_media
+set_sapinst_feature
+products_on_instmaster
 search_labelfiles
 read_labelfile
 compare_label
 label_match
 check_media
+collect_labels_for_product
+search_sapinst_id
 type_of_product
 );
 
@@ -69,6 +74,40 @@ my %DBMAP      = (
 			"HDB" => "HDB",
 			"MAX" => "ADA"
 		);
+
+####################################################################
+# find_local_IM
+# #
+# # in  - start directory for label search ($PROD_PATH)
+#         tmpTargetDir = /data/SAP_CDs
+#         prodCount    = e.g 4
+#         instMasterDir= Instmaster
+#
+# # out - list of path to alternative local installmaster
+# #
+BEGIN { $TYPEINFO{find_local_IM} = ["function", ["list", "string"], "string", "integer","string"]; }
+sub find_local_IM {
+   my $self         = shift;
+   my $tmpTargetDir = shift; 
+   my $prodCount    = shift;
+   my $instMasterDir= shift; 
+
+   my @list = ();
+   logger("In find_local_IM") if ($DEBUG);
+
+   my $CUR_IM_LABEL = _read_labelfile("$tmpTargetDir/$prodCount/$instMasterDir/LABEL.ASC");
+
+   for (my $i = 0; $i < $prodCount; $i++) {
+      my $IM_LABEL = _read_labelfile("$tmpTargetDir/$i/$instMasterDir/LABEL.ASC");
+      logger("Try local Instmaster dir:$tmpTargetDir/$i/$instMasterDir") if ($DEBUG);
+
+      if( $IM_LABEL eq $CUR_IM_LABEL ) {
+         logger("Similar local Instmaster found at:$tmpTargetDir/$i/$instMasterDir") if ($DEBUG);
+         push @list, "$tmpTargetDir/$i";
+      }
+   }
+   return \@list;
+}
 
 ####################################################################
 # is_instmaster
@@ -264,9 +303,10 @@ sub ConfigValue{
    my $prod  = shift;
    my $value = shift;
 
-   my $xp = XML::XPath->new(filename => '/etc/sap-installation-wizard.xml');
-   my $nodeset = $xp->find('//listentry');
-   foreach my $node ($nodeset->get_nodelist){
+   my $x = XML::LibXML->new();
+   #TODO Make it configurable
+   my $d = $x->parse_file('/etc/sap-installation-wizard.xml');
+   foreach my $node ($d->findnodes('//listentry')){
        my @f  = ();
        my %p  = ();
        my $ok = 0;
@@ -304,15 +344,15 @@ sub get_nw_products
    my $instEnv = shift;
    my $TYPE    = shift;
    my $DB      = shift || "IND";
+print "get_nw_products $instEnv $TYPE $DB\n";
    my $productDir = shift;
-   logger( "get_nw_products $instEnv $TYPE $DB ".join(";",@{$productDir}) );
    my $imPath  = "$instEnv/Instmaster";
    my @FILTER  = ();
    my $PRODUCTS = {};
-   my $xp = XML::XPath->new(filename => '/etc/sap-installation-wizard.xml');
-   my $nodeset = $xp->find('//listentry');
-   foreach my $node ($nodeset->get_nodelist)
-   {
+   my $x = XML::LibXML->new();
+   #TODO Make it configurable
+   my $d = $x->parse_file('/etc/sap-installation-wizard.xml');
+   foreach my $node ($d->findnodes('//listentry')){
        my @f  = ();
        my $n  = "";
        my $a  = "";
@@ -345,14 +385,13 @@ sub get_nw_products
    {
       return [];
    }
-   $xp = XML::XPath->new(filename => "$imPath/product.catalog");
+   $d = $x->parse_file("$imPath/product.catalog");
    foreach my $tmp ( @FILTER )
    {
       my $xmlpath = $tmp->[1];
       if( $xmlpath !~ /##PD##/ )
       { #has no productDir
-         $nodeset = $xp->find($xmlpath);
-         foreach my $node ($nodeset->get_nodelist)
+         foreach my $node ($d->findnodes($xmlpath))
          {
             push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
          }
@@ -366,8 +405,7 @@ sub get_nw_products
 	    #next if( $PD !~ /$DB/ );
 	    my $xmlpathPD = $xmlpath;
 	       $xmlpathPD =~ s/##PD##/$PD/;
-            $nodeset = $xp->find($xmlpathPD);
-            foreach my $node ($nodeset->get_nodelist)
+	    foreach my $node ($d->findnodes($xmlpathPD))
             {
                push @NODES, [ $tmp->[0] , $node, $tmp->[2], $tmp->[3], $tmp->[4], $tmp->[5] ];
             }
@@ -397,8 +435,7 @@ sub get_nw_products
       if( defined $1 ) {
         my $od = $1;
         $od =~ s#\.#/#;
-        $nodeset = $xp->find('//components[@output-dir="'.$od.'"]/display-name');
-	my @n = $nodeset->get_nodelist;
+        my @n = $d->findnodes('//components[@output-dir="'.$od.'"]/display-name');
         $gname = scalar @n ? $n[0]->string_value : $lname ;
       }
       else
@@ -430,7 +467,7 @@ sub get_nw_products
 }
 
 ####################################################################
-# get_products_for_media
+# get_sapinst_path
 #
 # in : Path to the installation environment.
 # out: list of output-dir of the possible products 
@@ -456,17 +493,18 @@ sub get_products_for_media{
 
    foreach my $xml_file ( @packages )
    {
-      my $xp = XML::XPath->new(filename => "$prodEnvPath/$xml_file") or next;
+      my $x     = XML::LibXML->new() or        return ();
+      my $doc   = $x->parse_file("$prodEnvPath/$xml_file") or next;
       my $found = 1;
       
+      my $xpath = q{
+          /packages/package
+      };
+
       foreach my $label ( @labels )
       {
         my $foundLabel = 0;
-	my $label1 = $label;
-	#Dirty fix for new kernel media.
-        $label1 =~ s/:749:/:74:/;
-	my $nodeset = $xp->find('/packages/package');
-        foreach my $node ($nodeset->get_nodelist) {
+        foreach my $node ($doc->findnodes($xpath)) {
            my $pattern = $node->getAttribute("label");
            #Hide the brackets () as special characters within regex ()=grouping
            $pattern =~ s/\Q(\E/\Q\(\E/;
@@ -481,11 +519,6 @@ sub get_products_for_media{
 	     $foundLabel = 1;
 	     last;
 	   }
-           if( $label1 =~ /$pattern/ )
-           {
-             $foundLabel = 1;
-             last;
-           }
         }
 	if( !$foundLabel )
 	{
@@ -516,6 +549,269 @@ sub get_products_for_media{
 		"DB"         => $DB,
 		"TREX"       => $TREX
 	}
+}
+
+#TODO Do We need these:
+
+####################################################################
+# get_sapinst_path
+#
+# in : $INSTMASTER
+# out: list of path to files 
+#
+BEGIN { $TYPEINFO{get_sapinst_path} = ["function", ["map", "string", "string" ] , "string"]; }
+sub get_sapinst_path{
+
+   my $self = shift;
+   my $prod_path = shift;
+
+   my @filepath;
+   my %filehash;
+   my $feature = "defval-for-inifile-generation";
+   my $attlist = "<!ATTLIST parameter$/";
+   my $newfeature = "  defval-for-inifile-generation  CDATA       #IMPLIED";
+   my $found = 0;
+
+   # do some checking
+   if (!-d "$prod_path") {
+      logger("ERROR(get_sapinst_path): Directory  $prod_path does not exist");
+      return ();
+   }
+   
+   # Traverse desired filesystems - generated from find2perl
+   #my ($dev,$ino,$mode,$nlink,$uid,$gid);
+   #find({wanted => sub {/^control\.dtd\z/s && (($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_)) && -f _ && push @filepath,$File::Find::name}},"$prod_path");
+   @filepath = `find '$prod_path' -name control.dtd`;
+   chomp( @filepath );
+
+   # remember it as a key value pair 
+   # fixme - what happens if we found more than one control.dtd
+   $filehash{"control"} = $filepath[0];
+
+
+   # add the sapinst executable also as key value pair
+   $filehash{"sapinst"} = $prod_path."/sapinst" ;
+
+   return \%filehash;
+}
+
+####################################################################
+# set_sapinst_feature
+#
+# in:   $path + filename of the control.dtd
+# out:  true if found or set
+BEGIN { $TYPEINFO{set_sapinst_feature} = ["function", "boolean"  , "string"]; }
+sub set_sapinst_feature{
+
+   my $self = shift;
+   my $file = shift;
+
+   my $feature = "defval-for-inifile-generation";
+   my $attlist = "<!ATTLIST parameter$/";
+   my $newfeature = "  defval-for-inifile-generation  CDATA       #IMPLIED";
+   my $found = 0;
+
+   #look for the sapinst feature "defval-for-inifile-generation" within the control.dtd
+   open(INFO, $file);      # Open the file
+   my @lines = <INFO>;     # Read it into an array
+   close(INFO);            # Close the file
+
+   foreach (@lines) {
+      # does this line contain the feature
+      if ( /$feature/ ){
+         logger("Found needed feature $feature within file $file") if ($DEBUG);
+         $found = 1;
+         last;
+      }
+   }
+
+   # let's write it by ourselfs
+   if ($found ==  0){
+      open (FILE, ">$file") || return 0;
+      foreach (@lines) {
+        print FILE $_;
+        if ( $_ eq $attlist ){
+             print FILE "$newfeature$/";
+             logger("Added needed feature ($feature) to file $file") if ($DEBUG);
+        }
+      }
+      close FILE;
+   }
+   return 1;
+}
+
+####################################################################
+# products_on_instmaster
+# #
+# # in:  $INSTMASTER $DATABASE $INSTALL
+# # out: list_of_products
+# #
+BEGIN{$TYPEINFO{products_on_instmaster} = ["function", ["list", ["map", "string", "any"]], "string", "string"];}
+#BEGIN { $TYPEINFO{products_on_instmaster} = ["function", ["list", ["map","string","sting"] ], "string", "string", "string","string"]; }
+sub products_on_instmaster {
+   my $self = shift;
+   my $instmaster = shift;
+   my $imversion  = shift;
+
+   my @productList  = ();
+   my @sProductList = ();
+   my @products     = ();
+   my $xpath        = "";
+   my $catalog_file = "";
+   my $database     = "ADA";
+   my $install      = "PD";
+
+   if( $imversion eq 'MULTISWPM' )
+   { 
+       my @IMS = `find '$instmaster' -mindepth 1 -maxdepth 1 -type d`;
+       foreach my $i (@IMS)
+       {
+	   chomp $i;
+           my @NWS = ();
+	   logger("IM Path>>>> $i");
+	   $catalog_file = "$i/product.catalog";
+	   my $l = `cat $i/LABEL.ASC`;
+	   my @label = split /:/, $l;
+	   my $x = XML::LibXML->new() or return \@productList;
+	   my $d = $x->parse_file($catalog_file) or return \@productList;
+	   #First we search all NetWiever versions 
+           $xpath = '//catalog/components/@output-dir';
+	   foreach my $node ($d->findnodes($xpath)) {
+               my   $prod = $node->to_literal;
+               push @NWS, $prod if( $prod =~ /^NW/ );
+	   }
+	   #Start find the Products
+           my $cwd = getcwd();
+           chdir($i) or return \@productList;
+           my $cmd = "find . ! -path '*/.*' -path \\*/$database/$install/packages.xml";
+           logger(">> $cmd") if ($DEBUG);;
+           @products = `$cmd`;
+           chomp( @products );
+	   foreach my $product_file (@products){
+	       # remove trailing "./"
+	       $product_file =~ s/^.\///;
+	       # remove our searchstring
+	       # $product_file =~ s/\/WEBAS\/$database\/$install\/packages.xml//;
+	       $product_file =~ s/\/$database\/$install\/packages.xml//;
+               $xpath = '//components[@output-dir="'.$product_file.'"]/display-name';
+               my $displayname = " ";
+               logger("xpath $xpath") if ($DEBUG);
+               foreach my $node ($d->findnodes($xpath)) {
+                  $displayname = $node->to_literal;
+                  $displayname =~ s/\n//mg;
+                  logger("---> $displayname") if ($DEBUG);
+                  last if( "$displayname" );
+               }
+               push @productList, {
+               			id   => $product_file,
+               			name => $displayname,
+               			im   => $i,
+               			imv  => $label[3]
+               		};
+               logger("->$product_file = $displayname") if ($DEBUG);
+	   }
+	   #Start find Standalone Products
+	   foreach my $nw ( sort @NWS )
+	   {
+	       foreach my $st ( @STANDALONE )
+	       {
+	    	push @sProductList, {
+	    				id   => $nw.'-'.$st,
+	    				name => "$st on $nw",
+	    				im   => $i,
+	    				imv  => $label[3],
+	        			nw   => $nw
+	    			};
+	       	
+	       }
+	   }
+	   chdir($cwd);
+       }
+       push @productList, @sProductList;
+       return \@productList;
+   }
+
+   $catalog_file = "$instmaster/product.catalog";
+
+   logger("in products_on_instmaster") if ($DEBUG);;
+   # Jump into the directory to get usable output data
+   my $cwd = getcwd();
+   chdir($instmaster) or return \@productList;
+
+   # Traverse desired filesystems
+   # Don't follow .directories
+   #my $cmd = "find . -path \\*/WEBAS/$database/$install/packages.xml";
+   # my $cmd = "find . ! -path '*/.*' -path \\*/WEBAS/$database/$install/packages.xml";
+   # new SWPM layout
+   my $cmd = "find . ! -path '*/.*' -path \\*/$database/$install/packages.xml";
+   logger(">> $cmd") if ($DEBUG);;
+
+   @products = `$cmd`;
+   chomp( @products );
+
+   if ( grep(/^\.\/NW/,@products )){
+      push(@products,@STANDALONE);
+   }
+
+   # add pseudo-product SBC to the list of products
+   open (DATA, "$catalog_file") or return \@productList;
+   while (<DATA>) {
+      if ( /NW_StorageBasedCopy/ ) {
+         logger(">> 'NW_StorageBasedCopy' found in $catalog_file") if ($DEBUG);;
+         push(@products,"SBC");
+         logger(">>>> @products");
+      }
+   }
+   close (DATA);
+
+   my $x = XML::LibXML->new() or return \@productList;
+   my $d = $x->parse_file($catalog_file) or return \@productList;
+
+   #'./NW731/ADA/PD'
+   foreach my $product_file (@products){
+      #logger("-->$product_file") if ($DEBUG);;
+
+      # remove trailing "./"
+      $product_file =~ s/^.\///;
+      # remove our searchstring
+      # $product_file =~ s/\/WEBAS\/$database\/$install\/packages.xml//;
+      # new SWPM layout
+      $product_file =~ s/\/$database\/$install\/packages.xml//;
+
+      # get cleartext display values
+      #STANDALONE = ("TREX","GATEWAY","WEBDISPATCHER");
+      if($product_file eq "TREX") {
+         $xpath = '//components[@output-dir="STANDALONE"]//components[@output-dir="TREX"]/display-name';
+      }elsif($product_file eq "GATEWAY") {
+         $xpath = '//components[@output-dir="STANDALONE"]//component[@output-dir="GW"]/display-name';
+      }elsif($product_file eq "WEBDISPATCHER") {
+         $xpath = '//components[@output-dir="STANDALONE"]//components[@output-dir="AS"]/display-name';
+      # storagebased copy SBC
+      }elsif($product_file eq "SBC") {
+         $xpath = '//component[@output-dir="SBC"]/display-name';
+      }else{
+         $xpath = '//components[@output-dir="'.$product_file.'"]/display-name';
+      }
+
+      my $displayname = " ";
+      logger("xpath $xpath") if ($DEBUG);
+      foreach my $node ($d->findnodes($xpath)) {
+         $displayname = $node->to_literal;
+	 $displayname =~ s/\n//mg;
+         logger("---> $displayname") if ($DEBUG);
+	 last if( "$displayname" );
+      }
+      push @productList, {
+      			id   => $product_file,
+      			name => $displayname,
+      			im   => $instmaster,
+      			imv  => $imversion
+      		};
+      logger("->$product_file = $displayname") if ($DEBUG);
+   }
+
+   chdir($cwd);
+   return \@productList;
 }
 
 ####################################################################
@@ -751,7 +1047,177 @@ sub check_media {
 
   return \%ret;
 }
+####################################################################
+BEGIN { $TYPEINFO{collect_labels_for_product} = ["function",["map", "string", [ "map", "string", "string"]], "string", "string", "string", ["list","string"] ]; }
+sub collect_labels_for_product {
+   my $self = shift;
+   my $prod = shift;
+   my $instmaster = shift;
+   my $components_prod_dir = shift;
+   my $prd_labels_ref = shift;
 
+   my @prd_labels = undef;
+
+   my %LabelHash = ();
+   my %neededMediaHash = ();
+
+
+   logger("in collect_labels_for_product") if ($DEBUG);
+   if ($prd_labels_ref) {
+     @prd_labels = @$prd_labels_ref;
+   }
+
+   my $xml_file = "$instmaster/$components_prod_dir/packages.xml";
+
+   # do some checking if file exists
+   if (! -f $xml_file ){
+      logger("WARNING: File $xml_file does not exist") if ($DEBUG);
+      return \%neededMediaHash;
+   }
+
+   my $x   = XML::LibXML->new() or        return \%neededMediaHash;
+   my $doc = $x->parse_file($xml_file) or return \%neededMediaHash;
+
+   my $xpath = q{
+       /packages/package
+   };
+
+   # build complete hash
+   foreach my $node ($doc->findnodes($xpath)) {
+      $LabelHash{ $node->getAttribute("name") }{"mediaName"} = $node->getAttribute("mediaName");
+      $LabelHash{ $node->getAttribute("name") }{"label"} = $node->getAttribute("label") ;
+   }
+
+   # reduce the hash to the given list of search labels with wildcards (regex)
+   if ( $prd_labels_ref ) {
+      logger(">> use reduce list of labels") if ($DEBUG);
+      foreach my $label (@prd_labels) {
+         my @hitKeys = grep /$label/, keys(%LabelHash);
+         foreach my $key( @hitKeys ) {
+               $neededMediaHash{$key} = $LabelHash{$key};
+         }
+      }
+   # full list   
+   }else{
+      logger(">> use all labels") if ($DEBUG);
+      %neededMediaHash = %LabelHash;
+   }   
+
+   #print Dumper(%neededMediaHash);
+   #print "XXXXXXX: ".$neededMediaHash{"UKERNEL"}."\n";
+   #print "XXXXXXX: ".$neededMediaHash{"UKERNEL"}->{"mediaName"}."\n";
+   #print "XXXXXXX: ".$neededMediaHash{"UKERNEL"}->{"label"}."\n";
+
+   return \%neededMediaHash;
+
+}
+####################################################################
+# search_sapinst_id
+#
+# in: path where the instmaster lives
+#     which product we search for
+# out:
+#
+BEGIN { $TYPEINFO{search_sapinst_id} = ["function",[ "list", "string" ], "string", "string","string", "string", "string", "string", "string", "string"]; }
+sub search_sapinst_id {
+   my $self = shift;
+   my $INSTMASTER = shift;   
+   my $IMVERSION  = shift;   
+
+   my $PRODUCT  = shift;  # ERP,CRM,...
+   my $STACK    = shift;  # AS-JAVA, AS-ABAP,AS
+   my $DATABASE = shift;  # ADA,ORA,DB2,DB6  
+   my $TYPE     = shift;  # CENTRAL,DISTRIBUTED,STANDALONE,DIALOG
+   my $SEARCH   = shift || "";  # NW_ABAP_DB,NW_ABAP_OneHost,NW_Onehost,NW_Java_SCS,...
+   my $INSTALL  = shift;  # PD, LM (Dialoginstance), COPY (Systemcopy) , ES (Enterprise Search), PI (PI System) TREX, GW, WD
+
+        # max parameter (with systemcopy)
+        # $1   $2     $3      $4     $5        $6      $7     $9     $9
+        #$PRD,“LM“,$INSTALL,$STACK,$DATABASE,“SYSTEM“,$TYPE,$STACK,$SEARCH
+
+   logger("\nPRODUCT $PRODUCT\nSTACK $STACK\nDATABASE $DATABASE\nTYPE $TYPE\nSEARCH $SEARCH\nINSTALL $INSTALL") if($DEBUG);
+
+   if ($TYPE eq "DIALOG"){
+     $STACK = "AS";
+   }
+
+        # build the search string - this is really crazy :((
+   my $serials = '/';
+   if( $IMVERSION eq '70SWPM' or $IMVERSION eq 'NW70' ) {
+      $serials = $serials.'/components[@output-dir="'.$PRODUCT.'"]';
+      print "\n1\n";
+      
+      if ($INSTALL eq "ES") {
+              $serials = $serials.'/';
+      }
+      
+      if ($INSTALL eq "COPY"){
+         $serials = $serials.'/components[@output-dir="LM"]';
+           print "2\n";
+      
+      }
+      if ($TYPE ne "CENTRAL" && $TYPE ne "STANDALONE" && $INSTALL ne "ES" || $TYPE eq "CENTRAL" && $INSTALL eq "COPY" ) {
+         $serials = $serials.'/components[@output-dir="'.$INSTALL.'"]';
+           print "3\n";
+      }
+      if ($TYPE eq "CENTRAL" && $INSTALL eq "PD" || $TYPE eq "DIALOG" ){
+         $serials = $serials.'/components[@output-dir="'.$STACK.'"]';
+           print "4\n";
+      }
+      
+      if ($DATABASE && $INSTALL ne "ES"){
+           print "5\n";
+         $serials = $serials.'/components[@output-dir="'.$DATABASE.'"]';
+      }
+      
+      if ($INSTALL eq "COPY"){
+         $serials = $serials.'/components[@output-dir="SYSTEM"]';
+           print "6\n";
+      }
+      if ($TYPE eq "CENTRAL" || ($TYPE eq "STANDALONE" && $STACK eq "TREX" )){
+           print "7\n";
+         $serials = $serials.'/components[@output-dir="'.$TYPE.'"]';
+      }
+      if ($INSTALL eq "COPY" || ($TYPE eq "STANDALONE" && $STACK eq "TREX" ) ){
+           print "8\n";
+         $serials = $serials.'/components[@output-dir="'.$STACK.'"]';
+      }
+      if ($TYPE eq "STANDALONE" && $STACK ne "TREX") {
+         $serials = $serials.'/';
+      }
+      $serials = $serials.'/component[@name="'.$SEARCH.'"]';
+           print "9\n";
+   } else {
+      $SEARCH  = 'TREX_INSTALL' if( $SEARCH eq 'TREX_NW_CI_MAIN' );
+      $DATABASE= 'ADA'          if( ! $DATABASE );
+      $serials = '//components[@output-dir="'.$PRODUCT.'"]'.
+                 '//components[@output-dir="'.$DATABASE.'"]'.
+		 '//components[@output-dir="INSTALL"]';
+      if( $SEARCH ) {
+		 $serials = $serials.'//component[@name="'.$SEARCH.'"]';
+      }
+      else
+      {
+		 $serials = $serials.'//components[@output-dir="'.$DATABASE.'/STD"]//component';
+      }
+   }
+   $serials = $serials.'/@id';
+
+   my @PRODUCT_IDS = ();
+
+   my $x = XML::LibXML->new() or return \@PRODUCT_IDS ;
+   my $d = $x->parse_file("$INSTMASTER/product.catalog") or return \@PRODUCT_IDS ;
+        
+   logger("Query:\n".$serials) if ($DEBUG);;
+
+   for my $serial ($d->findnodes($serials)) {
+      logger(" PRODUCT_ID: ".$serial->value()) if ($DEBUG);
+      push @PRODUCT_IDS,$serial->value();
+   }
+
+   return \@PRODUCT_IDS;
+
+}
 ######################################################################################
 # type_of_product
 #  in : productname
