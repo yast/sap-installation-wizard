@@ -295,7 +295,8 @@ module Yast
     def ReadParameter
       Builtins.y2milestone("-- Start SAPProduct ReadParameter --")
       ret = :next
-      sid =""
+      sid        =""
+      instNumber =""
       hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname"))
       my_hostname = Ops.get_string(hostname_out, "stdout", "")
       my_hostname.strip!
@@ -340,6 +341,9 @@ module Yast
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
         end
+        if File.exist?("/tmp/ay_q_sapinstnr")
+           instNumber = IO.read("/tmp/ay_q_sapinstnr").chomp
+        end
         SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + SAPMedia.instDir )
       end
 
@@ -380,6 +384,7 @@ module Yast
              "PRODUCT_ID"     => @PRODUCT_ID,
              "PARTITIONING"   => partitioning,
              "SID"            => sid,
+             "INSTNUMBER"     => instNumber,
              "SCRIPT_NAME"    => script_name
           })
 
