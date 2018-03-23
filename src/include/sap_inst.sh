@@ -190,7 +190,7 @@ search_free_alias() {
 
 activate_network_alias() {
 	# Activate the virtual interface by reboot
-	# and call ifconfig to activate it immediately
+	# and call ip to activate it immediately
 
         local pairs directory filename _res text
 
@@ -217,7 +217,7 @@ activate_network_alias() {
         echo "  added settings to ${directory}/${filename}"
 
         # START THE INTERFACE now
-        _res=`ifconfig ${interface_name}:${virt_interface_name} ${virt_ip_address} netmask ${virt_ip_netmask} up`
+	_res=$( ip address add ${virt_ip_address}/${virt_ip_netmask} dev ${interface_name} label ${interface_name}:${virt_interface_name} )
 
         text=`grep "${virt_hostname}" /etc/hosts | head -n 1`
         if [ -n "${text}" ]; then
