@@ -341,7 +341,7 @@ hana_installation_summary ()
         summary_file="/root/installation${INSTALL_COUNT}_summary_${SID}.txt"
         tmpfile="${TMPDIR}/yast_popup_inst_summary.ycp"
         phys_ip=`host \`hostname\` | awk {'print $4'}`
-        phys_netmask=`ifconfig |grep ${phys_ip} | sed 's/.*://'`
+	phys_ip=$( ip address show  | grep $phys_ip | gawk '{ print $2 }' )
 
         cat > ${summary_file} <<-EOF
         #########################################################################
@@ -351,10 +351,9 @@ hana_installation_summary ()
         # Hostname:	`hostname`
         # Domain Name:	`dnsdomainname`
         # IP Address:	${phys_ip}
-        # Netmask:	${phys_netmask}
         # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
         # IP for Nameserver:	`grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' '`
-        # Default Gateway:	`route -n | awk '{ if ( match($0,"^0.0.0.0" )) print $2 }'`
+        # Default Gateway:	$( ip route list | gawk '/default/ { print $3}' )
         #
         # SAP HANA System ID:	${SID}
         # SAP HANA Instance:	${SAPINSTNR}

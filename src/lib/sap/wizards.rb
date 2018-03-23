@@ -31,6 +31,7 @@ require "hanafirewall/hanafirewall_conf"
 module Yast
   Yast.import "SAPMedia"
   Yast.import "SAPProduct"
+  Yast.import "Service"
   module SapInstallationWizardWizardsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
@@ -40,17 +41,35 @@ module Yast
 
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
-	if SAPMedia.instMasterType != "HANA"
-           return :next
+        hanaInstanceNumbers = []
+        Builtins.y2milestone("-- ApplyHANAFirewall SAPProduct Read --")
+        prodCount = 0;
+        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
+          instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
+          if File.exists?( instDir + "/installationSuccesfullyFinished.dat" ) && File.exists?( instDir + "/product.data")
+            productData = Convert.convert(
+               SCR.Read(path(".target.ycp"), instDir + "/product.data"),
+               :from => "any",
+               :to   => "map <string, any>"
+             )
+             if Ops.get_string(productData, "PRODUCT_NAME", "") == "HANA"
+                instNumber = Ops.get_string(productData, "INSTNUMBER", "")
+                if instNumber != ""
+                             hanaInstanceNumbers << instNumber
+                end
+             end
+          end
+          prodCount = prodCount.next
         end
-	HANAFirewall::HANAFirewallConfInst.load(IO.read('/etc/sysconfig/hana-firewall'))
-        hana_fw = HANAFirewall::HANAFirewallConfInst.gen_config
-        HANAFirewall::HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
-        HANAFirewall::HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
-        HANAFirewall::HANAFirewallConfInst.ifaces   = hana_fw[:ifaces]
-        HANAFirewall::HANAFirewallConfInst.save_config
-        HANAFirewall::HANAFirewallConfInst.set_state(true)
-	#TODO Please report the customer what we have done
+
+        if hanaInstanceNumbers.length > 0
+           SCR.Read(path(".sysconfig.hana-firewall"))
+           SCR.Write(path(".sysconfig.hana-firewall.HANA_INSTANCE_NUMBERS"),   hanaInstanceNumbers.join(" ") )
+           SCR.Write(path(".sysconfig.hana-firewall"), nil )
+           SCR.Execute(path(".target.bash"), "/usr/sbin/hana-firewall generate-firewalld-services")
+           Service.Restart("firewalld")
+        end
+        #TODO Please report the customer what we have done
         return :next
     end
 
@@ -59,7 +78,7 @@ module Yast
            require "saptune/saptune_conf"
            Saptune::SaptuneConfInst.auto_config 
         end
-	return :next
+        return :next
     end
 
     # SAP Installation Main Sequence
@@ -193,7 +212,7 @@ module Yast
         "readIM"  => lambda { SAPMedia::ReadInstallationMaster()   },
         "copy"    => lambda { SAPMedia::CopyNWMedia() },
         "3th"     => lambda { SAPMedia::ReadSupplementMedium() },
-	"add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
+        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
         "write"   => lambda { SAPMedia::Write() }
       }
 
