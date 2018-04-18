@@ -7,6 +7,8 @@ module Yast
     SAP_ACTION_ID      = "sap"
 
     def main
+      textdomain "sap-installation-wizard"
+
       Yast.import "PackagesProposal"
       Yast.import "ProductControl"
 
