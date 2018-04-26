@@ -49,7 +49,10 @@ describe Y2Sap::Clients::CreateStorage do
 
   let(:disks) { [eligible_disk, other_disk] }
   let(:failed?) { false }
-  let(:proposal) { instance_double(Y2Sap::StorageProposal, failed?: failed?, save: nil) }
+  let(:proposal) do
+    instance_double(Y2Sap::StorageProposal, failed?: failed?, save: nil, issues_list: issues_list)
+  end
+  let(:issues_list) { [] }
 
   let(:usr) { instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_point: "/usr") }
   let(:filesystems) { [usr] }
@@ -204,6 +207,81 @@ describe Y2Sap::Clients::CreateStorage do
       it "logs existing mount points" do
         expect(client.log).to receive(:info).with(/\/hana\/data/).and_call_original
         client.main
+      end
+    end
+
+    context "when a no relevant issue is found" do
+      let(:issues_list) { [Y2Storage::AutoinstIssues::MissingRoot.new] }
+
+      it "commits the proposal" do
+        expect(storage).to receive(:commit)
+        client.main
+      end
+
+      it "does not show any message" do
+        expect(Y2Autoinstallation::Dialogs::Question).to_not receive(:new)
+        client.main
+      end
+    end
+
+    context "when a relevant issue is found" do
+      let(:dialog) { instance_double(Y2Autoinstallation::Dialogs::Question, run: answer) }
+      let(:answer) { :ok }
+      let(:fatal_issue) { Y2Storage::AutoinstIssues::NoDiskSpace.new }
+      let(:shrinkage) { instance_double(Y2Storage::Proposal::DeviceShrinkage) }
+      let(:minor_issue) { Y2Storage::AutoinstIssues::ShrinkedPlannedDevices.new([shrinkage]) }
+
+      before do
+        allow(minor_issue).to receive(:message).and_return("")
+        allow(Y2Autoinstallation::Dialogs::Question).to receive(:new).and_return(dialog)
+      end
+
+      context "and a fatal issue is found" do
+        let(:issues_list) { [fatal_issue, minor_issue] }
+        let(:answer) { :abort }
+
+        it "displays an error dialog" do
+          expect(Y2Autoinstallation::Dialogs::Question).to receive(:new)
+            .with(String, timeout: 0, buttons_set: :abort)
+            .and_return(dialog)
+          client.main
+        end
+
+        it "returns :abort" do
+          expect(client.main).to eq(:abort)
+        end
+      end
+
+      context "and no fatal issue is found" do
+        let(:issues_list) { [minor_issue] }
+
+        it "displays a warning and asks the user whether it should continue or not" do
+          expect(Y2Autoinstallation::Dialogs::Question).to receive(:new)
+            .with(String, timeout: 0, buttons_set: :question)
+            .and_return(dialog)
+          client.main
+        end
+
+        context "and the user aborts" do
+          let(:answer) { :abort }
+
+          it "returns :abort" do
+            expect(client.main).to eq(:abort)
+          end
+        end
+
+        context "and the user does not abort" do
+          let(:answer) { :ok }
+
+          it "commits the proposal" do
+            expect(storage).to receive(:commit)
+            client.main
+          end
+
+          it "returns :next" do
+            expect(client.main).to eq(:next)
+          end
+        end
       end
     end
   end

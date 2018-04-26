@@ -42,7 +42,7 @@ module Y2Sap
 
     extend Forwardable
 
-    def_delegator :@proposal, :issues_list, :failed?
+    def_delegators :@proposal, :issues_list, :failed?
 
     # @return [Y2Storage::AutoinstProposal] Y2Storage proposal instance
     attr_reader :proposal
