@@ -13,7 +13,7 @@ module Yast
 
       # MAIN
 
-      textdomain "autoinst"
+      textdomain "sap-installation-wizard"
 
       @contents  = nil
       @help_text = ""
