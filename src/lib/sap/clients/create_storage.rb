@@ -39,7 +39,7 @@ module Y2Sap
 
       # Client entry point
       def main
-        textdomain "sap"
+        textdomain "sap-installation-wizard"
 
         Yast::Wizard.CreateDialog
 
