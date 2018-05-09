@@ -59,7 +59,7 @@ module Yast
 
     def TuneTheSystem
         Builtins.y2milestone("--- Start TuneTheSystem ---")
-        if Arch.x86_64 && ! File.exist?("/.dockerenv") || Package.Installed('yast2-saptune')
+        if Package.Installed('yast2-saptune') && ( Arch.x86_64 && ! File.exist?("/.dockerenv") )
            require "saptune/saptune_conf"
            Saptune::SaptuneConfInst.auto_config 
         end
