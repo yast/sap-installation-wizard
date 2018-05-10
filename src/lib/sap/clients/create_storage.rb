@@ -180,6 +180,7 @@ module Y2Sap
         buttons_set = relevant_issues.any?(&:fatal?) ? :abort : :question
         presenter = Y2Autoinstallation::StorageProposalIssuesPresenter.new(relevant_issues)
         Y2Autoinstallation::Dialogs::Question.new(
+          # TRANSLATORS: issues found while proposing the partitioning layout
           _("Partitioning issues"), presenter.to_html, timeout: 0, buttons_set: buttons_set
         ).run
       end
