@@ -40,9 +40,9 @@ EOF
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
 ARCH=$( uname -m | tr [:lower:] [:upper:] )
-if [ "${ARCH}" = "PPC64LE" ]; then
-	ARCH="PPC64"
-fi
+#if [ "${ARCH}" = "PPC64LE" ]; then
+#	ARCH="PPC64"
+#fi
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:hg\?" options; do
