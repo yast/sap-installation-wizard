@@ -40,8 +40,8 @@ function check_masterpwd() {
 		echo "You must provide a master password for your installation!"
 		exit 1
         fi
-	if [ "${#pwd}" -gt 9 ]; then 
-		echo "The master password cannot be longer than 9 chars currently."
+	if [ "${#pwd}" -gt 14 ]; then
+		echo "The master password cannot be longer than 14 chars currently."
 		echo "You entered a ${#pwd} chars long password." 
 		exit 1
         fi
@@ -53,7 +53,7 @@ function check_masterpwd() {
         if [ -n "${pwd//[0-9A-Za-z\$@_#]/}" ]; then
 		echo "The Password contains forbidden chars."
 		echo "Allowed are 0-9, A-Z, a-z and $ @ _ #"
-		echo "But you're using: '${pwd//[0-9A-Za-z_@#]/}'."
+		echo "But you're using: '${pwd//[0-9A-Za-z\$_@#]/}'."
 		exit 1
 	fi	
         if [ -z "${pwd//[A-Za-z\$@_#]/}" ]; then
