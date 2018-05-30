@@ -1176,7 +1176,6 @@ module Yast
     publish :function => :ParseXML,            :type => "boolean ()"
     publish :function => :MountSource,         :type => "string ()"
     publish :function => :CopyFiles,           :type => "void ()"
-    publish :function => :CreatePartitions,    :type => "void ()"
     publish :function => :ShowPartitions,      :type => "string ()"
     publish :function => :WriteProductDatas,   :type => "void ()"
     publish :function => :ExportSAPCDs,        :type => "void ()"
