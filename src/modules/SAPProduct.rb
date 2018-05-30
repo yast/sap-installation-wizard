@@ -413,6 +413,7 @@ module Yast
       Builtins.y2milestone("-- Start SAPProduct Write --")
       productScriptsList      = []
       productPartitioningList = []
+      productList             = []
       @productsToInstall.each { |instDir|
         productData = Convert.convert(
           SCR.Read(path(".target.ycp"), instDir + "/product.data"),
@@ -429,6 +430,9 @@ module Yast
         )
         # Add script
         productScriptsList << "/bin/sh -x " + Ops.get_string(productData, "SCRIPT_NAME", "") + params
+
+	# Add product to install
+	productList << Ops.get_string(productData, "PRODUCT_ID", "")
         
         # Add product partitioning
         ret = Ops.get_string(productData, "PARTITIONING", "")
@@ -439,7 +443,7 @@ module Yast
         productPartitioningList << ret if ret != "NO"
       }
       #Start create the partitions
-      ret = SAPPartitioning.CreatePartitions(productPartitioningList)
+      ret = SAPPartitioning.CreatePartitions(productPartitioningList,productList)
       Builtins.y2milestone("SAPPartitioning.CreatePartitions returned: %1",ret)
       if( ret == "abort" )
         return :abort
