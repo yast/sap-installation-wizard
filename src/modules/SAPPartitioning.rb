@@ -50,8 +50,15 @@ module Yast
             partXML = @partXMLPath + "/hana_partitioning.xml"
             #TODO Do we have to warn if generic partitioning happens?
             if productList.include?('B1')
+<<<<<<< HEAD
 		if ! Popup.YesNoHeadline(_("Your System is not certified for SAP Business One on HANA."),
 			_("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
+=======
+		if Popup.YesNoHeadline(_("Your System is not certified for SAP Business One on HANA."),
+			_("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
+		    return "ok"
+		else
+>>>>>>> a1ab926af39bcfedac983cd22b437c505bdc51a1
 		    return "abort"
 		end
 	    end
