@@ -192,7 +192,7 @@ module Yast
       Builtins.y2milestone("freeDevices %1", @freeDevices)
       if @devices == 0
 	if Popup.YesNoHeadline(_("Do you want to continue the installation?"),
-				_("Your system does not meet the TDI requirements. There is no guarantee that the system will work properly."))
+		               _("Your system does not meet the requirements. There is no guarantee that the system will work properly."))
 	    return "ok"
         else
             return "abort"
@@ -254,7 +254,7 @@ module Yast
             min  = min/1024/1024/1024
             have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/1024
             message = _("<size=30><b><color=red>Warning</color></b></size><br>")
-	    message << _("Your system does not meet the TDI requirements.")
+	    message << _("Your system does not meet the requirements.")
             message << Builtins.sformat(_("There is less disk space than recommended for this LVG %1.<br>"), _LVG)
             message << Builtins.sformat(_("The recommended amount of %1 GB is not available.<br>"), min )
             message << Builtins.sformat(_("The total currently available amount %1 GB can not be used for the SAP installation.<br>"), have )
