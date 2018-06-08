@@ -13,7 +13,7 @@ BCKP_PATH_LOG=/var/log/SAPBusinessOne/BackupService/logs
 #Backup location
 BCKP_PATH_TARGET=/hana/shared/backup_service/backups
 #Working folder
-BCKP_PATH_WORKING=/tmp/backup_service
+BCKP_PATH_WORKING=/hana/data/tmp/backup_service
 #Delete Shared Folder during uninstall
 DELETE_B1_SHR=false
 #HANA DB Server name or IP
