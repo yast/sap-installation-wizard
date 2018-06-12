@@ -40,9 +40,9 @@ EOF
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
 ARCH=$( uname -m | tr [:lower:] [:upper:] )
-if [ "${ARCH}" = "PPC64LE" ]; then
-	ARCH="PPC64"
-fi
+#if [ "${ARCH}" = "PPC64LE" ]; then
+#	ARCH="PPC64"
+#fi
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:hg\?" options; do
@@ -406,7 +406,7 @@ hana_lcm_workflow()
            COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
            LCM_COMPONENTS=client,afl,studio,server
        else
-           if [ "${ARCH}" == "PPC64" ];then
+           if [ "${ARCH}" == "PPC64LE" ];then
               COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH}"
               LCM_COMPONENTS=client,afl,server
            else
@@ -422,7 +422,7 @@ hana_lcm_workflow()
               COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_CLIENT32 SAP_HANA_DATABASE SAP_HANA_STUDIO'
               LCM_COMPONENTS=client,afl,studio,server
            else
-              if [ "${ARCH}" == "PPC64" ];then
+              if [ "${ARCH}" == "PPC64LE" ];then
                  COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_DATABASE'
                  LCM_COMPONENTS=client,afl,server
               else

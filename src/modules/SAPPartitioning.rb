@@ -21,7 +21,7 @@ module Yast
       )
     end
 
-    def CreatePartitions(productPartitioningList)
+    def CreatePartitions(productPartitioningList,productList)
       Builtins.y2milestone("********Starting partitioning")
 
       ret = nil
