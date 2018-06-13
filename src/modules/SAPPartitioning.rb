@@ -172,7 +172,7 @@ module Yast
     end
 
     def CreateHANAPartitions(void)
-        CreatePartitions(["hana_partitioning"])
+        CreatePartitions(["hana_partitioning"],["HANA"])
         ShowPartitions("SAP file system creation successfully done:")
     end
 
