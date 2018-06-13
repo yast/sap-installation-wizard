@@ -74,8 +74,8 @@ IP_ADDR=`gethostip -d $HOSTNAME`
 # YaST parameter take over
 A_MASTERPASS=`cat "${MEDIA_TARGET}/ay_q_masterpass"`
 A_SID=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c1-3`
-A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sapinstnr"`
-
+#A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sapinstnr"`
+A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c5-6`
 
 ###########################################
 # Define ERRORS section
@@ -187,9 +187,10 @@ parameters()
     touch $PROPERTIES
     cat /usr/share/YaST2/include/sap-installation-wizard/b1h_default_properties > $PROPERTIES
     echo "B1S_TECHUSER_PASSWORD=${A_MASTERPASS}
-BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"30015\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
+#BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"30015\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
+BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"3${A_SAPINSTNR}15\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
 HANA_DATABASE_SERVER=${IP_ADDR}
-HANA_DATABASE_SERVER_PORT=30015
+HANA_DATABASE_SERVER_PORT=3${A_SAPINSTNR}15
 HANA_DATABASE_USER_PASSWORD=${A_MASTERPASS}
 LOCAL_ADDRESS=${IP_ADDR}
 SITE_USER_PASSWORD=${A_MASTERPASS}
