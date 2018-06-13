@@ -354,7 +354,7 @@
       <type>HANA</type>
       <ay_xml>B1.xml</ay_xml>
       <script_name>b1_inst.sh</script_name>
-      <partitioning>b1_partitioning</partitioning>
+      <partitioning>NO</partitioning>
       <media>
         <listentry>1.0</listentry>
       </media>

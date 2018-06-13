@@ -21,7 +21,7 @@ module Yast
       )
     end
 
-    def CreatePartitions(productPartitioningList)
+    def CreatePartitions(productPartitioningList,productList)
       Builtins.y2milestone("********Starting partitioning")
 
       ret = nil
@@ -40,6 +40,7 @@ module Yast
                 "FUJITSU",
                 "IBM",
                 "HP",
+                "HPE",
                 "Dell Inc.",
                 "Huawei Technologies Co., Ltd.",
                 "Huawei"
@@ -171,7 +172,7 @@ module Yast
     end
 
     def CreateHANAPartitions(void)
-        CreatePartitions(["hana_partitioning"])
+        CreatePartitions(["hana_partitioning"],["HANA"])
         ShowPartitions("SAP file system creation successfully done:")
     end
 
