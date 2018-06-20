@@ -288,6 +288,7 @@ module Yast
           break if back
         end
         if back
+          @LVGsize = {}
           ret = selectDevices()
           if ret == :abort or ret == :back  
              Wizard.CloseDialog() if @closeMe
