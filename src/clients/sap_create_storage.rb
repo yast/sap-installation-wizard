@@ -119,31 +119,27 @@ module Yast
 	       minSize = minSize.to_f * @memory
                Ops.set( @profile, ["partitioning", i, "partitions", j, "size_min"], minSize)
 	     else
-	       minSize = 1
+	       minSize = 1024*1024*1024
 	     end
 	     #Evaluate the max size of the partition
              size  = Ops.get_string(drive, ["partitions", j, "size_max"], "")
-             @ltmp = Builtins.regexptokenize(size, "(.*)([G|T])")
-	     maxSize = Ops.get_string(@ltmp, 0, "")
-	     maxSizeDim = Ops.get_string(@ltmp, 1, "")
-	     case maxSizeDim
-	       when "G"
-                  maxSize = maxSize.to_i*1024*1024*1024
-	       when "T"
-                  maxSize = maxSize.to_i*1024*1024*1024*1024
-               else
-                  maxSize = minSize.to_i
-	     end
+             maxSize = getDimensionedValue(size)
              Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
              size  = Ops.get_string(drive, ["partitions", j, "size"], "")
 	     if size == ""
 	        if minSize > maxSize
-                   maxSize = maxSize/1024/1024/1024
-                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], maxSize.to_s + "G")
+                   size = maxSize/1024/1024/1024
+                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G")
 	        else
-                   minSize = minSize/1024/1024/1024
-                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], minSize.to_s + "G" )
+                   size = minSize/1024/1024/1024
+                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G" )
 	        end
+	     end
+             size  = Ops.get_string(drive, ["partitions", j, "size_min"], "")
+	     if size == ""
+                size = Ops.get_string(drive, ["partitions", j, "size"], "")
+                size = getDimensionedValue(size)
+                Ops.set( @profile, ["partitioning", i, "partitions", j, "size_min"], size)
 	     end
           end
           @neededLVG << device if !@created
@@ -242,11 +238,9 @@ module Yast
       while back
         Builtins.foreach(@neededLVG) do |_LVG|
 	  min = 0
-	  j   = -1
           Builtins.foreach(Ops.get_list(@LVGs, [_LVG, "partitions"], [])) do |partition|
               Builtins.y2milestone("Partition %1", partition)
 	      next if partition["size_min"] == nil
-	      j = j + 1
               min = min + partition["size_min"]
 	  end
           Builtins.y2milestone("Checking _LVG %1 min: %2 size %3", _LVG, min, Ops.get(@LVGsize, _LVG, 0))
@@ -332,6 +326,24 @@ module Yast
 
       Wizard.CloseDialog() if @closeMe
       :next
+    end
+
+    # **********************************************
+    # Function to calculate the kb values from GiB and Tb
+    # **********************************************
+    def getDimensionedValue(value)
+             @ltmp     = Builtins.regexptokenize(value, "(.*)([G|T])")
+	     size      = Ops.get_string(@ltmp, 0, "")
+	     dimension = Ops.get_string(@ltmp, 1, "")
+	     case dimension
+	       when "G"
+                  size = size.to_i*1024*1024*1024
+	       when "T"
+                  size = size.to_i*1024*1024*1024*1024
+               else
+                  size = 1024*1024*1024
+	     end
+	     return size
     end
 
     # **********************************************
