@@ -55,6 +55,10 @@ module Yast
       #Read the proposed XML
       @profile = XML.XMLToYCPFile(xmlFile)
       Builtins.y2milestone("Read Partitioning profile %1", @profile)
+      if @profile == nil
+        Builtins.y2error("Partitioning file does not contains valid xml datas.")
+        return :abort
+      end
 
       #If the partitioning is predefined do it and go ahaed
       if Ops.get_boolean(@profile, "partitioning_defined", false)

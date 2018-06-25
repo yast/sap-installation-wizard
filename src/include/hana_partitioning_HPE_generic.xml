@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
   <partitioning config:type="list">
@@ -6,18 +7,18 @@
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
-			<create config:type="boolean">true</create>
-			<lvm_group>vg_hana_log</lvm_group>
-			<partition_type>primary</partition_type>
-			<partition_id config:type="integer">142</partition_id>
-			<partition_nr config:type="integer">1</partition_nr>
-			<size>max</size>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_log</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <size>max</size>
         </partition>
       </partitions>
       <use>all</use>
     </drive>
-	<drive>
-	<device>/dev/vg_hana_log</device>
+    <drive>
+      <device>/dev/vg_hana_log</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
         <partition>
@@ -28,26 +29,25 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
-    <use>all</use>
-	</drive>
-	
-	<drive>
+      <use>all</use>
+    </drive>
+    <drive>
       <device>/dev/sdc</device>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
-			<create config:type="boolean">true</create>
-			<lvm_group>vg_hana_shared</lvm_group>
-			<partition_type>primary</partition_type>
-			<partition_id config:type="integer">142</partition_id>
-			<partition_nr config:type="integer">1</partition_nr>
-			<size>max</size>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_shared</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <size>max</size>
         </partition>
       </partitions>
       <use>all</use>
     </drive>
-	<drive>
-	<device>/dev/vg_hana_shared</device>
+    <drive>
+      <device>/dev/vg_hana_shared</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
         <partition>
@@ -58,26 +58,25 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
-    <use>all</use>
-	</drive>
-	
-	<drive>
+      <use>all</use>
+    </drive>
+    <drive>
       <device>/dev/sdd</device>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
-			<create config:type="boolean">true</create>
-			<lvm_group>vg_hana_usrsap</lvm_group>
-			<partition_type>primary</partition_type>
-			<partition_id config:type="integer">142</partition_id>
-			<partition_nr config:type="integer">1</partition_nr>
-			<size>max</size>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_usrsap</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <size>max</size>
         </partition>
       </partitions>
       <use>all</use>
     </drive>
-	<drive>
-	<device>/dev/vg_hana_usrsap</device>
+    <drive>
+      <device>/dev/vg_hana_usrsap</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
         <partition>
@@ -88,26 +87,25 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
-    <use>all</use>
-	</drive>
-	
-	<drive>
+      <use>all</use>
+    </drive>
+    <drive>
       <device>/dev/sde</device>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
-			<create config:type="boolean">true</create>
-			<lvm_group>vg_hana_data</lvm_group>
-			<partition_type>primary</partition_type>
-			<partition_id config:type="integer">142</partition_id>
-			<partition_nr config:type="integer">1</partition_nr>
-			<size>max</size>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_data</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <size>max</size>
         </partition>
       </partitions>
       <use>all</use>
     </drive>
-	<drive>
-	<device>/dev/vg_hana_data</device>
+    <drive>
+      <device>/dev/vg_hana_data</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
         <partition>
@@ -118,6 +116,7 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
-    <use>all</use>
-	</drive>
-</partitioning>
+      <use>all</use>
+    </drive>
+  </partitioning>
+</profile>
