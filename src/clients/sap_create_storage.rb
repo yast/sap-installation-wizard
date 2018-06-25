@@ -56,7 +56,7 @@ module Yast
       @profile = XML.XMLToYCPFile(xmlFile)
       Builtins.y2milestone("Read Partitioning profile %1", @profile)
       if @profile == nil
-        Builtins.y2error("Partitioning file does not contain valid xml datas.")
+        Builtins.y2error("Partitioning file does not contain valid XML data.")
         return :abort
       end
 
