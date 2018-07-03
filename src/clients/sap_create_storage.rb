@@ -319,6 +319,7 @@ module Yast
       #Now we are creating the needed LVMs
       Builtins.foreach(@neededLVG) do |_LVG|
         Wizard.SetContents(_("Processing Partitioning"), RichText(Builtins.sformat(_("The LVM %1 will be created. Depending on your system this may take some time."),_LVG)),"",false,false)
+        Builtins.y2milestone("Start creating _LVG %1", _LVG)
         Stage.Set("initial")
         Mode.SetMode("autoinstallation")
         AutoinstStorage.Import(Ops.get_list(@profiles, _LVG, []))
