@@ -12,6 +12,7 @@
           <partition_type>primary</partition_type>
           <partition_id config:type="integer">142</partition_id>
           <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
           <size>max</size>
         </partition>
       </partitions>
@@ -29,6 +30,7 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
     <drive>
@@ -41,9 +43,12 @@
           <partition_type>primary</partition_type>
           <partition_id config:type="integer">142</partition_id>
           <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
           <size>max</size>
         </partition>
       </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
     <drive>
@@ -70,9 +75,12 @@
           <partition_type>primary</partition_type>
           <partition_id config:type="integer">142</partition_id>
           <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
           <size>max</size>
         </partition>
       </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
     <drive>
@@ -99,9 +107,12 @@
           <partition_type>primary</partition_type>
           <partition_id config:type="integer">142</partition_id>
           <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
           <size>max</size>
         </partition>
       </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
     <drive>
