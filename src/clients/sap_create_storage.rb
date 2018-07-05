@@ -181,8 +181,8 @@ module Yast
            slots = slots_ref.value
            Builtins.y2milestone("SLOTS %1",slots)
            Builtins.foreach(slots) do |slot|
-	     cylinders = Ops.get_integer(slot, [:region, 1], 0) - Ops.get_integer(slot, [:region, 0], 0) + 1
-             free = free + cylinders * Ops.get_integer(dev, "cyl_size", 0)
+	     cylinders = Ops.get_integer(slot, [:region, 1], 0)
+             free = free + ( cylinders * Ops.get_integer(dev, "cyl_size", 0) )
              Builtins.y2milestone("Free device %1 cylinders %2 cyl_size %3 free %4",  name , cylinders, Ops.get_integer(dev, "cyl_size", 0), free )
            end
 	else
