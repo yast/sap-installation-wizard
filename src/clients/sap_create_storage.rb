@@ -164,7 +164,9 @@ module Yast
       @d = Storage.GetTargetMap
       Builtins.y2milestone("target map %1", @d)
       Builtins.foreach(@d) do |name, dev|
-        type = Ops.get_symbol(dev, "type")
+        free = 0
+        type       = Ops.get_symbol(dev, "type")
+        partitions = Ops.get_list(dev, "partitions")
 	Builtins.y2milestone("TARGETMAP %1", dev)
 	Builtins.y2milestone("DEVICE name %1 type %2 used_by", name, type,  Ops.get_list(dev, "used_by", []) )
         if type == :CT_DISK
@@ -172,17 +174,20 @@ module Yast
         elsif type != :CT_DMMULTIPATH
           next
         end
-        Builtins.y2milestone("disk %1", name)
-        slots = []
-        slots_ref = arg_ref(slots)
-        Storage.GetUnusedPartitionSlots(name, slots_ref)
-        slots = slots_ref.value
-        free = 0
-        Builtins.y2milestone("SLOTS %1",slots)
-        Builtins.foreach(slots) do |slot|
-          free = free + Ops.get_integer(slot, [:region, 1], 0) * Ops.get_integer(dev, "cyl_size", 0)
-          Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops.get_integer(slot, ["region", 1], 0), Ops.get_integer(dev, "cyl_size", 0), free )
-        end
+	if partitions != []
+           slots = []
+           slots_ref = arg_ref(slots)
+           Storage.GetUnusedPartitionSlots(name, slots_ref)
+           slots = slots_ref.value
+           Builtins.y2milestone("SLOTS %1",slots)
+           Builtins.foreach(slots) do |slot|
+	     cylinders = Ops.get_integer(slot, [:region, 1], 0)
+             free = free + ( cylinders * Ops.get_integer(dev, "cyl_size", 0) )
+             Builtins.y2milestone("Free device %1 cylinders %2 cyl_size %3 free %4",  name , cylinders, Ops.get_integer(dev, "cyl_size", 0), free )
+           end
+	else
+	   free = Ops.get_integer(dev, "size_k", 0) * 1024
+	end
         if free > 1073741824
           Ops.set(@cylSize, name, Ops.get_integer(dev, "cyl_size", 0))
           Ops.set(@freeDevices, name, free)
