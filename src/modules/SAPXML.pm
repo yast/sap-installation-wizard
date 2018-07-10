@@ -111,6 +111,7 @@ sub is_instmaster {
 
    foreach my $label_file( search_labelfiles($prod_path) ){
       logger(" Checking Labelfile: $label_file") if ($DEBUG);
+      my @filepath = split("/", $label_file);
       open ($FILE, $label_file);         
          while (<$FILE>) {
             chomp;
