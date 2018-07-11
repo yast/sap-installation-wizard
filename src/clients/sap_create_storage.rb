@@ -27,7 +27,7 @@ module Yast
       @LVGsize = {}
       @SWAP = {}
       @closeMe = false
-
+      
       @needSWAP = true
       if `cat /proc/swaps | wc -l`.to_i > 1
          @needSWAP = false
@@ -125,12 +125,26 @@ module Yast
 	     else
 	       minSize = 1024*1024*1024
 	     end
-	     #Evaluate the max size of the partition
-             size  = Ops.get_string(drive, ["partitions", j, "size_max"], "")
-             maxSize = getDimensionedValue(size)
-             Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
-             size  = Ops.get_string(drive, ["partitions", j, "size"], "")
-	     if size == ""
+       #Evaluate the max size of the partition
+       maxSize = Ops.get_string(drive, ["partitions", j, "size_max"], "")
+       size  = Ops.get_string(drive, ["partitions", j, "size"], "")
+       sizeAux = getDimensionedValue(size)
+       
+       #if the size_max is not informed, we assume the bigger of min or size tag.
+       # This is an workaround for the default value of 1 GB.
+       # TODO: Refactor this logic.
+       if maxSize == ""
+          if ((sizeAux != nil) && (sizeAux > minSize))
+            maxSize = sizeAux.to_f
+          else
+            maxSize = minSize.to_f
+          end
+        else
+          maxSize = getDimensionedValue(maxSize)
+        end
+       Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
+
+       if size == ""
 	        if minSize > maxSize
                    size = maxSize/1024/1024/1024
                    Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G")
