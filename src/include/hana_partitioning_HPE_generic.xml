@@ -17,6 +17,7 @@
         </partition>
       </partitions>
       <use>all</use>
+      <type config:type="symbol">CT_DISK</type>
     </drive>
     <drive>
       <device>/dev/vg_hana_log</device>
@@ -30,7 +31,7 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
-      <type config:type="symbol">CT_DISK</type>
+      <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
     <drive>
@@ -63,6 +64,7 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
     <drive>
@@ -95,6 +97,7 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
     <drive>
@@ -127,6 +130,7 @@
         </partition>
       </partitions>
       <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
   </partitioning>

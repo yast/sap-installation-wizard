@@ -33,7 +33,6 @@ our @ISA = qw(Exporter AutoLoader);
 #our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw( 
-find_local_IM
 is_instmaster
 get_sapinst_version
 get_sapinst_path
@@ -75,39 +74,6 @@ my %DBMAP      = (
 			"MAX" => "ADA"
 		);
 
-####################################################################
-# find_local_IM
-# #
-# # in  - start directory for label search ($PROD_PATH)
-#         tmpTargetDir = /data/SAP_CDs
-#         prodCount    = e.g 4
-#         instMasterDir= Instmaster
-#
-# # out - list of path to alternative local installmaster
-# #
-BEGIN { $TYPEINFO{find_local_IM} = ["function", ["list", "string"], "string", "integer","string"]; }
-sub find_local_IM {
-   my $self         = shift;
-   my $tmpTargetDir = shift; 
-   my $prodCount    = shift;
-   my $instMasterDir= shift; 
-
-   my @list = ();
-   logger("In find_local_IM") if ($DEBUG);
-
-   my $CUR_IM_LABEL = _read_labelfile("$tmpTargetDir/$prodCount/$instMasterDir/LABEL.ASC");
-
-   for (my $i = 0; $i < $prodCount; $i++) {
-      my $IM_LABEL = _read_labelfile("$tmpTargetDir/$i/$instMasterDir/LABEL.ASC");
-      logger("Try local Instmaster dir:$tmpTargetDir/$i/$instMasterDir") if ($DEBUG);
-
-      if( $IM_LABEL eq $CUR_IM_LABEL ) {
-         logger("Similar local Instmaster found at:$tmpTargetDir/$i/$instMasterDir") if ($DEBUG);
-         push @list, "$tmpTargetDir/$i";
-      }
-   }
-   return \@list;
-}
 
 ####################################################################
 # is_instmaster
@@ -135,8 +101,8 @@ sub is_instmaster {
    logger("in Function: is_instmaster, prod_path='$prod_path'") if ($DEBUG);
 
    
+   #TREX is totaly other
    if( -d "$prod_path/tx_trex_content" and -e "$prod_path/tx_trex_content/TX_LINUX_X86_64/install.sh") {
-      #TREX is totaly other
       $instmaster[0] = "TREX";
       $instmaster[1] = "$prod_path/tx_trex_content/TX_LINUX_X86_64/";
       return \@instmaster;
@@ -155,9 +121,24 @@ sub is_instmaster {
             }
 	    logger(" Field 1 : ".$fields[1]) if ($DEBUG);
 	    next if (! defined $fields[1] );
-            # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
-            # HANA DB server component is found first!!
-            if ($fields[1] =~ /^HANA/ ) {
+	    if( $fields[0]  eq 'SAP' and $fields[1] eq 'SAP' and $fields[2] eq 'SAP' ) {
+	       # This is a new special case for BOne bundle.
+	       my $labelDir = dirname($label_file);
+	       my $cdLabel  = `head -n 1 $labelDir/CDLABEL.ASC`;
+	       @fields = split(" ",$cdLabel);
+	       if($fields[0]  eq 'HANA' ) {
+	           $instmaster[0] = "HANA";
+	           $instmaster[1] = $labelDir;
+		   last;
+	       }
+	       if($fields[0]  eq 'SAP' and $fields[1] eq 'B1' ) {
+	           $instmaster[0] = "B1";
+	           $instmaster[1] = $labelDir;
+		   last;
+	       }
+            }elsif ($fields[1] =~ /^HANA/ ) {
+               # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
+               # HANA DB server component is found first!!
                #HDB:HANA ENTERPRISE:1.0:LINUXX86_64:media delivery SAP High-Performance Analytic Appliance Enterprise 1.0::D51041779
                #HDB:HANA:1.0:LINUX_PPC64:HANA PLATFORM 1.0 for Linux on Power::D51050340
                #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
