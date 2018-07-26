@@ -58,7 +58,7 @@ NW_DB6_DB.db6.java.schema =
 
 NW_GetMasterPassword.masterPwd = ##masterPwd##
 
-# Human readable form of the Default Login language - used for instant in the preselection in SAPGUI. This Parameter is potentialy asked in addition in the dialog that also asks for the SID. It is not asked in all this dialogs, but only in systems that have ( potentialy beside others ) an ABAP stack. It is ask for installation but not for system copy. It is asked in those installations, that perform the ABAP load. That could be the Database Load installation in case of a distributed szenario, or in the Standard Installer, that is not distributed at all. This Parameter is saved in the Default Profile. It is has no influence on Language settings in a Java Stack. Valid names are stored in a table of the subcomponent NW_languagesInLoadChecks. The available languages must be declaired in the LANGUAGES_IN_LOAD parameter of the product.xml . In this file the one character representation of the languages is uses. Check the same table in the subcomponent mentioned above.
+# Human readable form of the Default Login language - used for instance in the preselection in SAPGUI. This Parameter is potentially asked in addition in the dialog that also asks for the SID. It is not asked in all these dialogs, but only in systems that have ( potentialy beside others ) an ABAP stack. It is asked for installation but not for system copy. It is asked in those installations, that perform the ABAP load. That could be the Database Load installation in case of a distributed scenario, or in the Standard Installer, that is not distributed at all. This Parameter is saved in the Default Profile. It has no influence on Language settings in a Java Stack. Valid names are stored in a table of the subcomponent NW_languagesInLoadChecks. The available languages must be declared in the LANGUAGES_IN_LOAD parameter of the product.xml . In this file the one character representation of the languages is used. Check the same table in the subcomponent mentioned above.
 NW_GetSidNoProfiles.SAP_GUI_DEFAULT_LANGUAGE = 
 
 # The drive to use (windows only)
@@ -106,7 +106,7 @@ NW_getFQDN.setFQDN = false
 # The path to the jce policy archive to install into the java home directory if it is not already installed.
 NW_getJavaHome.jcePolicyArchive = 
 
-# Valid values are: SAP, STD, OBR, HCP, MDAThe loadtype chosen by the user.
+# Valid values are: SAP, STD, OBR, HCP, MDA. The loadtype chosen by the user.
 NW_getLoadType.loadType = SAP
 
 NW_readProfileDir.profileDir = 

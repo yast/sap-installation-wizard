@@ -27,7 +27,7 @@ module Yast
       @LVGsize = {}
       @SWAP = {}
       @closeMe = false
-
+      
       @needSWAP = true
       if `cat /proc/swaps | wc -l`.to_i > 1
          @needSWAP = false
@@ -55,6 +55,10 @@ module Yast
       #Read the proposed XML
       @profile = XML.XMLToYCPFile(xmlFile)
       Builtins.y2milestone("Read Partitioning profile %1", @profile)
+      if @profile == nil
+        Builtins.y2error("Partitioning file does not contain valid XML data.")
+        return :abort
+      end
 
       #If the partitioning is predefined do it and go ahaed
       if Ops.get_boolean(@profile, "partitioning_defined", false)
@@ -119,31 +123,41 @@ module Yast
 	       minSize = minSize.to_f * @memory
                Ops.set( @profile, ["partitioning", i, "partitions", j, "size_min"], minSize)
 	     else
-	       minSize = 1
+	       minSize = 1024*1024*1024
 	     end
-	     #Evaluate the max size of the partition
-             size  = Ops.get_string(drive, ["partitions", j, "size_max"], "")
-             @ltmp = Builtins.regexptokenize(size, "(.*)([G|T])")
-	     maxSize = Ops.get_string(@ltmp, 0, "")
-	     maxSizeDim = Ops.get_string(@ltmp, 1, "")
-	     case maxSizeDim
-	       when "G"
-                  maxSize = maxSize.to_i*1024*1024*1024
-	       when "T"
-                  maxSize = maxSize.to_i*1024*1024*1024*1024
-               else
-                  maxSize = minSize.to_i
-	     end
-             Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
-             size  = Ops.get_string(drive, ["partitions", j, "size"], "")
-	     if size == ""
+       #Evaluate the max size of the partition
+       maxSize = Ops.get_string(drive, ["partitions", j, "size_max"], "")
+       size  = Ops.get_string(drive, ["partitions", j, "size"], "")
+       sizeAux = getDimensionedValue(size)
+       
+       #if the size_max is not informed, we assume the bigger of min or size tag.
+       # This is an workaround for the default value of 1 GB.
+       # TODO: Refactor this logic.
+       if maxSize == ""
+          if ((sizeAux != nil) && (sizeAux > minSize))
+            maxSize = sizeAux.to_f
+          else
+            maxSize = minSize.to_f
+          end
+        else
+          maxSize = getDimensionedValue(maxSize)
+        end
+       Ops.set( @profile, ["partitioning", i, "partitions", j, "size_max"], maxSize)
+
+       if size == ""
 	        if minSize > maxSize
-                   maxSize = maxSize/1024/1024/1024
-                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], maxSize.to_s + "G")
+                   size = maxSize/1024/1024/1024
+                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G")
 	        else
-                   minSize = minSize/1024/1024/1024
-                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], minSize.to_s + "G" )
+                   size = minSize/1024/1024/1024
+                   Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G" )
 	        end
+	     end
+             size  = Ops.get_string(drive, ["partitions", j, "size_min"], "")
+	     if size == ""
+                size = Ops.get_string(drive, ["partitions", j, "size"], "")
+                size = getDimensionedValue(size)
+                Ops.set( @profile, ["partitioning", i, "partitions", j, "size_min"], size)
 	     end
           end
           @neededLVG << device if !@created
@@ -164,25 +178,30 @@ module Yast
       @d = Storage.GetTargetMap
       Builtins.y2milestone("target map %1", @d)
       Builtins.foreach(@d) do |name, dev|
-        type = Ops.get_symbol(dev, "type")
-        Builtins.y2milestone("TARGETMAP %1", dev)
-        Builtins.y2milestone("DEVICE name %1 type %2 used_by", name, type,  Ops.get_list(dev, "used_by", []) )
+        free = 0
+        type       = Ops.get_symbol(dev, "type")
+        partitions = Ops.get_list(dev, "partitions")
+	Builtins.y2milestone("TARGETMAP %1", dev)
+	Builtins.y2milestone("DEVICE name %1 type %2 used_by", name, type,  Ops.get_list(dev, "used_by", []) )
         if type == :CT_DISK
           next if Ops.get_list(dev, "used_by", []) != []
         elsif type != :CT_DMMULTIPATH
           next
         end
-        Builtins.y2milestone("disk %1", name)
-        slots = []
-        slots_ref = arg_ref(slots)
-        Storage.GetUnusedPartitionSlots(name, slots_ref)
-        slots = slots_ref.value
-        free = 0
-        Builtins.y2milestone("SLOTS %1",slots)
-        Builtins.foreach(slots) do |slot|
-          free = free + Ops.get_integer(slot, [:region, 1], 0) * Ops.get_integer(dev, "cyl_size", 0)
-          Builtins.y2milestone("Free device %1 region %2 cyl_size %3 free %4",  name , Ops.get_integer(slot, ["region", 1], 0), Ops.get_integer(dev, "cyl_size", 0), free )
-        end
+	if partitions != []
+           slots = []
+           slots_ref = arg_ref(slots)
+           Storage.GetUnusedPartitionSlots(name, slots_ref)
+           slots = slots_ref.value
+           Builtins.y2milestone("SLOTS %1",slots)
+           Builtins.foreach(slots) do |slot|
+	     cylinders = Ops.get_integer(slot, [:region, 1], 0)
+             free = free + ( cylinders * Ops.get_integer(dev, "cyl_size", 0) )
+             Builtins.y2milestone("Free device %1 cylinders %2 cyl_size %3 free %4",  name , cylinders, Ops.get_integer(dev, "cyl_size", 0), free )
+           end
+	else
+	   free = Ops.get_integer(dev, "size_k", 0) * 1024
+	end
         if free > 1073741824
           Ops.set(@cylSize, name, Ops.get_integer(dev, "cyl_size", 0))
           Ops.set(@freeDevices, name, free)
@@ -192,7 +211,7 @@ module Yast
       Builtins.y2milestone("freeDevices %1", @freeDevices)
       if @devices == 0
 	if Popup.YesNoHeadline(_("Do you want to continue the installation?"),
-				_("Your system does not meet the TDI requirements. There is no guarantee that the system will work properly."))
+		               _("Your system does not meet the requirements. There is no guarantee that the system will work properly."))
 	    return "ok"
         else
             return "abort"
@@ -242,11 +261,9 @@ module Yast
       while back
         Builtins.foreach(@neededLVG) do |_LVG|
 	  min = 0
-	  j   = -1
           Builtins.foreach(Ops.get_list(@LVGs, [_LVG, "partitions"], [])) do |partition|
               Builtins.y2milestone("Partition %1", partition)
 	      next if partition["size_min"] == nil
-	      j = j + 1
               min = min + partition["size_min"]
 	  end
           Builtins.y2milestone("Checking _LVG %1 min: %2 size %3", _LVG, min, Ops.get(@LVGsize, _LVG, 0))
@@ -254,7 +271,7 @@ module Yast
             min  = min/1024/1024/1024
             have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/1024
             message = _("<size=30><b><color=red>Warning</color></b></size><br>")
-	    message << _("Your system does not meet the TDI requirements.")
+	    message << _("Your system does not meet the requirements.")
             message << Builtins.sformat(_("There is less disk space than recommended for this LVG %1.<br>"), _LVG)
             message << Builtins.sformat(_("The recommended amount of %1 GB is not available.<br>"), min )
             message << Builtins.sformat(_("The total currently available amount %1 GB can not be used for the SAP installation.<br>"), have )
@@ -288,6 +305,7 @@ module Yast
           break if back
         end
         if back
+          @LVGsize = {}
           ret = selectDevices()
           if ret == :abort or ret == :back  
              Wizard.CloseDialog() if @closeMe
@@ -320,6 +338,7 @@ module Yast
       #Now we are creating the needed LVMs
       Builtins.foreach(@neededLVG) do |_LVG|
         Wizard.SetContents(_("Processing Partitioning"), RichText(Builtins.sformat(_("The LVM %1 will be created. Depending on your system this may take some time."),_LVG)),"",false,false)
+        Builtins.y2milestone("Start creating _LVG %1", _LVG)
         Stage.Set("initial")
         Mode.SetMode("autoinstallation")
         AutoinstStorage.Import(Ops.get_list(@profiles, _LVG, []))
@@ -331,6 +350,24 @@ module Yast
 
       Wizard.CloseDialog() if @closeMe
       :next
+    end
+
+    # **********************************************
+    # Function to calculate the kb values from GiB and Tb
+    # **********************************************
+    def getDimensionedValue(value)
+             @ltmp     = Builtins.regexptokenize(value, "(.*)([G|T])")
+	     size      = Ops.get_string(@ltmp, 0, "")
+	     dimension = Ops.get_string(@ltmp, 1, "")
+	     case dimension
+	       when "G"
+                  size = size.to_i*1024*1024*1024
+	       when "T"
+                  size = size.to_i*1024*1024*1024*1024
+               else
+                  size = 1024*1024*1024
+	     end
+	     return size
     end
 
     # **********************************************

@@ -26,12 +26,12 @@
 #
 
 require "sap/add_repo_dialog"
-require "hanafirewall/hanafirewall_conf"
 
 module Yast
   import "Arch"
   Yast.import "SAPMedia"
   Yast.import "SAPProduct"
+  Yast.import "Package"
   module SapInstallationWizardWizardsInclude
     extend self
     def initialize_sap_installation_wizard_wizards(include_target)
@@ -41,26 +41,29 @@ module Yast
 
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
-	if SAPMedia.instMasterType != "HANA"
+        if SAPMedia.instMasterType != "HANA" || ! Package.Installed('yast2-hana-firewall')
            return :next
         end
-	HANAFirewall::HANAFirewallConfInst.load(IO.read('/etc/sysconfig/hana-firewall'))
+        require "hanafirewall/hanafirewall_conf"
+        Builtins.y2milestone("--- Start ApplyHANAFirewall ---")
+        HANAFirewall::HANAFirewallConfInst.load(IO.read('/etc/sysconfig/hana-firewall'))
         hana_fw = HANAFirewall::HANAFirewallConfInst.gen_config
         HANAFirewall::HANAFirewallConfInst.hana_sys = hana_fw[:hana_sys]
         HANAFirewall::HANAFirewallConfInst.open_ssh = hana_fw[:open_ssh]
         HANAFirewall::HANAFirewallConfInst.ifaces   = hana_fw[:ifaces]
         HANAFirewall::HANAFirewallConfInst.save_config
         HANAFirewall::HANAFirewallConfInst.set_state(true)
-	#TODO Please report the customer what we have done
+        #TODO Please report the customer what we have done
         return :next
     end
 
     def TuneTheSystem
-        if Arch.x86_64 && ! File.exist?("/.dockerenv")
+        Builtins.y2milestone("--- Start TuneTheSystem ---")
+        if Package.Installed('yast2-saptune') && ( Arch.x86_64 && ! File.exist?("/.dockerenv") )
            require "saptune/saptune_conf"
            Saptune::SaptuneConfInst.auto_config 
         end
-	return :next
+        return :next
     end
 
     # SAP Installation Main Sequence
@@ -169,10 +172,11 @@ module Yast
       Wizard.SetDesktopTitleAndIcon("sap")
 
       ret = Sequencer.Run(aliases, sequence)
-      if close_dialog
-         Wizard.CloseDialog
-      end
+      #if close_dialog
+      #   Wizard.CloseDialog
+      #end
       Convert.to_symbol(ret)
+      return :next
     end
 
     # SAP Media Handling Sequence to Create a SAP Intallation Envinroment
@@ -194,7 +198,7 @@ module Yast
         "readIM"  => lambda { SAPMedia::ReadInstallationMaster()   },
         "copy"    => lambda { SAPMedia::CopyNWMedia() },
         "3th"     => lambda { SAPMedia::ReadSupplementMedium() },
-	"add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
+        "add_repo"=> lambda { SAPInstaller::AddRepoWizardDialog.new.run },
         "write"   => lambda { SAPMedia::Write() }
       }
 

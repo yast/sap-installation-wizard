@@ -43,7 +43,7 @@ module Yast
       @dialogs = {
          "inst_master" => {
              "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>") +
-			  _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and BusienessOne media."),
+			  _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and Business One media."),
              "name"    => _("Prepare the SAP installation master medium")
              },
          "sapmedium" => {
@@ -134,6 +134,9 @@ module Yast
 
       #Hash for remember which media was selected.
       @selectedMedia = {}
+
+      #Default file name for autoyast xml on third party media
+      @productXML    = "product.xml";
 
       @sapCDsURL     = ""
       @mediaDir      = ""
@@ -1173,7 +1176,6 @@ module Yast
     publish :function => :ParseXML,            :type => "boolean ()"
     publish :function => :MountSource,         :type => "string ()"
     publish :function => :CopyFiles,           :type => "void ()"
-    publish :function => :CreatePartitions,    :type => "void ()"
     publish :function => :ShowPartitions,      :type => "string ()"
     publish :function => :WriteProductDatas,   :type => "void ()"
     publish :function => :ExportSAPCDs,        :type => "void ()"

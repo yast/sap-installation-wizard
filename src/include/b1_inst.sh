@@ -73,9 +73,9 @@ IP_ADDR=`gethostip -d $HOSTNAME`
 
 # YaST parameter take over
 A_MASTERPASS=`cat "${MEDIA_TARGET}/ay_q_masterpass"`
-A_SID=`cat "${MEDIA_TARGET}/ay_q_sid"`
-A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sapinstnr"`
-
+A_SID=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c1-3`
+#A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sapinstnr"`
+A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c5-6`
 
 ###########################################
 # Define ERRORS section
@@ -187,9 +187,10 @@ parameters()
     touch $PROPERTIES
     cat /usr/share/YaST2/include/sap-installation-wizard/b1h_default_properties > $PROPERTIES
     echo "B1S_TECHUSER_PASSWORD=${A_MASTERPASS}
-BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"30015\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
+#BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"30015\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
+BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"3${A_SAPINSTNR}15\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
 HANA_DATABASE_SERVER=${IP_ADDR}
-HANA_DATABASE_SERVER_PORT=30015
+HANA_DATABASE_SERVER_PORT=3${A_SAPINSTNR}15
 HANA_DATABASE_USER_PASSWORD=${A_MASTERPASS}
 LOCAL_ADDRESS=${IP_ADDR}
 SITE_USER_PASSWORD=${A_MASTERPASS}
@@ -199,8 +200,6 @@ SLD_SERVER_ADDR=${IP_ADDR}" >> $PROPERTIES
 if [ $? -ne 0 ];
 then
   yast_popup "Creating parameters file has failed."
-else
-  yast_popup "The parameters file has been created."
 fi
 
 }
@@ -219,7 +218,7 @@ installation()
     INSTTOOL="${MEDIA_TARGET}/Instmaster/Packages.Linux/ServerComponents/install"
     chmod +x ${INSTTOOL}
 
-    USER_INSTALL_LOGS=/var/log/SAPBusinessOne/B1Installer*.log
+    USER_INSTALL_LOGS="/var/log/SAPBusinessOne/B1Installer*.log"
     if [ ! -f "${INSTTOOL}" ];
     then
        yast_popup "Cannot install BusinessOne ServerComponents:\npath to installation tool not found:\n${INSTTOOL}"
@@ -231,11 +230,25 @@ installation()
           parameters
           ${INSTTOOL} -i silent -f ${PROPERTIES} > /dev/null 2>&1 &
           pid_installer=$!
-          while [ ! -f "${USER_INSTALL_LOGS}" ]; do sleep 1; done
-          tail -f ${USER_INSTALL_LOGS} &
+          
+          # start displaying the logs
+	  while true
+	  do
+	        USER_INSTALL_LOG=$( find /var/log/SAPBusinessOne/ -maxdepth 1 -name "B1Installer*.log" )
+		if [ "$USER_INSTALL_LOG" ]; then
+		   break
+		fi
+		sleep 2
+	  done
+          
+          tail -f ${USER_INSTALL_LOG} &
           pid_logging=$!
+          
+          # waiting for the installation to be done
           wait ${pid_installer}
           rc=$?
+          
+          # stop log monitor
           kill -9 ${pid_logging}
     fi
     return $rc

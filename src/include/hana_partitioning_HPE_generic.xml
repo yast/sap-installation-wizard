@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <partitioning config:type="list">
+    <drive>
+      <device>/dev/sdb</device>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_log</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <use>all</use>
+      <type config:type="symbol">CT_DISK</type>
+    </drive>
+    <drive>
+      <device>/dev/vg_hana_log</device>
+      <is_lvm_vg config:type="boolean">true</is_lvm_vg>
+      <partitions config:type="list">
+        <partition>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <lv_name>lv_log</lv_name>
+          <mount>/hana/log</mount>
+          <size>512G</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/sdc</device>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_shared</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/vg_hana_shared</device>
+      <is_lvm_vg config:type="boolean">true</is_lvm_vg>
+      <partitions config:type="list">
+        <partition>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <lv_name>lv_shared</lv_name>
+          <mount>/hana/shared</mount>
+          <size>1536G</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/sdd</device>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_usrsap</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/vg_hana_usrsap</device>
+      <is_lvm_vg config:type="boolean">true</is_lvm_vg>
+      <partitions config:type="list">
+        <partition>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <lv_name>lv_usrsap</lv_name>
+          <mount>/usr/sap</mount>
+          <size>64G</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/sde</device>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <lvm_group>vg_hana_data</lvm_group>
+          <partition_type>primary</partition_type>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+	  <mountby config:type="symbol">device</mountby>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_DISK</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/vg_hana_data</device>
+      <is_lvm_vg config:type="boolean">true</is_lvm_vg>
+      <partitions config:type="list">
+        <partition>
+          <filesystem config:type="symbol">xfs</filesystem>
+          <lv_name>lv_data</lv_name>
+          <mount>/hana/data</mount>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <pesize>4M</pesize>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+  </partitioning>
+</profile>

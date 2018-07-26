@@ -74,8 +74,9 @@
           <partition_id config:type="integer">131</partition_id>
           <raid_options/>
           <resize config:type="boolean">false</resize>
-          <size_min>RAM*1</size_min>
-          <size>18%</size>
+          <size_min>RAM*0.5</size_min>
+          <size_max>512G</size_max>
+          <size></size>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -91,7 +92,8 @@
           <raid_options/>
           <resize config:type="boolean">false</resize>
           <size_min>RAM*1</size_min>
-          <size>16%</size>
+          <size_max>1T</size_max>
+          <size></size>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -106,8 +108,7 @@
           <partition_id config:type="integer">131</partition_id>
           <raid_options/>
           <resize config:type="boolean">false</resize>
-          <size_min>RAM*1</size_min>
-          <size>10%</size>
+          <size>50G</size>
         </partition>
       </partitions>
       <pesize>4M</pesize>

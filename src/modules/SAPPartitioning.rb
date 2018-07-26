@@ -21,7 +21,7 @@ module Yast
       )
     end
 
-    def CreatePartitions(productPartitioningList)
+    def CreatePartitions(productPartitioningList,productList)
       Builtins.y2milestone("********Starting partitioning")
 
       ret = nil
@@ -40,6 +40,7 @@ module Yast
                 "FUJITSU",
                 "IBM",
                 "HP",
+                "HPE",
                 "Dell Inc.",
                 "Huawei Technologies Co., Ltd.",
                 "Huawei"
@@ -48,6 +49,13 @@ module Yast
             )
             partXML = @partXMLPath + "/hana_partitioning.xml"
             #TODO Do we have to warn if generic partitioning happens?
+            if productList.include?('B1')
+		if ! Popup.YesNoHeadline(_("Your System is not certified for SAP Business One on HANA."),
+			_("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
+		    return "abort"
+		end
+	    end
+
           else
             # For comapitibility keep specific disk layout for Dell legacy models, but for new models use generic layout
             if !Builtins.contains(
@@ -171,7 +179,7 @@ module Yast
     end
 
     def CreateHANAPartitions(void)
-        CreatePartitions(["hana_partitioning"])
+        CreatePartitions(["hana_partitioning"],["HANA"])
         ShowPartitions("SAP file system creation successfully done:")
     end
 

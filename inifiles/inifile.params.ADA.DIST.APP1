@@ -56,7 +56,7 @@ NW_getFQDN.setFQDN = false
 # The path to the jce policy archive to install into the java home directory if it is not already installed.
 NW_getJavaHome.jcePolicyArchive = 
 
-# Valid values are: SAP, STD, OBR, HCP, MDAThe loadtype chosen by the user.
+# Valid values are: SAP, STD, OBR, HCP, MDA. The loadtype chosen by the user.
 NW_getLoadType.loadType = SAP
 
 NW_readProfileDir.profileDir = ##profileDir##

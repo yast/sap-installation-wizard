@@ -75,6 +75,7 @@ my %DBMAP      = (
 			"MAX" => "ADA"
 		);
 
+
 ####################################################################
 # find_local_IM
 # #
@@ -135,8 +136,8 @@ sub is_instmaster {
    logger("in Function: is_instmaster, prod_path='$prod_path'") if ($DEBUG);
 
    
+   #TREX is totaly other
    if( -d "$prod_path/tx_trex_content" and -e "$prod_path/tx_trex_content/TX_LINUX_X86_64/install.sh") {
-      #TREX is totaly other
       $instmaster[0] = "TREX";
       $instmaster[1] = "$prod_path/tx_trex_content/TX_LINUX_X86_64/";
       return \@instmaster;
@@ -155,9 +156,24 @@ sub is_instmaster {
             }
 	    logger(" Field 1 : ".$fields[1]) if ($DEBUG);
 	    next if (! defined $fields[1] );
-            # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
-            # HANA DB server component is found first!!
-            if ($fields[1] =~ /^HANA/ ) {
+	    if( $fields[0]  eq 'SAP' and $fields[1] eq 'SAP' and $fields[2] eq 'SAP' ) {
+	       # This is a new special case for BOne bundle.
+	       my $labelDir = dirname($label_file);
+	       my $cdLabel  = `head -n 1 $labelDir/CDLABEL.ASC`;
+	       @fields = split(" ",$cdLabel);
+	       if($fields[0]  eq 'HANA' ) {
+	           $instmaster[0] = "HANA";
+	           $instmaster[1] = $labelDir;
+		   last;
+	       }
+	       if($fields[0]  eq 'SAP' and $fields[1] eq 'B1' ) {
+	           $instmaster[0] = "B1";
+	           $instmaster[1] = $labelDir;
+		   last;
+	       }
+            }elsif ($fields[1] =~ /^HANA/ ) {
+               # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
+               # HANA DB server component is found first!!
                #HDB:HANA ENTERPRISE:1.0:LINUXX86_64:media delivery SAP High-Performance Analytic Appliance Enterprise 1.0::D51041779
                #HDB:HANA:1.0:LINUX_PPC64:HANA PLATFORM 1.0 for Linux on Power::D51050340
                #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
@@ -504,6 +520,9 @@ sub get_products_for_media{
       foreach my $label ( @labels )
       {
         my $foundLabel = 0;
+        my $label1 = $label;
+        #Dirty fix for new kernel media.
+        $label1 =~ s/:74.:/:74:/;
         foreach my $node ($doc->findnodes($xpath)) {
            my $pattern = $node->getAttribute("label");
            #Hide the brackets () as special characters within regex ()=grouping
