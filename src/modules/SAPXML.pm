@@ -33,6 +33,7 @@ our @ISA = qw(Exporter AutoLoader);
 #our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw( 
+find_local_IM
 is_instmaster
 get_sapinst_version
 get_sapinst_path
@@ -74,6 +75,40 @@ my %DBMAP      = (
 			"MAX" => "ADA"
 		);
 
+
+####################################################################
+# find_local_IM
+# #
+# # in  - start directory for label search ($PROD_PATH)
+#         tmpTargetDir = /data/SAP_CDs
+#         prodCount    = e.g 4
+#         instMasterDir= Instmaster
+#
+# # out - list of path to alternative local installmaster
+# #
+BEGIN { $TYPEINFO{find_local_IM} = ["function", ["list", "string"], "string", "integer","string"]; }
+sub find_local_IM {
+   my $self         = shift;
+   my $tmpTargetDir = shift; 
+   my $prodCount    = shift;
+   my $instMasterDir= shift; 
+
+   my @list = ();
+   logger("In find_local_IM") if ($DEBUG);
+
+   my $CUR_IM_LABEL = _read_labelfile("$tmpTargetDir/$prodCount/$instMasterDir/LABEL.ASC");
+
+   for (my $i = 0; $i < $prodCount; $i++) {
+      my $IM_LABEL = _read_labelfile("$tmpTargetDir/$i/$instMasterDir/LABEL.ASC");
+      logger("Try local Instmaster dir:$tmpTargetDir/$i/$instMasterDir") if ($DEBUG);
+
+      if( $IM_LABEL eq $CUR_IM_LABEL ) {
+         logger("Similar local Instmaster found at:$tmpTargetDir/$i/$instMasterDir") if ($DEBUG);
+         push @list, "$tmpTargetDir/$i";
+      }
+   }
+   return \@list;
+}
 
 ####################################################################
 # is_instmaster
@@ -503,11 +538,6 @@ sub get_products_for_media{
 	     $foundLabel = 1;
 	     last;
 	   }
-           if( $label1 =~ /$pattern/ )
-           {
-             $foundLabel = 1;
-             last;
-           }
         }
 	if( !$foundLabel )
 	{
