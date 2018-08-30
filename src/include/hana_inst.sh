@@ -40,9 +40,6 @@ EOF
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
 ARCH=$( uname -m | tr [:lower:] [:upper:] )
-if [ "${ARCH}" = "PPC64LE" ]; then
-	ARCH="PPC64"
-fi
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:hg\?" options; do
@@ -70,6 +67,12 @@ done
 TMPDIR=`mktemp -t -d sap_install_XXXXX`
 chmod 755 $TMPDIR
 MEDIA_TARGET=$( dirname $SAPCD_INSTMASTER)
+
+if [ "${ARCH}" = "PPC64LE" ]; then
+	if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
+	 	ARCH="PPC64"
+	fi
+fi
 
 # <n>th installation on this host. Specified by installation sub-directory. For multiple installations on a single host
 INSTALL_COUNT=$( echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}' )
@@ -403,11 +406,11 @@ hana_lcm_workflow()
    if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
        # HANA SPx DVD folder structure: check for required HANA components
        missing=$(hana_check_components)
-       if [ "${ARCH}" == "X86_64" ];then
+       if [ "${ARCH}" = "X86_64" ];then
            COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
            LCM_COMPONENTS=client,afl,studio,server
        else
-           if [ "${ARCH}" == "PPC64" ];then
+           if [ "${ARCH:0:5}" = "PPC64" ];then
               COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH}"
               LCM_COMPONENTS=client,afl,server
            else
@@ -419,11 +422,11 @@ hana_lcm_workflow()
    else
        if [ -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_DATABASE ]; then
            # check for required HANA components
-           if [ "${ARCH}" == "X86_64" ];then
+           if [ "${ARCH}" = "X86_64" ];then
               COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_CLIENT32 SAP_HANA_DATABASE SAP_HANA_STUDIO'
               LCM_COMPONENTS=client,afl,studio,server
            else
-              if [ "${ARCH}" == "PPC64" ];then
+              if [ "${ARCH:0:5}" = "PPC64" ];then
                  COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_DATABASE'
                  LCM_COMPONENTS=client,afl,server
               else
@@ -562,7 +565,7 @@ extract_media_archives()
       fi
 
       # HDB 32-bit client required for B1 Server/ServerTools
-      if [ "${ARCH}" == "X86_64" ]; then 
+      if [ "${ARCH}" = "X86_64" ]; then 
          if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
             ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
          else
