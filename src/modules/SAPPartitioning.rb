@@ -21,7 +21,7 @@ module Yast
       )
     end
 
-    def CreatePartitions(productPartitioningList)
+    def CreatePartitions(productPartitioningList,productList)
       Builtins.y2milestone("********Starting partitioning")
 
       ret = nil
@@ -30,49 +30,15 @@ module Yast
       model = Ops.get(hwinfo, 1, "") # "PowerEdge R620", "PowerEdge R910"
 
       Builtins.foreach(productPartitioningList) do |productPartitioning|
-        # For HANA we have hardware-dependent partitioning and if we don't know the manufacturer
-        # show warnings
-        partXML=@partXMLPath + '/' + productPartitioning + ".xml"
-        if productPartitioning == "hana_partitioning"
-          if !Builtins.contains(
-              [
-                "LENOVO",
-                "FUJITSU",
-                "IBM",
-                "HP",
-                "Dell Inc.",
-                "Huawei Technologies Co., Ltd.",
-                "Huawei"
-              ],
-              manufacturer
-            )
-            partXML = @partXMLPath + "/hana_partitioning.xml"
-            #TODO Do we have to warn if generic partitioning happens?
-          else
-            # For comapitibility keep specific disk layout for Dell legacy models, but for new models use generic layout
-            if !Builtins.contains(
-                  [
-                    "PowerEdge FC630",
-                    "PowerEdge M630",
-                    "PowerEdge R620",
-                    "PowerEdge R630",
-                    "PowerEdge R670",
-                    "PowerEdge R730xd",
-                    "PowerEdge R730",
-                    "PowerEdge R910",
-                    "PowerEdge R920",
-                    "PowerEdge RT30",
-                    "PowerEdge T620",
-                    "PowerEdge T630"
-                    ],
-                  model
-              )
-              partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
-            else
-              partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
-            end
-          end
-        end #END HANA CASE
+        # This is a generic way for all SAP products and hardware
+	# Now it is possible to create product manufactutrer and model based partitioning files.
+        partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
+	if ! File.exists(partXML)
+           partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
+	   if ! File.exists(partXML)
+               partXML=@partXMLPath + '/' + productPartitioning + ".xml"
+	   end
+	end
         ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
         Builtins.y2milestone("sap_create_storage_ng returned: %1",ret)
 	if( ret == "abort" )
@@ -171,7 +137,7 @@ module Yast
     end
 
     def CreateHANAPartitions(void)
-        CreatePartitions(["hana_partitioning"])
+        CreatePartitions(["hana_partitioning"],["HANA"])
         ShowPartitions("SAP file system creation successfully done:")
     end
 
