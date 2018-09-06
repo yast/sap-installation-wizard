@@ -1,0 +1,14 @@
+stages:
+  - validate
+  - test
+
+sle15SP0:
+    image: suntorytimed/yast-ci:sle15-sp0
+    stage: validate
+    script: rake test:unit
+    tags:
+        - docker
+        - sle
+        - sles15
+
+# testing not yet added for SLE12
