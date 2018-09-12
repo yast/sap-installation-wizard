@@ -524,7 +524,7 @@ extract_media_archives()
 {
    # try to extract all SAR archives on SAP media in the respective directories, if possible
    SAPCAR=`find ${MEDIA_TARGET}/Instmaster -name SAPCAR`
-   if [ -n ${SAPCAR} ]; then
+   if [ -n "${SAPCAR}" ]; then
       if [ ! -x ${SAPCAR} ]; then
          chmod +x ${SAPCAR}
       fi
@@ -548,7 +548,7 @@ extract_media_archives()
    else
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
-      if [ ! -z ${missing} ]; then
+      if [ -n "${missing}" ]; then
          yast_popup_wait "Cannot install, HANA component folders missing on media: ${missing}"
          rc=1
       else
