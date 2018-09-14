@@ -270,7 +270,7 @@ module Yast
 	     if ! prod.has_key?("sapMDC")
                   prod["sapMDC"] = "no"
 	     end
-	     File.write(@instDir + "/ay_q_masterpass", prod["sapMasterPW"])
+	     File.write(@instDir + "/ay_q_masterPwd", prod["sapMasterPW"])
 	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
 	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
 	     File.write(@instDir + "/ay_q_sapmdc",     prod["sapMDC"])
