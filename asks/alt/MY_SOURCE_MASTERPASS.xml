@@ -16,7 +16,7 @@
           </p>
           ]]>
           </help>
-          <file>/tmp/ay_q_source_masterpass</file>
+          <file>/tmp/ay_q_source_masterPwd</file>
           <question>Source SAP Master Password</question>
           <password config:type="boolean">true</password>
           <stage>cont</stage>

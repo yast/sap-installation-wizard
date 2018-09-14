@@ -126,7 +126,7 @@ ERR_create_xuser_failed=10
 ERR_rpm_install=11
 ERR_internal=12
 ERR_missing_entries=13
-ERR_nomasterpass=14
+ERR_nomasterPwd=14
 ERR_last=15
 
 err_message[0]="Ok"
