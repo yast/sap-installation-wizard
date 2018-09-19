@@ -3,7 +3,20 @@
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
 <general>
   <ask-list config:type="list">
-          <ask>
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sid</file>
+             <question>SID (SAP HANA System ID)</question>
+             <stage>cont</stage>
+	    <default>___SAPSID___</default>
+        </ask>
+        <ask>
              <title>SAP BusinessOne System Parameters</title>
              <dialog config:type="integer">10</dialog>
              <element config:type="integer">30</element>
@@ -73,59 +86,7 @@ fi
 ]]>
              </source>
              </default_value_script>
-             <timeout config:type="integer">1</timeout>
-          </ask>
-	<ask>
-	     <title>SAP System Parameters</title>
-             <dialog config:type="integer">10</dialog>
-             <element config:type="integer">10</element>
-             <help><![CDATA[
-             <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
-]]>
-</help>
-             <file>/tmp/ay_q_sid</file>
-             <question>SID (SAP HANA System ID)</question>
-             <stage>cont</stage>
-	    <default>___SAPSID___</default>
-            <script>
-              <filename>my_sid.sh</filename>
-              <rerun_on_error config:type="boolean">true</rerun_on_error>
-              <environment config:type="boolean">true</environment>
-              <source><![CDATA[
-function check_sid() {
-        [ -f /data/SAP_INST/0/ay_q_sid ] && exit 0
-        [ -f /dev/shm/ay_q_sid ] && exit 0
-
-        local sid=$1 reserved_sids rsid
-        reserved_sids="ADD ALL AND ANY ASC COM DBA END EPS FOR GID IBM INT \
-        KEY LOG MON NIX NOT OFF OMS RAW ROW SAP SET SGA SHG SID SQL SYS TMP \
-        UID USR VAR"
-
-        LC_ALL=POSIX
-
-        [ -z "$sid" ] && echo "You need to provide a SID." && return 1
-        [ "${#sid}" -ne 3 ] && echo "The SID needs to be exactly 3 chars. You entered '${sid}'." && return 1
-        [ "${sid#[0-9]}" != "$sid" ] && echo "The SID needs to start with a letter. You entered '${sid}'." && return 1
-        [ -n "${sid//[0-9A-Z]/}" ] && echo "The SID needs to be upper case. You entered '${sid}'." && return 1
-        for rsid in $reserved_sids; do
-                case $sid in
-                        $rsid)
-                                echo "The SID '${sid}' is reserved and cannot be used."
-                                return 1
-                                ;;
-                esac
-         done
-         [ "${sid}" = "DAA" ] && echo "The System ID \"DAA\" is reserved for the Solution Manager Diagnostics Agent. Please choose a different one." && return 1
-         return 0
-}
-check_sid "$VAL"
-]]>
-              </source>
-              <debug config:type="boolean">false</debug>
-              <feedback config:type="boolean">true</feedback>
-            </script>
-             <timeout config:type="integer">1</timeout>
-          </ask>
+        </ask>
   </ask-list>
 </general>
 <software>
