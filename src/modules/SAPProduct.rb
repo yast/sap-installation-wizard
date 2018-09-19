@@ -338,7 +338,7 @@ module Yast
         SCR.Execute(path(".target.bash"), "sed -i.back s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
 	if @PRODUCT_NAME == "B1"
 	   out       = Convert.to_map( SCR.Execute(path(".target.bash_output"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh"))
-           selection = Ops.get_string(out, "stdout", "").comp
+           selection = Ops.get_string(out, "stdout", "").chomp
 	   SCR.Execute(path(".target.bash"), "sid -i.back 's#<default>___SAPSID___</default>#" + selection + "#' " + xml_path)
 	end
         SAPMedia.ParseXML(xml_path)
