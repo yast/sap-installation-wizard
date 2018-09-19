@@ -86,7 +86,7 @@ fi
              <file>/tmp/ay_q_sid</file>
              <question>SID (SAP HANA System ID)</question>
              <stage>cont</stage>
-             <default>NDB</default>
+	    <default>___SAPSID___</default>
             <script>
               <filename>my_sid.sh</filename>
               <rerun_on_error config:type="boolean">true</rerun_on_error>
@@ -124,18 +124,6 @@ check_sid "$VAL"
               <debug config:type="boolean">false</debug>
               <feedback config:type="boolean">true</feedback>
             </script>
-             <default_value_script>
-                 <source> <![CDATA[
-if [ -e /data/SAP_INST/0/ay_q_sid ]; then
-     cat /data/SAP_INST/0/ay_q_sid; echo -n ":"; cat /data/SAP_INST/0/ay_q_sapinstnr 
-elif [ -f /dev/shm/ay_q_sid ]; then 
-     cat /dev/shm/ay_q_sid ; echo -n ":"; cat /dev/shm/ay_q_sapinstnr
-else
-     /usr/share/YaST/include/sap-installation-wizard/b1_hana_list.sh
-fi 
-]]>
-             </source>
-             </default_value_script>
              <timeout config:type="integer">1</timeout>
           </ask>
   </ask-list>

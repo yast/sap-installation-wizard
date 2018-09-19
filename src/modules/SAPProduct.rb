@@ -335,8 +335,16 @@ module Yast
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
       if File.exist?( xml_path )
-        SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
+        SCR.Execute(path(".target.bash"), "sed -i.back s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
+	if @PRODUCT_NAME == "B1"
+	   out       = Convert.to_map( SCR.Execute(path(".target.bash_output"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh"))
+           selection = Ops.get_string(out, "stdout", "").comp
+	   SCR.Execute(path(".target.bash"), "sid -i.back 's#<default>___SAPSID___</default>#" + selection + "#' " + xml_path)
+	end
         SAPMedia.ParseXML(xml_path)
+	if File.exist?( xml_path + ".back" )
+	   SCR.Execute(path(".target.bash"), "mv " + xml_path + ".back " + xml_path )
+	end
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
         end
