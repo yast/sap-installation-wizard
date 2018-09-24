@@ -360,8 +360,8 @@ sub get_nw_products
    my $instEnv = shift;
    my $TYPE    = shift;
    my $DB      = shift || "IND";
-print "get_nw_products $instEnv $TYPE $DB\n";
    my $productDir = shift;
+   print "get_nw_products $instEnv $TYPE $DB".join(";",@{$productDir})."\n";
    my $imPath  = "$instEnv/Instmaster";
    my @FILTER  = ();
    my $PRODUCTS = {};
@@ -534,6 +534,11 @@ sub get_products_for_media{
            $pattern =~ s/\*/\(\.\*\)/g;
 
 	   if( $label =~ /$pattern/ )
+	   {
+	     $foundLabel = 1;
+	     last;
+	   }
+	   if( $label1 =~ /$pattern/ )
 	   {
 	     $foundLabel = 1;
 	     last;
