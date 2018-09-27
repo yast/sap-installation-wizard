@@ -7,6 +7,7 @@ sle15SP0_validate:
     stage: validate
     image: suntorytimed/yast-ci:sle15-sp0
     script: rubocop
+    allow_failure: true
 
 sle15SP0_test:
     stage: test
