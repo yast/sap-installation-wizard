@@ -404,10 +404,13 @@ module Yast
 
       if Popup.YesNo(_("Installation profile is ready.\n" +
                        "Are there more SAP products to be prepared for installation?"))
-         ret = :readIM
          SAPMedia.prodCount = SAPMedia.prodCount.next
          SAPMedia.instDir = Builtins.sformat("%1/%2", SAPMedia.instDirBase, SAPMedia.prodCount)
          SCR.Execute(path(".target.bash"), "mkdir -p " + SAPMedia.instDir )
+         return :readIM
+      end
+      if SAPMedia.instMode == "preauto"
+         return :end
       end
       return ret
     end

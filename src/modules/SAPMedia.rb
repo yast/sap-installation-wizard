@@ -32,6 +32,8 @@ module Yast
       Builtins.y2milestone("----------------------------------------")
       Builtins.y2milestone("SAP Media Reader Started")
 
+      #Sap installations mode normal auto or preauto
+      @instMode = "normal"
 
       #String to save the date. Will be set by set_date
       @date   = ""
