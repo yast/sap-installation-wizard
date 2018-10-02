@@ -139,7 +139,8 @@ module Yast
                         :abort   => :abort, 
                         :back    => "3th",
                         :next    => "write",
-                        :readIM  => "readIM" 
+                        :readIM  => "readIM",
+			:end     => :next
                       },
         "write"    => {
                         :abort => :abort,
