@@ -446,8 +446,8 @@ module Yast
         when "TREX"
           ret = :TREX
       end
-      if @instMasterType == 'HANA'
-        # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
+      if @instMasterType == 'HANA' || @instMasterType == 'B1'
+        # HANA and B1 instmaster must be copied directly in "Instmaster" directory, instead of "Instmaster-HANA" directory.
         CopyFiles(@instMasterPath, @mediaDir, "Instmaster", false)
         @instMasterPath = @mediaDir + "/Instmaster"
       else
