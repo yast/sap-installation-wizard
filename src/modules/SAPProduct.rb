@@ -499,6 +499,10 @@ module Yast
           #Process.kill("TERM", pid)
       }
       return :next
+    rescue StandardError => e
+      puts e.message
+      Popup.Error( e.message )
+      return :abort
     end
 
     private
