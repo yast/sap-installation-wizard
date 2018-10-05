@@ -500,7 +500,7 @@ module Yast
       }
       return :next
     rescue StandardError => e
-      puts e.message
+      Builtins.y2milestone("An internal error accoured:" + e.message )
       Popup.Error( e.message )
       return :abort
     end
