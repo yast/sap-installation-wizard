@@ -757,10 +757,10 @@ DBCPU=$(( `grep -c processor /proc/cpuinfo` - 1 ))
 [ 1 -gt ${DBCPU} ] && DBCPU=1
 
 # Amount of parallel load jobs
-LOADJOBS=$(( `grep -c processor /proc/cpuinfo` * 2 ))
+#LOADJOBS=$(( `grep -c processor /proc/cpuinfo` * 2 ))
 # minimum of 4 parallel load jobs
-[ 4 -gt ${LOADJOBS} ] && LOADJOBS=4
-
+#[ 4 -gt ${LOADJOBS} ] && LOADJOBS=4
+LOADJOBS=1
 
 SID=$( gawk -F"=" '/NW_GetSidNoProfiles.sid/ { print $2 }' ${SAPINST_DIR}/inifile.params | sed 's/^ //g' )
 DBSID=$( gawk -F"=" '/getDBInfo.dbsid/ { print $2 }' ${SAPINST_DIR}/inifile.params | sed 's/^ //g' )
