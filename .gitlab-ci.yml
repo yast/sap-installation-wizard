@@ -1,0 +1,22 @@
+stages:
+  - validate
+  - test
+  - coverage
+
+sle15SP0_validate:
+    stage: validate
+    image: suntorytimed/yast-ci:sle15-sp0
+    script: rubocop
+    allow_failure: true
+
+sle15SP0_test:
+    stage: test
+    image: suntorytimed/yast-ci:sle15-sp0
+    script: rake test:unit
+
+sle15SP0_coverage:
+    stage: coverage
+    image: suntorytimed/yast-ci:sle15-sp0
+    script: rake coverage
+
+# testing not yet added for SLE12
