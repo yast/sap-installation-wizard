@@ -14,7 +14,7 @@ module Yast
 
       func = WFM.Args[0]
       param = WFM.Args[1] || {}
-      Builtins.y2milestone("sap_proposal called with %1 func: %2", WFM.Args, func);
+      log.info("sap_proposal called with #{WFM.Args} func: #{func}");
       @sap_start = "true"
       if File.exists?("/root/start_sap_wizard")
          @sap_start = IO.read("/root/start_sap_wizard")

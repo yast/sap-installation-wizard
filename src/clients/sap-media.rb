@@ -33,7 +33,7 @@ module Yast
       Yast.import "SAPMedia"
       Yast.import "CommandLine"
       Yast.import "RichText"
-      Builtins.y2milestone("sap-media called with %1",WFM.Args)
+      log.info("sap-media called with #{WFM.Args}")
 
       @ret = :auto
       # the command line description map

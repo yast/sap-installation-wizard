@@ -80,7 +80,7 @@ module Yast
       ret = nil
       begin
         ret = Wizard.UserInput
-        Builtins.y2milestone("ret %1",ret)
+        log.info(("ret #{ret}")
         case ret
         when :abort
           break if Popup.ConfirmAbort(:incomplete)

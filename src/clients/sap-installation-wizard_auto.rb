@@ -44,7 +44,7 @@ module SapInst
 
         # There is only one bool parameter to import.
         def import(exported)
-	    Builtins.y2milestone("-- sap-installation-wizard_auto.import Start ---%1",exported)
+	    log.info("-- sap-installation-wizard_auto.import Start --- #{exported}")
             return SAPMedia.Import(exported)
         end
 

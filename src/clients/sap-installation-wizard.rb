@@ -35,7 +35,7 @@ module Yast
       Yast.import "SAPPartitioning"
       Yast.import "CommandLine"
       Yast.import "RichText"
-      Builtins.y2milestone("sap-installation-wizard called with %1",WFM.Args)
+      log.info("sap-installation-wizard called with #{WFM.Args}")
 
       @ret = :auto
       # the command line description map

@@ -42,7 +42,7 @@ module Yast
     # If installation master is HANA, run HANAFirewall.Write to apply firweall settings.
     def ApplyHANAFirewall
         hanaInstanceNumbers = []
-        Builtins.y2milestone("-- ApplyHANAFirewall SAPProduct Read --")
+        log.info("-- ApplyHANAFirewall SAPProduct Read --")
         prodCount = 0;
         while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
           instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)

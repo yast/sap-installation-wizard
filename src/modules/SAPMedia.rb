@@ -29,8 +29,8 @@ module Yast
 
 
       textdomain "sap-installation-wizard"
-      Builtins.y2milestone("----------------------------------------")
-      Builtins.y2milestone("SAP Media Reader Started")
+      log.info("----------------------------------------")
+      log.info("SAP Media Reader Started")
 
 
       #String to save the date. Will be set by set_date
@@ -153,7 +153,7 @@ module Yast
     # @return true or false
     def Read()
       ret=:next
-      Builtins.y2milestone("-- SAPMedia.Read Start ---")
+      log.info("-- SAPMedia.Read Start ---")
       if @sapCDsURL != ""
          mount_sap_cds()
       end
@@ -199,7 +199,7 @@ module Yast
     #
     #############################################################
     def Write()
-      Builtins.y2milestone("-- SAPMedia.Write Start ---")
+      log.info("-- SAPMedia.Write Start ---")
 
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
@@ -220,7 +220,7 @@ module Yast
 	    url = medium["url"].split("://")
             urlPath = MountSource(url[0],url[1])
             if "ERROR:" == urlPath[0,6]
-               Builtins.y2milestone("Can not mount medium %1. Reason %2",medium["url"],urlPath)
+               log.info("Can not mount medium #{medium["url"]}. Reason #{urlPath}")
                return :next
             else
                case medium["type"].downcase
@@ -315,7 +315,7 @@ module Yast
 	    @instMasterType,
 	    @instDir
 	    )
-	  Builtins.y2milestone("Starting Installation : %1 ",script)
+	  log.info("Starting Installation : #{script}")
           Wizard.SetContents( _("SAP Product Installation"),
                                         LogView(Id("LOG"),"",30,400),
                                         "Help",
@@ -343,7 +343,7 @@ module Yast
              exit_status = t.value.exitstatus
           }
 	  f.close
-	  Builtins.y2milestone("Exit code of script : %1 ",exit_status)
+	  log.info("Exit code of script : #{exit_status}")
 	  if exit_status != 0
 	        Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
 	  end
@@ -373,7 +373,7 @@ module Yast
     def Import(settings)
 
       @SAPMediaTODO = settings
-      Builtins.y2milestone("-- SAPMedia.Import Start ---%1",@SAPMediaTODO)
+      log.info("-- SAPMedia.Import Start --- #{@SAPMediaTODO}")
 
       true
     end
@@ -385,7 +385,7 @@ module Yast
     #
     #############################################################
     def Export()
-      Builtins.y2milestone("-- SAPMedia.Export Start ---")
+      log.info("-- SAPMedia.Export Start ---")
       #TODO
 
       {}
@@ -397,7 +397,7 @@ module Yast
     #
     ############################################################
     def ReadInstallationMaster
-      Builtins.y2milestone("-- Start ReadInstallationMaster ---")
+      log.info("-- Start ReadInstallationMaster ---")
       ret = nil
       run = true
       while run
@@ -412,18 +412,13 @@ module Yast
         # is_instmaster gives back a key-value pair to split for the BO workflow
         #         KEY: SAPINST, BOBJ, HANA, B1
         #       VALUE: complete path to the instmaster directory incl. sourceDir
-        Builtins.y2milestone("looking for instmaster in %1", @sourceDir)
+        log.info("looking for instmaster in #{@sourceDir}")
         instMasterList     = SAPXML.is_instmaster(@sourceDir)
         @instMasterType    = Ops.get(instMasterList, 0, "")
         @instMasterPath    = Ops.get(instMasterList, 1, "")
         @instMasterVersion = Ops.get(instMasterList, 2, "")
 
-        Builtins.y2milestone(
-          "found SAP instmaster at %1 type %2 version %3",
-          @instMasterPath,
-          @instMasterType,
-          @instMasterVersion
-        )
+        log.info("found SAP instmaster at #{@instMasterPath} type #{@instMasterType} version #{@instMasterVersion}")
         if @instMasterPath == nil || @instMasterPath.size == 0
            Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
@@ -466,7 +461,7 @@ module Yast
     #
     ############################################################
     def CopyNWMedia
-      Builtins.y2milestone("-- Start CopyNWMedia ---")
+      log.info("-- Start CopyNWMedia ---")
       if @importSAPCDs
           # Skip the dialog all together if SAP_CD is already mounted from network location
           # There is no chance for user to copy new mediums to the location
@@ -514,7 +509,7 @@ module Yast
     #
     ############################################################
     def ReadSupplementMedium
-      Builtins.y2milestone("-- Start ReadSupplementMedium ---")
+      log.info("-- Start ReadSupplementMedium ---")
       run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
       while run  
         ret = media_dialog("supplement")
@@ -535,7 +530,7 @@ module Yast
     # Umount sources.
     #  @param boolean doit
     def UmountSources(doit)
-      Builtins.y2milestone("-- SAPMedia.UmountSources Start ---")
+      log.info("-- SAPMedia.UmountSources Start ---")
       return if !doit
       WFM.Execute(path(".local.umount"), @mountPoint)
       if @mountPoint != @mmount
@@ -551,7 +546,7 @@ module Yast
     #  @param  string temp
     #  @return string the path to the created directory
     def MakeTemp(temp)
-      Builtins.y2milestone("-- SAPMedia.MakeTemp Start ---")
+      log.info("-- SAPMedia.MakeTemp Start ---")
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
@@ -570,7 +565,7 @@ module Yast
     # Parse and merge our xml snipplets
     #
     def ParseXML(file)
-      Builtins.y2milestone("-- SAPMedia.ParseXML Start ---")
+      log.info("-- SAPMedia.ParseXML Start ---")
       ret = false
       if file != ""
         SCR.Write(
@@ -680,12 +675,7 @@ module Yast
       i       = true
       isopath = []
       @mmount = @mountPoint
-      Builtins.y2milestone(
-        "MountSource called %1 %2 %3",
-        scheme,
-        location,
-        @mountPoint
-      )
+      log.info("MountSource called #{scheme}, #{location}, #{@mountPoint}")
 
       # In case of usb device we have to select the right usb device
       if scheme == "usb"
@@ -698,7 +688,7 @@ module Yast
 
       #create the needed directories
       cmd = Builtins.sformat("mkdir -p '%1'", @mountPoint)
-      Builtins.y2milestone("mkdir: %1", cmd)
+      log.info("mkdir: #{cmd}")
       SCR.Execute(path(".target.bash"), cmd)
       #TODO Clean up spaces at the end.
       while i
@@ -724,7 +714,7 @@ module Yast
 
       if scheme == "device"
         parsedURL = URL.Parse(Ops.add("device://", location))
-        Builtins.y2milestone("parsed URL: %1", parsedURL)
+        log.info("parsed URL: #{parsedURL}")
 
         Ops.set(
           parsedURL,
@@ -754,7 +744,7 @@ module Yast
           ret = "/" + Ops.get_string(parsedURL, "path", "")
         end
 
-        Builtins.y2milestone("MountSource parsedURL=%1", parsedURL)
+        log.info("MountSource parsedURL #{parsedURL}")
       elsif scheme == "nfs"
         parsedURL = URL.Parse(Ops.add("nfs://", location))
         mpath     = Ops.get_string(parsedURL, "path", "")
@@ -763,7 +753,7 @@ module Yast
           "(.*)/(.*.iso)"
         )
 
-        Builtins.y2milestone("MountSource nfs isopath %1", isopath)
+        log.info("MountSource nfs isopath #{isopath}")
 
         if isopath != []
           mpath = Ops.get_string(isopath, 0, "")
@@ -781,7 +771,7 @@ module Yast
         else
           ret = ""
         end
-        Builtins.y2milestone("MountSource parsedURL=%1", parsedURL)
+        log.info("MountSource parsedURL #{parsedURL}")
       elsif scheme == "smb"
         parsedURL = URL.Parse(Ops.add("smb://", location))
         mpath = Ops.get_string(parsedURL, "path", "")
@@ -790,7 +780,7 @@ module Yast
           "(.*)/(.*.iso)"
         )
 
-        Builtins.y2milestone("MountSource smb isopath %1", isopath)
+        log.info("MountSource smb isopath #{isopath}")
 
         if isopath != []
           mpath = Ops.get_string(isopath, 0, "")
@@ -808,10 +798,7 @@ module Yast
         end
 
         SCR.Execute(path(".target.bash"), Ops.add("/bin/umount ", @mountPoint)) # old (dead) mounts
-        Builtins.y2milestone(
-          "smbMount: %1",
-          "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mmount + " " + mopts
-        )
+        log.info( "smbMount: /sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mmount + " " + mopts)
         out = Convert.to_map(
           SCR.Execute(
             path(".target.bash_output"),
@@ -823,16 +810,11 @@ module Yast
         else
           ret = ""
         end
-        Builtins.y2milestone("MountSource parsedURL=%1", parsedURL)
+        log.info("MountSource parsedURL #{parsedURL}")
       elsif scheme == "local"
         isopath = Builtins.regexptokenize(location, "(.*)/(.*.iso)")
         if isopath != []
-          Builtins.y2milestone(
-            "MountSource %1 %2 %3",
-            Ops.get_string(isopath, 0, ""),
-            Ops.get_string(isopath, 1, ""),
-            @mountPoint
-          )
+          log.info("MountSource " + Ops.get_string(isopath, 0, "") + " " + Ops.get_string(isopath, 1, "") + " " + @mountPoint)
           @mmount = Ops.get_string(isopath, 0, "")
           ret = ""
         else
@@ -846,9 +828,7 @@ module Yast
       if isopath != [] && ret == ""
         #The content of iso images must be copied.
         @createLinks = false
-        Builtins.y2milestone(
-          "Mount iso 'mount -o loop " + @mmount + "/" + Ops.get_string(isopath, 1, "") + " " + @mountPoint + "'"
-        )
+        log.info( "Mount iso 'mount -o loop " + @mmount + "/" + Ops.get_string(isopath, 1, "") + " " + @mountPoint + "'")
         out = Convert.to_map(
           SCR.Execute(
             path(".target.bash_output"),
@@ -864,7 +844,7 @@ module Yast
         end
       end
 
-      Builtins.y2milestone("MountSource ret=%1", ret)
+      log.info("MountSource #{ret}")
       ret
     end
 
@@ -879,7 +859,7 @@ module Yast
     #
     def CopyFiles(sourceDir, targetDir, subDir, localCheck)
       # Check if we have it local
-      Builtins.y2milestone("CopyFiles called:%1,%2,%3,%4", sourceDir, targetDir, subDir, localCheck)
+      log.info("CopyFiles called: #{sourceDir}, #{targetDir}, #{subDir}, #{localCheck}")
 
       if localCheck
         localPath = check_local_path(subDir, sourceDir)
@@ -918,7 +898,7 @@ module Yast
           Builtins.sformat(" du -s0 '%1' | awk '{printf $1}'", sourceDir)
         )
       )
-      Builtins.y2milestone("Source Tech-Size progress %1", out)
+      log.info("Source Tech-Size progress #{out}")
       techsize = Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
 
       out = Convert.to_map(
@@ -927,7 +907,7 @@ module Yast
           Builtins.sformat("du -sh0 '%1' |awk '{printf $1}'", sourceDir)
         )
       )
-      Builtins.y2milestone("Source Human-Size progress %1", out)
+      log.info("Source Human-Size progress #{out}")
       humansize = Ops.get_string(out, "stdout", "")
 
       # show a progress bar during copy
@@ -958,7 +938,6 @@ module Yast
           return
         end
       end
-      #Builtins.y2milestone("running %1 with pid %2", cmd, pid)
 
 
       while SCR.Read(path(".process.running"), pid) == true
@@ -973,7 +952,6 @@ module Yast
             )
           )
         )
-        #Builtins.y2milestone("Target Tech-Size progress %1", out)
 
         Progress.Step(Builtins.tointeger(Ops.get_string(out, "stdout", "0")))
 
@@ -986,7 +964,6 @@ module Yast
             )
           )
         )
-        #Builtins.y2milestone("Target Human-Size progress %1", out)
 
         Progress.Title(
           "Copying Media " + subDir + " ( " + Ops.get_string(out, "stdout", "OM") + " of " + humansize + " )"
@@ -994,14 +971,9 @@ module Yast
 
         # Checking the exit code (0 = OK, nil = still running, 'else' = error)
         exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
-        #Builtins.y2milestone("Exitcode: %1", exitcode)
 
         if exitcode != nil && exitcode != 0
-          Builtins.y2milestone(
-            "Copy has failed, exit code was: %1, stderr: %2",
-            exitcode,
-            SCR.Read(path(".process.read_stderr"), pid)
-          )
+          log.info("Copy has failed, exit code was: #{exitcode} stderr: %2" + SCR.Read(path(".process.read_stderr"), pid))
           error = Builtins.sformat(
             "Copy has failed, exit code was: %1, stderr: %2",
             exitcode,
@@ -1278,12 +1250,8 @@ module Yast
           dev = Ops.get_string(d, "dev_name", "") + Builtins.sformat("%1", i)
           s = Ops.get_integer(d, ["resource", "size", 0, "x"], 0) * Ops.get_integer(d, ["resource", "size", 0, "y"], 0) / 1024 / 1024 / 1024
           while SCR.Read(path(".target.lstat"), dev) != {}
-            Builtins.y2milestone(
-              "%1,%2,%3GB",
-              dev,
-              Ops.get_string(d, "model", ""),
-              s
-            )
+            model = Ops.get_string(d, "model", "")
+            log.info( "#{dev} #{model} #{size}GB")
             ltmp = Builtins.regexptokenize(dev, "/dev/(.*)")
             usb_list = Builtins.add(
               usb_list,
@@ -1291,7 +1259,7 @@ module Yast
                 Id(Ops.get_string(ltmp, 0, "")),
                 Builtins.sformat(
                   "%1 %2GB Partition %3",
-                  Ops.get_string(d, "model", ""),
+                  model,
                   s,
                   i
                 ),
@@ -1330,7 +1298,7 @@ module Yast
     end
     
     def find_sap_media(base)
-      Builtins.y2milestone("-- Start find_sap_media --- %1",base)
+      log.info("-- Start find_sap_media --- #{base}")
       make_hash = proc do |hash,key|
          hash[key] = Hash.new(&make_hash)
       end
@@ -1390,13 +1358,13 @@ module Yast
           Popup.Error( _("The location does not contain SAP installation data."))
         end
       end
-      Builtins.y2milestone("path_map %1",path_map)
+      log.info("path_map #{path_map}")
       return path_map
     end
 
     # Show the dialog where 
     def media_dialog(wizard)
-      Builtins.y2milestone("-- Start media_dialog ---")
+      log.info("-- Start media_dialog ---")
       @dbMap = {}
       has_back = true
 
@@ -1603,7 +1571,7 @@ module Yast
               UI.QueryWidget(Id("media"),:SelectedItems).each {|medium|
 	         @selectedMedia[medium] = true
 	      }
-              Builtins.y2milestone("selectedMedia %1",@selectedMedia)
+              log.info("selectedMedia #{@selectedMedia}")
             end
 
             # Export locally stored mediums over NFS
@@ -1640,7 +1608,7 @@ module Yast
                 @sourceDir = urlPath
             end
             @umountSource = true
-            Builtins.y2milestone("urlPath %1, @sourceDir %2, scheme %3",urlPath,@sourceDir,scheme)
+            log.info("end urlPath #{urlPath}, @sourceDir #{@sourceDir}, scheme #{scheme}")
             break # No more input
         end # Case user input
       end # While true

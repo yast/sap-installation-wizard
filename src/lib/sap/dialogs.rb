@@ -125,7 +125,7 @@ module Yast
     #
     ############################################################
     def ReadDialog
-      Builtins.y2milestone("--Start SAPInst ReadDialog ---")
+      log.info("--Start SAPInst ReadDialog ---")
       return SAPInst.Read
     end
     
@@ -135,7 +135,7 @@ module Yast
     #
     ############################################################
     def ReadInstallationMaster
-      Builtins.y2milestone("-- Start ReadInstallationMaster ---")
+      log.info("-- Start ReadInstallationMaster ---")
       ret = nil
       run = true
       while run  
@@ -150,18 +150,13 @@ module Yast
         # is_instmaster gives back a key-value pair to split for the BO workflow
         #         KEY: SAPINST, BOBJ, HANA, B1
         #       VALUE: complete path to the instmaster directory incl. sourceDir
-        Builtins.y2milestone("looking for instmaster in %1", @sourceDir)
+        log.info("Looking for instmaster in #{@sourceDir}")
         instMasterList            = SAPMedia.is_instmaster(@sourceDir)
         SAPInst.instMasterType    = Ops.get(instMasterList, 0, "")
         SAPInst.instMasterPath    = Ops.get(instMasterList, 1, "")
         @instMasterVersion        = Ops.get(instMasterList, 2, "")
     
-        Builtins.y2milestone(
-          "found SAP instmaster at %1 type %2 version %3",
-          SAPInst.instMasterPath,
-          SAPInst.instMasterType,
-          @instMasterVersion
-        )
+        log.info("Found SAP instmaster at #{SAPInst.instMasterPath} type #{SAPInst.instMasterType}")
         if SAPInst.instMasterPath == nil || SAPInst.instMasterPath.size == 0
            Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
@@ -192,7 +187,7 @@ module Yast
          #We can only link SAPINST MEDIA
          SAPInst.createLinks = false
       end
-      Builtins.y2milestone("SAPInst.productList %1", SAPInst.productList)
+      log.info("SAPInst.productList #{SAPInst.productList}")
       if SAPInst.instMasterType == 'HANA'
         # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
         SAPInst.CopyFiles(SAPInst.instMasterPath, SAPInst.mediaDir, "Instmaster", false)
@@ -211,7 +206,7 @@ module Yast
     #
     ############################################################
     def SelectNWInstallationMode
-      Builtins.y2milestone("-- Start SelectNWInstallationMode ---")
+      log.info("-- Start SelectNWInstallationMode ---")
       run = true
     
       #Reset the selected installation type and DB
@@ -304,7 +299,7 @@ module Yast
     #
     ############################################################
     def SelectNWProduct
-      Builtins.y2milestone("-- Start SelectNWProduct ---")
+      log.info("-- Start SelectNWProduct ---")
       run = true
     
       productItemTable = []
@@ -321,7 +316,7 @@ module Yast
          id   = map["id"]
          productItemTable << Item(Id(id),name,false)
       }
-      Builtins.y2milestone("productList %1",SAPInst.productList)
+      log.info("productList #{SAPInst.productList}")
 
       Wizard.SetContents(
         @dialogs["nwSelectProduct"]["name"],
@@ -369,7 +364,7 @@ module Yast
     #
     ############################################################
     def CopyNWMedia
-      Builtins.y2milestone("-- Start CopyNWMedia ---")
+      log.info("-- Start CopyNWMedia ---")
       if SAPInst.importSAPCDs
           # Skip the dialog all together if SAP_CD is already mounted from network location
           # There is no chance for user to copy new mediums to the location
@@ -404,7 +399,7 @@ module Yast
     #
     ############################################################
     def ReadSupplementMedium
-      Builtins.y2milestone("-- Start ReadSupplementMedium ---")
+      log.info("-- Start ReadSupplementMedium ---")
       run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
       while run  
         ret = media_dialog("supplement")
@@ -431,7 +426,7 @@ module Yast
     #
     ############################################################
     def ReadParameter
-      Builtins.y2milestone("-- Start ReadParameter ---")
+      log.info("-- Start ReadParameter ---")
       # Display the empty dialog before running external SAP installer program
       Wizard.SetContents(
         _("Collecting installation profile for SAP product"),
@@ -476,7 +471,7 @@ module Yast
                 "usermod --groups sapinst root; " +
                 "chgrp sapinst " + SAPInst.instDir + ";" +
                 "chmod 770 " + SAPInst.instDir + ";" 
-          Builtins.y2milestone("-- Prepare sapinst %1", cmd )
+          log.info("-- Prepare sapinst #{cmd}" )
           SCR.Execute(path(".target.bash"), "xterm -e '" + cmd + "'")
 
           #Some other staff
@@ -495,7 +490,7 @@ module Yast
               cmd = cmd + " SAPINST_USE_HOSTNAME=" + hostname
           end
 
-          Builtins.y2milestone("-- Start sapinst %1", cmd )
+          log.info("-- Start sapinst #{cmd}" )
           SCR.Execute(path(".target.bash"), "xterm -e '" + cmd + "'")
       end
       if Popup.YesNo(_("Installation profile is ready.\n" +
@@ -510,7 +505,7 @@ module Yast
     end
 
     def WriteDialog
-      Builtins.y2milestone("--Start SAPInst WriteDialog ---")
+      log.info("--Start SAPInst WriteDialog ---")
       return SAPInst.Write
     end
     
@@ -521,7 +516,7 @@ module Yast
     #
     ############################################################
     def find_sap_media(base)
-      Builtins.y2milestone("-- Start find_sap_media ---")
+      log.info("-- Start find_sap_media ---")
       make_hash = proc do |hash,key|
          hash[key] = Hash.new(&make_hash)
       end
@@ -573,13 +568,13 @@ module Yast
           Popup.Error( _("The location does not contain SAP installation data."))
         end
       end
-      Builtins.y2milestone("path_map %1",path_map)
+      log.info("path_map #{path_map}")
       return path_map
     end
 
     # Show the dialog where 
     def media_dialog(wizard)
-      Builtins.y2milestone("-- Start media_dialog ---")
+      log.info("-- Start media_dialog ---")
       @dbMap = {}
       has_back = true
 
@@ -788,7 +783,7 @@ module Yast
                 @sourceDir = urlPath
             end
             @umountSource = true
-            Builtins.y2milestone("urlPath %1, @sourceDir %2, scheme %3",urlPath,@sourceDir,scheme)
+            log.info("urlPath #{urlPath}, @sourceDir #{@sourceDir}, scheme #{scheme}")
             break # No more input
         end # Case user input
       end # While true

@@ -12,8 +12,8 @@ module Yast
       Yast.import "UI"
       Yast.import "Misc"
       textdomain "sap-installation-wizard"
-      Builtins.y2milestone("----------------------------------------")
-      Builtins.y2milestone("SAP Partitioning started")
+      log.info("----------------------------------------")
+      log.info("SAP Partitioning started")
 
       @partXMLPath = Misc.SysconfigRead(
         path(".sysconfig.sap-installation-wizard.PART_XML_PATH"),
@@ -22,7 +22,7 @@ module Yast
     end
 
     def CreatePartitions(productPartitioningList,productList)
-      Builtins.y2milestone("********Starting partitioning")
+      log.info("********Starting partitioning")
 
       ret = nil
       hwinfo = get_hw_info
@@ -40,13 +40,12 @@ module Yast
 	   end
 	end
         ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
-        Builtins.y2milestone("sap_create_storage_ng returned: %1",ret)
+        log.info("sap_create_storage_ng returned: #{ret}")
 	if( ret == "abort" )
 	    return "abort"
 	end
       end
-      Builtins.y2milestone("MANUFACTURER: %1", manufacturer)
-      Builtins.y2milestone("Modell: %1", model)
+      log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
       deep_copy(ret)
     end
 

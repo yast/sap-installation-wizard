@@ -18,8 +18,8 @@ module Yast
       Yast.import "SAPPartitioning"
 
       textdomain "sap-installation-wizard"
-      Builtins.y2milestone("----------------------------------------")
-      Builtins.y2milestone("SAP Product Installer Started")
+      log.info("----------------------------------------")
+      log.info("SAP Product Installer Started")
 
       #Some parameter of the actual selected product
       @instType      = ""
@@ -98,7 +98,7 @@ module Yast
     #
     ############################################################
     def Read()
-      Builtins.y2milestone("-- Start SAPProduct Read --")
+      log.info("-- Start SAPProduct Read --")
        prodCount = 0;
        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
          instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
@@ -119,12 +119,12 @@ module Yast
     #
     ############################################################
     def SelectNWInstallationMode()
-      Builtins.y2milestone("-- Start SelectNWInstallationMode --- for instDir %1", SAPMedia.instDir)
+      log.info("-- Start SelectNWInstallationMode --- for instDir #{SAPMedia.instDir}")
       run = true
     
       #Reset the the selected product specific parameter
       @productMAP    = SAPXML.get_products_for_media(SAPMedia.instDir)
-      Builtins.y2milestone("@productMAP %1", @productMAP)
+      log.info("@productMAP #{@productMAP}")
       @instType      = ""
       @DB            = ""
       @PRODUCT_ID    = ""
@@ -227,7 +227,7 @@ module Yast
     #
     ############################################################
     def SelectNWProduct
-      Builtins.y2milestone("-- Start SelectNWProduct ---")
+      log.info("-- Start SelectNWProduct ---")
       run = true
     
       productItemTable = []
@@ -244,7 +244,7 @@ module Yast
          id   = map["id"]
          productItemTable << Item(Id(id),name,false)
       }
-      Builtins.y2milestone("@productList %1",@productList)
+      log.info("@productList #{@productList}")
     
       Wizard.SetContents(
         @dialogs["nwSelectProduct"]["name"],
@@ -293,14 +293,14 @@ module Yast
     #
     ############################################################
     def ReadParameter
-      Builtins.y2milestone("-- Start SAPProduct ReadParameter --")
+      log.info("-- Start SAPProduct ReadParameter --")
       ret = :next
       sid        =""
       instNumber =""
       hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname"))
       my_hostname = Ops.get_string(hostname_out, "stdout", "")
       my_hostname.strip!
-      Builtins.y2milestone("-- Start ReadParameter ---")
+      log.info("-- Start ReadParameter ---")
 
       #For HANA B1 and  TREX there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
       case SAPMedia.instMasterType
@@ -396,7 +396,7 @@ module Yast
             "usermod --groups sapinst root; " +
             "chgrp sapinst " + SAPMedia.instDir + ";" +
             "chmod " + instDirMode + " " + SAPMedia.instDir + ";"
-      Builtins.y2milestone("-- Prepare sapinst %1", cmd )
+      log.info("-- Prepare sapinst #{cmd}" )
       SCR.Execute(path(".target.bash"), cmd)
 
       if Popup.YesNo(_("Installation profile is ready.\n" +
@@ -415,7 +415,7 @@ module Yast
     #
     ############################################################
     def Write
-      Builtins.y2milestone("-- Start SAPProduct Write --")
+      log.info("-- Start SAPProduct Write --")
       productScriptsList      = []
       productPartitioningList = []
       productList             = []
@@ -449,7 +449,7 @@ module Yast
       }
       #Start create the partitions
       ret = SAPPartitioning.CreatePartitions(productPartitioningList,productList)
-      Builtins.y2milestone("SAPPartitioning.CreatePartitions returned: %1",ret)
+      log.info("SAPPartitioning.CreatePartitions returned: #{ret}")
       if( ret == "abort" )
         return :abort
       end
@@ -502,7 +502,7 @@ module Yast
     #
     ############################################################
     def adaptDB(dataBase)
-      Builtins.y2milestone("-- Start SAPProduct adaptDB --")
+      log.info("-- Start SAPProduct adaptDB --")
       if dataBase == ""
          UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
       else
@@ -550,7 +550,7 @@ module Yast
     #
     ############################################################
     def GetProductParameter(productParameter)
-      Builtins.y2milestone("-- Start SAPProduct GetProductParameter --")
+      log.info("-- Start SAPProduct GetProductParameter --")
       @productList.each { |p|
           if p["id"] == @PRODUCT_ID
              return p.has_key?(productParameter) ? p[productParameter] : ""

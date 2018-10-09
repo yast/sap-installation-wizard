@@ -124,12 +124,14 @@ sub is_instmaster {
                #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
                $instmaster[0] = "HANA";
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = "";
                last;
             }elsif ($fields[0] eq "B1AH" or $fields[0] eq "B1A" or $fields[0] eq "B1H") {
                #B1AH 1.0.2.147
                #B1A 1.0.5.374
                $instmaster[0] = $fields[0];
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = "";
                last;
             # TODO - mehrstufiger Ansatz, da SWPM ungeschickterweise gepackt (SAPCAR) ist...
             # Erst globales Medium mit mehreren SWPM Plattformen und gepacktem SWPM.SAR erkennen
@@ -153,11 +155,13 @@ sub is_instmaster {
                #SAP:BusinessObjects:3.1:BOE
                $instmaster[0] = "BOBJ";
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = "";
                last;
             }elsif ($fields[1] =~ /^TREX/ ) {
                #SAP:TREXBINARIES
                $instmaster[0] = "TREX";
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = "";
                last;
             }elsif ($fields[1] eq "ROOT-LABEL-DVD-SWPM" && ($fields[5] =~ $PLATFORM."_".$ARCH || $fields[5] eq "*")) { # TODO fields[1] ggf. verallgemeinern auf "*SWPM*" ?
                # Zweiter Versuch, SWPM ist noch nicht entpackt
