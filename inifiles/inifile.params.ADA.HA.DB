@@ -32,10 +32,10 @@ NW_ABAP_Import_Dialog.migmonComType = EXCHANGE
 NW_ABAP_Import_Dialog.migmonExchangeDir = 
 
 # Number of parallel Migration Monitor jobs.
-NW_ABAP_Import_Dialog.migmonJobNum = 3
+NW_ABAP_Import_Dialog.migmonJobNum = 2
 
 # Additional R3load arguments for the LOAD phase.
-NW_ABAP_Import_Dialog.migmonLoadArgs = -nolog -c 50000 -force_repeat -para_cnt 3
+NW_ABAP_Import_Dialog.migmonLoadArgs = -nolog -c 50000 -force_repeat -para_cnt 2
 
 # Additional R3load arguments for the TASK phase.
 NW_ABAP_Import_Dialog.migmonTaskArgs = 

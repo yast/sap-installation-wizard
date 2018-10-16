@@ -1029,6 +1029,10 @@ module Yast
       Progress.Finish
 
       nil
+    rescue StandardError => e
+      Builtins.y2milestone("An internal error accoured:" + e.message )
+      Popup.Error( e.message )
+      return :abort
     end
 
     # Make SURE to save firewall configuration and restart it.
