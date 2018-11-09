@@ -8,7 +8,7 @@ require "fileutils"
 
 module Yast
   class SAPProductClass < Module
-    attr_reader :installedProducts
+    attr_reader :installed_products
     def main
       Yast.import "URL"
       Yast.import "UI"
@@ -21,7 +21,7 @@ module Yast
       log.info("----------------------------------------")
       log.info("SAP Product Installer Started")
 
-      #Some parameter of the actual selected product
+      # Some parameter of the actual selected product
       @instType      = ""
       @DB            = ""
       @PRODUCT_ID    = ""
@@ -76,7 +76,7 @@ module Yast
                        "script_name"  => SAPXML.ConfigValue("TREX","script_name")
       }
 
-      # @installedProducts contains a list of the products which already are installen on the system
+      # @installed_products contains a list of the products which already are installen on the system
       # The list consits of hashes of the parameter of the products:
       # instEnv      : path to the installation environment
       # instType     : The type of the installation: Standard, Distributed, HA, SUSE-HA, STANDALONE
@@ -85,10 +85,10 @@ module Yast
       # SID          : the SID of the installed product.
       # STACK        : ABABP, JAVA, Double
       # DB           : The selected database
-      @installedProducts = []
+      @installed_products = []
 
       #List of product directories which must be installed
-      @productsToInstall = []
+      @products_to_install = []
 
     end
 
@@ -103,7 +103,7 @@ module Yast
        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
          instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
          if File.exists?( instDir + "/installationSuccesfullyFinished.dat" ) && File.exists?( instDir + "/product.data")
-           @installedProducts << Convert.convert(
+           @installed_products << Convert.convert(
               SCR.Read(path(".target.ycp"), instDir + "/product.data"),
               :from => "any",
               :to   => "map <string, any>"
@@ -122,7 +122,7 @@ module Yast
       log.info("-- Start SelectNWInstallationMode --- for instDir #{SAPMedia.instDir}")
       run = true
     
-      #Reset the the selected product specific parameter
+      # Reset the the selected product specific parameter
       @productMAP    = SAPXML.get_products_for_media(SAPMedia.instDir)
       log.info("@productMAP #{@productMAP}")
       @instType      = ""
@@ -142,7 +142,7 @@ module Yast
                     VBox(
                         RadioButton( Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
                         RadioButton( Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
-                        #RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
+                        # RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
                         RadioButton( Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
                         RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
                         RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
@@ -178,8 +178,8 @@ module Yast
          UI.ChangeWidget(Id("STANDARD"),    :Enabled, false)
          UI.ChangeWidget(Id("DISTRIBUTED"), :Enabled, false)
          UI.ChangeWidget(Id("HA"),          :Enabled, false)
-         #Does not exists at the time
-         #UI.ChangeWidget(Id("SUSE-HA-ST"),  :Enabled, false)
+         # Does not exists at the time
+         # UI.ChangeWidget(Id("SUSE-HA-ST"),  :Enabled, false)
          UI.ChangeWidget(Id("ADA"), :Enabled, false)
          UI.ChangeWidget(Id("HDB"), :Enabled, false)
          UI.ChangeWidget(Id("SYB"), :Enabled, false)
@@ -302,7 +302,7 @@ module Yast
       my_hostname.strip!
       log.info("-- Start ReadParameter ---")
 
-      #For HANA B1 and  TREX there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
+      # For HANA B1 and  TREX there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
       case SAPMedia.instMasterType
         when "HANA"
            @DB           = "HDB"
@@ -329,7 +329,7 @@ module Yast
       )
       Wizard.RestoreAbortButton()
       ret=:next
-      #First we execute the autoyast xml file of the product if this exeists
+      # First we execute the autoyast xml file of the product if this exeists
       script_name    = SAPMedia.ayXMLPath + '/' +  GetProductParameter("script_name")
       inifile_params = GetProductParameter("inifile_params") == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("inifile_params")
       xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
@@ -347,10 +347,10 @@ module Yast
         SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + SAPMedia.instDir )
       end
 
-      #inifile_params can be contains DB-name
+      # inifile_params can be contains DB-name
       inifile_params = inifile_params.gsub("##DB##",@DB)
 
-      #Create the parameter.ini file
+      # Create the parameter.ini file
       if File.exists?(inifile_params)
         inifile = File.read(inifile_params)
         Dir.glob(SAPMedia.instDir + "/ay_q_*").each { |param|
@@ -359,9 +359,9 @@ module Yast
            pattern = "##" + par + "##"
            a = inifile.gsub!(/#{pattern}/,val) 
         }
-        #Replace ##VirtualHostname## by the real hostname.
+        # Replace ##VirtualHostname## by the real hostname.
         inifile.gsub!(/##VirtualHostname##/,my_hostname)
-        #Replace kernel base
+        # Replace kernel base
         File.readlines(SAPMedia.instDir + "/start_dir.cd").each { |path|
           if path.include?("KERNEL")
             inifile.gsub!(/##kernel##/,path.chomp)
@@ -388,7 +388,7 @@ module Yast
              "SCRIPT_NAME"    => script_name
           })
 
-      @productsToInstall << SAPMedia.instDir
+      @products_to_install << SAPMedia.instDir
 
       instDirMode = SAPMedia.instMasterType == "SAPINST" ? "770" : "775" 
 
@@ -419,7 +419,7 @@ module Yast
       productScriptsList      = []
       productPartitioningList = []
       productList             = []
-      @productsToInstall.each { |instDir|
+      @products_to_install.each { |instDir|
         productData = Convert.convert(
           SCR.Read(path(".target.ycp"), instDir + "/product.data"),
           :from => "any",
@@ -447,7 +447,7 @@ module Yast
         end
         productPartitioningList << ret if ret != "NO"
       }
-      #Start create the partitions
+      # Start create the partitions
       ret = SAPPartitioning.CreatePartitions(productPartitioningList,productList)
       log.info("SAPPartitioning.CreatePartitions returned: #{ret}")
       if( ret == "abort" )
@@ -455,14 +455,14 @@ module Yast
       end
       
 
-      #Start execute the install scripts
+      # Start execute the install scripts
       require "open3"
       productScriptsList.each { |installScript|
           out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M"))
           date = Builtins.filterchars( Ops.get_string(out, "stdout", ""), "0123456789-.")
           logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
           f = File.new( logfile, "w")
-          #pid = 0
+          # pid = 0
           Wizard.SetContents( _("SAP Product Installation"),
                                         LogView(Id("LOG"),"",30,400),
                                         "Help",
@@ -470,9 +470,6 @@ module Yast
                                         true
                                         )
           Open3.popen2e(installScript) {|i,o,t|
-             #stdin, stdout_and_stderr, wait_thr = Open3.popen2e(gucken)
-             #stdin.close
-             #pid = wait_thr.pid
              i.close
              n = 0
              text = ""
@@ -490,7 +487,7 @@ module Yast
           }
           f.close
           sleep 5
-          #Process.kill("TERM", pid)
+          # Process.kill("TERM", pid)
       }
       return :next
     end
@@ -501,43 +498,43 @@ module Yast
     # Private functions
     #
     ############################################################
-    def adaptDB(dataBase)
+    def adaptDB(data_base)
       log.info("-- Start SAPProduct adaptDB --")
-      if dataBase == ""
+      if data_base == ""
          UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
       else
          UI.ChangeWidget(Id("ORA"), :Enabled, false)
-         case dataBase
+         case data_base
          when "ADA"
            UI.ChangeWidget(Id("ADA"), :Value, true)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "HDB"
            UI.ChangeWidget(Id("HDB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "SYB"
            UI.ChangeWidget(Id("SYB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "DB6"
            UI.ChangeWidget(Id("DB6"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "ORA"
-           #FATE
+           # FATE
            Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
            return :abort
          end
