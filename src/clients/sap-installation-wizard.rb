@@ -40,16 +40,16 @@ module Yast
       # the command line description map
       @cmdline = {
         "id"   => "sap-installation-wizard",
-	"help" => _("YAST Module to Install SAP Applications on SLES for SAP Applications."),
-	"guihandler" => fun_ref(method(:SAPInstSequence),  "symbol ()"),
-#	"initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
-#	"finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
-	"actions"    => {
+    "help" => _("YAST Module to Install SAP Applications on SLES for SAP Applications."),
+    "guihandler" => fun_ref(method(:SAPInstSequence),  "symbol ()"),
+#    "initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
+#    "finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
+    "actions"    => {
             "hana_partitioning"   => {
                "handler" => fun_ref(SAPPartitioning.method(:CreateHANAPartitions),"void ()"),
                "help"    => _("Create HANA Partitionint.")
             }
-	}
+    }
       }
       @ret = CommandLine.Run(@cmdline)
       deep_copy(@ret)

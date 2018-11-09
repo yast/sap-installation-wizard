@@ -111,17 +111,17 @@ module Yast
           case install
           when "sap_install"
               WFM.CallFunction("sap-installation-wizard", [])
-	      ret = :next
+              ret = :next
           when "hana_partitioning"
               SAPPartitioning.CreateHANAPartitions("")
-	      ret = :next
+              ret = :next
           end
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
           SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
-	  Package.DoRemove(["sap-installation-start"])
+          Package.DoRemove(["sap-installation-start"])
         end
       end until ret == :next || ret == :back
       Wizard.CloseDialog() if @closeMe

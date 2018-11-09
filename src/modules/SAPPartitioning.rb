@@ -31,19 +31,19 @@ module Yast
 
       Builtins.foreach(productPartitioningList) do |productPartitioning|
         # This is a generic way for all SAP products and hardware
-	# Now it is possible to create product manufactutrer and model based partitioning files.
+        # Now it is possible to create product manufactutrer and model based partitioning files.
         partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
-	if ! File.exists(partXML)
+        if ! File.exists(partXML)
            partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
-	   if ! File.exists(partXML)
+           if ! File.exists(partXML)
                partXML=@partXMLPath + '/' + productPartitioning + ".xml"
-	   end
-	end
+           end
+        end
         ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
         log.info("sap_create_storage_ng returned: #{ret}")
-	if( ret == "abort" )
-	    return "abort"
-	end
+        if( ret == "abort" )
+            return "abort"
+        end
       end
       log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
       deep_copy(ret)

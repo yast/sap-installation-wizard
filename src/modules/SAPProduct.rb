@@ -436,8 +436,8 @@ module Yast
         # Add script
         productScriptsList << "/bin/sh -x " + Ops.get_string(productData, "SCRIPT_NAME", "") + params
 
-	# Add product to install
-	productList << Ops.get_string(productData, "PRODUCT_ID", "")
+        # Add product to install
+        productList << Ops.get_string(productData, "PRODUCT_ID", "")
         
         # Add product partitioning
         ret = Ops.get_string(productData, "PARTITIONING", "")
@@ -489,7 +489,7 @@ module Yast
              }
           }
           f.close
-	  sleep 5
+          sleep 5
           #Process.kill("TERM", pid)
       }
       return :next

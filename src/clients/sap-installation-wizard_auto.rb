@@ -44,12 +44,12 @@ module SapInst
 
         # There is only one bool parameter to import.
         def import(exported)
-	    log.info("-- sap-installation-wizard_auto.import Start --- #{exported}")
+        log.info("-- sap-installation-wizard_auto.import Start --- #{exported}")
             return SAPMedia.Import(exported)
         end
 
         # There is noting to export.
-	# TODO evtl we can export the copied directories and installed products
+    # TODO evtl we can export the copied directories and installed products
         def export
             return {}
         end
@@ -65,7 +65,7 @@ module SapInst
         end
        # Return a readable text summary.
         def summary
-	    return _('SAP Product Automatic Installation.')
+        return _('SAP Product Automatic Installation.')
         end
 
         def change
@@ -87,7 +87,7 @@ module SapInst
 
         # Set SapInst to "to be disabled".
         def reset
-	    # TODO find a sence for it
+        # TODO find a sence for it
             return true
         end
 

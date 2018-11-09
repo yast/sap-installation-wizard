@@ -43,7 +43,7 @@ module Yast
       @dialogs = {
          "inst_master" => {
              "help"    => _("<p>Enter location of SAP installation master medium to prepare it for use.</p>") +
-			  _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and Business One media."),
+                          _("Valid SAP installation master media are: <b>SWPM, TREX, HANA and Business One media."),
              "name"    => _("Prepare the SAP installation master medium")
              },
          "sapmedium" => {
@@ -182,7 +182,7 @@ module Yast
               SCR.Execute(path(".target.bash"), "rm -rf --preserve-root " + @instDir)
           when :no # Install
               # It will be installed at the last wizard step (i.e. the installation step)
-	      @instEnvList << @instDir
+              @instEnvList << @instDir
           when :retry # Do nothing
               # Do nothing about it
           end
@@ -204,20 +204,20 @@ module Yast
       #When autoinstallation we have to copy the media
       if Mode.mode() == "autoinstallation"
         SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ") 
-	prodCount = -1
+        prodCount = -1
         @SAPMediaTODO["products"].each { |prod|
           mediaList = []
-	  script    = ""
+          script    = ""
           prodCount = prodCount.next
-	  sid       = ""
+          sid       = ""
           @instDir = Builtins.sformat("%1/%2", @instDirBase, prodCount )
-	  if !prod.has_key?("media")
-	     Popup.Error("You have to define the location of the installation media in the autoyast xml.")
-	     next
+          if !prod.has_key?("media")
+             Popup.Error("You have to define the location of the installation media in the autoyast xml.")
+             next
           end
           #Start copying media
           prod["media"].each { |medium|
-	    url = medium["url"].split("://")
+            url = medium["url"].split("://")
             urlPath = MountSource(url[0],url[1])
             if "ERROR:" == urlPath[0,6]
                log.info("Can not mount medium #{medium["url"]}. Reason #{urlPath}")
@@ -245,77 +245,77 @@ module Yast
             end
             UmountSources(true)
           }
-	  if( @instMasterType == "SAPINST" )
+          if( @instMasterType == "SAPINST" )
              @DB           = prod.has_key?("DB")          ? prod["DB"]          : ""
              @PRODUCT_NAME = prod.has_key?("productName") ? prod["productName"] : ""
              @PRODUCT_ID   = prod.has_key?("productID")   ? prod["productID"]   : ""
-	     if prod.has_key?("iniFile")
-	        File.write(@instDir + "/inifile.params",  prod["iniFile"])
-	     end
-	     if @PRODUCT_ID == ""
-	        Popup.Error("The SAP PRODUCT_ID is not defined.")
-		next
-	     end
-	     SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/doc.dtd " + @instDir) 
-	     SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/keydb.dtd " + @instDir) 
+             if prod.has_key?("iniFile")
+                File.write(@instDir + "/inifile.params",  prod["iniFile"])
+             end
+             if @PRODUCT_ID == ""
+                Popup.Error("The SAP PRODUCT_ID is not defined.")
+                next
+             end
+             SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/doc.dtd " + @instDir) 
+             SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/keydb.dtd " + @instDir) 
              File.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
-	  else
+          else
              @DB           = "HANA"
              @PRODUCT_NAME = @instMasterType
              @PRODUCT_ID   = @instMasterType
-	     if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
-	        Popup.Error("Some of the required parameters are not defined.")
-		next
-	     end
-	     if ! prod.has_key?("sapMDC")
+             if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
+                Popup.Error("Some of the required parameters are not defined.")
+                next
+             end
+             if ! prod.has_key?("sapMDC")
                   prod["sapMDC"] = "no"
-	     end
-	     File.write(@instDir + "/ay_q_masterpass", prod["sapMasterPW"])
-	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
-	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
-	     File.write(@instDir + "/ay_q_sapmdc",     prod["sapMDC"])
-	     if prod.has_key?("sapVirtHostname")
+             end
+             File.write(@instDir + "/ay_q_masterpass", prod["sapMasterPW"])
+             File.write(@instDir + "/ay_q_sid",        prod["sid"])
+             File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
+             File.write(@instDir + "/ay_q_sapmdc",     prod["sapMDC"])
+             if prod.has_key?("sapVirtHostname")
                 File.write(@instDir + "/ay_q_virt_hostname",     prod["sapVirtHostname"])
-	     end
+             end
              sid = prod["sid"]
-	  end
-	  SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
-	         "instDir"        => @instDir,
-	         "instMaster"     => @instDir + "/Instmaster",
-	         "TYPE"           => @instMasterType,
-	         "DB"             => @DB,
-	         "PRODUCT_NAME"   => @PRODUCT_NAME,
-	         "PRODUCT_ID"     => @PRODUCT_ID,
-	         "PARTITIONING"   => "",
-	         "SID"            => sid,
-	         "SCRIPT_NAME"    => ""
-	      })
-	  #Now we start the product installation
+          end
+          SCR.Write( path(".target.ycp"), @instDir + "/product.data",  {
+                 "instDir"        => @instDir,
+                 "instMaster"     => @instDir + "/Instmaster",
+                 "TYPE"           => @instMasterType,
+                 "DB"             => @DB,
+                 "PRODUCT_NAME"   => @PRODUCT_NAME,
+                 "PRODUCT_ID"     => @PRODUCT_ID,
+                 "PARTITIONING"   => "",
+                 "SID"            => sid,
+                 "SCRIPT_NAME"    => ""
+              })
+          #Now we start the product installation
           case @instMasterType
             when "SAPINST"
-	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir)
-	       script = " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
+               SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 770 " + @instDir)
+               script = " /usr/share/YaST2/include/sap-installation-wizard/sap_inst_nodb.sh"
             when "HANA"
-	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
-	       script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst.sh -g"
+               SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
+               script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst.sh -g"
             when /^B1/
-	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
-	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh -g"
-	    when "TREX"
-	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
-	       script = " /usr/share/YaST2/include/sap-installation-wizard/trex_inst.sh"
-	  end
-	  set_date()
+               SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
+               script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh -g"
+            when "TREX"
+               SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
+               script = " /usr/share/YaST2/include/sap-installation-wizard/trex_inst.sh"
+          end
+          set_date()
           logfile = "/var/log/sap_inst." + @date + ".log"
-	  script << Builtins.sformat(
+          script << Builtins.sformat(
             " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
-	    @instDir + "/Instmaster",
-	    @PRODUCT_ID,
-	    @DB,
-	    @instMasterType,
-	    @instDir
-	    )
-	  log.info("Starting Installation : #{script}")
+            @instDir + "/Instmaster",
+            @PRODUCT_ID,
+            @DB,
+            @instMasterType,
+            @instDir
+            )
+          log.info("Starting Installation : #{script}")
           Wizard.SetContents( _("SAP Product Installation"),
                                         LogView(Id("LOG"),"",30,400),
                                         "Help",
@@ -323,14 +323,14 @@ module Yast
                                         true
                                         )
           require "open3"
-	  f = File.new(logfile,"w")
-	  exit_status = nil
+          f = File.new(logfile,"w")
+          exit_status = nil
           Open3.popen2e(script) {|i,o,t|
              i.close
              n=0
              text=""
              o.each_line {|line|
-		f << line
+                f << line
                 text << line
                 if n > 30
                     UI::ChangeWidget(Id("LOG"), :LastLine, text );
@@ -342,17 +342,17 @@ module Yast
              }
              exit_status = t.value.exitstatus
           }
-	  f.close
-	  log.info("Exit code of script : #{exit_status}")
-	  if exit_status != 0
-	        Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
-	  end
+          f.close
+          log.info("Exit code of script : #{exit_status}")
+          if exit_status != 0
+                Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
+          end
         }
       else
-	if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
-	    ExportSAPCDs()
-	end
-	@instEnvList << @instDir
+        if  @exportSAPCDs && @instMode != "auto" && !@importSAPCDs
+            ExportSAPCDs()
+        end
+        @instEnvList << @instDir
         if Popup.YesNo(_("Do you want to install another product?"))
            @prodCount = @prodCount.next
            @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
@@ -445,7 +445,7 @@ module Yast
         @instMasterPath = @mediaDir + "/Instmaster"
       else
         if ! File.exist?(@mediaDir + "/Instmaster-" + @instMasterType + '-' + @instMasterVersion  )
-	   #Make a local copy of the installation master
+           #Make a local copy of the installation master
            CopyFiles(@instMasterPath, @mediaDir, "Instmaster-" + @instMasterType + "-" + @instMasterVersion, false)
         end
         CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
@@ -482,10 +482,10 @@ module Yast
            when :next 
               media=find_sap_media(@sourceDir)
               media.each { |path,label|
-		if File.exist?(@mediaDir + "/" + label)
-		   Popup.Warning(Builtins.sformat(_("The selected medium '%1' was already copied."),label))
-		   next
-                end	
+                if File.exist?(@mediaDir + "/" + label)
+                   Popup.Warning(Builtins.sformat(_("The selected medium '%1' was already copied."),label))
+                   next
+                end        
                 CopyFiles(path, @mediaDir, label, false)
                 @selectedMedia[label] = true;
               }
@@ -496,7 +496,7 @@ module Yast
       @selectedMedia.each_key { |medium|
         if @selectedMedia[medium]
           mediaList << @mediaDir + "/" + medium
-	end
+        end
       }
       mediaList << @instDir + "/" + "Instmaster"
       IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
@@ -1312,9 +1312,9 @@ module Yast
         lf=d+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-	  if label.length > 2
+          if label.length > 2
             path_map[d]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-")
-	  end
+          end
         end
       }
       #Searching the EXPORTS
@@ -1325,9 +1325,9 @@ module Yast
         lf=d+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-	  if label.length > 3
+          if label.length > 3
             path_map[d]=label[4].chop.gsub(/\W/,"-")
-	  end
+          end
         end
       }
 
@@ -1339,9 +1339,9 @@ module Yast
         lf=d+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-	  if label.length > 3
+          if label.length > 3
             path_map[d]=label[2].gsub(/\W/,"-") + label[3].gsub(/\W/,"-") + label[4].chop.gsub(/\W/,"-")
-	  end
+          end
         end
       }
 
@@ -1350,9 +1350,9 @@ module Yast
         lf=base+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
-	  if label.length > 2
+          if label.length > 2
             path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
-	  end
+          end
         else
           #This is not a real SAP medium.
           Popup.Error( _("The location does not contain SAP installation data."))
@@ -1389,10 +1389,10 @@ module Yast
           # List existing product installation mediums (excluding installation master)
           product_media = media.select {|name| !(name =~ /Instmaster-/)}
           if !product_media.empty?
-	      mediaItems = []
+              mediaItems = []
               product_media.each {|medium|
-		 mediaItems << Item(Id(medium),  medium,  @selectedMedia.has_key?(medium) ? @selectedMedia[medium] : true )
-	      }
+                 mediaItems << Item(Id(medium),  medium,  @selectedMedia.has_key?(medium) ? @selectedMedia[medium] : true )
+              }
               content_before_input = VBox( MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), mediaItems) )
           end
           content_input = VBox(
@@ -1556,7 +1556,7 @@ module Yast
             # Basically re-render layout
             do_default_values(wizard)
         when "media"
-	  #We have modified the list of selected media
+          #We have modified the list of selected media
           UI.ChangeWidget(Id(:skip_copy_medium), :Value, true)
           UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
           [:scheme, :location].each { |widget|
@@ -1565,12 +1565,12 @@ module Yast
         when :next
             #Set the selected Items
             if UI.WidgetExists( Id("media") )
-	      @selectedMedia.each_key { |medium|
-	         @selectedMedia[medium] = false
-	      }
+              @selectedMedia.each_key { |medium|
+                 @selectedMedia[medium] = false
+              }
               UI.QueryWidget(Id("media"),:SelectedItems).each {|medium|
-	         @selectedMedia[medium] = true
-	      }
+                 @selectedMedia[medium] = true
+              }
               log.info("selectedMedia #{@selectedMedia}")
             end
 

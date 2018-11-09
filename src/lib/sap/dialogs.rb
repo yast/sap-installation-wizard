@@ -253,9 +253,9 @@ module Yast
         true
       )
       if SAPInst.importSAPCDs
-	 UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
-	 UI.ChangeWidget(Id("STANDALONE"), :Enabled, false)
-	 UI.ChangeWidget(Id("SBC"), :Enabled, false)
+         UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
+         UI.ChangeWidget(Id("STANDALONE"), :Enabled, false)
+         UI.ChangeWidget(Id("SBC"), :Enabled, false)
       end
       while run
         case UI.UserInput
@@ -309,7 +309,7 @@ module Yast
       SAPInst.productList = SAPMedia.get_nw_products(SAPInst.instMasterPath,SAPInst.instType,SAPInst.DB)
       if SAPInst.productList == nil or SAPInst.productList.empty?
          Popup.Error(_("The medium does not contain SAP installation data."))
-	 return :back
+         return :back
       end
       SAPInst.productList.each { |map|
          name = map["name"]
@@ -340,9 +340,9 @@ module Yast
               Popup.Message(_("Select a product!"))
             else
               run = false
-	      SAPInst.productList.each { |map|
-	         SAPInst.PRODUCT_NAME = map["name"] if SAPInst.PRODUCT_ID == map["id"]
-	      }
+              SAPInst.productList.each { |map|
+                 SAPInst.PRODUCT_NAME = map["name"] if SAPInst.PRODUCT_ID == map["id"]
+              }
             end
           when :back
             return :back
