@@ -25,6 +25,7 @@
 require "sap/wizards"
 
 module Yast
+  # Main module of sap installation wizard
   class SapInstallationWizard < Client
     include SapInstallationWizardWizardsInclude
     def main
@@ -39,23 +40,21 @@ module Yast
       @ret = :auto
       # the command line description map
       @cmdline = {
-        "id"   => "sap-installation-wizard",
-    "help" => _("YAST Module to Install SAP Applications on SLES for SAP Applications."),
-    "guihandler" => fun_ref(method(:SAPInstSequence),  "symbol ()"),
-#    "initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
-#    "finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
-    "actions"    => {
-            "hana_partitioning"   => {
-               "handler" => fun_ref(SAPPartitioning.method(:CreateHANAPartitions),"void ()"),
-               "help"    => _("Create HANA Partitionint.")
-            }
-    }
+                   "id"   => "sap-installation-wizard",
+                   "help" => _("YAST Module to Install SAP Applications on SLES for SAP Applications."),
+                   "guihandler" => fun_ref(method(:SAPInstSequence),  "symbol ()"),
+                   # "initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
+                   # "finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
+                   "actions"    => {
+                   "hana_partitioning"   => {
+                     "handler" => fun_ref(SAPPartitioning.method(:CreateHANAPartitions),"void ()"),
+                     "help"    => _("Create HANA Partitionint.")
+                   }
+               }
       }
       @ret = CommandLine.Run(@cmdline)
       deep_copy(@ret)
-      if SAPMedia.importSAPCDs
-         SCR.Execute(path(".target.bash"), "umount " + SAPMedia.mediaDir)
-      end
+      SCR.Execute(path(".target.bash"), "umount " + SAPMedia.mediaDir) if SAPMedia.importSAPCDs
     end
   end
 end

@@ -7,6 +7,7 @@ require "yast"
 require "fileutils"
 
 module Yast
+  # Handling of products on the sap media
   class SAPProductClass < Module
     attr_reader :installed_products
     def main
@@ -559,4 +560,3 @@ module Yast
   SAPProduct = SAPProductClass.new
   SAPProduct.main
 end
-   
