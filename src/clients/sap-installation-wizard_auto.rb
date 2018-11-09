@@ -87,7 +87,7 @@ module SapInst
 
         # Set SapInst to "to be disabled".
         def reset
-	    #TODO find a sence for it
+	    # TODO find a sence for it
             return true
         end
 

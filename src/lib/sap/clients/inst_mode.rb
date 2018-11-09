@@ -37,7 +37,7 @@ module Y2Sap
         Yast.import "PackagesProposal"
         Yast.import "ProductControl"
         Yast.import "GetInstArgs"
-        #MAY BE TODO set the default value
+        # MAY BE TODO set the default value
         sles   = false
         sap    = false
         wizard = false

@@ -15,12 +15,11 @@
 # this program; if not, contact Novell, Inc.
 # ------------------------------------------------------------------------------
 # File: clients/sap-installation-wizard.rb
-# Module:       SAP Installation Wizard 
+# Module:       SAP Installation Wizard
 # Summary:      Client file, including commandline handlers
 # Authors:      Peter Varkoly <varkoly@suse.com>
 #
 
-#**
 # <h3>YAST Module to Install SAP Applications on SLE4SAP</h3>
 
 require "sap/wizards"

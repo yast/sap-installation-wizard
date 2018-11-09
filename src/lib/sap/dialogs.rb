@@ -18,11 +18,11 @@ module Yast
       Yast.import "Mode"
       Yast.import "Popup"
 
-     #*****************************************************
+     # *****************************************************
      #
      # Define some global variables relating the dialogs
      #
-     #*****************************************************
+     # *****************************************************
      @scheme_list = [
           Item(Id("local"), "dir://", true),
           Item(Id("device"), "device://", false),
@@ -31,7 +31,7 @@ module Yast
           Item(Id("smb"), "smb://", false)
       ]
 
-      #Detect how many cdrom we have:
+      # Detect how many cdrom we have:
       cdroms=`hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
       if cdroms.count == 1
           @scheme_list << Item(Id("cdrom"), "cdrom://", false)
@@ -43,38 +43,38 @@ module Yast
          }
       end
 
-      #The selected schema.
+      # The selected schema.
       @schemeCache    = "local"
 
-      #The entered location. TODO check if we need it
+      # The entered location. TODO check if we need it
       @locationCache = ""
 
-      #The selected product
+      # The selected product
       @choosenProduct = ""
 
-      #The sources must be unmounted
+      # The sources must be unmounted
       @umountSource = false
 
-      #Local path to the sources
+      # Local path to the sources
       @sourceDir    = ""
 
-      #List of the searchded media
+      # List of the searchded media
       @mediaList = []
 
-      #Hash of available media labels for a product
+      # Hash of available media labels for a product
       @labelHashRef = {}
 
-      #Map of find media from available media
+      # Map of find media from available media
       @dbMap = {}
 
-      #Need SAP lup
+      # Need SAP lup
       @needSaplup = true
 
-      #Stack may be JAVA or AS-ABAP
+      # Stack may be JAVA or AS-ABAP
       @STACK      = ""
 
-      #Hash for design the dialogs
-#Help text for the fututre. This will be available only in SP1
+      # Hash for design the dialogs
+# Help text for the fututre. This will be available only in SP1
 #                          '<p><b>' + _("SUSE HA for SAP Simple Stack") + '</p></b>' +
 #                          _("With this installation mode the <b>SUSE-HA for SAP Simple Stack</b> can be installed and configured.") +
       @dialogs = {
@@ -119,21 +119,21 @@ module Yast
       }
     end
 
-    #############################################################
+    # ############################################################
     #
     # Reads the settins and previous installations
     #
-    ############################################################
+    # ###########################################################
     def ReadDialog
       log.info("--Start SAPInst ReadDialog ---")
       return SAPInst.Read
     end
     
-    #############################################################
+    # ############################################################
     #
     # Read and analize the installation master
     #
-    ############################################################
+    # ###########################################################
     def ReadInstallationMaster
       log.info("-- Start ReadInstallationMaster ---")
       ret = nil
@@ -160,7 +160,7 @@ module Yast
         if SAPInst.instMasterPath == nil || SAPInst.instMasterPath.size == 0
            Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
-           #We have found the installation master
+           # We have found the installation master
            run = false
         end
       end
@@ -184,7 +184,7 @@ module Yast
           ret = :B1
       end
       if SAPInst.instMasterType != "SAPINST"
-         #We can only link SAPINST MEDIA
+         # We can only link SAPINST MEDIA
          SAPInst.createLinks = false
       end
       log.info("SAPInst.productList #{SAPInst.productList}")
@@ -200,16 +200,16 @@ module Yast
       return ret
     end
     
-    #############################################################
+    # ############################################################
     #
     # Select the NW installation mode.
     #
-    ############################################################
+    # ###########################################################
     def SelectNWInstallationMode
       log.info("-- Start SelectNWInstallationMode ---")
       run = true
     
-      #Reset the selected installation type and DB
+      # Reset the selected installation type and DB
       SAPInst.instType = ""
       SAPInst.DB = ""
     
@@ -227,7 +227,7 @@ module Yast
                     VBox(
                         RadioButton( Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
                         RadioButton( Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
-                        #RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
+                        # RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
                         RadioButton( Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
                         RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
                         RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
@@ -293,11 +293,11 @@ module Yast
       return :next
     end
 
-    #############################################################
+    # ############################################################
     #
     # SelectNWProduct
     #
-    ############################################################
+    # ###########################################################
     def SelectNWProduct
       log.info("-- Start SelectNWProduct ---")
       run = true
@@ -358,11 +358,11 @@ module Yast
       return :next
     end
 
-    #############################################################
+    # ############################################################
     #
     # Copy the SAP Media
     #
-    ############################################################
+    # ###########################################################
     def CopyNWMedia
       log.info("-- Start CopyNWMedia ---")
       if SAPInst.importSAPCDs
@@ -393,11 +393,11 @@ module Yast
       return :next
     end
     
-    #############################################################
+    # ############################################################
     #
     # Ask for 3rd-Party/ Supplement dialog (includes a product.xml)
     #
-    ############################################################
+    # ###########################################################
     def ReadSupplementMedium
       log.info("-- Start ReadSupplementMedium ---")
       run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
@@ -417,14 +417,14 @@ module Yast
       return :next
     end
     
-    #############################################################
+    # ############################################################
     #
     # Read the installation parameter.
     # The product xml will executed
     # Partitioning xml will be executed
     # Sapinst will started to read the parameter.
     #
-    ############################################################
+    # ###########################################################
     def ReadParameter
       log.info("-- Start ReadParameter ---")
       # Display the empty dialog before running external SAP installer program
@@ -439,7 +439,7 @@ module Yast
       )
       Wizard.RestoreAbortButton()
       ret=:next
-      #First we execute the autoyast xml file of the product if this exeists
+      # First we execute the autoyast xml file of the product if this exeists
       script_name  = SAPInst.ayXMLPath + '/' +  SAPInst.GetProductParameter("script_name")
       xml_path     = SAPInst.GetProductParameter("ay_xml") == ""       ? ""   : SAPInst.ayXMLPath + '/' +  SAPInst.GetProductParameter("ay_xml")
       partitioning = SAPInst.GetProductParameter("partitioning") == "" ? "NO" : SAPInst.GetProductParameter("partitioning")
@@ -448,7 +448,7 @@ module Yast
         SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + SAPInst.instDir )
       end
 
-      #Writing the installation datas into the product.data file
+      # Writing the installation datas into the product.data file
       SAPInst.WriteProductDatas( {
              "instDir"      => SAPInst.instDir,
              "instMaster"   => SAPInst.instMasterPath,
@@ -463,10 +463,10 @@ module Yast
       case SAPInst.instMasterType
         when "SAPINST"
           # If the product is sapinst we start sapinst to read the parameter
-          #Write the media path file
+          # Write the media path file
           IO.write(SAPInst.instDir + "/start_dir.cd" , SAPInst.mediaList.join("\n"))
-          #Create group sapinst
-          #TODO may be we need to check if sapinst already exists
+          # Create group sapinst
+          # TODO may be we need to check if sapinst already exists
           cmd = "groupadd sapinst; " +
                 "usermod --groups sapinst root; " +
                 "chgrp sapinst " + SAPInst.instDir + ";" +
@@ -474,16 +474,16 @@ module Yast
           log.info("-- Prepare sapinst #{cmd}" )
           SCR.Execute(path(".target.bash"), "xterm -e '" + cmd + "'")
 
-          #Some other staff
+          # Some other staff
           if SAPInst.DB == "DB6"
             SCR.Execute(path(".target.bash"), "sed -i 's@.*5912/.*@# & # changing as needed for DB2 communication service@' /etc/services")
           end
 
-          #Now we start the sapinst to read the parameter
+          # Now we start the sapinst to read the parameter
           cmd = "cd " + SAPInst.instDir + ";" +
                 " export PRC_DEACTIVATE_CHECKS=true;" +
                 SAPInst.instMasterPath + "/sapinst SAPINST_EXECUTE_PRODUCT_ID=" + SAPInst.PRODUCT_ID + " SAPINST_STOP_AFTER_DIALOG_PHASE=true SAPINST_DETAIL_SUMMARY=false"
-          #TODO VIRTHOST MUST BE CONFIGURED HERE NOT IN THE SCRIPT
+          # TODO VIRTHOST MUST BE CONFIGURED HERE NOT IN THE SCRIPT
           if File.exists?(SAPInst.instDir + "/ay_q_virt_hostname")
               hostname=IO.read(SAPInst.instDir + "/ay_q_virt_hostname")
               hostname = hostname.chomp
@@ -510,11 +510,11 @@ module Yast
     end
     
     private
-    #############################################################
+    # ############################################################
     #
     # Private function to find relevant directories on the media
     #
-    ############################################################
+    # ###########################################################
     def find_sap_media(base)
       log.info("-- Start find_sap_media ---")
       make_hash = proc do |hash,key|
@@ -522,7 +522,7 @@ module Yast
       end
       path_map = Hash.new(&make_hash)
 
-      #Searching the SAPLUP
+      # Searching the SAPLUP
       command = "find '" + base + "' -maxdepth 5 -type d -name 'SL_CONTROLLER_*'"
       out     = SCR.Execute(path(".target.bash_output"), command)
       stdout  = out["stdout"] || ""
@@ -533,7 +533,7 @@ module Yast
           path_map[d]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-")
         end
       }
-      #Searching the EXPORTS
+      # Searching the EXPORTS
       command = "find '" + base + "' -maxdepth 5 -type d -name 'EXP?'"
       out     = SCR.Execute(path(".target.bash_output"), command)
       stdout  = out["stdout"] || ""
@@ -545,7 +545,7 @@ module Yast
         end
       }
 
-      #Searching the LINUX_X86_64 directories
+      # Searching the LINUX_X86_64 directories
       command = "find '" + base + "' -maxdepth 5 -type d -name '*LINUX_X86_64'"
       out     = SCR.Execute(path(".target.bash_output"), command)
       stdout  = out["stdout"] || ""
@@ -557,14 +557,14 @@ module Yast
         end
       }
 
-      #If we have not found anything we have to copy the whole medium when there is a LABAL.ASC file
+      # If we have not found anything we have to copy the whole medium when there is a LABAL.ASC file
       if path_map.empty?
         lf=base+"/LABEL.ASC"
         if File.exist?(lf)
           label=IO.readlines(lf,":")
           path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
         else
-          #This is not a real SAP medium.
+          # This is not a real SAP medium.
           Popup.Error( _("The location does not contain SAP installation data."))
         end
       end
@@ -757,7 +757,7 @@ module Yast
             scheme          = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
             @locationCache  = Convert.to_string(UI.QueryWidget(Id(:location), :Value))
             if scheme == "local"
-                #This value can be reset by MountSource if the target is iso file.
+                # This value can be reset by MountSource if the target is iso file.
                 SAPInst.createLinks = SAPInst.importSAPCDs || !!UI.QueryWidget(Id(:link), :Value)
             end
             @sourceDir      = @locationCache
@@ -841,7 +841,7 @@ module Yast
               @locationCache
           )
         else
-          #This is cdrom1 cdrom2 and so on
+          # This is cdrom1 cdrom2 and so on
           UI.ChangeWidget(Id(:link), :Value, false)
           UI.ChangeWidget(Id(:link), :Enabled, false)
           UI.ChangeWidget(
