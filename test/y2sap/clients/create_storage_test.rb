@@ -242,7 +242,7 @@ describe Y2Sap::Clients::CreateStorage do
 
         it "displays an error dialog" do
           expect(Y2Autoinstallation::Dialogs::Question).to receive(:new)
-            .with(String, timeout: 0, buttons_set: :abort)
+            .with(String, String, timeout: 0, buttons_set: :abort)
             .and_return(dialog)
           client.main
         end
@@ -257,7 +257,7 @@ describe Y2Sap::Clients::CreateStorage do
 
         it "displays a warning and asks the user whether it should continue or not" do
           expect(Y2Autoinstallation::Dialogs::Question).to receive(:new)
-            .with(String, timeout: 0, buttons_set: :question)
+            .with(String, String, timeout: 0, buttons_set: :question)
             .and_return(dialog)
           client.main
         end
