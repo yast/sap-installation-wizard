@@ -24,29 +24,31 @@ require "y2firewall/firewalld"
 require "installation/finish_client"
 
 module SapInstallationWizard
-    class InstallationFinish < ::Installation::FinishClient
-        def initialize
-            textdomain "sap-installation-wizard"
-            @firewalld = Y2Firewall::Firewalld.instance
-            @firewalld.read
-        end
-
-        def title
-            "Writting sap-installation-wizard Configuration"
-        end
-
-        def modes
-            [:installation]
-        end
-
-        def write
-            return true if !@firewalld.installed?
-            if Service.Enabled("xrdp")
-                external = @firewalld.find_zone(@firewalld.default_zone)
-                external.add_service("ms-wbt")
-                @firewalld.write
-            end
-            true
-        end
+  # Module for overtake the parameters of inst_sap-start to second state
+  class InstallationFinish < ::Installation::FinishClient
+    def initialize
+      textdomain "sap-installation-wizard"
+      @firewalld = Y2Firewall::Firewalld.instance
+      @firewalld.read
     end
+
+    def title
+      "Writting sap-installation-wizard Configuration"
+    end
+
+    def modes
+      [:installation]
+    end
+
+    def write
+      return true if !@firewalld.installed?
+      if Service.Enabled("xrdp")
+        external = @firewalld.find_zone(@firewalld.default_zone)
+        external.add_service("ms-wbt")
+        @firewalld.write
+      end
+      true
+    end
+  end
 end
+

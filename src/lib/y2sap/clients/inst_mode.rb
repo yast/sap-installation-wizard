@@ -82,7 +82,7 @@ module Y2Sap
         ret = nil
         begin
           ret = Wizard.UserInput
-          log.info(("ret #{ret}")
+          log.info("ret #{ret}")
           case ret
           when :abort
             break if Popup.ConfirmAbort(:incomplete)

@@ -19,7 +19,7 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 
-require "sap/storage_proposal"
+require "y2sap/storage_proposal"
 require "y2storage"
 require "autoinstall/dialogs/disk_selector"
 require "autoinstall/dialogs/question"
