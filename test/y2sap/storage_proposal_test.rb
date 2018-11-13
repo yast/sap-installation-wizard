@@ -21,7 +21,7 @@
 # find current contact information at www.suse.com.
 
 require_relative "../spec_helper"
-require "sap/storage_proposal"
+require "y2sap/storage_proposal"
 
 describe Y2Sap::StorageProposal do
   subject(:proposal) do

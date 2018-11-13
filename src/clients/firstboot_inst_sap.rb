@@ -1,2 +1,2 @@
-require "sap/dialogs/firstboot"
+require "y2sap/dialogs/firstboot"
 Yast::FirstbootInstSapClient.new.main

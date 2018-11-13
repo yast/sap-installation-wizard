@@ -22,7 +22,7 @@
 
 # <h3>YAST Module to Install SAP Applications on SLE4SAP</h3>
 
-require "sap/wizards"
+require "y2sap/wizards"
 
 module Yast
   # Main module of sap installation wizard

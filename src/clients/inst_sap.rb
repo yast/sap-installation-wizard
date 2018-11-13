@@ -1,3 +1,3 @@
 # encoding: utf-8
-require "sap/clients/inst_control"
+require "y2sap/clients/inst_control"
 Y2Sap::Clients::InstControl.new.main
