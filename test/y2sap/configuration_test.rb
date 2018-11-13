@@ -25,9 +25,10 @@ require_relative "../spec_helper"
 require "y2sap/configuration/base_config"
 
 describe Y2Sap::Configuration::BaseConfig do
-  subject { Y2Sap::Configuration::BaseConfig.new }
+  subject { described_class.new }
   it "reads the default base configuration" do
     expect(subject.mount_point()).to eq "/mnt"
+    expect(subject.inst_mode()).to   eq "manual"
   end
 end
 
