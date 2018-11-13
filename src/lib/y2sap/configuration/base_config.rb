@@ -67,7 +67,7 @@ module Y2Sap
       end
 
       def read_with_default(variable,default)
-        value=SCR.Read(path(path(".sysconfig.sap-installation-wizard.".variable))
+        value=SCR.Read(path(".sysconfig.sap-installation-wizard.".variable))
         return default if value == nil
         return value
       end
