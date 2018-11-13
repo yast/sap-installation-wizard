@@ -21,7 +21,7 @@
 # find current contact information at www.suse.com.
 
 require_relative "../spec_helper"
-require "sap/partitioning_preprocessor"
+require "y2sap/partitioning_preprocessor"
 
 describe Y2Sap::PartitioningPreprocessor do
   LV_BASE = { "create" => true, "filesystem" => :xfs, "format" => true }.freeze
