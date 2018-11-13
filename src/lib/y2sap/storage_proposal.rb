@@ -20,7 +20,7 @@
 # find current contact information at www.suse.com.
 
 require "y2storage"
-require "sap/partitioning_preprocessor"
+require "y2sap/partitioning_preprocessor"
 
 module Y2Sap
   # Represent an AutoYaST partitioning proposal
