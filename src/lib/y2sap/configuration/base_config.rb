@@ -67,7 +67,7 @@ module Y2Sap
       end
 
       def read_with_default(variable,default)
-        value = Yast::SCR.Read(path(".sysconfig.sap-installation-wizard." + variable))
+        value = Yast::SCR.Read(Yast::Path.new(".sysconfig.sap-installation-wizard." + variable))
         return default if value == nil
         return value
       end
