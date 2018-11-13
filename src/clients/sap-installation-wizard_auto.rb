@@ -17,85 +17,85 @@
 # Author: Peter Varkoly <varkoly@suse.com>
 
 
-require 'yast'
-require 'installation/auto_client'
+require "yast"
+require "installation/auto_client"
 Yast.import "SAPMedia"
 Yast.import "SAPProduct"
 Yast.import "SAPPartitioning"
 
 module SapInst
   class AutoClient < Installation::AutoClient
-        include Yast
-        include UIShortcuts
-        include I18n
-        include Logger
+    include Yast
+    include UIShortcuts
+    include I18n
+    include Logger
 
-        def initialize
-            super
-            textdomain 'sap-installation-wizard'
-        end
-
-        def run
-            progress_orig = Progress.set(false)
-            ret = super
-            Progress.set(progress_orig)
-            ret
-        end
-
-        # There is only one bool parameter to import.
-        def import(exported)
-        log.info("-- sap-installation-wizard_auto.import Start --- #{exported}")
-            return SAPMedia.Import(exported)
-        end
-
-        # There is noting to export.
-    # TODO evtl we can export the copied directories and installed products
-        def export
-            return {}
-        end
-
-        # Insignificant to autoyast.
-        def modified?
-            return true
-        end
-
-        # Insignificant to autoyast.
-        def modified
-            return true
-        end
-       # Return a readable text summary.
-        def summary
-        return _('SAP Product Automatic Installation.')
-        end
-
-        def change
-            AutoMainDialog.new.run
-            return :finish
-        end
-
-        # Read the status of created SAP installation environments and installed products.
-        def read
-            SAPMedia.Read
-            SAPProduct.Read
-            return true
-        end
-
-        # Write the configuration.
-        def write
-            SAPMedia.Write
-        end
-
-        # Set SapInst to "to be disabled".
-        def reset
-        # TODO find a sence for it
-            return true
-        end
-
-        # Return package dependencies
-        def packages
-            return {'install' => ['sap-installation-wizard'], 'remove' => []}
-        end
+    def initialize
+      super
+      textdomain "sap-installation-wizard"
     end
+
+    def run
+      progress_orig = Progress.set(false)
+      ret = super
+      Progress.set(progress_orig)
+      ret
+    end
+
+    # There is only one bool parameter to import.
+    def import(exported)
+      log.info("-- sap-installation-wizard_auto.import Start --- #{exported}")
+      return SAPMedia.Import(exported)
+    end
+
+    # There is noting to export.
+    # TODO evtl we can export the copied directories and installed products
+    def export
+      return {}
+    end
+
+    # Insignificant to autoyast.
+    def modified?
+      return true
+    end
+
+    # Insignificant to autoyast.
+    def modified
+      return true
+    end
+    # Return a readable text summary.
+    def summary
+      return _("SAP Product Automatic Installation.")
+    end
+
+    def change
+      AutoMainDialog.new.run
+      return :finish
+    end
+
+    # Read the status of created SAP installation environments and installed products.
+    def read
+      SAPMedia.Read
+      SAPProduct.Read
+      return true
+    end
+
+    # Write the configuration.
+    def write
+      SAPMedia.Write
+    end
+
+    # Set SapInst to "to be disabled".
+    def reset
+      # TODO find a sence for it
+      return true
+    end
+
+    # Return package dependencies
+    def packages
+      return {"install" => ["sap-installation-wizard"], "remove" => []}
+    end
+  end
 end
 
 SapInst::AutoClient.new.run

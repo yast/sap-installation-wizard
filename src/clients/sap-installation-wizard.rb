@@ -59,4 +59,3 @@ module Yast
   end
 end
 Yast::SapInstallationWizard.new.main
-

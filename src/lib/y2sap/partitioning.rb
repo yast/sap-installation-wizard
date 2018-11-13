@@ -6,8 +6,8 @@
 require "yast"
 require "fileutils"
 
-module Yast
-  class SAPPartitioningClass < Module
+module Y2Sap
+  class SAPPartitioningClass
     def main
       Yast.import "UI"
       Yast.import "Misc"

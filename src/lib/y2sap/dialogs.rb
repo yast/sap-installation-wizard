@@ -5,10 +5,9 @@
 # Summary:      Definition of dialogs
 # Authors:      Peter Varkoly <varkoly@suse.com>, Howard Guo <hguo@suse.com>
 #
-
-module Yast
-  module SapInstallationWizardDialogsInclude
-    extend self
+require "yast"
+module Y2Sap
+  class Dialogs
     def initialize
       textdomain "sap-installation-wizard"
 
