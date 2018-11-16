@@ -26,9 +26,21 @@ require "y2sap/configuration/base_config"
 
 describe Y2Sap::Configuration::BaseConfig do
   subject { described_class.new }
-  it "reads the default base configuration" do
-    expect(subject.mount_point()).to eq "/mnt"
-    expect(subject.inst_mode()).to   eq "manual"
+  context "no sysconfig file exist" do
+    it "reads the default base configuration" do
+      expect(subject.mount_point()).to eq "/mnt"
+      expect(subject.inst_mode()).to   eq "manual"
+    end
+  end
+  context "sysconfig file exist" do
+    befor do
+      allow(Yast::Read).to receive(Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT").and_return("/tmp/mnt")
+      allow(Yast::Read).to receive(Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_AUTO_INSTALL").and_return("yes")
+    end
+    it "reads the base configuration from sysconfig file" do
+      expect(subject.mount_point()).to eq "/tmp/mnt"
+      expect(subject.inst_mode()).to   eq "auto"
+    end
   end
 end
 

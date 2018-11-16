@@ -23,7 +23,17 @@ require_relative 'base_config'
 
 module Y2Sap
   module Configuration
+    # @return [String] The url to the media
+    attr_accessor :location_cache
+
+    # @return [String] The url schema to the media
+    attr_accessor :schema
+
     class Media < BaseConfig
+      def initialize
+	 @location_cache = "nfs.server.com/directory/"
+	 @schema = "nfs"
+      end
     end
   end
 end

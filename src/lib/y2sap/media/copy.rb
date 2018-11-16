@@ -19,8 +19,26 @@
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
 
+require "y2sap/configuration/base_config"
+
 module Y2Sap
   module Media
-    class CopyFile
+
+    # @return [String] The schema of the URL to the sources
+    attr_accessor :schema
+
+    class Copy
+      def initialize(url)
+      end
+
+      def inst_master
+      end
+
+      def nw_medium
+      end
+
+      def suplementary_medium
+      end
+    end
   end
 end

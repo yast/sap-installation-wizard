@@ -9,7 +9,7 @@ echo '<?xml version="1.0"?>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
 <general>
   <ask-list config:type="list">
-  ' > ../$DIR/include/$PROD.xml
+  ' > ../$DIR/data/y2sap/$PROD.xml
 
 
 case "$PROD" in
