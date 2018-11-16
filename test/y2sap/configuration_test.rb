@@ -34,7 +34,7 @@ describe Y2Sap::Configuration::BaseConfig do
       expect(subject.inst_mode()).to   eq "manual"
     end
   end
-  context "sysconfig file exist" do
+  context "sysconfig file does exist" do
     before do
       change_scr_root(File.join(DATA_PATH, "system"))
       subject { described_class.new }
