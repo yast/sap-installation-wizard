@@ -23,6 +23,7 @@ require "yast"
 module Y2Sap
   module Configuration
     class BaseConfig
+      Yast.import "Misc"
 
       # @return [String] The directory where the media will be mounted temporary
       attr_reader :mount_point
@@ -55,22 +56,45 @@ module Y2Sap
       attr_reader :sap_cds_url
 
       def initialize
-        @mount_point   = read_with_default("SOURCEMOUNT","/mnt")
-        @media_dir     = read_with_default("MEDIADIR","/data/SAP_CDs")
-        @inst_dir_base = read_with_default("INSTDIR","/data/SAP_INST")
-        @product_definitions   = read_with_default("MEDIAS_XML","/etc/sap-installation-wizard.xml")
-        @partitioning_dir_base = read_with_default("PART_XML_PATH","/usr/share/YaST2/data/y2sap")
-        @ay_dir_base           = read_with_default("PRODUCT_XML_PATH","/usr/share/YaST2/data/y2sap")
-        @install_script        = read_with_default("SAPINST_SCRIPT","/usr/share/YaST2/data/y2sap")
-        @inst_mode             = read_with_default("SAP_AUTO_INSTALL","no") == "yes" ? "auto" : "manual"
-        @sap_cds_url           = read_with_default("SAP_EXPORT_CDS","")
+	@mount_point = Yast::Misc.SysconfigRead(
+          Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
+          "/mnt"
+        )
+        @media_dir = Yast::Misc.SysconfigRead(
+	  Yast::Path.new(".sysconfig.sap-installation-wizard.MEDIADIR"),
+          "/data/SAP_CDs"
+        )
+        @inst_dir_base = Yast::Misc.SysconfigRead(
+	  Yast::Path.new(".sysconfig.sap-installation-wizard.INSTDIR"),
+          "/data/SAP_INST"
+        )
+        @product_definitions = Yast::Misc.SysconfigRead(
+	  Yast::Path.new(".sysconfig.sap-installation-wizard.MEDIAS_XML"),
+          "/etc/sap-installation-wizard.xml"
+        )
+        @partitioning_dir_base = Yast::Misc.SysconfigRead(
+	  Yast::Path.new(".sysconfig.sap-installation-wizard.PART_XML_PATH"),
+          "/usr/share/YaST2/data/y2sap"
+        )
+        @ay_dir_base = Yast::Misc.SysconfigRead(
+	  Yast::Path.new(".sysconfig.sap-installation-wizard.PRODUCT_XML_PATH"),
+          "/usr/share/YaST2/data/y2sap"
+        )
+        @install_script = Yast::Misc.SysconfigRead(
+          Yast::Path.new(".sysconfig.sap-installation-wizard.SAPINST_SCRIPT"),
+          "/usr/share/YaST2/data/y2sap/sap_inst.sh"
+        )
+        @inst_mode = Yast::Misc.SysconfigRead(
+          Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_AUTO_INSTALL"),
+          "no"
+        ) == "yes" ? "auto" : "manual"
+        @sap_cds_url = Yast::Misc.SysconfigRead(
+          Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_CDS_URL"),
+          ""
+        )
+
       end
 
-      def read_with_default(variable,default)
-        value = Yast::SCR.Read(Yast::Path.new(".sysconfig.sap-installation-wizard." + variable))
-        return default if value == nil
-        return value
-      end
     end
   end
 end

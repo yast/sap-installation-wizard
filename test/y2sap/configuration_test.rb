@@ -22,7 +22,7 @@
 
 require_relative "../spec_helper"
 
-require "y2sap/configuration/base_config_misc"
+require "y2sap/configuration/base_config"
 require "yast"
 Yast.import "Misc"
 
@@ -36,8 +36,8 @@ describe Y2Sap::Configuration::BaseConfig do
   end
   context "sysconfig file exist" do
     before do
-      allow(Yast::Misc).to receive(:SysconfigRead).with(".sysconfig.sap-installation-wizard.SOURCEMOUNT").and_return("/tmp/mnt")
-      allow(Yast::Misc).to receive(:SysconfigRead).with(".sysconfig.sap-installation-wizard.SOURCEMOUNT").and_return("yes")
+      change_scr_root(File.join(DATA_PATH, "system"))
+      subject { described_class.new }
     end
     it "reads the base configuration from sysconfig file" do
       expect(subject.mount_point()).to eq "/tmp/mnt"

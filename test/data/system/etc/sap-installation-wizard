@@ -1,0 +1,65 @@
+##
+## The sap-installation-wizard is working without this ini file too
+## then just all defaults are taken like documented below
+##
+
+## Description: mount the sources you want to copy to this directory (not used for http/ftp sources)
+## Type:    string
+## Default: /mnt
+#
+SOURCEMOUNT="/tmp/mnt"
+
+## Description: copy the sources to this directory.
+## Type:    string
+## Default: /data/SAP_CDs
+#
+MEDIADIR="/data/SAP_CDs"
+
+## Description: prepare the installation in this directory.
+## Type:    string
+## Default: /data/SAP_INST
+#
+INSTDIR="/data/SAP_INST"
+
+## Description: this points to the media-set configuration XML file.
+## Type:    string
+## Default: "/etc/sap-installation-wizard.xml"
+#
+MEDIAS_XML="/etc/sap-installation-wizard.xml"
+
+## Description: this points to the directory containing autoyast XML files of the products.
+## Type:    string
+## Default: "/usr/share/YaST2/include/sap-installation-wizard"
+#
+PRODUCT_XML_PATH="/usr/share/YaST2/include/sap-installation-wizard"
+
+## Description: this points to the directory containing partitiong XML files of the products.
+## Type:    string
+## Default: "/usr/share/YaST2/include/sap-installation-wizard"
+#
+PART_XML_PATH="/usr/share/YaST2/include/sap-installation-wizard"
+
+## Description: this points to the default installation script.
+## Type:    string
+## Default: "/usr/share/YaST2/include/sap-installation-wizard/sap_inst.sh"
+#
+SAPINST_SCRIPT="/usr/share/YaST2/include/sap-installation-wizard/sap_inst.sh"
+
+## Description: Start the installation in auto installation mode
+## Type:    yesno
+## Default: yes
+#
+SAP_AUTO_INSTALL="yes"
+
+## Description: Export the SAP CDs via SLP + NFS
+## Type:    yesno
+## Default: yes
+#
+SAP_EXPORT_CDS="no"
+
+## Description: SLP URL for the used SAP CD server
+## Type:    string
+## Default: ""
+#
+SAP_CDS_URL=""
+
