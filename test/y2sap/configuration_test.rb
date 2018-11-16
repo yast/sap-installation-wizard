@@ -34,8 +34,8 @@ describe Y2Sap::Configuration::BaseConfig do
   end
   context "sysconfig file exist" do
     befor do
-      allow(Yast::Read).to receive(Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT").and_return("/tmp/mnt"))
-      allow(Yast::Read).to receive(Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_AUTO_INSTALL").and_return("yes"))
+      allow(Yast::Read).to receive(Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT")).and_return("/tmp/mnt")
+      allow(Yast::Read).to receive(Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_AUTO_INSTALL")).and_return("yes")
     end
     it "reads the base configuration from sysconfig file" do
       expect(subject.mount_point()).to eq "/tmp/mnt"
