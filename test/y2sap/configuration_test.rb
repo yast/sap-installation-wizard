@@ -23,6 +23,7 @@
 require_relative "../spec_helper"
 
 require "y2sap/configuration/base_config"
+require "yast"
 
 describe Y2Sap::Configuration::BaseConfig do
   subject { described_class.new }
