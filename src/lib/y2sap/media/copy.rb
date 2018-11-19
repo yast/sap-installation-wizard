@@ -24,20 +24,30 @@ require "y2sap/configuration/base_config"
 module Y2Sap
   module Media
 
-    # @return [String] The schema of the URL to the sources
-    attr_accessor :schema
+    module Copy
+      def start(source, target, subdir)
+	log.info("CopyFiles called: #{source}, #{target}, #{subdir}")
+        cmd = "mkdir -p '%s/%s'" % [ target , subdir ]
+	SCR.Execute(path(".target.bash"), cmd)
 
-    class Copy
-      def initialize(url)
+	# our copy command
+        cmd = Builtins.sformat( "find '%1/'* -maxdepth 0 -exec cp -a '{}' '%2/%3/' \\;" % [ source, target + "/" + subdir ]
+	pid = Convert.to_integer(SCR.Execute(path(".process.start_shell"), cmd))
+	return pid
       end
 
-      def inst_master
+      def tech_size(dir)
+        out = Convert.to_map(
+          SCR.Execute(path(".target.bash_output"), "du -s0 '%s' | awk '{printf $1}'" %  dir )
+        )
+        Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
       end
 
-      def nw_medium
-      end
-
-      def suplementary_medium
+      def human_size(dir)
+	out = Convert.to_map(
+	  SCR.Execute(path(".target.bash_output"), "du -sh0 '%s' | awk '{printf $1}'" %  dir )
+	)
+        Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
       end
     end
   end

@@ -92,9 +92,7 @@ module Y2Sap
           Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_CDS_URL"),
           ""
         )
-
       end
-
     end
   end
 end

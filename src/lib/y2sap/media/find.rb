@@ -1,0 +1,100 @@
+# encoding: utf-8
+
+# Copyright (c) [2018] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact Novell, Inc.
+#
+# To contact Novell about this file by physical or electronic mail, you may
+# find current contact information at www.novell.com.
+
+require "y2sap/configuration/base_config"
+
+module Y2Sap
+  module Media
+    @path_map
+    @base
+
+    module Find
+      def start
+        make_hash = proc do |hash,key|
+          hash[key] = Hash.new(&make_hash)
+        end
+        @path_map = Hash.new(&make_hash)
+	@base     = Y2Sap::Media.source_dir
+	sap_lup
+	exports
+	linux_x86_64
+	if path_map.empty?
+          lf=@base+"/LABEL.ASC"
+          if File.exist?(lf)
+            label=IO.readlines(lf,":")
+            if label.length > 2
+              @path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
+            end
+	  end
+	end
+	return @path_map
+      end
+
+      def sap_lup
+        #Searching the SAPLUP
+        command = "find '" + @base + "' -maxdepth 5 -type d -name 'SL_CONTROLLER_*'"
+        out     = SCR.Execute(path(".target.bash_output"), command)
+        stdout  = out["stdout"] || ""
+        stdout.split("\n").each { |d|
+          lf=d+"/LABEL.ASC"
+          if File.exist?(lf)
+            label=IO.readlines(lf,":")
+            if label.length > 2
+              @path_map[d]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-")
+            end
+          end
+        }
+      end
+
+      # Searches all directories which name starts with EXP"
+      def exports
+        command = "find '" + @base + "' -maxdepth 5 -type d -name 'EXP?'"
+        out     = SCR.Execute(path(".target.bash_output"), command)
+        stdout  = out["stdout"] || ""
+        stdout.split("\n").each { |d|
+          lf=d+"/LABEL.ASC"
+          if File.exist?(lf)
+            label=IO.readlines(lf,":")
+            if label.length > 3
+              @path_map[d]=label[4].chop.gsub(/\W/,"-")
+            end
+          end
+        }
+      end
+
+      # Searches all directories which names contains LINUX_X86_64"Y
+      def linux_x86_64
+        command = "find '" + @base + "' -maxdepth 5 -type d -name '*LINUX_X86_64'"
+        out     = SCR.Execute(path(".target.bash_output"), command)
+        stdout  = out["stdout"] || ""
+        stdout.split("\n").each { |d|
+          lf=d+"/LABEL.ASC"
+          if File.exist?(lf)
+            label=IO.readlines(lf,":")
+            if label.length > 3
+              @path_map[d]=label[2].gsub(/\W/,"-") + label[3].gsub(/\W/,"-") + label[4].chop.gsub(/\W/,"-")
+            end
+          end
+        }
+      end
+    end
+  end
+end
