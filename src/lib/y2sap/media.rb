@@ -19,58 +19,21 @@
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
 
-require "y2sap/configuration/base_config"
-require "y2sap/media/mount"
+require "yast"
+require "y2sap/configuration/media"
 require "y2sap/media/copy"
+require "y2sap/media/mount"
 require "y2sap/media/find"
 
 module Y2Sap
-  module Media
-
-    # @return [Object] The base configuration object
-    attr_reader :config
-
-    # @return [String] In this directory will be installed the next sap product
-    attr_reader :inst_dir
-
-    # @return [String] The product counter.
-    attr_accessor :product_count
-
-    #@return [String] The url to the media
-    attr_accessor :location_cache
-
-    # @return [String] The full path to the directory which should be copied.
-    # This can be different from mount_point if mounting device cdrom or local directory
-    attr_accessor :source_dir
-
-    # @return [Boolean] The full path to the media. This can be different from mount_point
-    # if mounting device cdrom or local directory
-    attr_accessor :need_umount
-
-    # @return [List<String>] Contains the directories of unfinished product installations
-    attr_accessor :unfinished_installations
-
-    # @return [List<String>] List of the product directories to be installed
-    #   @instEnvList
-    attr_accessor :to_install
-
-    def init
-      @config = Y2Sap::Configuration::BaseConfig.new
-      @location_cache = "nfs.server.com/directory/"
-      @need_umount    = true
-      mount_sap_cds()
-      @product_cont   = 0
-      @inst_dir       = "%s/%d" % [ @config.inst_dir_base, @product_cont ]
-      @unfinished_installations = []
-      @to_install     = []
-
-      while Dir.exists?(@inst_dir)
-        if !File.exists?(@inst_dir + "/installationSuccesfullyFinished.dat") && File.exists?(@inst_dir + "/product.data")
-          @unfinished_installations << @inst_dir
-        end
-        @product_cont = @product_cont.next
-	@inst_dir     = "%s/%d" % [ @config.inst_dir_base, @product_cont ]
-      end
+  class Media < Y2Sap::Configuration::Media
+    include Yast
+    include Yast::Logger
+    include Y2Sap::MediaCopy
+    include Y2Sap::MediaMount
+    include Y2Sap::MediaFind
+    def initialize
+      super
     end
   end
 end

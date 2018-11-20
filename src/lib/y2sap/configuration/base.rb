@@ -22,7 +22,7 @@ require "yast"
 
 module Y2Sap
   module Configuration
-    class BaseConfig
+    class Base
       Yast.import "Misc"
 
       # @return [String] The directory where the media will be mounted temporary

@@ -22,16 +22,25 @@
 
 require_relative "../spec_helper"
 
-require "y2sap/configuration/base_config"
+require "y2sap/media"
 require "yast"
-Yast.import "Misc"
 
-describe Y2Sap::Configuration::BaseConfig do
-  subject { described_class.new }
+describe Y2Sap::Media do
   context "no sysconfig file exist" do
+    before do
+      subject { described_class.new }
+    end
     it "reads the default base configuration" do
       expect(subject.mount_point()).to eq "/mnt"
       expect(subject.inst_mode()).to   eq "manual"
+      expect(subject.inst_dir()).to    eq "/data/SAP_INST/0"
+      expect(subject.unfinished_installations()).to be_a(Array)
+    end
+    it "check for not supported scheme" do
+      expect(subject.mount_source("cifs","/bla/fasel")).to eq "ERROR unknown media scheme"
+    end
+    it "check searching the sap content on a media" do
+      expect(subject.find_sap_media()).to be_a(Hash)
     end
   end
   context "sysconfig file does exist" do
@@ -42,7 +51,17 @@ describe Y2Sap::Configuration::BaseConfig do
     it "reads the base configuration from sysconfig file" do
       expect(subject.mount_point()).to eq "/tmp/mnt"
       expect(subject.inst_mode()).to   eq "auto"
+      expect(subject.inst_dir()).to    eq "/data/SAP_INST/0"
     end
   end
+# context "test the MediaCopy functions" do
+#   before do
+#     change_scr_root(File.join(DATA_PATH, "system"))
+#     subject { described_class.new }
+#   end
+#   it "reads the tech size of /etc" do
+#     expect(subject.tech_size("/etc")).to be_a(Integer)
+#   end
+# end
 end
 

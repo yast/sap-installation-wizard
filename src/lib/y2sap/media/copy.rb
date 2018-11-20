@@ -19,36 +19,32 @@
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
 
-require "y2sap/configuration/base_config"
-
 module Y2Sap
-  module Media
+  module MediaCopy
+    include Yast
+    def start_copy(source, target, subdir)
+      log.info("CopyFiles called: #{source}, #{target}, #{subdir}")
+      cmd = "mkdir -p '%s/%s'" % [ target , subdir ]
+      SCR.Execute(path(".target.bash"), cmd)
 
-    module Copy
-      def start(source, target, subdir)
-	log.info("CopyFiles called: #{source}, #{target}, #{subdir}")
-        cmd = "mkdir -p '%s/%s'" % [ target , subdir ]
-	SCR.Execute(path(".target.bash"), cmd)
+      # our copy command
+      cmd = "find '%1/'* -maxdepth 0 -exec cp -a '{}' '%2/%3/' \\;" % [ source, target + "/" + subdir ]
+      pid = Convert.to_integer(SCR.Execute(path(".process.start_shell"), cmd))
+      return pid
+    end
 
-	# our copy command
-        cmd = Builtins.sformat( "find '%1/'* -maxdepth 0 -exec cp -a '{}' '%2/%3/' \\;" % [ source, target + "/" + subdir ]
-	pid = Convert.to_integer(SCR.Execute(path(".process.start_shell"), cmd))
-	return pid
-      end
+    def tech_size(dir)
+      out = Convert.to_map(
+        SCR.Execute(path(".target.bash_output"), "du -s0 '%s' | awk '{printf $1}'" %  dir )
+      )
+      Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
+    end
 
-      def tech_size(dir)
-        out = Convert.to_map(
-          SCR.Execute(path(".target.bash_output"), "du -s0 '%s' | awk '{printf $1}'" %  dir )
-        )
-        Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
-      end
-
-      def human_size(dir)
-	out = Convert.to_map(
-	  SCR.Execute(path(".target.bash_output"), "du -sh0 '%s' | awk '{printf $1}'" %  dir )
-	)
-        Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
-      end
+    def human_size(dir)
+      out = Convert.to_map(
+        SCR.Execute(path(".target.bash_output"), "du -sh0 '%s' | awk '{printf $1}'" %  dir )
+      )
+      Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
     end
   end
 end
