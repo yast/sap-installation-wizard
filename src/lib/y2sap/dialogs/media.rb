@@ -80,6 +80,12 @@ module Y2Sap
           return :abort
         end
       end
+
+      def parse_xml(file)
+         ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
+	 log.info("ayast_setup returned '" + ret + "' for: " + file)
+	 return ret
+      end
     end
   end
 end
