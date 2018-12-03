@@ -375,62 +375,6 @@ module Yast
     #
     ############################################################
     def ReadInstallationMaster
-      log.info("-- Start ReadInstallationMaster ---")
-      ret = nil
-      run = true
-      while run
-        ret = media_dialog("inst_master")
-        if ret == :abort || ret == :cancel
-            if Yast::Popup.ReallyAbort(false)
-                Yast::Wizard.CloseDialog
-                return :abort
-            end
-        end
-
-        # is_instmaster gives back a key-value pair to split for the BO workflow
-        #         KEY: SAPINST, BOBJ, HANA, B1
-        #       VALUE: complete path to the instmaster directory incl. sourceDir
-        log.info("looking for instmaster in #{@sourceDir}")
-        instMasterList     = SAPXML.is_instmaster(@sourceDir)
-        @instMasterType    = Ops.get(instMasterList, 0, "")
-        @instMasterPath    = Ops.get(instMasterList, 1, "")
-        @instMasterVersion = Ops.get(instMasterList, 2, "")
-
-        log.info("found SAP instmaster at #{@instMasterPath} type #{@instMasterType} version #{@instMasterVersion}")
-        if @instMasterPath == nil || @instMasterPath.size == 0
-           Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
-        else
-           #We have found the installation master
-           run = false
-        end
-      end
-      case @instMasterType
-        when "SAPINST"
-          ret = :SAPINST
-        when "HANA"
-          @instMasterType = "HANA"
-          @mediaDir = @instDir
-          ret = :HANA
-        when /^B1/
-          @mediaDir = @instDir
-          ret = :B1
-        when "TREX"
-          ret = :TREX
-      end
-      if @instMasterType == 'HANA'
-        # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
-        CopyFiles(@instMasterPath, @mediaDir, "Instmaster", false)
-        @instMasterPath = @mediaDir + "/Instmaster"
-      else
-        if ! File.exist?(@mediaDir + "/Instmaster-" + @instMasterType + '-' + @instMasterVersion  )
-           #Make a local copy of the installation master
-           CopyFiles(@instMasterPath, @mediaDir, "Instmaster-" + @instMasterType + "-" + @instMasterVersion, false)
-        end
-        CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
-        @instMasterPath = @instDir + "/Instmaster"
-      end
-      UmountSources(@umountSource)
-      return ret
     end
 
     #############################################################
@@ -439,46 +383,6 @@ module Yast
     #
     ############################################################
     def CopyNWMedia
-      log.info("-- Start CopyNWMedia ---")
-      if @importSAPCDs
-          # Skip the dialog all together if SAP_CD is already mounted from network location
-          # There is no chance for user to copy new mediums to the location
-          return :next
-      end
-      run = true
-      while run  
-        case media_dialog("sapmedium")
-           when :abort, :cancel
-              if Yast::Popup.ReallyAbort(false)
-                  Yast::Wizard.CloseDialog
-                  return :abort
-              end
-           when :back
-              return :back
-           when :forw
-              run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
-           when :next 
-              media=find_sap_media(@sourceDir)
-              media.each { |path,label|
-                if File.exist?(@mediaDir + "/" + label)
-                   Popup.Warning(Builtins.sformat(_("The selected medium '%1' was already copied."),label))
-                   next
-                end        
-                CopyFiles(path, @mediaDir, label, false)
-                @selectedMedia[label] = true;
-              }
-              run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
-        end
-      end
-      mediaList = []
-      @selectedMedia.each_key { |medium|
-        if @selectedMedia[medium]
-          mediaList << @mediaDir + "/" + medium
-        end
-      }
-      mediaList << @instDir + "/" + "Instmaster"
-      IO.write(@instDir + "/start_dir.cd" , mediaList.join("\n"))
-      return :next
     end
     
     #############################################################
@@ -487,56 +391,11 @@ module Yast
     #
     ############################################################
     def ReadSupplementMedium
-      log.info("-- Start ReadSupplementMedium ---")
-      run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
-      while run  
-        ret = media_dialog("supplement")
-        if ret == :abort || ret == :cancel
-            if Yast::Popup.ReallyAbort(false)
-                Yast::Wizard.CloseDialog
-                return :abort
-            end
-        end
-        return :back  if ret == :back
-        CopyFiles(@sourceDir, @instDir, "Supplement", false)
-        ParseXML(@instDir + "/Supplement/" + @productXML)
-        run = Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
-      end
-      return :next
     end
     #***********************************
     # Umount sources.
     #  @param boolean doit
     def UmountSources(doit)
-      log.info("-- SAPMedia.UmountSources Start ---")
-      return if !doit
-      WFM.Execute(path(".local.umount"), @mountPoint)
-      if @mountPoint != @mmount
-        WFM.Execute(path(".local.umount"), @mmount)
-        SCR.Execute(path(".target.bash"), "/bin/rmdir " + @mmount)
-      end
-
-      nil
-    end
-
-    #***********************************
-    # Create a temporary directory.
-    #  @param  string temp
-    #  @return string the path to the created directory
-    def MakeTemp(temp)
-      log.info("-- SAPMedia.MakeTemp Start ---")
-      out = Convert.to_map(
-        SCR.Execute(
-          path(".target.bash_output"),
-          "/bin/mktemp -d " + temp
-        )
-      )
-      tmp = Builtins.substring(
-        Ops.get_string(out, "stdout", ""),
-        0,
-        Ops.subtract(Builtins.size(Ops.get_string(out, "stdout", "")), 1)
-      )
-      tmp
     end
 
     # ***********************************
@@ -700,7 +559,6 @@ module Yast
     publish :function => :Read,                :type => "boolean ()"
     publish :function => :Write,               :type => "void ()"
     publish :function => :UmountSources,       :type => "void ()"
-    publish :function => :MakeTemp,            :type => "string ()"
     publish :function => :ParseXML,            :type => "boolean ()"
     publish :function => :MountSource,         :type => "string ()"
     publish :function => :CopyFiles,           :type => "void ()"
@@ -860,154 +718,8 @@ module Yast
     def media_dialog(wizard)
       log.info("-- Start media_dialog ---")
       @dbMap = {}
-      has_back = true
-
-      # Find the already-prepared mediums
-      media = []
-      if File.exist?(@mediaDir)
-          media = Dir.entries(@mediaDir)
-          media.delete('.')
-          media.delete('..')
-      end
-
-      # Displayed above the new-medium input
-      content_before_input = Empty()
-      # The new-medium input
-      content_input = Empty()
-      # Displayed below the new-medium input
-      content_advanced_ops = Empty()
-
-      # Make dialog content acording to wizard stage
-      case wizard
-      when "sapmedium"
-          # List existing product installation mediums (excluding installation master)
-          product_media = media.select {|name| !(name =~ /Instmaster-/)}
-          if !product_media.empty?
-              mediaItems = []
-              product_media.each {|medium|
-                 mediaItems << Item(Id(medium),  medium,  @selectedMedia.has_key?(medium) ? @selectedMedia[medium] : true )
-              }
-              content_before_input = VBox( MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), mediaItems) )
-          end
-          content_input = VBox(
-            Left(RadioButton(Id(:do_copy_medium), Opt(:notify), _("Copy a medium"), true)),
-            Left(HBox(
-                HSpacing(6.0),
-                ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-                InputField(Id(:location),Opt(:hstretch),
-                    _("Prepare SAP installation medium (such as SAP kernel, database and exports)"),
-                    @locationCache),
-                HSpacing(6.0))),
-          )
-#          content_advanced_ops = VBox(
-#              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
-#          )
-      when "inst_master"
-          # List installation masters
-          has_back = false
-          instmaster_media = media.select {|name| name =~ /Instmaster-/}
-          if !instmaster_media.empty?
-              if @importSAPCDs
-                  # If SAP_CD is mounted from network location, do not allow empty selection
-                  content_before_input = VBox(
-                      Frame(_("Ready for use from:  " + @sapCDsURL.to_s),
-                            Label(Id(:mediums), Opt(:hstretch), media.join("\n"))),
-                      Frame(_("Choose an installation master"),
-                            Left(ComboBox(Id(:local_im), Opt(:notify),"", instmaster_media))),
-                  )
-              else
-                  # Otherwise, allow user to enter new installation master
-                  content_before_input = Frame(
-                    _("Choose an installation master"),
-                    ComboBox(Id(:local_im), Opt(:notify),"", ["---"] + instmaster_media)
-                  )
-              end
-          end
-          content_input = HBox(
-              ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-              InputField(Id(:location),Opt(:hstretch),
-              _("Prepare SAP installation master"),
-              @locationCache)
-          )
-          advanced_ops = [Left(CheckBox(Id(:auto),_("Collect installation profiles for SAP products but do not execute installation."), false))]
-          if !@importSAPCDs
-              # link & export options are not applicable if SAP_CD is mounted from network location
-              advanced_ops += [
-                # Left(CheckBox(Id(:link),_("Link to the installation master, without copying its content to local location (SAP NetWeaver only)."), false)),
-                Left(CheckBox(Id(:export),_("Serve all installation mediums (including master) to local network via NFS."), false))
-              ]
-          end
-          content_advanced_ops = VBox(*advanced_ops)
-      when "supplement"
-          # Find the already-prepared mediums
-          product_media = media.select {|name| !(name =~ /Instmaster-/)}
-          if !product_media.empty?
-              content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n")))
-          end
-          content_input = HBox(
-              ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-              InputField(Id(:location),Opt(:hstretch),
-              _("Prepare SAP supplementary medium"),
-              @locationCache)
-          )
-#          content_advanced_ops = VBox(
-#              Left(CheckBox(Id(:link),_("Link to the installation medium, without copying its content to local location."),false))
-#          )
-      end
-
-      after_advanced_ops = Empty()
-      advanced_ops_left  = Empty()
-
-      if wizard == "sapmedium"
-          after_advanced_ops = VBox(
-            VSpacing(2.0),
-            Left(RadioButton(Id(:skip_copy_medium), Opt(:notify), _("Skip copying of medium")))
-          )
-          advanced_ops_left = HSpacing(6.0)
-      end
-      
-
-      # Render the wizard
-      if( content_advanced_ops == Empty() )
-        content = VBox(
-            Left(content_before_input),
-            VSpacing(2),
-            Left(content_input),
-            VSpacing(2),
-            Left(after_advanced_ops)
-        )
-      else
-        content = VBox(
-            Left(content_before_input),
-            VSpacing(2),
-            Left(content_input),
-            VSpacing(2),
-            HBox(advanced_ops_left, Frame(_("Advanced Options"), Left(content_advanced_ops))),
-            Left(after_advanced_ops)
-        )
-      end
-
-      Wizard.SetContents(
-        _("SAP Installation Wizard"),
-        content,
-        @dialogs[wizard]["help"],
-        has_back,
-        true
-      )
-      Wizard.RestoreAbortButton()
-      UI.ChangeWidget(:scheme, :Value, @schemeCache)
-      do_default_values(wizard)
       @sourceDir = ""
       @umountSource = false
-      # Special case for SAP_CD being network location
-      if @importSAPCDs && wizard == "inst_master"
-          # Activate the first installation master option
-          UI.ChangeWidget(Id(:scheme), :Value, "dir")
-          UI.ChangeWidget(Id(:scheme), :Enabled, false)
-#         UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(Id(:location), :Value, @mediaDir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value)))
-          UI.ChangeWidget(Id(:location), :Enabled, false)
-      end
       while true
         case UI.UserInput
         when :back
@@ -1113,61 +825,6 @@ module Yast
     # show a default entry or the last entered path
     #
     def do_default_values(wizard)
-        val = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
-        @schemeCache = val
-        if val == "device"
-#         UI.ChangeWidget(Id(:link), :Value, false)
-#         UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ? "sda1/directory" : @locationCache
-          )
-        elsif val == "nfs"
-#         UI.ChangeWidget(Id(:link), :Value, false)
-#         UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ? "nfs.server.com/directory/" : @locationCache
-          )
-        elsif val == "usb"
-#         UI.ChangeWidget(Id(:link), :Value, false)
-#         UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ? "/directory/" : @locationCache
-          )
-        elsif val == "local"
-#         UI.ChangeWidget(Id(:link), :Value, true)
-#         UI.ChangeWidget(Id(:link), :Enabled, true)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ? "/directory/" : @locationCache
-          )
-        elsif val == "smb"
-#         UI.ChangeWidget(Id(:link), :Value, false)
-#         UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ?
-              "[username:passwd@]server/path-on-server[?workgroup=my-workgroup]" :
-              @locationCache
-          )
-        else
-          #This is cdrom1 cdrom2 and so on
-#         UI.ChangeWidget(Id(:link), :Value, false)
-#         UI.ChangeWidget(Id(:link), :Enabled, false)
-          UI.ChangeWidget(
-            :location,
-            :Value,
-            @locationCache == "" ? "//" : @locationCache
-          )
-        end
-        nil
     end
 
     def set_date

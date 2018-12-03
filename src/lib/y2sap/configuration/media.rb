@@ -48,6 +48,18 @@ module Y2Sap
       #   @instEnvList
       attr_accessor :to_install
 
+      #@return [String] The type of the installations master SAPINST, HANA, B1, TREX
+      attr_accessor :inst_master_type
+
+      #@return [String] The local path to the installation master
+      attr_accessor :inst_master_path
+
+      #@return [String] The version of the installation master
+      attr_accessor :inst_master_version
+
+      #@retunr [Hash<String,String>] Hash for remember which media was selected.
+      attr_accessor :selected_media
+
       def initialize
 	super
 	@location_cache = "nfs.server.com/directory/"
@@ -64,6 +76,10 @@ module Y2Sap
           @product_cont = @product_cont.next
         end
         @inst_dir = "%s/%d" % [ @inst_dir_base, @product_cont ]
+	@inst_master_type    = ""
+	@inst_master_path    = ""
+	@inst_master_cersion = ""
+	@selected_media      = ""
       end
     end
   end

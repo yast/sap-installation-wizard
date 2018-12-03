@@ -22,16 +22,20 @@
 require "yast"
 require "y2sap/configuration/media"
 require "y2sap/media/copy"
-require "y2sap/media/mount"
+require "y2sap/media/dialog"
+require "y2sap/media/complex"
 require "y2sap/media/find"
+require "y2sap/media/mount"
 
 module Y2Sap
   class Media < Y2Sap::Configuration::Media
     include Yast
     include Yast::Logger
     include Y2Sap::MediaCopy
-    include Y2Sap::MediaMount
+    include Y2Sap::MediaDialog
+    include Y2Sap::MediaComplex
     include Y2Sap::MediaFind
+    include Y2Sap::MediaMount
     def initialize
       super
     end

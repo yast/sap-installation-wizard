@@ -22,6 +22,48 @@
 module Y2Sap
   module MediaCopy
     include Yast
+
+    def copy_dir(sourceDir, targetDir, subDir)
+      pid=start_copy(sourceDir, targetDir, subDir)
+      if pid == nil || pid < 1
+        return ask_me_to_retry(sourceDir, targetDir, subDir)
+      end
+      progress = 0
+      source_size = Y2Sap::Media::Copy.human_size(sourceDir)
+      techsize    = Y2Sap::Media::Copy.tech_size(sourceDir)
+      Progress.Simple(
+        "Copying Media",
+        "Copying SAP " + subDir + " ( 0M of " + source_size + " )",
+        techsize,
+        ""
+      )
+      Progress.NextStep
+      while SCR.Read(path(".process.running"), pid) == true
+         sleep(1)
+         techsize  = Y2Sap::Media::Copy.tech_size(targetDir + "/" + subDir)
+         Progress.Step(techsize)
+         humansize = Y2Sap::Media::Copy.human_size(targetDir + "/" + subDir)
+         Progress.Title( "Copying Media " + subDir + " ( " + humansize + " of " + source_size + " )")
+
+         # Checking the exit code (0 = OK, nil = still running, 'else' = error)
+         exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
+         if exitcode != nil && exitcode != 0
+           log.info("Copy has failed, exit code was: #{exitcode} stderr: %2" + SCR.Read(path(".process.read_stderr"), pid))
+           error = Builtins.sformat(
+             "Copy has failed, exit code was: %1, stderr: %2",
+             exitcode,
+             SCR.Read(path(".process.read_stderr"), pid)
+           )
+           Popup.Error(error)
+           return ask_me_to_retry(sourceDir, targetDir, subDir)
+         end
+      end
+      # release the process from the agent
+      SCR.Execute(path(".process.release"), pid)
+      Progress.Finish
+      return :next
+    end
+
     def start_copy(source, target, subdir)
       log.info("CopyFiles called: #{source}, #{target}, #{subdir}")
       cmd = "mkdir -p '%s/%s'" % [ target , subdir ]
@@ -34,17 +76,30 @@ module Y2Sap
     end
 
     def tech_size(dir)
-      out = Convert.to_map(
-        SCR.Execute(path(".target.bash_output"), "du -s0 '%s' | awk '{printf $1}'" %  dir )
-      )
-      Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
+      cmd = "du -s0 '%s' | awk '{printf $1}'" %  dir
+      out = Convert.to_map( SCR.Execute(path(".target.bash_output"), cmd ))
+      Ops.get_integer(out, "stdout", 0)
     end
 
     def human_size(dir)
-      out = Convert.to_map(
-        SCR.Execute(path(".target.bash_output"), "du -sh0 '%s' | awk '{printf $1}'" %  dir )
-      )
-      Builtins.tointeger(Ops.get_string(out, "stdout", "0"))
+      cmd = "du -sh0 '%s' | awk '{printf $1}'" %  dir
+      out = Convert.to_map( SCR.Execute(path(".target.bash_output"), cmd ))
+      Ops.get_integer(out, "stdout", 0)
+    end
+
+    def ask_me_to_retry(sourceDir, targetDir, subDir)
+      if Popup.ErrorAnyQuestion(
+          "Failed to copy files from medium",
+          "Would you like to retry?",
+          "Retry",
+          "Abort",
+          :focus_yes
+        )
+        copy_dir(sourceDir, targetDir, subDir)
+      else
+        UI.CloseDialog
+        return :abort
+      end
     end
   end
 end

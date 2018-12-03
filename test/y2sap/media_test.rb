@@ -54,14 +54,14 @@ describe Y2Sap::Media do
       expect(subject.inst_dir()).to    eq "/data/SAP_INST/0"
     end
   end
-# context "test the MediaCopy functions" do
-#   before do
-#     change_scr_root(File.join(DATA_PATH, "system"))
-#     subject { described_class.new }
-#   end
-#   it "reads the tech size of /etc" do
-#     expect(subject.tech_size("/etc")).to be_a(Integer)
-#   end
-# end
+  context "test the MediaCopy functions" do
+    before do
+      change_scr_root(File.join(DATA_PATH, "system"))
+      subject { described_class.new }
+    end
+    it "reads the tech size of /etc" do
+      expect(subject.tech_size("/etc")).to be_a(Integer)
+    end
+  end
 end
 

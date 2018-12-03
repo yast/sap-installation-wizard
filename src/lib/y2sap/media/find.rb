@@ -93,5 +93,16 @@ module Y2Sap
         end
       }
     end
+
+    # @return [List<String>] Delivers a list of already copied media
+    def local_media
+      media = []
+      if File.exist?(@media_dir)
+        media = Dir.entries(@media_dir)
+        media.delete('.')
+        media.delete('..')
+      end
+      return media
+    end
   end
 end

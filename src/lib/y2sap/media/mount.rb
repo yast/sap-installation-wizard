@@ -74,6 +74,13 @@ module Y2Sap
       return Ops.get_string(out, "stderr", "") == ""
     end
 
+    def umount_sap_cds
+      # Un-mount it, in case if the location was previously mounted
+      # Run twice to umount it forcibly and surely
+      SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @media_dir)
+      SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @media_dir)
+    end
+
     def mount_device(location)
       parsedURL = URL.Parse("device://" + location)
       log.info("parsed URL: #{parsedURL}")
@@ -156,6 +163,10 @@ module Y2Sap
         return "ERROR: Can not find local path:" + location
       end
       return ""
-    end 
+    end
+
+    def umount_source
+      WFM.Execute(path(".local.umount"), @mount_point)
+    end
   end
 end
