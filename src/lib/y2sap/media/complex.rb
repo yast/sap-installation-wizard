@@ -20,7 +20,7 @@
 # find current contact information at www.novell.com.
 
 module Y2Sap
-  module MediaCoplex
+  module MediaComplex
     include Yast
     Yast.import "SAPXML"
 
