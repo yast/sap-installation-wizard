@@ -24,20 +24,6 @@ module Y2Sap
   module MediaDialog
     include Yast
     include Yast::UI
-    #Some private global variable to setup the dialog
-    # [Boolean] if the actual dialog has back button
-    @has_back = true
-
-    # Displayed above the new-medium input
-    @content_before_input = Empty()
-
-    # The new-medium input
-    @content_input = Empty()
-
-    # Displayed below the new-medium input
-    @content_advanced_ops = Empty()
-    @after_advanced_ops   = Empty()
-    @advanced_ops_left    = Empty()
 
     def parse_xml(file)
        ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
