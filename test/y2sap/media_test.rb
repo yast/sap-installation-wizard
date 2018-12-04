@@ -55,12 +55,24 @@ describe Y2Sap::Media do
     end
   end
   context "test the MediaCopy functions" do
+    let(:out) { { "exit" => 0, "stdout" => "200" } }
+
     before do
+      allow(Yast::SCR).to receive(:Execute).with(Yast::Path.new(".target.bash_output"), /du/)
+        .and_return(out)
       change_scr_root(File.join(DATA_PATH, "system"))
       subject { described_class.new }
     end
     it "reads the tech size of /etc" do
-      expect(subject.tech_size("/etc")).to be_a(Integer)
+      expect(subject.tech_size("/etc")).to eq(200)
+    end
+
+    context "when it is not possible to read the size" do
+      let(:out) { { "exit" => 1, "stdout" => "" } }
+
+      it "returns 0" do
+        expect(subject.tech_size("/etc")).to eq(0)
+      end
     end
   end
 end

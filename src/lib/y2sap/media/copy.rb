@@ -77,8 +77,8 @@ module Y2Sap
 
     def tech_size(dir)
       cmd = "du -s0 '%s' | awk '{printf $1}'" %  dir
-      out = Convert.to_map( SCR.Execute(path(".target.bash_output"), cmd ))
-      Ops.get_integer(out, "stdout", 0)
+      out = SCR.Execute(path(".target.bash_output"), cmd)
+      out["stdout"].to_i
     end
 
     def human_size(dir)
