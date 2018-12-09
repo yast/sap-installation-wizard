@@ -29,8 +29,8 @@ module Y2Sap
         return ask_me_to_retry(sourceDir, targetDir, subDir)
       end
       progress = 0
-      source_size = Y2Sap::Media::Copy.human_size(sourceDir)
-      techsize    = Y2Sap::Media::Copy.tech_size(sourceDir)
+      source_size = human_size(sourceDir)
+      techsize    = tech_size(sourceDir)
       Progress.Simple(
         "Copying Media",
         "Copying SAP " + subDir + " ( 0M of " + source_size + " )",
@@ -40,9 +40,9 @@ module Y2Sap
       Progress.NextStep
       while SCR.Read(path(".process.running"), pid) == true
          sleep(1)
-         techsize  = Y2Sap::Media::Copy.tech_size(targetDir + "/" + subDir)
+         techsize  = tech_size(targetDir + "/" + subDir)
          Progress.Step(techsize)
-         humansize = Y2Sap::Media::Copy.human_size(targetDir + "/" + subDir)
+         humansize = human_size(targetDir + "/" + subDir)
          Progress.Title( "Copying Media " + subDir + " ( " + humansize + " of " + source_size + " )")
 
          # Checking the exit code (0 = OK, nil = still running, 'else' = error)

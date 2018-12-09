@@ -32,8 +32,9 @@ module Y2Sap
     end
 
     #Function to build a dialog to copy the media
-    def media_dialog
+    def media_dialog(wizard)
       log.info("-- Start media_dialog ---")
+      log.info("UI Methodes #{Yast::UI.methods}")
       @has_back = true
       content = Empty()
       @content_before_input = Empty()

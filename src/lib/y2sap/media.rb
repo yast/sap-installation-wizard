@@ -20,6 +20,7 @@
 # find current contact information at www.novell.com.
 
 require "yast"
+require "ui/dialog"
 require "y2sap/configuration/media"
 require "y2sap/media/copy"
 require "y2sap/media/dialog"

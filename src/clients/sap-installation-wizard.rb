@@ -22,40 +22,8 @@
 
 # <h3>YAST Module to Install SAP Applications on SLE4SAP</h3>
 
-require "y2sap/wizards"
+require "yast"
+require "y2sap/clients/sequence"
 
-module Yast
-  # Main module of sap installation wizard
-  class SapInstallationWizard < Client
-    include SapInstallationWizardWizardsInclude
-    def main
-      textdomain "sap-installation-wizard"
-      Yast.import "SAPMedia"
-      Yast.import "SAPProduct"
-      Yast.import "SAPPartitioning"
-      Yast.import "CommandLine"
-      Yast.import "RichText"
-      log.info("sap-installation-wizard called with #{WFM.Args}")
+Y2Sap::Clients::Sequence.new.run
 
-      @ret = :auto
-      # the command line description map
-      @cmdline = {
-                   "id"   => "sap-installation-wizard",
-                   "help" => _("YAST Module to Install SAP Applications on SLES for SAP Applications."),
-                   "guihandler" => fun_ref(method(:SAPInstSequence),  "symbol ()"),
-                   # "initialize" => fun_ref(SAPInst.method(:Read), "boolean ()"),
-                   # "finish"     => fun_ref(SAPInst.method(:Write),"boolean ()"),
-                   "actions"    => {
-                   "hana_partitioning"   => {
-                     "handler" => fun_ref(SAPPartitioning.method(:CreateHANAPartitions),"void ()"),
-                     "help"    => _("Create HANA Partitionint.")
-                   }
-               }
-      }
-      @ret = CommandLine.Run(@cmdline)
-      deep_copy(@ret)
-      SCR.Execute(path(".target.bash"), "umount " + SAPMedia.mediaDir) if SAPMedia.importSAPCDs
-    end
-  end
-end
-Yast::SapInstallationWizard.new.main

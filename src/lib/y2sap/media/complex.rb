@@ -22,6 +22,7 @@
 module Y2Sap
   module MediaComplex
     include Yast
+    include Y2Sap::MediaDialog
     Yast.import "SAPXML"
 
     def installation_master
@@ -29,7 +30,7 @@ module Y2Sap
       ret = nil
       run = true
       while run
-        ret = Y2Sap::MediaDialog.media_dialog("inst_master")
+        ret = media_dialog("inst_master")
         if ret == :abort || ret == :cancel
           if Yast::Popup.ReallyAbort(false)
             Yast::Wizard.CloseDialog
@@ -87,7 +88,7 @@ module Y2Sap
       end
       run = true
       while run
-        case Y2Sap::MediaDialog.media_dialog("sapmedium")
+        case media_dialog("sapmedium")
         when :abort, :cancel
           if Yast::Popup.ReallyAbort(false)
             Yast::Wizard.CloseDialog
@@ -125,7 +126,7 @@ module Y2Sap
       log.info("-- Start ReadSupplementMedium ---")
       run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
       while run
-        ret = Y2Sap::MediaDialog.media_dialog("supplement")
+        ret = media_dialog("supplement")
         if ret == :abort || ret == :cancel
           if Yast::Popup.ReallyAbort(false)
             Yast::Wizard.CloseDialog
