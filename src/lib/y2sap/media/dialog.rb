@@ -24,6 +24,7 @@ module Y2Sap
   module MediaDialog
     include Yast
     include Yast::UI
+    include Yast::UIShortcuts
 
     def parse_xml(file)
        ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
