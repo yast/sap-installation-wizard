@@ -41,6 +41,25 @@ module Y2Sap
     def initialize
       textdomain "sap-installation-wizard"
       super
+      @scheme_list = [
+          Item(Id("local"), "dir://", true),
+          Item(Id("device"), "device://", false),
+          Item(Id("usb"), "usb://", false),
+          Item(Id("nfs"), "nfs://", false),
+          Item(Id("smb"), "smb://", false)
+      ]
+      # Detect how many cdrom we have:
+      cdroms=`hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
+      if cdroms.count == 1
+        @scheme_list << Item(Id("cdrom"), "cdrom://", false)
+      elsif cdroms.count > 1
+        i=1
+        cdroms.each { |cdrom|
+          @scheme_list << Item(Id("cdrom::" + cdrom  ), "cdrom" + i.to_s + "://", false)
+          i = i.next
+        }
+      end
+      @location_cache = ""
     end
   end
 end

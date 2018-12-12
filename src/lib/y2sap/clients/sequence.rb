@@ -22,7 +22,6 @@
 require "yast"
 require "ui/sequence"
 require "y2sap/media"
-
 Yast.import "Wizard"
 
 module Y2Sap
@@ -75,6 +74,8 @@ module Y2Sap
       end
 
       def run
+	Yast::Wizard.CreateDialog
+        Yast::Wizard.SetDesktopTitleAndIcon("vendor")
         super(sequence: SEQUENCE_HASH)
       end
 
