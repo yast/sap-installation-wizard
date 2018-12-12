@@ -24,6 +24,7 @@ module Y2Sap
   module MediaDialog
     include Yast
     include Yast::UI
+    include Yast::UIShortcuts
 
     def parse_xml(file)
        ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
@@ -85,7 +86,7 @@ module Y2Sap
     #Function to build a dialog to copy the installation master
     def inst_master_dialog
       @has_back = false
-      instmaster_media = Y2Sap::Media::Find.local_media().select {|name| name =~ /Instmaster-/}
+      instmaster_media = local_media().select {|name| name =~ /Instmaster-/}
       if !instmaster_media.empty?
         if !@sap_cds_url.empty?
           # If SAP_CD is mounted from network location, do not allow empty selection

@@ -32,12 +32,14 @@ module Y2Sap
   class Media < Y2Sap::Configuration::Media
     include Yast
     include Yast::Logger
+    include Yast::I18n
     include Y2Sap::MediaCopy
     include Y2Sap::MediaDialog
     include Y2Sap::MediaComplex
     include Y2Sap::MediaFind
     include Y2Sap::MediaMount
     def initialize
+      textdomain "sap-installation-wizard"
       super
     end
   end
