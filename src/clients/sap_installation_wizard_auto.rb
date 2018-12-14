@@ -16,7 +16,6 @@
 # ------------------------------------------------------------------------------
 # Author: Peter Varkoly <varkoly@suse.com>
 
-
 require "yast"
 require "installation/auto_client"
 Yast.import "SAPMedia"
@@ -24,6 +23,8 @@ Yast.import "SAPProduct"
 Yast.import "SAPPartitioning"
 
 module SapInst
+  # Class to control the auto installation of SAP product on SLES.
+  # For the HANA installation only a very simple xml part is neccessary.
   class AutoClient < Installation::AutoClient
     include Yast
     include UIShortcuts
@@ -63,6 +64,7 @@ module SapInst
     def modified
       return true
     end
+
     # Return a readable text summary.
     def summary
       return _("SAP Product Automatic Installation.")
@@ -87,13 +89,13 @@ module SapInst
 
     # Set SapInst to "to be disabled".
     def reset
-      # TODO find a sence for it
+      # TODO, find a sence for it
       return true
     end
 
     # Return package dependencies
     def packages
-      return {"install" => ["sap-installation-wizard"], "remove" => []}
+      return { "install" => ["sap-installation-wizard"], "remove" => [] }
     end
   end
 end
