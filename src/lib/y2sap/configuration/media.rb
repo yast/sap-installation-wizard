@@ -1,5 +1,5 @@
 # encoding: utf-8
-  
+
 # ------------------------------------------------------------------------------
 # Copyright (c) 2016 SUSE Linux GmbH, Nuernberg, Germany.
 #
@@ -23,6 +23,7 @@ require "yast"
 
 module Y2Sap
   module Configuration
+    # Class to read and edit thte SLES4SAP configurations corresponding the media
     class Media < Base
       # @return [String] In this directory will be installed the next sap product
       attr_reader :inst_dir
@@ -61,14 +62,14 @@ module Y2Sap
       attr_accessor :selected_media
 
       def initialize
-	super
-	@location_cache = "nfs.server.com/directory/"
-	@need_umount    = true
-	@product_cont   = 0
-	@inst_dir       = "%s/%d" % [ @inst_dir_base, @product_cont ]
-	@unfinished_installations = []
-	@to_install     = []
-	@source_dir     = @mount_point
+        super
+        @location_cache = "nfs.server.com/directory/"
+        @need_umount    = true
+        @product_cont   = 0
+        @inst_dir       = "%s/%d" % [ @inst_dir_base, @product_cont ]
+        @unfinished_installations = []
+        @to_install     = []
+        @source_dir     = @mount_point
         while Dir.exists?(@inst_dir)
           if !File.exists?(@inst_dir + "/installationSuccesfullyFinished.dat") && File.exists?(@inst_dir + "/product.data")
             @unfinished_installations << @inst_dir
@@ -76,10 +77,10 @@ module Y2Sap
           @product_cont = @product_cont.next
         end
         @inst_dir = "%s/%d" % [ @inst_dir_base, @product_cont ]
-	@inst_master_type    = ""
-	@inst_master_path    = ""
-	@inst_master_cersion = ""
-	@selected_media      = ""
+        @inst_master_type    = ""
+        @inst_master_path    = ""
+        @inst_master_cersion = ""
+        @selected_media      = ""
       end
     end
   end
