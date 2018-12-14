@@ -99,7 +99,7 @@ module Y2Sap
         ret
       end
 
-      def constumize_sap_installation(start_wizard,start_rdp)
+      def constumize_sap_installation(start_wizard, start_rdp)
         to_install = []
         to_remove  = []
         ProductControl.DisableModule("user_first")
@@ -121,7 +121,7 @@ module Y2Sap
         end
         PackagesProposal.AddResolvables('sap-wizard', :package, to_install)
         if to_remove.size > 0
-          PackagesProposal.RemoveResolvables('sap-wizard',:package, to_remove)
+          PackagesProposal.RemoveResolvables('sap-wizard', :package, to_remove)
         end
       end
     end
