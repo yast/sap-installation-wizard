@@ -1,5 +1,5 @@
 # encoding: utf-8
-  
+
 # Copyright (c) [2017] SUSE LLC
 #
 # All Rights Reserved.
@@ -33,7 +33,7 @@ module Y2Sap
       SEQUENCE_HASH = {
         START => "read",
         "read"  => {
-	  abort: :abort,
+          abort: :abort,
           auto:  "write",
           next:  "read_im"
         },
@@ -75,17 +75,17 @@ module Y2Sap
       end
 
       def run
-	Yast::Wizard.CreateDialog
+        Yast::Wizard.CreateDialog
         Yast::Wizard.SetDesktopTitleAndIcon("sap-installation-wizard")
         super(sequence: SEQUENCE_HASH)
       end
 
       def read
         @media = Y2Sap::Media.new
-	if @media == nil
-	  return :abort
-	end
-	:next
+        if @media == nil
+          return :abort
+        end
+        :next
       end
 
       def read_im
