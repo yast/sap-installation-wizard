@@ -26,12 +26,13 @@ Yast.import "Wizard"
 
 module Y2Sap
   module Clients
+    # Creates the warkflow for the installation
     class Sequence < UI::Sequence
       include Yast::Logger
 
       SEQUENCE_HASH = {
         START => "read",
-        "read"   => {
+        "read"  => {
           :abort => :abort,
           :auto  => "write",
           :next  => "read_im"
@@ -75,7 +76,7 @@ module Y2Sap
 
       def run
 	Yast::Wizard.CreateDialog
-        Yast::Wizard.SetDesktopTitleAndIcon("vendor")
+        Yast::Wizard.SetDesktopTitleAndIcon("sap-installation-wizard")
         super(sequence: SEQUENCE_HASH)
       end
 
