@@ -70,8 +70,8 @@ module Y2Sap
         @unfinished_installations = []
         @to_install     = []
         @source_dir     = @mount_point
-        while Dir.exists?(@inst_dir)
-          if !File.exists?(@inst_dir + "/installationSuccesfullyFinished.dat") && File.exists?(@inst_dir + "/product.data")
+        while Dir.exist?(@inst_dir)
+          if !File.exist?(@inst_dir + "/installationSuccesfullyFinished.dat") && File.exist?(@inst_dir + "/product.data")
             @unfinished_installations << @inst_dir
           end
           @product_cont = @product_cont.next
