@@ -33,40 +33,40 @@ module Y2Sap
       SEQUENCE_HASH = {
         START => "read",
         "read"  => {
-          :abort => :abort,
-          :auto  => "write",
-          :next  => "read_im"
+	  abort: :abort,
+          auto:  "write",
+          next:  "read_im"
         },
         "read_im"  => {
-          :abort   => :abort,
-          :HANA    => "suplementary",
-          :B1      => "suplementary",
-          :TREX    => "suplementary",
-          :SAPINST => "net_weaver"
+          abort:   :abort,
+          HANA:    "suplementary",
+          B1:      "suplementary",
+          TREX:    "suplementary",
+          SAPINST: "net_weaver"
         },
         "net_weaver" => {
-          :abort => :abort,
-          :next  => "suplementary_with_back"
+          abort: :abort,
+          next:  "suplementary_with_back"
         },
         "suplementary"    => {
-          :abort => :abort,
-          :next  => "write"
+          abort:  :abort,
+          next:   "write"
         },
         "suplementary_with_back" => {
-          :abort => :abort,
-          :back  => "net_weaver",
-          :next  => "write"
+          abort: :abort,
+          back:  "net_weaver",
+          next:  "write"
         },
         "write"  => {
-          :abort => :abort,
-          :back  => "suplementary",
-          :next  => "add_repo"
+          abort: :abort,
+          back:  "suplementary",
+          next:  "add_repo"
         },
         "add_repo" => {
-          :abort => :abort,
-          :back  => "net_weaver",
-          :auto  => "write",
-          :next  => :next
+          abort: :abort,
+          back:  "net_weaver",
+          auto:  "write",
+          next:  :next
         }
       }
 
