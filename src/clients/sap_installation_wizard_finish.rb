@@ -22,5 +22,3 @@
 require "y2sap/installation_finish"
 
 SapInstallationWizard::InstallationFinish.run
-
-

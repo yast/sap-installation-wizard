@@ -43,17 +43,17 @@ module SAPInstaller
     include Yast::UIShortcuts
     include Yast::I18n
     include Yast::Logger
-    
+
     def initialize
       textdomain "sap-installation-wizard"
     end
-    
+
     # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
     def run
       render_all
       return ui_event_loop
     end
-    
+
     # Return a ruby symbol that directs Yast Wizard workflow (for example :next, :back, :abort)
     def ui_event_loop
       loop do
@@ -78,17 +78,18 @@ module SAPInstaller
         end
       end
     end
-    
+
     private
+
     def render_all
       Yast::Wizard.SetContents(
         _("Additional software repositories for your SAP installation"),
         HVSquash(Frame("", VBox(
-            Left(Label(_("Do you use additional software repositories, such as 3rd-party SAP add-ons?"))),
-            Left(Label(_("Feel free to add them now. Otherwise, click \"Next\" to continue."))),
-            PushButton(Id(:add_repo), _("Add new software repositories")),
+          Left(Label(_("Do you use additional software repositories, such as 3rd-party SAP add-ons?"))),
+          Left(Label(_("Feel free to add them now. Otherwise, click \"Next\" to continue."))),
+          PushButton(Id(:add_repo), _("Add new software repositories"))
         ))),
-        _("You now have an opportunity to add software repositories, for example: repositores for SAP partner solutions.\n" + 
+        _("You now have an opportunity to add software repositories, for example: repositores for SAP partner solutions.\n" +
           "The step is completely optional, simply click \"Next\" if you do not use any additional repositories."),
         true,
         true
@@ -97,4 +98,3 @@ module SAPInstaller
     end
   end
 end
-
