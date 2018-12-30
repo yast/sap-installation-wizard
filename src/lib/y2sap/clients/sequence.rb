@@ -34,7 +34,6 @@ module Y2Sap
         START => "read",
         "read"  => {
           abort: :abort,
-          auto:  "write",
           next:  "read_im"
         },
         "read_im"  => {
@@ -65,7 +64,6 @@ module Y2Sap
         "add_repo" => {
           abort: :abort,
           back:  "net_weaver",
-          auto:  "write",
           next:  :next
         }
       }

@@ -56,6 +56,9 @@ module Y2Sap
       # @return [String] URL where the SAP media are provided
       attr_reader :sap_cds_url
 
+      # @return [Hash] the autoinstallation settings
+      attr_accessor :sap_media_todo
+
       def initialize
         @mount_point = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
@@ -93,6 +96,7 @@ module Y2Sap
           Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_CDS_URL"),
           ""
         )
+	@sap_media_todo = {}
       end
     end
   end

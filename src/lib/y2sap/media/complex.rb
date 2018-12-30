@@ -23,6 +23,8 @@ module Y2Sap
   module MediaComplex
     include Yast
     include Y2Sap::MediaDialog
+    include Y2Sap::MediaCopy
+    include Y2Sap::MediaFind
     Yast.import "SAPXML"
 
     def installation_master
@@ -65,14 +67,17 @@ module Y2Sap
       end
       if @inst_master_type == 'HANA'
         # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
-        Y2Sap::MediaCopy.copy_dir(@inst_master_path, @media_dir, "Instmaster")
+        #Y2Sap::MediaCopy.copy_dir(@inst_master_path, @media_dir, "Instmaster")
+        copy_dir(@inst_master_path, @media_dir, "Instmaster")
         @inst_master_path = @media_dir + "/Instmaster"
       else
         if ! File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + '-' + @inst_master_version  )
            #Make a local copy of the installation master
-           Y2Sap::MediaCopy.copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
+           #Y2Sap::MediaCopy.copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
+           copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
         end
-        Y2Sap::MediaCopy.copy_dir(@inst_master_path, @inst_dir, "Instmaster")
+        #Y2Sap::MediaCopy.copy_dir(@inst_master_path, @inst_dir, "Instmaster")
+        copy_dir(@inst_master_path, @inst_dir, "Instmaster")
         @inst_master_path = @inst_dir + "/Instmaster"
       end
       UmountSources(@umountSource)
@@ -99,13 +104,15 @@ module Y2Sap
         when :forw
            run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         when :next
-           media=Y2Sap::MediaFind.find_sap_media()
+           #media=Y2Sap::MediaFind.find_sap_media()
+           media=find_sap_media()
            media.each { |path,label|
              if File.exist?(@media_dir + "/" + label)
-               Popup.Warning(Builtins.sformat(_("The selected medium '%1' was already copied."),label))
+               Popup.Warning("The selected medium '%s' was already copied." % label)
                next
              end
-             Y2Sap::MediaCopy.copy_dir(path, @media_dir, label)
+             #Y2Sap::MediaCopy.copy_dir(path, @media_dir, label)
+             copy_dir(path, @media_dir, label)
              @selected_media[label] = true;
            }
            run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
@@ -134,7 +141,8 @@ module Y2Sap
           end
         end
         return :back  if ret == :back
-        Y2Sap::MediaCopy.copy_dir(@source_dir, @inst_dir, "Supplement")
+        #Y2Sap::MediaCopy.copy_dir(@source_dir, @inst_dir, "Supplement")
+        copy_dir(@source_dir, @inst_dir, "Supplement")
 	ParseXML(@inst_dir + "/Supplement/product.xml")
         run = Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
       end

@@ -18,9 +18,8 @@
 
 require "yast"
 require "installation/auto_client"
-Yast.import "SAPMedia"
-Yast.import "SAPProduct"
-Yast.import "SAPPartitioning"
+require "y2sap/media"
+require "y2sap/media/auto.rb"
 
 module SapInst
   # Class to control the auto installation of SAP product on SLES.
@@ -77,8 +76,10 @@ module SapInst
 
     # Read the status of created SAP installation environments and installed products.
     def read
-      SAPMedia.Read
-      SAPProduct.Read
+      @media = Y2Sap::Media.new
+      if @media == nil
+        return :abort
+      end
       return true
     end
 

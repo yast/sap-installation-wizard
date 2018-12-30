@@ -127,7 +127,7 @@ module Y2Sap
 
     #Function to build a dialog to copy a sap media
     def sapmedium_dialog
-      product_media = Y2Sap::Media::Find.local_media().select {|name| !(name =~ /Instmaster-/)}
+      product_media = local_media().select {|name| !(name =~ /Instmaster-/)}
       if !product_media.empty?
         mediaItems = []
         product_media.each {|medium|
@@ -149,7 +149,7 @@ module Y2Sap
 
     #Function to build a dialog to copy a suplementary media
     def supplement_dialog
-      product_media = Y2Sap::Media::Find.local_media().select {|name| !(name =~ /Instmaster-/)}
+      product_media = local_media().select {|name| !(name =~ /Instmaster-/)}
       if !product_media.empty?
         @content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n")))
       end
@@ -261,7 +261,7 @@ module Y2Sap
           if UI.WidgetExists(Id(:local_im)) && UI.QueryWidget(Id(:local_im), :Value).to_s != "---"
               return :forw
           end
-          urlPath = MountSource(scheme, @location_cache)
+          urlPath = mount_source(scheme, @location_cache)
           if urlPath != ""
               ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
               if Ops.get_string(@ltmp, 0, "") != ""

@@ -22,6 +22,8 @@
 module Y2Sap
   module MediaMount
     include Yast
+    Yast.import "URL"
+
     def mount_source(scheme, location)
       log.info("MountSource called #{scheme}, #{location}")
       @location_cache = location

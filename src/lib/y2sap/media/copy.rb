@@ -22,6 +22,7 @@
 module Y2Sap
   module MediaCopy
     include Yast
+    Yast.import "Progress"
 
     def copy_dir(sourceDir, targetDir, subDir)
       pid=start_copy(sourceDir, targetDir, subDir)
@@ -49,11 +50,7 @@ module Y2Sap
          exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
          if exitcode != nil && exitcode != 0
            log.info("Copy has failed, exit code was: #{exitcode} stderr: %2" + SCR.Read(path(".process.read_stderr"), pid))
-           error = Builtins.sformat(
-             "Copy has failed, exit code was: %1, stderr: %2",
-             exitcode,
-             SCR.Read(path(".process.read_stderr"), pid)
-           )
+           error = "Copy has failed, exit code was: %s, stderr: %s" % [ exitcode, SCR.Read(path(".process.read_stderr"), pid) ]
            Popup.Error(error)
            return ask_me_to_retry(sourceDir, targetDir, subDir)
          end
@@ -70,7 +67,7 @@ module Y2Sap
       SCR.Execute(path(".target.bash"), cmd)
 
       # our copy command
-      cmd = "find '%1/'* -maxdepth 0 -exec cp -a '{}' '%2/%3/' \\;" % [ source, target + "/" + subdir ]
+      cmd = "find '%s/'* -maxdepth 0 -exec cp -a '{}' '%s/%s/' \\;" % [ source, target , subdir ]
       pid = Convert.to_integer(SCR.Execute(path(".process.start_shell"), cmd))
       return pid
     end
