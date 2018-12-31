@@ -18,8 +18,7 @@
 
 require "yast"
 require "installation/auto_client"
-require "y2sap/media"
-require "y2sap/media/auto.rb"
+require "y2sap/auto"
 
 module SapInst
   # Class to control the auto installation of SAP product on SLES.
@@ -45,7 +44,7 @@ module SapInst
     # There is only one bool parameter to import.
     def import(exported)
       log.info("-- sap-installation-wizard_auto.import Start --- #{exported}")
-      return SAPMedia.Import(exported)
+      return @autoinst.import(exported)
     end
 
     # There is noting to export.
@@ -76,7 +75,7 @@ module SapInst
 
     # Read the status of created SAP installation environments and installed products.
     def read
-      @media = Y2Sap::Media.new
+      @autoinst = Y2Sap::AutoInst.new
       if @media == nil
         return :abort
       end
@@ -85,7 +84,7 @@ module SapInst
 
     # Write the configuration.
     def write
-      SAPMedia.Write
+      @autoinst.write
     end
 
     # Set SapInst to "to be disabled".

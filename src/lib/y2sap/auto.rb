@@ -35,6 +35,11 @@ module Y2Sap
     include Y2Sap::MediaFind
     include Y2Sap::MediaMount
 
+    def initialize
+      textdomain "sap-installation-wizard"
+      super
+    end
+
     def import(settings)
       @sap_media_todo = settings
       log.info("-- SAPMedia.Import Start --- #{@sap_media_todo}")
