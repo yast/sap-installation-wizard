@@ -25,6 +25,7 @@ module Y2Sap
     Yast.import "Progress"
 
     def copy_dir(sourceDir, targetDir, subDir)
+      log.info("Y2Sap::MediaCopy.copy_dir called: #{sourceDir}, #{targetDir}, #{subDir}" )
       pid=start_copy(sourceDir, targetDir, subDir)
       if pid == nil || pid < 1
         return ask_me_to_retry(sourceDir, targetDir, subDir)
@@ -81,7 +82,7 @@ module Y2Sap
     def human_size(dir)
       cmd = "du -sh0 '%s' | awk '{printf $1}'" %  dir
       out = Convert.to_map( SCR.Execute(path(".target.bash_output"), cmd ))
-      Ops.get_integer(out, "stdout", 0)
+      out["stdout"]
     end
 
     def ask_me_to_retry(sourceDir, targetDir, subDir)

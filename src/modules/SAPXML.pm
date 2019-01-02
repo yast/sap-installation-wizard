@@ -143,7 +143,8 @@ sub is_instmaster {
                $instmaster[0] = "SAPINST";
                $instmaster[1] = dirname($label_file);
 	       my $vcmd = $instmaster[1]."/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'";
-	       $instmaster[2] = `$vcmd`;
+	       my $version = `$vcmd`; chomp($version);
+	       $instmaster[2] = $version;
                last;
             }elsif ($fields[3] eq "SAPINST" && ($fields[5] eq $PLATFORM."_".$ARCH || $fields[5] eq "*")) {
                #SAP:WEBAS:7.00:SAPINST:*:LINUX_X86_64:*

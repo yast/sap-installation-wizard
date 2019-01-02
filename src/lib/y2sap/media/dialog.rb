@@ -42,6 +42,7 @@ module Y2Sap
       @content_advanced_ops = Empty()
       @after_advanced_ops   = Empty()
       @advanced_ops_left    = Empty()
+      @selected_media       = {}
       case wizard
       when "inst_master"
         inst_master_dialog()
@@ -144,6 +145,10 @@ module Y2Sap
               _("Prepare SAP installation medium (such as SAP kernel, database and exports)"),
               @location_cache),
           HSpacing(6.0))),
+      )
+      @after_advanced_ops = VBox(
+        VSpacing(2.0),
+        Left(RadioButton(Id(:skip_copy_medium), Opt(:notify), _("Skip copying of medium")))
       )
     end
 
@@ -259,15 +264,16 @@ module Y2Sap
           end
           # Break the loop for a chosen installation master, without executing check_media
           if UI.WidgetExists(Id(:local_im)) && UI.QueryWidget(Id(:local_im), :Value).to_s != "---"
-              return :forw
+            @source_dir = @media_dir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value))
+            return :forw
           end
           urlPath = mount_source(scheme, @location_cache)
           if urlPath != ""
-              ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
-              if Ops.get_string(@ltmp, 0, "") != ""
-                  Popup.Error( _("Failed to mount the location: ") + Ops.get_string(@ltmp, 0, ""))
-                  next
-              end
+            ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
+            if Ops.get_string(@ltmp, 0, "") != ""
+              Popup.Error( _("Failed to mount the location: ") + Ops.get_string(@ltmp, 0, ""))
+              next
+            end
           end
           if scheme != "local"
               @source_dir = @mount_point +  "/" + urlPath
