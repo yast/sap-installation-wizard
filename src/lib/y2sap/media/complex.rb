@@ -40,10 +40,10 @@ module Y2Sap
           end
         end
         log.info("looking for instmaster in #{@source_dir}")
-        instMasterList      = SAPXML.is_instmaster(@source_dir)
-        @inst_master_type   = Ops.get(instMasterList, 0, "")
-        @inst_master_path   = Ops.get(instMasterList, 1, "")
-        @inst_master_version= Ops.get(instMasterList, 2, "")
+        inst_master_list    = SAPXML.is_instmaster(@source_dir)
+        @inst_master_type   = Ops.get(inst_master_list, 0, "")
+        @inst_master_path   = Ops.get(inst_master_list, 1, "")
+        @inst_master_version= Ops.get(inst_master_list, 2, "")
 
         log.info("found SAP instmaster at #{@inst_master_path} type #{@inst_master_type} version #{@inst_master_version}")
         if @inst_master_path == nil || @inst_master_path.size == 0
@@ -143,7 +143,7 @@ module Y2Sap
         return :back  if ret == :back
         #Y2Sap::MediaCopy.copy_dir(@source_dir, @inst_dir, "Supplement")
         copy_dir(@source_dir, @inst_dir, "Supplement")
-	ParseXML(@inst_dir + "/Supplement/product.xml")
+	parse_xml(@inst_dir + "/Supplement/product.xml")
         run = Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
       end
       return :next

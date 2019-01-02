@@ -22,6 +22,7 @@
 require "yast"
 require "ui/sequence"
 require "y2sap/media"
+require "y2sap/products"
 Yast.import "Wizard"
 
 module Y2Sap
@@ -45,26 +46,42 @@ module Y2Sap
         },
         "net_weaver" => {
           abort: :abort,
-          next:  "suplementary_with_back"
+          next:  "nw_installation_mode"
+        },
+        "nw_installation_mode" => {
+          abort:  :abort,
+          next:   "suplementary_with_back"
         },
         "suplementary"    => {
           abort:  :abort,
-          next:   "write"
+          next:   "add_repo"
         },
         "suplementary_with_back" => {
           abort: :abort,
           back:  "net_weaver",
-          next:  "write"
-        },
-        "write"  => {
-          abort: :abort,
-          back:  "suplementary",
           next:  "add_repo"
         },
         "add_repo" => {
           abort: :abort,
-          back:  "net_weaver",
-          next:  :next
+          next:  "read_parameter"
+        },
+        "read_parameter" => {
+          abort: :abort,
+          back:  "suplementary",
+	  read_im: "read_im",
+          next:  "install_sap"
+        },
+        "install_sap" => {
+          abort: :abort,
+          next:  "tuning"
+        },
+	"tuning"     => {
+          :abort => :abort,
+          :next  => "hana_firewall"
+        },
+        "hana_firewall" => {
+          :abort => :abort,
+          :next  => :next
         }
       }
 
@@ -103,12 +120,41 @@ module Y2Sap
         @media.suplementary
       end
 
+      def nw_installation_mode
+        @products = Y2Sap::Products.new(@media)
+	@products.nw_installation_mode
+      end
+
+      def nw_product
+	@products.nw_product
+      end
+
       def write
-        print "start write"
+	@products.write
       end
 
       def add_repo
+        #TODO
         print "add_repo"
+	:next
+      end
+
+      def read_parameter
+        #TODO
+        print "read_parameter"
+	:next
+      end
+
+      def tuning
+        #TODO
+        print "tuning"
+	:next
+      end
+
+      def hana_firewall
+        #TODO
+        print "hana_firewall"
+	:next
       end
 
     end

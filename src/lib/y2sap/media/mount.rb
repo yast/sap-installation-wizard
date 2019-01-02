@@ -27,7 +27,7 @@ module Y2Sap
     def mount_source(scheme, location)
       log.info("MountSource called #{scheme}, #{location}")
       @location_cache = location
-      SCR.Execute(path(".local.umount"), @mount_point) # old (dead) mounts
+      WFM.Execute(path(".local.umount"), @mount_point) # old (dead) mounts
       case scheme
       when "device"
         mount_device(location)
