@@ -75,8 +75,8 @@ module Y2Sap
             @unfinished_installations << @inst_dir
           end
           @product_cont = @product_cont.next
+          @inst_dir = "%s/%d" % [ @inst_dir_base, @product_cont ]
         end
-        @inst_dir = "%s/%d" % [ @inst_dir_base, @product_cont ]
         @inst_master_type    = ""
         @inst_master_path    = ""
         @inst_master_cersion = ""
