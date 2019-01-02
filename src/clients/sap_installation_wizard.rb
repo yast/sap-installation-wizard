@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, contact Novell, Inc.
 # ------------------------------------------------------------------------------
-# File: clients/sap-installation-wizard.rb
+# File: clients/sap_installation_wizard.rb
 # Module:       SAP Installation Wizard
 # Summary:      Client file, including commandline handlers
 # Authors:      Peter Varkoly <varkoly@suse.com>

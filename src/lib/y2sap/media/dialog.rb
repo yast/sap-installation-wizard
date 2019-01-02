@@ -246,9 +246,9 @@ module Y2Sap
           end
 
           # Export locally stored mediums over NFS
-          @exportSAPCDs = true if !!UI.QueryWidget(Id(:export), :Value)
+          @export_sap_cds = true if !!UI.QueryWidget(Id(:export), :Value)
           # Set installation mode to preauto so that only installation profiles are collected
-          @inst_mode = "preauto" if !!UI.QueryWidget(Id(:auto), :Value)
+          @inst_mode      = "preauto" if !!UI.QueryWidget(Id(:auto), :Value)
 
           scheme          = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
           @location_cache = Convert.to_string(UI.QueryWidget(Id(:location), :Value))
@@ -274,7 +274,7 @@ module Y2Sap
           elsif urlPath != ""
               @source_dir = urlPath
           end
-          @umountSource = true
+          @umount_source = true
           log.info("end urlPath #{urlPath}, @source_dir #{@source_dir}, scheme #{scheme}")
           break # No more input
         end # Case user input

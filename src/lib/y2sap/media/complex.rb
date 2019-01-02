@@ -80,7 +80,7 @@ module Y2Sap
         copy_dir(@inst_master_path, @inst_dir, "Instmaster")
         @inst_master_path = @inst_dir + "/Instmaster"
       end
-      UmountSources(@umountSource)
+      umount_source()
       return ret
     end
 

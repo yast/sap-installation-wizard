@@ -73,6 +73,7 @@ module Y2Sap
       end
 
       def run
+	log.info("Start the sap-installation-wizard")
         Yast::Wizard.CreateDialog
         Yast::Wizard.SetDesktopTitleAndIcon("sap-installation-wizard")
         super(sequence: SEQUENCE_HASH)
