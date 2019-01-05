@@ -28,6 +28,8 @@ require "y2sap/media/mount"
 
 module Y2Sap
   class AutoInst < Y2Sap::Configuration::Media
+    # Represent an AutoYaST module for the installation of SAP products
+    #
     include Yast
     include Yast::Logger
     include Yast::I18n
@@ -35,17 +37,24 @@ module Y2Sap
     include Y2Sap::MediaFind
     include Y2Sap::MediaMount
 
+    # Initialize the the global varialbes
+    # @return the value of the initialize function of the super class Y2Sap::Configuration::Media
     def initialize
       textdomain "sap-installation-wizard"
       super
     end
 
+    # Implementing the impot function for the auto installation
+    # Imports the SAP installation part of the autoyast installation
+    # @return [true]
     def import(settings)
       @sap_media_todo = settings
       log.info("-- SAPMedia.Import Start --- #{@sap_media_todo}")
       true
     end
 
+    # Implementing the write function for the auto installation
+    # Executes the installation.
     def write
       SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ")
       @product_count = -1
@@ -79,6 +88,10 @@ module Y2Sap
       }
     end
 
+  private
+    # As it is possible to install more then one SAP product in one autoyast
+    # installation this function resets the global variables in each loop
+    # an increase the @product_count.
     def reset_variables
       @media_list    = []
       @script        = ""
@@ -93,6 +106,7 @@ module Y2Sap
       @ERROR         = false
     end
 
+    # Copies the installation media needed for one SAP product.
     def copy_product_media(media)
       media.each { |medium|
         url = medium["url"].split("://")
@@ -126,6 +140,8 @@ module Y2Sap
       }
     end
 
+    # Sets the global variables for an sapinst (NetWeaver) installation evaluated
+    # from the autoyast hash.
     def prepare_sapinst(prod)
       @DB           = prod.has_key?("DB")          ? prod["DB"]          : ""
       @PRODUCT_NAME = prod.has_key?("productName") ? prod["productName"] : ""
@@ -145,6 +161,8 @@ module Y2Sap
       @script = @ay_dir_base + "/sap_inst_nodb.sh"
     end
 
+    # Sets the global variables for a HANA installation evaluated
+    # from the autoyast hash.
     def prepare_hana(prod)
       @DB           = "HANA"
       @PRODUCT_NAME = @inst_master_type
@@ -169,16 +187,21 @@ module Y2Sap
       @script = @ay_dir_base + "/hana_inst.sh -g"
     end
 
+    # Sets the global variables for a Busines One installation evaluated
+    # from the autoyast hash.
     def prepare_b1(prod)
       prepare_hana(prod)
       @script = @ay_dir_base + "/b1_inst.sh -g"
     end
 
+    # Sets the global variables for a TREX installation evaluated
+    # from the autoyast hash.
     def prepare_trex(prod)
       prepare_hana(prod)
       @script = @ay_dir_base + "/trex_inst.sh"
     end
 
+    # Runs the sap installation script.
     def run_script()
       date = `date +%Y%m%d-%H%M`
       logfile = "/var/log/sap_inst." + date + ".log"

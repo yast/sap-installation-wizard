@@ -22,13 +22,34 @@
 require "yast"
 require "y2sap/media"
 require "y2sap/products/variables"
+require "y2sap/products/nw_installation_mode"
+require "y2sap/products/nw_installation_mode"
 
 module Y2Sap
-  class Products 
+  # Represents a class for SAP NetWeaver Product handling and for the
+  # installation of all SAP products
+  class Products
+    include Yast
+    include Yast::UI
+    include Yast::UIShortcuts
+    include Y2Sap::NWInstallationMode
+    include Y2Sap::NWProduct
+
     def initialize(media)
       textdomain "sap-installation-wizard"
       @media = media
       Y2Sap::ProductsVariables.init
     end
+
+    def nw_installation_mode
+      select_nw_installation_mode()
+    end
+
+    def nw_product
+      select_nw_product()
+    end
+
+    def install_sap
+    end 
   end
 end

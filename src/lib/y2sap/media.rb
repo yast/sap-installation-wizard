@@ -29,6 +29,11 @@ require "y2sap/media/mount"
 require "y2sap/media/complex"
 
 module Y2Sap
+  # Represent a class to handle the SAP installation media.
+  # 
+  # This class includes some modules created for the different functions
+  # for handling of the SAP media
+  #
   class Media < Y2Sap::Configuration::Media
     include Yast
     include Yast::Logger
@@ -38,6 +43,12 @@ module Y2Sap
     include Y2Sap::MediaComplex
     include Y2Sap::MediaFind
     include Y2Sap::MediaMount
+
+    # Initialize the Y2Sap::Media class
+    # * Execute the initialuze function of the super class Y2Sap::Configuration::Media
+    # * Creates the @scheme_list containing the available schemes for the access 
+    #   to the SAP media
+    # * Initialize the global variable @location_cache
     def initialize
       textdomain "sap-installation-wizard"
       super

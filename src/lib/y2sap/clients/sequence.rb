@@ -97,7 +97,8 @@ module Y2Sap
       end
 
       def read
-        @media = Y2Sap::Media.new
+        @media    = Y2Sap::Media.new
+        @products = Y2Sap::Products.new(@media)
         if @media == nil
           return :abort
         end
@@ -121,7 +122,6 @@ module Y2Sap
       end
 
       def nw_installation_mode
-        @products = Y2Sap::Products.new(@media)
 	@products.nw_installation_mode
       end
 
@@ -129,8 +129,8 @@ module Y2Sap
 	@products.nw_product
       end
 
-      def write
-	@products.write
+      def install_sap
+	@products.install_sap
       end
 
       def add_repo

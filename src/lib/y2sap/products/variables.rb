@@ -20,8 +20,11 @@
 # find current contact information at www.novell.com.
 
 module Y2Sap
+  # Module for the global variables in the Y2SAP::Products class
   module ProductsVariables
     Yast.import "SAPXML"
+
+    # Initialize the global variables
     def init
       @dialogs = {
         "nwInstType" => {
@@ -72,6 +75,7 @@ module Y2Sap
       }
       
       @DB            = ""
+      @inst_type     = ""
       @PRODUCT_ID    = ""
       @PRODUCT_NAME  = ""
       @product_map   = {}
