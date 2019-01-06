@@ -22,10 +22,11 @@
 module Y2Sap
   # Module for the global variables in the Y2SAP::Products class
   module ProductsVariables
+    include Yast
     Yast.import "SAPXML"
 
     # Initialize the global variables
-    def init
+    def init_variables
       @dialogs = {
         "nwInstType" => {
           "help" => _("<p>Choose SAP product installation and back-end database.</p>") +
@@ -47,7 +48,7 @@ module Y2Sap
           }
       }
       
-      # @productList contains a list of hashes of the parameter of the products which can be installed
+      # @product_list contains a list of hashes of the parameter of the products which can be installed
       # withe the selected installation medium. The parameter of HANA and B1 are constant
       # and can not be extracted from the datas on the IM of these products.
       

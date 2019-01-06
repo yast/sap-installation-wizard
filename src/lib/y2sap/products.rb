@@ -23,22 +23,52 @@ require "yast"
 require "y2sap/media"
 require "y2sap/products/variables"
 require "y2sap/products/nw_installation_mode"
-require "y2sap/products/nw_installation_mode"
+require "y2sap/products/nw_products"
 
 module Y2Sap
   # Represents a class for SAP NetWeaver Product handling and for the
   # installation of all SAP products
   class Products
     include Yast
-    include Yast::UI
-    include Yast::UIShortcuts
+    include Yast::I18n
+    include Y2Sap::ProductsVariables
     include Y2Sap::NWInstallationMode
-    include Y2Sap::NWProduct
+    include Y2Sap::NWProducts
+
+    # @return [Map<String,String>] The product counter.
+    attr_accessor :dialogs
+
+    # @return [List<Map<String,String>>] The product counter.
+    attr_accessor :product_list
+
+    # @return [String] The selected data base.
+    attr_accessor :DB
+
+    # @return [String] The selected installation mode.
+    attr_accessor :inst_type
+
+    # @return [String] The ID of the selected product.
+    attr_accessor :PRODUCT_ID
+
+    # @return [String] The name of selected product.
+    attr_accessor :PRODUCT_NAME
+
+    # @return [Map<String,String>] The list of the products can be installed 
+    # and the data base.
+    attr_accessor :product_map
+
+    # @return [List<String>] List of the directories to the products
+    # to be installed
+    attr_accessor :products_to_install
+    
+    # @return [Class<Y2SAP::Media>] This class instance contains the actual 
+    # media collection for the product to be installed. 
+    attr_reader   :media
 
     def initialize(media)
       textdomain "sap-installation-wizard"
       @media = media
-      Y2Sap::ProductsVariables.init
+      init_variables()
     end
 
     def nw_installation_mode
