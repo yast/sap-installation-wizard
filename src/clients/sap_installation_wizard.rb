@@ -26,4 +26,3 @@ require "yast"
 require "y2sap/clients/sequence"
 
 Y2Sap::Clients::Sequence.new.run
-
