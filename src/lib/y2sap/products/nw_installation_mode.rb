@@ -36,7 +36,7 @@ module Y2Sap
     def create_contect
       log.info("-- Start SelectNWInstallationMode --- for instDir #{@media.inst_dir}" )
 
-      #Reset the the selected product specific parameter
+      # Reset the the selected product specific parameter
       @product_map    = SAPXML.get_products_for_media(@media.inst_dir )
       log.info("@product_map #{@product_map}")
       @inst_type     = ""
@@ -56,7 +56,7 @@ module Y2Sap
                     VBox(
                         RadioButton( Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
                         RadioButton( Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
-                        #RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
+                        # RadioButton( Id("SUSE-HA-ST"),  Opt(:notify, :hstretch), _("SUSE HA for SAP Simple Stack"), false),
                         RadioButton( Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
                         RadioButton( Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
                         RadioButton( Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false),
@@ -92,8 +92,8 @@ module Y2Sap
          UI.ChangeWidget(Id("STANDARD"),    :Enabled, false)
          UI.ChangeWidget(Id("DISTRIBUTED"), :Enabled, false)
          UI.ChangeWidget(Id("HA"),          :Enabled, false)
-         #Does not exists at the time
-         #UI.ChangeWidget(Id("SUSE-HA-ST"),  :Enabled, false)
+         # Does not exists at the time
+         # UI.ChangeWidget(Id("SUSE-HA-ST"),  :Enabled, false)
          UI.ChangeWidget(Id("ADA"), :Enabled, false)
          UI.ChangeWidget(Id("HDB"), :Enabled, false)
          UI.ChangeWidget(Id("SYB"), :Enabled, false)
@@ -108,76 +108,76 @@ module Y2Sap
       run = true
       while run
         case UI.UserInput
-          when /STANDARD|DISTRIBUTED|SUSE-HA-ST|HA/
-            UI.ChangeWidget(Id(:db), :Enabled, true)
-            @inst_type = Convert.to_string(UI.QueryWidget(Id(:type), :CurrentButton))
-          when /STANDALONE|SBC/
-            UI.ChangeWidget(Id(:db), :Enabled, false)
-            @inst_type = Convert.to_string(UI.QueryWidget(Id(:type), :CurrentButton))
-          when /DB6|ADA|ORA|HDB|SYB/
-            @DB = Convert.to_string(UI.QueryWidget(Id(:db), :CurrentButton))
-          when :next
-            run = false
-            if @inst_type == ""
-              run = true
-              Popup.Message(_("Please choose an SAP installation type."))
-              next
-            end
-            if @inst_type !~ /STANDALONE|SBC/ and @DB == ""
-              run = true
-              Popup.Message(_("Please choose a back-end database."))
-              next
-            end
-          when :back
-            return :back
-          when :abort, :cancel
-            if Yast::Popup.ReallyAbort(false)
-                Yast::Wizard.CloseDialog
-                run = false
-                return :abort
-            end
+        when /STANDARD|DISTRIBUTED|SUSE-HA-ST|HA/
+          UI.ChangeWidget(Id(:db), :Enabled, true)
+          @inst_type = Convert.to_string(UI.QueryWidget(Id(:type), :CurrentButton))
+        when /STANDALONE|SBC/
+          UI.ChangeWidget(Id(:db), :Enabled, false)
+          @inst_type = Convert.to_string(UI.QueryWidget(Id(:type), :CurrentButton))
+        when /DB6|ADA|ORA|HDB|SYB/
+          @DB = Convert.to_string(UI.QueryWidget(Id(:db), :CurrentButton))
+        when :next
+          run = false
+          if @inst_type == ""
+            run = true
+            Popup.Message(_("Please choose an SAP installation type."))
+            next
+          end
+          if @inst_type !~ /STANDALONE|SBC/ and @DB == ""
+            run = true
+            Popup.Message(_("Please choose a back-end database."))
+            next
+          end
+        when :back
+          return :back
+        when :abort, :cancel
+          if Yast::Popup.ReallyAbort(false)
+              Yast::Wizard.CloseDialog
+              run = false
+              return :abort
+          end
         end
       end
       return :next
     end
 
-    def adapt_db(dataBase)
+    def adapt_db(data_base)
       log.info("-- Start SAPProduct adapt_db --")
-      if dataBase == ""
+      if data_base == ""
          UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
       else
          UI.ChangeWidget(Id("ORA"), :Enabled, false)
-         case dataBase
+         case data_base
          when "ADA"
            UI.ChangeWidget(Id("ADA"), :Value, true)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "HDB"
            UI.ChangeWidget(Id("HDB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "SYB"
            UI.ChangeWidget(Id("SYB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "DB6"
            UI.ChangeWidget(Id("DB6"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = dataBase
+           @DB = data_base
          when "ORA"
-           #FATE
+           # FATE
            Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
            return :abort
          end
@@ -185,4 +185,3 @@ module Y2Sap
     end
   end
 end
-

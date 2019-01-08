@@ -26,17 +26,18 @@ module Y2Sap
   # Which products can be selected depends on the selected media
   module NWProducts
     Yast.import "SAPXML"
-    def select_nw_product()
+    def select_nw_product
       create_content
       do_loop
     end
 
-    private
-    def create_content()
+  private
+
+    def create_content
       :next
     end
 
-    def do_loop()
+    def do_loop
       :next
     end
   end

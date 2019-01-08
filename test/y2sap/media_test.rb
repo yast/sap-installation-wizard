@@ -37,7 +37,7 @@ describe Y2Sap::Media do
       expect(subject.unfinished_installations).to be_a(Array)
     end
     it "check for not supported scheme" do
-      expect(subject.mount_source("cifs","/bla/fasel")).to eq "ERROR unknown media scheme"
+      expect(subject.mount_source("cifs", "/bla/fasel")).to eq "ERROR unknown media scheme"
     end
     it "check searching the sap content on a media" do
       expect(subject.find_sap_media).to be_a(Hash)
@@ -76,4 +76,3 @@ describe Y2Sap::Media do
     end
   end
 end
-

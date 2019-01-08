@@ -28,8 +28,8 @@ module Y2Sap
     # Initialize the global variables
     def init_variables
       @dialogs = {
-        "nwInstType" => {
-          "help" => _("<p>Choose SAP product installation and back-end database.</p>") +
+        nwInstType: {
+          help:  _("<p>Choose SAP product installation and back-end database.</p>") +
             '<p><b>' + _("SAP Standard System") + '</p></b>' +
             _("<p>Installation of a SAP NetWeaver system with all servers on the same host.</p>") +
             '<p><b>' + _("SAP Standalone Engines") + '</p></b>' +
@@ -40,11 +40,11 @@ module Y2Sap
             _("Installation of SAP NetWeaver in a high-availability setup.</p>") +
             '<p><b>' + _("System Rename") + '</p></b>' +
             _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>"),
-          "name"    => _("Choose the Installation Type!")
+          name: _("Choose the Installation Type!")
           },
-        "nwSelectProduct" => {
-          "help" => _("<p>Please choose the SAP product you wish to install.</p>"),
-          "name" => _("Choose a Product")
+        nwSelectProduct: {
+          help: _("<p>Please choose the SAP product you wish to install.</p>"),
+          name: _("Choose a Product")
           }
       }
       
@@ -54,25 +54,25 @@ module Y2Sap
       
       @product_list = []
       @product_list << {
-        "name"         => "HANA",
-        "id"           => "HANA",
-        "ay_xml"       => SAPXML.ConfigValue("HANA","ay_xml"),
-        "partitioning" => SAPXML.ConfigValue("HANA","partitioning"),
-        "script_name"  => SAPXML.ConfigValue("HANA","script_name")
+        name:         "HANA",
+        id:           "HANA",
+        ay_xml:       SAPXML.ConfigValue("HANA","ay_xml"),
+        partitioning: SAPXML.ConfigValue("HANA","partitioning"),
+        script_name:  SAPXML.ConfigValue("HANA","script_name")
       }
       @product_list << {
-        "name"         => "B1",
-        "id"           => "B1",
-        "ay_xml"       => SAPXML.ConfigValue("B1","ay_xml"),
-        "partitioning" => SAPXML.ConfigValue("B1","partitioning"),
-        "script_name"  => SAPXML.ConfigValue("B1","script_name")
+        name:         "B1",
+        id:           "B1",
+        ay_xml:       SAPXML.ConfigValue("B1","ay_xml"),
+        partitioning: SAPXML.ConfigValue("B1","partitioning"),
+        script_name:  SAPXML.ConfigValue("B1","script_name")
       }
       @product_list << {
-        "name"         => "TREX",
-        "id"           => "TREX",
-        "ay_xml"       => SAPXML.ConfigValue("TREX","ay_xml"),
-        "partitioning" => SAPXML.ConfigValue("TREX","partitioning"),
-        "script_name"  => SAPXML.ConfigValue("TREX","script_name")
+        name:         "TREX",
+        id:           "TREX",
+        ay_xml:       SAPXML.ConfigValue("TREX","ay_xml"),
+        partitioning: SAPXML.ConfigValue("TREX","partitioning"),
+        script_name:  SAPXML.ConfigValue("TREX","script_name")
       }
       
       @DB            = ""
