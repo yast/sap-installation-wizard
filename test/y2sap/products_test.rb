@@ -49,7 +49,7 @@ describe Y2Sap::Products do
     #  expect(sapproduct.media.inst_mode()).to   eq "manual"
     #  expect(sapproduct.media.inst_dir()).to    eq "/data/SAP_INST/0"
     #  expect(sapproduct.media.unfinished_installations()).to be_a(Array)
-    end
+    #end
   end
 end
 
