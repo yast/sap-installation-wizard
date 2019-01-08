@@ -76,7 +76,7 @@ module SapInst
     # Read the status of created SAP installation environments and installed products.
     def read
       @autoinst = Y2Sap::AutoInst.new
-      if @media == nil
+      if @media.nil?
         return :abort
       end
       return true

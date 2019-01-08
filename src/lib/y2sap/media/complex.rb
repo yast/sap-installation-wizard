@@ -46,7 +46,7 @@ module Y2Sap
         @inst_master_version= Ops.get(inst_master_list, 2, "")
 
         log.info("found SAP instmaster at #{@inst_master_path} type #{@inst_master_type} version #{@inst_master_version}")
-        if @inst_master_path == nil || @inst_master_path.size == 0
+	if @inst_master_path.nil? || @inst_master_path.size == 0
           Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
           run = false

@@ -99,7 +99,7 @@ module Y2Sap
       def read
         @media    = Y2Sap::Media.new
         @products = Y2Sap::Products.new(@media)
-        if @media == nil
+	if @media.nil?
           return :abort
         end
         :next
