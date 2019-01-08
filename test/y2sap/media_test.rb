@@ -31,16 +31,16 @@ describe Y2Sap::Media do
       subject { described_class.new }
     end
     it "reads the default base configuration" do
-      expect(subject.mount_point()).to eq "/mnt"
-      expect(subject.inst_mode()).to   eq "manual"
-      expect(subject.inst_dir()).to    eq "/data/SAP_INST/0"
-      expect(subject.unfinished_installations()).to be_a(Array)
+      expect(subject.mount_point).to eq "/mnt"
+      expect(subject.inst_mode).to   eq "manual"
+      expect(subject.inst_dir).to    eq "/data/SAP_INST/0"
+      expect(subject.unfinished_installations).to be_a(Array)
     end
     it "check for not supported scheme" do
       expect(subject.mount_source("cifs","/bla/fasel")).to eq "ERROR unknown media scheme"
     end
     it "check searching the sap content on a media" do
-      expect(subject.find_sap_media()).to be_a(Hash)
+      expect(subject.find_sap_media).to be_a(Hash)
     end
   end
   context "sysconfig file does exist" do
@@ -49,9 +49,9 @@ describe Y2Sap::Media do
       subject { described_class.new }
     end
     it "reads the base configuration from sysconfig file" do
-      expect(subject.mount_point()).to eq "/tmp/mnt"
-      expect(subject.inst_mode()).to   eq "auto"
-      expect(subject.inst_dir()).to    eq "/data/SAP_INST/0"
+      expect(subject.mount_point).to eq "/tmp/mnt"
+      expect(subject.inst_mode).to   eq "auto"
+      expect(subject.inst_dir).to    eq "/data/SAP_INST/0"
     end
   end
   context "test the MediaCopy functions" do
