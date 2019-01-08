@@ -44,8 +44,8 @@ describe Y2Sap::Products do
       expect(sapproduct.product_map()).to be_a(Hash)
       #expect(sapproduct.media()).to be_a(Class)
     end
-    it "reads the default base configuration" do
-      expect(sapproduct.media.mount_point()).to eq "/mnt"
+    #it "reads the default base configuration" do
+    #  expect(sapproduct.media.mount_point()).to eq "/mnt"
     #  expect(sapproduct.media.inst_mode()).to   eq "manual"
     #  expect(sapproduct.media.inst_dir()).to    eq "/data/SAP_INST/0"
     #  expect(sapproduct.media.unfinished_installations()).to be_a(Array)
