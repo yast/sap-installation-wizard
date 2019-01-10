@@ -28,6 +28,7 @@ require "yast"
 describe Y2Sap::Media do
   context "no sysconfig file exist" do
     before do
+      change_scr_root("/")
       subject { described_class.new }
     end
     it "reads the default base configuration" do
