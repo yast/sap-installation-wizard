@@ -17,7 +17,7 @@ module Y2Sap
 
       @partXMLPath = Misc.SysconfigRead(
         path(".sysconfig.sap-installation-wizard.PART_XML_PATH"),
-        "/usr/share/YaST2/include/sap-installation-wizard"
+        "/usr/share/YaST2/data/y2sap"
       )
     end
 

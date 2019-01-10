@@ -27,28 +27,29 @@ require "y2sap/products"
 require "yast"
 
 describe Y2Sap::Products do
+
+  let(:media) { Y2Sap::Media.new }
+
   subject(:sapproduct) do
     described_class.new(media)
   end
-  let(:media) do
-    instance_double(Y2Sap::Media)
-  end
-  before do
-    allow(Y2Sap::Media).to receive(:new).and_return(media)
-    allow(Y2Sap::Media).to receive(:mount_point).and_return("/mnt")
-  end
 
   describe "no sysconfig file exist" do
-    it "check the initalisation of global variables" do
+    it "check the initalization of global variables" do
       expect(sapproduct.products_to_install).to be_a(Array)
       expect(sapproduct.product_map).to be_a(Hash)
-      # expect(sapproduct.media).to be_a(Class)
+      expect(sapproduct.PRODUCT_NAME).to eq ""
     end
-    # it "reads the default base configuration" do
-    #  expect(sapproduct.media.mount_point).to eq "/mnt"
-    #  expect(sapproduct.media.inst_mode).to   eq "manual"
-    #  expect(sapproduct.media.inst_dir).to    eq "/data/SAP_INST/0"
-    #  expect(sapproduct.media.unfinished_installations).to be_a(Array)
-    # end
+    it "reads the default base configuration" do
+      expect(sapproduct.media.mount_point).to eq "/mnt"
+      expect(sapproduct.media.inst_mode).to   eq "manual"
+      expect(sapproduct.media.inst_dir).to    eq "/data/SAP_INST/0"
+      expect(sapproduct.media.unfinished_installations).to be_a(Array)
+    end
+    it "initialize the a HANA product enviroment" do
+      sapproduct.media.inst_master_type = "HANA"
+      sapproduct.init_envinroment
+      expect(sapproduct.PRODUCT_NAME).to eq "HANA"
+    end
   end
 end

@@ -24,6 +24,7 @@ require "y2sap/media"
 require "y2sap/products/variables"
 require "y2sap/products/nw_installation_mode"
 require "y2sap/products/nw_products"
+require "y2sap/products/read_parameter"
 
 module Y2Sap
   # Represents a class for SAP NetWeaver Product handling and for the
@@ -34,6 +35,7 @@ module Y2Sap
     include Y2Sap::ProductsVariables
     include Y2Sap::NWInstallationMode
     include Y2Sap::NWProducts
+    include Y2Sap::ReadParameter
 
     # @return [Map<String,String>] The product counter.
     attr_accessor :dialogs
@@ -60,23 +62,30 @@ module Y2Sap
     # @return [List<String>] List of the directories to the products
     # to be installed
     attr_accessor :products_to_install
+
+    # @return [List<String>] List of the partitioning xmls
+    attr_accessor :product_partitioning_list
     
     # @return [Class<Y2SAP::Media>] This class instance contains the actual 
     # media collection for the product to be installed. 
-    attr_reader   :media
+    attr_accessor   :media
 
     def initialize(media)
       textdomain "sap-installation-wizard"
       @media = media
-      init_variables()
+      init_variables
     end
 
     def nw_installation_mode
-      select_nw_installation_mode()
+      select_nw_installation_mode
     end
 
     def nw_product
-      select_nw_product()
+      select_nw_product
+    end
+
+    def read_parameter
+      read_parameter
     end
 
     def install_sap

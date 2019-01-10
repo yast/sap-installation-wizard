@@ -29,21 +29,21 @@ MEDIAS_XML="/etc/sap-installation-wizard.xml"
 
 ## Description: this points to the directory containing autoyast XML files of the products.
 ## Type:    string
-## Default: "/usr/share/YaST2/include/sap-installation-wizard"
+## Default: "/usr/share/YaST2/data/y2sap"
 #
-PRODUCT_XML_PATH="/usr/share/YaST2/include/sap-installation-wizard"
+PRODUCT_XML_PATH="/usr/share/YaST2/data/y2sap"
 
 ## Description: this points to the directory containing partitiong XML files of the products.
 ## Type:    string
-## Default: "/usr/share/YaST2/include/sap-installation-wizard"
+## Default: "/usr/share/YaST2/data/y2sap"
 #
-PART_XML_PATH="/usr/share/YaST2/include/sap-installation-wizard"
+PART_XML_PATH="/usr/share/YaST2/data/y2sap"
 
 ## Description: this points to the default installation script.
 ## Type:    string
-## Default: "/usr/share/YaST2/include/sap-installation-wizard/sap_inst.sh"
+## Default: "/usr/share/YaST2/data/y2sap/sap_inst.sh"
 #
-SAPINST_SCRIPT="/usr/share/YaST2/include/sap-installation-wizard/sap_inst.sh"
+SAPINST_SCRIPT="/usr/share/YaST2/data/y2sap/sap_inst.sh"
 
 ## Description: Start the installation in auto installation mode
 ## Type:    yesno

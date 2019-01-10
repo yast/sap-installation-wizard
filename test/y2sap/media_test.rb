@@ -34,6 +34,7 @@ describe Y2Sap::Media do
       expect(subject.mount_point).to eq "/mnt"
       expect(subject.inst_mode).to   eq "manual"
       expect(subject.inst_dir).to    eq "/data/SAP_INST/0"
+      expect(subject.partitioning_dir_base).to eq "/usr/share/YaST2/data/y2sap"
       expect(subject.unfinished_installations).to be_a(Array)
     end
     it "check for not supported scheme" do

@@ -31,7 +31,8 @@ module Y2Sap
       do_loop
     end
 
-    private
+  private
+
     # Creates the gui
     def create_contect
       log.info("-- Start SelectNWInstallationMode --- for instDir #{@media.inst_dir}" )

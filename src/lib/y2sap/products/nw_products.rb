@@ -34,10 +34,64 @@ module Y2Sap
   private
 
     def create_content
-      :next
+     log.info("-- Start SelectNWProduct ---")
+      run = true
+
+      product_item_table = []
+      if @inst_type == 'STANDALONE'
+        @DB = 'IND'
+      end
+      @product_list = SAPXML.get_nw_products(SAPMedia.instDir,@inst_type,@DB,@productMAP["productDir"])
+      if @product_list.nil? or @product_list.empty?
+         Popup.Error(_("The medium does not contain SAP installation data."))
+         return :back
+      end
+      @product_list.each { |map|
+         name = map["name"]
+         id   = map["id"]
+         product_item_table << Item(Id(id),name,false)
+      }
+      log.info("@product_list #{@product_list}")
+
+      Wizard.SetContents(
+        @dialogs["nw_select_product"]["name"],
+        VBox(
+          SelectionBox(Id(:products),
+            _("Your SAP installation master supports the following products.\n"+
+              "Please choose the product you wish to install:"),
+            product_item_table
+          )
+        ),
+        @dialogs["nw_select_product"]["help"],
+        true,
+        true
+      )
     end
 
     def do_loop
+      run = true
+      while run
+        case UI.UserInput
+        when :next
+          @PRODUCT_ID = Convert.to_string(UI.QueryWidget(Id(:products), :CurrentItem))
+	  if @PRODUCT_ID.nil?
+            run = true
+            Popup.Message(_("Select a product!"))
+          else
+            run = false
+            @product_list.each { |map|
+               @PRODUCT_NAME = map["name"] if @PRODUCT_ID == map["id"]
+            }
+          end
+        when :back
+          return :back
+        when :abort, :cancel
+          if Yast::Popup.ReallyAbort(false)
+            Yast::Wizard.CloseDialog
+            return :abort
+          end
+        end
+      end
       :next
     end
   end

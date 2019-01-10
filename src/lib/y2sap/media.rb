@@ -60,7 +60,7 @@ module Y2Sap
           Item(Id("smb"), "smb://", false)
       ]
       # Detect how many cdrom we have:
-      cdroms=`hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
+      cdroms=`/usr/sbin/hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
       if cdroms.count == 1
         @scheme_list << Item(Id("cdrom"), "cdrom://", false)
       elsif cdroms.count > 1

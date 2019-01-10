@@ -32,56 +32,56 @@ module Y2Sap
       include Yast::Logger
 
       SEQUENCE_HASH = {
-        START => "read",
-        "read"  => {
+	START: "read",
+        read: {
           abort: :abort,
           next:  "read_im"
         },
-        "read_im"  => {
+	read_im: {
           abort:   :abort,
           HANA:    "suplementary",
           B1:      "suplementary",
           TREX:    "suplementary",
           SAPINST: "net_weaver"
         },
-        "net_weaver" => {
+	net_weaver: {
           abort: :abort,
           next:  "nw_installation_mode"
         },
-        "nw_installation_mode" => {
+	nw_installation_mode: {
           abort:  :abort,
           next:   "suplementary_with_back"
         },
-        "suplementary"    => {
+	suplementary: {
           abort:  :abort,
           next:   "add_repo"
         },
-        "suplementary_with_back" => {
+	suplementary_with_back: {
           abort: :abort,
           back:  "net_weaver",
           next:  "add_repo"
         },
-        "add_repo" => {
+	add_repo: {
           abort: :abort,
           next:  "read_parameter"
         },
-        "read_parameter" => {
+	read_parameter: {
           abort: :abort,
           back:  "suplementary",
 	  read_im: "read_im",
           next:  "install_sap"
         },
-        "install_sap" => {
+	install_sap: {
           abort: :abort,
           next:  "tuning"
         },
-	"tuning"     => {
-          :abort => :abort,
-          :next  => "hana_firewall"
+	tuning: {
+          :abort: :abort,
+          :next:  "hana_firewall"
         },
-        "hana_firewall" => {
-          :abort => :abort,
-          :next  => :next
+	hana_firewall: {
+          :abort: :abort,
+          :next:  :next
         }
       }
 
@@ -99,10 +99,7 @@ module Y2Sap
       def read
         @media    = Y2Sap::Media.new
         @products = Y2Sap::Products.new(@media)
-	if @media.nil?
-          return :abort
-        end
-        :next
+	@media.nil? ? :abort : :next
       end
 
       def read_im
@@ -140,8 +137,7 @@ module Y2Sap
       end
 
       def read_parameter
-        #TODO
-        print "read_parameter"
+	@products.read_parameter
 	:next
       end
 
