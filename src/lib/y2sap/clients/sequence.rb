@@ -76,12 +76,12 @@ module Y2Sap
           next:  "tuning"
         },
 	tuning: {
-          :abort: :abort,
-          :next:  "hana_firewall"
+          abort: :abort,
+          next:  "hana_firewall"
         },
 	hana_firewall: {
-          :abort: :abort,
-          :next:  :next
+          abort: :abort,
+          next:  :next
         }
       }
 

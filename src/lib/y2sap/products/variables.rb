@@ -27,8 +27,8 @@ module Y2Sap
 
     # Initialize the global variables
     def init_variables
-      @dialogs = {
-        nwInstType: {
+      @dialog_text = {
+        nw_inst_type: {
           help:  _("<p>Choose SAP product installation and back-end database.</p>") +
             '<p><b>' + _("SAP Standard System") + '</p></b>' +
             _("<p>Installation of a SAP NetWeaver system with all servers on the same host.</p>") +
@@ -42,7 +42,7 @@ module Y2Sap
             _("Change the SAP system ID, database ID, instance number, or host name of a SAP system.</p>"),
           name: _("Choose the Installation Type!")
           },
-        nwSelectProduct: {
+        nw_select_product: {
           help: _("<p>Please choose the SAP product you wish to install.</p>"),
           name: _("Choose a Product")
           }

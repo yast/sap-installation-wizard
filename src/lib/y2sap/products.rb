@@ -25,6 +25,7 @@ require "y2sap/products/variables"
 require "y2sap/products/nw_installation_mode"
 require "y2sap/products/nw_products"
 require "y2sap/products/read_parameter"
+require "y2sap/products/do_install"
 
 module Y2Sap
   # Represents a class for SAP NetWeaver Product handling and for the
@@ -68,7 +69,7 @@ module Y2Sap
     
     # @return [Class<Y2SAP::Media>] This class instance contains the actual 
     # media collection for the product to be installed. 
-    attr_accessor   :media
+    attr_accessor :media
 
     def initialize(media)
       textdomain "sap-installation-wizard"
@@ -89,6 +90,7 @@ module Y2Sap
     end
 
     def install_sap
+      do_install
     end 
   end
 end

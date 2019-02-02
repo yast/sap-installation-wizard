@@ -54,7 +54,7 @@ module Y2Sap
       log.info("@product_list #{@product_list}")
 
       Wizard.SetContents(
-        @dialogs["nw_select_product"]["name"],
+        @dialog_text["nw_select_product"]["name"],
         VBox(
           SelectionBox(Id(:products),
             _("Your SAP installation master supports the following products.\n"+
@@ -62,7 +62,7 @@ module Y2Sap
             product_item_table
           )
         ),
-        @dialogs["nw_select_product"]["help"],
+        @dialog_text["nw_select_product"]["help"],
         true,
         true
       )

@@ -27,9 +27,9 @@ require "yast"
 
 describe Y2Sap::Media do
   context "no sysconfig file exist" do
+    subject { described_class.new }
     before do
       change_scr_root("/")
-      subject { described_class.new }
     end
     it "reads the default base configuration" do
       expect(subject.mount_point).to eq "/mnt"
@@ -46,9 +46,9 @@ describe Y2Sap::Media do
     end
   end
   context "sysconfig file does exist" do
+    subject { described_class.new }
     before do
       change_scr_root(File.join(DATA_PATH, "system"))
-      subject { described_class.new }
     end
     it "reads the base configuration from sysconfig file" do
       expect(subject.mount_point).to eq "/tmp/mnt"

@@ -18,16 +18,21 @@
 #
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
-module Yast
+#
+require "yast"
+require "y2sap/partitioning/product_partitioning"
+
+module Y2Sap
+  include Yast
   class FirstbootInstSapClient < Client
+    include Y2Sap::ProductPartitioning
+    include Yast::Logger
+   
     def main
       Yast.import "UI"
-      Yast.import "IP"
       Yast.import "Wizard"
       Yast.import "Package"
-      Yast.import "Stage"
       Yast.import "Popup"
-      Yast.import "SAPPartitioning"
 
       # MAIN
 
@@ -38,8 +43,8 @@ module Yast
       @closeMe   = false
 
       if !Wizard.IsWizardDialog
-         Wizard.CreateDialog
-         @closeMe = true
+        Wizard.CreateDialog
+        @closeMe = true
       end
 
       # Check if hostname -f is set
@@ -54,40 +59,40 @@ module Yast
                               _("Abort"),
                               :focus_yes
                               ))
-            return :back
-         else
-            return :next
+          return :back
+        else
+          return :next
          end
       end
       @caption = _("Product Installation Mode")
       @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
                  _("Now you can start the SAP Product Installation")
       @content = RadioButtonGroup(
-            Id(:rb),
-            VBox(
-              Left(
-                RadioButton(
-                  Id("sap_install"),
-                  "&Create SAP file systems and start SAP product installation.",
-                  true
-                )
-              ),
-              Left(
-                RadioButton(
-                  Id("hana_partitioning"),
-                  "Only create &SAP HANA file systems, do not install SAP products now.",
-                  false
-                )
-              ),
-              Left(
-                RadioButton(
-                  Id("none"),
-                  "&Finish wizard and proceed to OS login.",
-                  false
-                )
-              )
+        Id(:rb),
+        VBox(
+          Left(
+            RadioButton(
+              Id("sap_install"),
+              "&Create SAP file systems and start SAP product installation.",
+              true
+            )
+          ),
+          Left(
+            RadioButton(
+              Id("hana_partitioning"),
+              "Only create &SAP HANA file systems, do not install SAP products now.",
+              false
+            )
+          ),
+          Left(
+            RadioButton(
+              Id("none"),
+              "&Finish wizard and proceed to OS login.",
+              false
             )
           )
+        )
+      )
       Wizard.SetDesktopIcon("sap-installation-wizard")
       Wizard.SetContents(
         @caption,
@@ -110,11 +115,11 @@ module Yast
           install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
           case install
           when "sap_install"
-              WFM.CallFunction("sap-installation-wizard", [])
-              ret = :next
+            WFM.CallFunction("sap_installation_wizard", [])
+            ret = :next
           when "hana_partitioning"
-              SAPPartitioning.CreateHANAPartitions("")
-              ret = :next
+            hana_partitioning
+            ret = :next
           end
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
           SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")

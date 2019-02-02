@@ -97,7 +97,11 @@ module Y2Sap
       end
     end
 
-    # writes the product parameter in the product
+    # writes the product parameter in the product directory
+    # This is @media.inst_dir
+    # For SAP NW products the initfile.params file will be adapted.
+    # Furthermore doc.dtd and keydb.dtd files will be copied into @media.inst_dir
+    # For all SAP products the @media.inst_dir/product.data hash will be written 
     def setup_installation_enviroment
       inifile_params = get_product_parameter("inifile_params") == "" ? ""   : @media.ay_dir_base + '/' +  get_product_parameter("inifile_params")
 

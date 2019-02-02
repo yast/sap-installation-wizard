@@ -70,7 +70,6 @@ module Y2Sap
             Left(@after_advanced_ops)
         )
       end
-      #@dialogs[wizard]["help"],
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,

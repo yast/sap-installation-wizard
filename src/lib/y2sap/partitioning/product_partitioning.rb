@@ -1,27 +1,31 @@
 # encoding: utf-8
-# Authors: Peter Varkoly <varkoly@suse.com>, Howard Guo <hguo@suse.com>
 
-# ex: set tabstop=4 expandtab:
-# vim: set tabstop=4:expandtab
+# Copyright (c) [2018] SUSE LLC
+#
+# All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, contact Novell, Inc.
+#
+# To contact Novell about this file by physical or electronic mail, you may
+# find current contact information at www.novell.com.
+
 require "yast"
-require "fileutils"
 
 module Y2Sap
-  class SAPPartitioningClass
-    def main
-      Yast.import "UI"
-      Yast.import "Misc"
-      textdomain "sap-installation-wizard"
-      log.info("----------------------------------------")
-      log.info("SAP Partitioning started")
-
-      @partXMLPath = Misc.SysconfigRead(
-        path(".sysconfig.sap-installation-wizard.PART_XML_PATH"),
-        "/usr/share/YaST2/data/y2sap"
-      )
-    end
-
-    def CreatePartitions(productPartitioningList,productList)
+  # Creates a gui for selecting the SAP NetWeaver installation mode
+  # Which products installation mode can be selected depends on the selected media
+  module ProductPartitioning
+    def create_partitions(product_partitioning, product_list)
       log.info("********Starting partitioning")
 
       ret = nil
@@ -29,33 +33,35 @@ module Y2Sap
       manufacturer = Ops.get(hwinfo, 0, "") # "FUJITSU", "IBM", "HP", "Dell Inc."
       model = Ops.get(hwinfo, 1, "") # "PowerEdge R620", "PowerEdge R910"
 
-      Builtins.foreach(productPartitioningList) do |productPartitioning|
+      product_partitioning_list.foreach do |product_partitioning|
         # This is a generic way for all SAP products and hardware
         # Now it is possible to create product manufactutrer and model based partitioning files.
-        partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
-        if ! File.exists(partXML)
-           partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
-           if ! File.exists(partXML)
-               partXML=@partXMLPath + '/' + productPartitioning + ".xml"
-           end
+	part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_" + model + ".xml"
+        if ! File.exists(part_xml)
+          part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_generic.xml"
+          if ! File.exists(part_xml)
+            part_xml=@media.partitioning_dir_base + '/' + product_partitioning + ".xml"
+          end
         end
-        ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
+        ret = WFM.CallFunction( "sap_create_storage_ng", [ part_xml ])
         log.info("sap_create_storage_ng returned: #{ret}")
         if( ret == "abort" )
-            return "abort"
+          return "abort"
         end
       end
       log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
       deep_copy(ret)
     end
 
-    def ShowPartitions(info)
+    def hana_partitioning
+      create_partitions(["hana_partitioning"],["HANA"])
+      show_partitions("SAP file system creation successfully done:")
+    end
+
+    def show_partitions(info)
       ret = nil
       partitionTable = Table()
-      partitionTable = Builtins.add(
-        partitionTable,
-        Header("device", "mountpoint", "fs type", "size")
-      )
+      partitionTable << Header("device", "mountpoint", "fs type", "size")
       items = []
       i = 0
       devmap = Storage.GetTargetMap
@@ -134,21 +140,8 @@ module Y2Sap
       UI.CloseDialog
       deep_copy(ret)
     end
+   private
 
-    def CreateHANAPartitions(void)
-        CreatePartitions(["hana_partitioning"],["HANA"])
-        ShowPartitions("SAP file system creation successfully done:")
-    end
-
-    #Published functions
-    publish :function => :CreatePartitions,    :type => "void()"
-    publish :function => :ShowPartitions,      :type => "string()"
-    publish :function => :CreateHANAPartitions,:type => "void()"
-
-    # Published module variables
-    publish :variable => :partXMLPath,       :type => "string"
-
-    private
     def get_hw_info
       hwinfo = []
       product = ""
@@ -175,10 +168,6 @@ module Y2Sap
 
       deep_copy(hwinfo)
     end
-
   end
-  SAPPartitioning = SAPPartitioningClass.new
-  SAPPartitioning.main
-
 end
 

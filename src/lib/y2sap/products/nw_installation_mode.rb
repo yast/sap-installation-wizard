@@ -46,7 +46,7 @@ module Y2Sap
       @PRODUCT_NAME  = ""
 
       Wizard.SetContents(
-        @dialogs["nwInstType"]["name"],
+        @dialog_text["nw_inst_type"]["name"],
         VBox(
           HVSquash(Frame("",
           VBox(
@@ -78,7 +78,7 @@ module Y2Sap
             ),
           )
         ))),
-        @dialogs["nwInstType"]["help"],
+        @dialog_text["nw_inst_type"]["help"],
         true,
         true
       )

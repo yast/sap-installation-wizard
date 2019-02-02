@@ -147,46 +147,6 @@ module Yast
     #
     ############################################################
     def adaptDB(data_base)
-      log.info("-- Start SAPProduct adaptDB --")
-      if data_base == ""
-         UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
-      else
-         UI.ChangeWidget(Id("ORA"), :Enabled, false)
-         case data_base
-         when "ADA"
-           UI.ChangeWidget(Id("ADA"), :Value, true)
-           UI.ChangeWidget(Id("HDB"), :Enabled, false)
-           UI.ChangeWidget(Id("SYB"), :Enabled, false)
-           UI.ChangeWidget(Id("DB6"), :Enabled, false)
-           UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
-         when "HDB"
-           UI.ChangeWidget(Id("HDB"), :Value, true)
-           UI.ChangeWidget(Id("ADA"), :Enabled, false)
-           UI.ChangeWidget(Id("SYB"), :Enabled, false)
-           UI.ChangeWidget(Id("DB6"), :Enabled, false)
-           UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
-         when "SYB"
-           UI.ChangeWidget(Id("SYB"), :Value, true)
-           UI.ChangeWidget(Id("ADA"), :Enabled, false)
-           UI.ChangeWidget(Id("HDB"), :Enabled, false)
-           UI.ChangeWidget(Id("DB6"), :Enabled, false)
-           UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
-         when "DB6"
-           UI.ChangeWidget(Id("DB6"), :Value, true)
-           UI.ChangeWidget(Id("ADA"), :Enabled, false)
-           UI.ChangeWidget(Id("HDB"), :Enabled, false)
-           UI.ChangeWidget(Id("SYB"), :Enabled, false)
-           UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
-         when "ORA"
-           # FATE
-           Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
-           return :abort
-         end
-      end
     end
     
     ############################################################
@@ -195,13 +155,6 @@ module Yast
     #
     ############################################################
     def GetProductParameter(productParameter)
-      log.info("-- Start SAPProduct GetProductParameter --")
-      @productList.each { |p|
-          if p["id"] == @PRODUCT_ID
-             return p.has_key?(productParameter) ? p[productParameter] : ""
-          end
-      }
-      return ""
     end
   end
   SAPProduct = SAPProductClass.new
