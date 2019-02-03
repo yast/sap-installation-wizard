@@ -30,7 +30,7 @@ module Y2Sap
     include Yast
     include ProductPartitioning
 
-    def install
+    def do_install
       do_collect
       ret = do_partitioning(@partitioning_list, @product_list)
       if( ret == "abort" )

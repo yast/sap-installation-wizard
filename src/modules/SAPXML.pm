@@ -311,7 +311,7 @@ sub get_nw_products
    my $self    = shift;
    my $instEnv = shift;
    my $TYPE    = shift;
-   my $DB      = shift || "IND";
+   my $DB      = shift;
    my $productDir = shift;
    logger( "get_nw_products $instEnv $TYPE $DB ".join(";",@{$productDir}) );
    my $imPath  = "$instEnv/Instmaster";
@@ -342,11 +342,11 @@ sub get_nw_products
          foreach( @f ){
 	    $p = "base_partitioning" if ( $p eq "" );
 	    $s = "sap_inst.sh"       if ( $s eq "" );
-            push @FILTER, [ $n, $_ , $a, $p, $s, $i ]
+            push @FILTER, [ $n, $_ , $a, $p, $s, $i ];
 	 }
        }
    }
-   
+   logger( Dumper(\@FILTER));  
    my %products = ();
    my @NODES = ();
    if ( ! -e "$imPath/product.catalog" ) 
@@ -356,6 +356,7 @@ sub get_nw_products
    $xp = XML::XPath->new(filename => "$imPath/product.catalog");
    foreach my $tmp ( @FILTER )
    {
+      logger( "  Applying filter ".$tmp->[1] );
       my $xmlpath = $tmp->[1];
       if( $xmlpath !~ /##PD##/ )
       { #has no productDir
@@ -370,6 +371,7 @@ sub get_nw_products
          $xmlpath =~ s/##DB##/$DB/;
          foreach my $PD ( @{$productDir} )
          {
+            logger( "    Product Dir ".$PD );
             #next if( $TYPE eq 'STANDALONE' and $PD !~ /\/IND\// );
 	    #next if( $PD !~ /$DB/ );
 	    my $xmlpathPD = $xmlpath;

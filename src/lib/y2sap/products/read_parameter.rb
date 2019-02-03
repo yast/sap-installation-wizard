@@ -27,16 +27,18 @@ module Y2Sap
   # The product.data file will be written
   module ReadParameter
     include Yast
+    include Yast::UI
+    include Yast::UIShortcuts
 
-    def read_parameter
+    def read_product_parameter
       init_envinroment
       eval_product_ay
       setup_installation_enviroment
-      if Popup.YesNo(_("Installation profile is ready.\n" +
+      if Yast::Popup.YesNo(_("Installation profile is ready.\n" +
           "Are there more SAP products to be prepared for installation?"))
-	@media.product_cont = @media.product_cont.next
-	@media.inst_dir = "%s/%d" % [ @media.inst_dir_base, @media.product_cont ]
-        SCR.Execute(path(".target.bash"), "mkdir -p " + @media.product_cont )
+	@media.product_count = @media.product_count.next
+	@media.inst_dir = "%s/%d" % [ @media.inst_dir_base, @media.product_count ]
+        SCR.Execute(path(".target.bash"), "mkdir -p " + @media.product_count )
 	return "read_im"
       end
       return :next

@@ -25,25 +25,29 @@ module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver product to install
   # Which products can be selected depends on the selected media
   module NWProducts
+    include Yast::Logger
+    include Yast
+    include Yast::UI
+    include Yast::UIShortcuts
     Yast.import "SAPXML"
     def select_nw_product
-      create_content
-      do_loop
+      create_content_nw_product
+      do_loop_nw_product
     end
 
   private
 
-    def create_content
-     log.info("-- Start SelectNWProduct ---")
+    def create_content_nw_product
+      log.info("-- Start SelectNWProduct ---")
       run = true
 
       product_item_table = []
       if @inst_type == 'STANDALONE'
         @DB = 'IND'
       end
-      @product_list = SAPXML.get_nw_products(SAPMedia.instDir,@inst_type,@DB,@productMAP["productDir"])
+      @product_list = Yast::SAPXML.get_nw_products(@media.inst_dir,@inst_type,@DB,@product_map["productDir"])
       if @product_list.nil? or @product_list.empty?
-         Popup.Error(_("The medium does not contain SAP installation data."))
+         Yast::Popup.Error(_("The medium does not contain SAP installation data."))
          return :back
       end
       @product_list.each { |map|
@@ -54,7 +58,7 @@ module Y2Sap
       log.info("@product_list #{@product_list}")
 
       Wizard.SetContents(
-        @dialog_text["nw_select_product"]["name"],
+        @dialog_text[:nw_select_product][:name],
         VBox(
           SelectionBox(Id(:products),
             _("Your SAP installation master supports the following products.\n"+
@@ -62,13 +66,13 @@ module Y2Sap
             product_item_table
           )
         ),
-        @dialog_text["nw_select_product"]["help"],
+        @dialog_text[:nw_select_product][:help],
         true,
         true
       )
     end
 
-    def do_loop
+    def do_loop_nw_product
       run = true
       while run
         case UI.UserInput
@@ -76,7 +80,7 @@ module Y2Sap
           @PRODUCT_ID = Convert.to_string(UI.QueryWidget(Id(:products), :CurrentItem))
 	  if @PRODUCT_ID.nil?
             run = true
-            Popup.Message(_("Select a product!"))
+            Yast::Popup.Message(_("Select a product!"))
           else
             run = false
             @product_list.each { |map|

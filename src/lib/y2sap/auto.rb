@@ -60,7 +60,7 @@ module Y2Sap
       @product_count = -1
       @sap_media_todo["products"].each { |prod|
         if !prod.has_key?("media")
-           Popup.Error("You have to define the location of the installation media in the autoyast xml.")
+           Yast::Popup.Error("You have to define the location of the installation media in the autoyast xml.")
            next
         end
 
@@ -113,7 +113,7 @@ module Y2Sap
 	url_apth = mount_source(url[0],url[1])
         if "ERROR:" == url_apth[0,6]
           log.info("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
-          Popup.Error("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
+          Yast::Popup.Error("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
 	  return false
         else
           case medium["type"].downcase
@@ -150,7 +150,7 @@ module Y2Sap
          File.write(@inst_dir + "/inifile.params",  prod["iniFile"])
       end
       if @PRODUCT_ID == ""
-         Popup.Error("The SAP PRODUCT_ID is not defined.")
+         Yast::Popup.Error("The SAP PRODUCT_ID is not defined.")
 	 @ERROR = true
 	 return
       end
@@ -168,7 +168,7 @@ module Y2Sap
       @PRODUCT_NAME = @inst_master_type
       @PRODUCT_ID   = @inst_master_type
       if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
-        Popup.Error("Some of the required parameters are not defined.")
+        Yast::Popup.Error("Some of the required parameters are not defined.")
 	@ERROR = true
         next
       end
@@ -233,7 +233,7 @@ module Y2Sap
       f.close
       log.info("Exit code of script : #{exit_status}")
       if exit_status != 0
-        Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
+        Yast::Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
       end
     end
   end

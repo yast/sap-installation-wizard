@@ -25,28 +25,34 @@ module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver installation mode
   # Which products installation mode can be selected depends on the selected media
   module NWInstallationMode
+    include Yast
+    include Yast::UI
+    include Yast::UIShortcuts
     Yast.import "SAPXML"  
     def select_nw_installation_mode()
-      create_content
-      do_loop
+      log.info("-- Start select_nw_installation_mode --- for instDir #{@media.inst_dir}" )
+      create_content_nw_installation_mode
+      do_loop_nw_installation_mode
     end
 
   private
 
     # Creates the gui
-    def create_contect
+    def create_content_nw_installation_mode
       log.info("-- Start SelectNWInstallationMode --- for instDir #{@media.inst_dir}" )
 
       # Reset the the selected product specific parameter
-      @product_map    = SAPXML.get_products_for_media(@media.inst_dir )
+      @product_map    = Yast::SAPXML.get_products_for_media(@media.inst_dir )
       log.info("@product_map #{@product_map}")
       @inst_type     = ""
       @DB            = ""
       @PRODUCT_ID    = ""
       @PRODUCT_NAME  = ""
 
+      log.info("known variables " + self.instance_variables.join(" ") )
+      log.info("@dialog_text #{@dialog_text}")
       Wizard.SetContents(
-        @dialog_text["nw_inst_type"]["name"],
+        @dialog_text[:nw_inst_type][:name],
         VBox(
           HVSquash(Frame("",
           VBox(
@@ -78,11 +84,11 @@ module Y2Sap
             ),
           )
         ))),
-        @dialog_text["nw_inst_type"]["help"],
+        @dialog_text[:nw_inst_type][:help],
         true,
         true
       )
-     if SAPMedia.importSAPCDs
+      if !@media.sap_cds_url.empty?
          UI.ChangeWidget(Id("STANDARD"),   :Enabled, false)
          UI.ChangeWidget(Id("STANDALONE"), :Enabled, false)
          UI.ChangeWidget(Id("SBC"),        :Enabled, false)
@@ -105,7 +111,7 @@ module Y2Sap
 
     # The loop for handling the gui inputs
     # @return [:next or :abort]
-    def do_loop
+    def do_loop_nw_installation_mode
       run = true
       while run
         case UI.UserInput
@@ -121,12 +127,12 @@ module Y2Sap
           run = false
           if @inst_type == ""
             run = true
-            Popup.Message(_("Please choose an SAP installation type."))
+            Yast::Popup.Message(_("Please choose an SAP installation type."))
             next
           end
           if @inst_type !~ /STANDALONE|SBC/ and @DB == ""
             run = true
-            Popup.Message(_("Please choose a back-end database."))
+            Yast::Popup.Message(_("Please choose a back-end database."))
             next
           end
         when :back
@@ -179,7 +185,7 @@ module Y2Sap
            @DB = data_base
          when "ORA"
            # FATE
-           Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
+           Yast::Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
            return :abort
          end
       end

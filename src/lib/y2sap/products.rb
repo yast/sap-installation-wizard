@@ -71,6 +71,8 @@ module Y2Sap
     # media collection for the product to be installed. 
     attr_accessor :media
 
+    attr_accessor :dialog_text
+
     def initialize(media)
       textdomain "sap-installation-wizard"
       @media = media
@@ -78,15 +80,18 @@ module Y2Sap
     end
 
     def nw_installation_mode
+      log.info("Start select_nw_installation_mode")
+      log.info("@dialog_text " + @dialog_text.keys.join(" "))
       select_nw_installation_mode
     end
 
     def nw_product
+      log.info("Start select_nw_product")
       select_nw_product
     end
 
     def read_parameter
-      read_parameter
+      read_product_parameter
     end
 
     def install_sap

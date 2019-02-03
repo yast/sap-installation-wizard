@@ -47,7 +47,7 @@ module Y2Sap
 
         log.info("found SAP instmaster at #{@inst_master_path} type #{@inst_master_type} version #{@inst_master_version}")
 	if @inst_master_path.nil? || @inst_master_path.size == 0
-          Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
+          Yast::Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
           run = false
         end
@@ -85,8 +85,8 @@ module Y2Sap
     end
 
     def net_weaver
-      log.info("-- Start CopyNWMedia ---")
-      if @importSAPCDs
+      log.info("-- Start net_weaver ---")
+      if !@sap_cds_url.empty?
         # Skip the dialog all together if SAP_CD is already mounted from network location
         # There is no chance for user to copy new mediums to the location
         return :next
@@ -102,20 +102,20 @@ module Y2Sap
         when :back
            return :back
         when :forw
-           run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
+           run = Yast::Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         when :next
            #media=Y2Sap::MediaFind.find_sap_media()
            media=find_sap_media()
            media.each { |path,label|
              if File.exist?(@media_dir + "/" + label)
-               Popup.Warning("The selected medium '%s' was already copied." % label)
+               Yast::Popup.Warning("The selected medium '%s' was already copied." % label)
                next
              end
              #Y2Sap::MediaCopy.copy_dir(path, @media_dir, label)
              copy_dir(path, @media_dir, label)
              @selected_media[label] = true;
            }
-           run = Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
+           run = Yast::Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         end
       end
       mediaList = []
@@ -126,12 +126,13 @@ module Y2Sap
       }
       mediaList << @inst_dir + "/" + "Instmaster"
       IO.write(@inst_dir + "/start_dir.cd" , mediaList.join("\n"))
+      log.info("End net_weaver #{@inst_dir}" )
       return :next
     end
 
     def suplementary
       log.info("-- Start ReadSupplementMedium ---")
-      run = Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
+      run = Yast::Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
       while run
         ret = media_dialog("supplement")
         if ret == :abort || ret == :cancel
@@ -144,7 +145,7 @@ module Y2Sap
         #Y2Sap::MediaCopy.copy_dir(@source_dir, @inst_dir, "Supplement")
         copy_dir(@source_dir, @inst_dir, "Supplement")
 	parse_xml(@inst_dir + "/Supplement/product.xml")
-        run = Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
+        run = Yast::Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
       end
       return :next
     end

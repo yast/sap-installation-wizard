@@ -27,6 +27,7 @@ module Y2Sap
 
     # Initialize the global variables
     def init_variables
+      @dialog_text = {}
       @dialog_text = {
         nw_inst_type: {
           help:  _("<p>Choose SAP product installation and back-end database.</p>") +
