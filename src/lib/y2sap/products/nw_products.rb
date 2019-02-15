@@ -29,7 +29,6 @@ module Y2Sap
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
-    Yast.import "SAPXML"
     def select_nw_product
       create_content_nw_product
       do_loop_nw_product
@@ -45,7 +44,7 @@ module Y2Sap
       if @inst_type == 'STANDALONE'
         @DB = 'IND'
       end
-      @product_list = Yast::SAPXML.get_nw_products(@media.inst_dir,@inst_type,@DB,@product_map["productDir"])
+      @product_list = get_nw_products(@media.inst_dir,@inst_type,@DB,@product_map["productDir"])
       if @product_list.nil? or @product_list.empty?
          Yast::Popup.Error(_("The medium does not contain SAP installation data."))
          return :back

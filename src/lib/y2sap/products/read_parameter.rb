@@ -85,7 +85,7 @@ module Y2Sap
       )
       Wizard.RestoreAbortButton()
       # First we execute the autoyast xml file of the product if this exeists
-      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.subject.ay_dir_base + '/' +  get_product_parameter("ay_xml")	    
+      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + '/' +  get_product_parameter("ay_xml")	    
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
 	ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )

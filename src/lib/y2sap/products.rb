@@ -22,6 +22,7 @@
 require "yast"
 require "y2sap/media"
 require "y2sap/products/variables"
+require "y2sap/products/nw_xml"
 require "y2sap/products/nw_installation_mode"
 require "y2sap/products/nw_products"
 require "y2sap/products/read_parameter"
@@ -34,6 +35,7 @@ module Y2Sap
     include Yast
     include Yast::I18n
     include Y2Sap::ProductsVariables
+    include Y2Sap::NWXML
     include Y2Sap::NWInstallationMode
     include Y2Sap::NWProducts
     include Y2Sap::ReadParameter
