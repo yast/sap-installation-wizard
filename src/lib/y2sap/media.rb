@@ -22,6 +22,7 @@
 require "yast"
 require "ui/dialog"
 require "y2sap/configuration/media"
+require "y2sap/media/check"
 require "y2sap/media/copy"
 require "y2sap/media/dialog"
 require "y2sap/media/find"
@@ -38,6 +39,7 @@ module Y2Sap
     include Yast
     include Yast::Logger
     include Yast::I18n
+    include Y2Sap::MediaCheck
     include Y2Sap::MediaCopy
     include Y2Sap::MediaDialog
     include Y2Sap::MediaComplex

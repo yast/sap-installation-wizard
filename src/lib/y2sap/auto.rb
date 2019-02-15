@@ -23,6 +23,7 @@ require "open3"
 require "yast"
 require "y2sap/configuration/media"
 require "y2sap/media/copy"
+require "y2sap/media/copy"
 require "y2sap/media/find"
 require "y2sap/media/mount"
 
@@ -121,7 +122,7 @@ module Y2Sap
             copy_dir(@mount_point, @inst_dir, "Supplement")
             #TODO execute profile.xml on media
           when "sap"
-            inst_master_list = SAPXML.is_instmaster(@mount_point)
+            inst_master_list = is_instmaster(@mount_point)
             if inst_master_list.empty?
               sap_media = find_sap_media(@mount_point)
               sap_media.each { |path,label|

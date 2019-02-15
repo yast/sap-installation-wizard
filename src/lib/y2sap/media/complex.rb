@@ -25,7 +25,6 @@ module Y2Sap
     include Y2Sap::MediaDialog
     include Y2Sap::MediaCopy
     include Y2Sap::MediaFind
-    Yast.import "SAPXML"
 
     def installation_master
       log.info("-- Start Y2Sap::MediaCopy::installation_master ---")
@@ -40,7 +39,7 @@ module Y2Sap
           end
         end
         log.info("looking for instmaster in #{@source_dir}")
-        inst_master_list    = SAPXML.is_instmaster(@source_dir)
+        inst_master_list    = is_instmaster(@source_dir)
         @inst_master_type   = Ops.get(inst_master_list, 0, "")
         @inst_master_path   = Ops.get(inst_master_list, 1, "")
         @inst_master_version= Ops.get(inst_master_list, 2, "")

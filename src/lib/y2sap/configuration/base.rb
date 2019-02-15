@@ -22,9 +22,15 @@ require "yast"
 
 module Y2Sap
   module Configuration
+    include Yast
     # Class to read and edit thte SLES4SAP base configuration
     class Base
-      Yast.import "Misc"
+
+      # @return [String] The architectur
+      attr_reader :arch
+
+      # @return [String] The platform
+      attr_reader :platform
 
       # @return [String] The directory where the media will be mounted temporary
       attr_reader :mount_point
@@ -60,6 +66,10 @@ module Y2Sap
       attr_accessor :sap_media_todo
 
       def initialize
+        Yast.import "Misc"
+	Yast.import "Arch"
+        @platform = 'LINUX'
+	@arch     =  Yast::Arch.architecture
         @mount_point = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
           "/mnt"
