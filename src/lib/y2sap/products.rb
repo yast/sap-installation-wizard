@@ -39,6 +39,7 @@ module Y2Sap
     include Y2Sap::NWInstallationMode
     include Y2Sap::NWProducts
     include Y2Sap::ReadParameter
+    include Y2Sap::DoInstall
 
     # @return [Map<String,String>] The product counter.
     attr_accessor :dialogs

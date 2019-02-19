@@ -33,6 +33,26 @@ module Y2Sap
       get_products(inst_env,db,nodes)
     end
 
+    def config_value(prod,key)
+      xml     = IO.read( "/etc/sap-installation-wizard.xml" )
+      doc     = Nokogiri::XML(xml)
+      doc.xpath('//listentry').each do |node|
+	p  = {}
+	ok = false
+	node.children.each do |child|
+	  next if child.name == nil
+	  next if child.text == nil
+	  next if child.name == 'search'
+	  ok = true if child.name == 'name' && child.text == prod
+	  p[child.name] = child.text
+	end
+	if ok
+	  return p.has_key?(key) ? p[key] : ""
+	end
+      end
+      return ""
+    end
+
   private
 
     def get_filters(type)

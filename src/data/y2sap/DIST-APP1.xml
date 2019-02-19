@@ -82,18 +82,135 @@ check_masterpwd "$VAL"
                 <feedback config:type="boolean">true</feedback>
              </script>
           </ask>
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the ASCS</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_ascsVirtualHostname</file>
+             <question>ASCS Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#        exit 0
+#        
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the CI</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_ciVirtualHostname</file>
+             <question>CI Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#	exit 0
+#	
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the SCS</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_scsVirtualHostname</file>
+             <question>SCS Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#	exit 0
+#	
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
 	<ask>
 	     <title>SAP System Parameters</title>
              <dialog config:type="integer">10</dialog>
-             <element config:type="integer">10</element>
+             <element config:type="integer">20</element>
              <width config:type="integer">70</width>
              <height config:type="integer">20</height>
              <help><![CDATA[
              <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_sid</file>
-             <question>SID (SAP System ID)</question>
+             <file>/tmp/ay_q_dbsid</file>
+             <question>DB SID (Database System ID)</question>
              <stage>cont</stage>
              <default>MY_DEFAULT_SID</default>
             <script>
@@ -110,7 +227,7 @@ function check_sid() {
         LC_ALL=POSIX
 
         [ -z "$sid" ] && echo "You need to provide a SID." && return 1
-        [ "${#sid}" -ne 3 ] && echo "The SID needs to be exactly 3 chars. You entered '${sid}'." && return 1
+        [ "${#sid}" -ne 3 ] && echo "The SID needs to be exactly 3 chars. You entered '${chema##id}'." && return 1
         [ "${sid#[0-9]}" != "$sid" ] && echo "The SID needs to start with a letter. You entered '${sid}'." && return 1
         [ -n "${sid//[0-9A-Z]/}" ] && echo "The SID needs to be upper case. You entered '${sid}'." && return 1
         for rsid in $reserved_sids; do
@@ -167,6 +284,41 @@ check_instance_no "$VAL"
               <feedback config:type="boolean">true</feedback>
             </script>
             <default>00</default>
+          </ask>
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">20</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP Profile Directory</b><br>Enter the path to th SAP profile path.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_profileDir</file>
+             <question>SAP Profile Directory</question>
+             <stage>cont</stage>
+             <script>
+              <filename>my_sap_profileDir.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_profileDir() {
+        local profileDir=$1
+
+        LC_ALL=POSIX
+
+        [  -z  "$profileDir" ] && echo "You need to provide a SAP Profile Directory." && return 1
+        [ ! -d "$profileDir" ] && echo "${profileDir} is not a directory." && return 1
+
+        return 0
+}
+check_instance_no "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
           </ask>
  </ask-list>
 </general>

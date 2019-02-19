@@ -22,8 +22,6 @@
 module Y2Sap
   # Module for the global variables in the Y2SAP::Products class
   module ProductsVariables
-    include Yast
-    Yast.import "SAPXML"
 
     # Initialize the global variables
     def init_variables
@@ -57,23 +55,23 @@ module Y2Sap
       @product_list << {
         name:         "HANA",
         id:           "HANA",
-        ay_xml:       SAPXML.ConfigValue("HANA","ay_xml"),
-        partitioning: SAPXML.ConfigValue("HANA","partitioning"),
-        script_name:  SAPXML.ConfigValue("HANA","script_name")
+        ay_xml:       config_value("HANA","ay_xml"),
+        partitioning: config_value("HANA","partitioning"),
+        script_name:  config_value("HANA","script_name")
       }
       @product_list << {
         name:         "B1",
         id:           "B1",
-        ay_xml:       SAPXML.ConfigValue("B1","ay_xml"),
-        partitioning: SAPXML.ConfigValue("B1","partitioning"),
-        script_name:  SAPXML.ConfigValue("B1","script_name")
+        ay_xml:       config_value("B1","ay_xml"),
+        partitioning: config_value("B1","partitioning"),
+        script_name:  config_value("B1","script_name")
       }
       @product_list << {
         name:         "TREX",
         id:           "TREX",
-        ay_xml:       SAPXML.ConfigValue("TREX","ay_xml"),
-        partitioning: SAPXML.ConfigValue("TREX","partitioning"),
-        script_name:  SAPXML.ConfigValue("TREX","script_name")
+        ay_xml:       config_value("TREX","ay_xml"),
+        partitioning: config_value("TREX","partitioning"),
+        script_name:  config_value("TREX","script_name")
       }
       
       @DB            = ""

@@ -25,15 +25,16 @@ module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver installation mode
   # Which products installation mode can be selected depends on the selected media
   module ProductPartitioning
-    def create_partitions(product_partitioning, product_list)
-      log.info("********Starting partitioning")
+    include Yast
+    def create_partitions(product_partitioning_list, product_list)
+      log.info("********Starting partitioning with #{product_partitioning_list} #{product_list}")
 
       ret = nil
       hwinfo = get_hw_info
       manufacturer = Ops.get(hwinfo, 0, "") # "FUJITSU", "IBM", "HP", "Dell Inc."
       model = Ops.get(hwinfo, 1, "") # "PowerEdge R620", "PowerEdge R910"
 
-      product_partitioning_list.foreach do |product_partitioning|
+      product_partitioning_list.each do |product_partitioning|
         # This is a generic way for all SAP products and hardware
         # Now it is possible to create product manufactutrer and model based partitioning files.
 	part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_" + model + ".xml"

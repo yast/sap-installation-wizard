@@ -58,8 +58,14 @@ module Y2Sap
       #@return [String] The version of the installation master
       attr_accessor :inst_master_version
 
-      #@retunr [Hash<String,String>] Hash for remember which media was selected.
+      #@return [Hash<String,String>] Hash for remember which media was selected.
       attr_accessor :selected_media
+
+      #@return [List<String>] list of provided databases
+      attr_reader :databases
+
+      #@return [Hash<String,String>] Hash for mapping the database name and token.
+      attr_accessor :dbmap
 
       def initialize
         super
@@ -81,6 +87,14 @@ module Y2Sap
         @inst_master_path    = ""
         @inst_master_cersion = ""
         @selected_media      = ""
+	@databases           = ["ORA","SYB","DB2","HDB","MAX"]
+	@dbmap = {
+          "ORA" =>  "ORA",
+          "SYB" =>  "SYB",
+          "DB2" =>  "DB6",
+          "HDB" =>  "HDB",
+          "MAX" =>  "ADA"
+	}
       end
     end
   end

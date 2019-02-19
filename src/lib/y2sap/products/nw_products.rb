@@ -44,7 +44,7 @@ module Y2Sap
       if @inst_type == 'STANDALONE'
         @DB = 'IND'
       end
-      @product_list = get_nw_products(@media.inst_dir,@inst_type,@DB,@product_map["productDir"])
+      @product_list = get_nw_products(@media.inst_dir,@inst_type,@DB,@product_map["product_dir"])
       if @product_list.nil? or @product_list.empty?
          Yast::Popup.Error(_("The medium does not contain SAP installation data."))
          return :back

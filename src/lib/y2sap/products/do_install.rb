@@ -32,11 +32,11 @@ module Y2Sap
 
     def do_install
       do_collect
-      ret = do_partitioning(@partitioning_list, @product_list)
+      ret = create_partitions(@partitioning_list, @product_list)
       if( ret == "abort" )
         return :abort
       end
-      do_install
+      start_install_process
       return :next
     end
 
@@ -48,27 +48,28 @@ module Y2Sap
       @partitioning_list = []
       @product_list      = []
       @products_to_install.each { |instDir|
-        productData = Convert.convert(
+        product_data = Convert.convert(
           SCR.Read(path(".target.ycp"), instDir + "/product.data"),
           :from => "any",
           :to   => "map <string, any>"
         )
         params = Builtins.sformat(
           " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
-          Ops.get_string(productData, "instMaster", ""),
-          Ops.get_string(productData, "PRODUCT_ID", ""),
-          Ops.get_string(productData, "DB", ""),
-          Ops.get_string(productData, "TYPE", ""),
-          Ops.get_string(productData, "instDir", ""),
+          Ops.get_string(product_data, "instMaster", ""),
+          Ops.get_string(product_data, "PRODUCT_ID", ""),
+          Ops.get_string(product_data, "DB", ""),
+          Ops.get_string(product_data, "TYPE", ""),
+          Ops.get_string(product_data, "instDir", ""),
         )
+	log.info("product_data: #{product_data}")
         # Add script
-        @script_list << "/bin/sh -x " + Ops.get_string(productData, "SCRIPT_NAME", "") + params
+        @script_list << "/bin/sh -x " + Ops.get_string(product_data, "SCRIPT_NAME", "") + params
 
         # Add product to install
-        @product_list << Ops.get_string(productData, "PRODUCT_ID", "")
+        @product_list << Ops.get_string(product_data, "PRODUCT_ID", "")
 
         # Add product partitioning
-        ret = Ops.get_string(productData, "PARTITIONING", "")
+        ret = Ops.get_string(product_data, "PARTITIONING", "")
         if ret == nil
           # Default is base_partitioning
           ret = "base_partitioning"
@@ -78,7 +79,7 @@ module Y2Sap
     end
 
     # Start execute the install scripts
-    def do_install
+    def start_install_process
       require "open3"
       @script_list.each { |intall_script|
         out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M"))

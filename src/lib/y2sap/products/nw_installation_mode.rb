@@ -28,7 +28,6 @@ module Y2Sap
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
-    Yast.import "SAPXML"  
     def select_nw_installation_mode()
       log.info("-- Start select_nw_installation_mode --- for instDir #{@media.inst_dir}" )
       create_content_nw_installation_mode
@@ -42,7 +41,7 @@ module Y2Sap
       log.info("-- Start SelectNWInstallationMode --- for instDir #{@media.inst_dir}" )
 
       # Reset the the selected product specific parameter
-      @product_map    = Yast::SAPXML.get_products_for_media(@media.inst_dir )
+      @product_map    = @media.get_products_for_media(@media.inst_dir )
       log.info("@product_map #{@product_map}")
       @inst_type     = ""
       @DB            = ""
