@@ -38,9 +38,9 @@ module Y2Sap
         # This is a generic way for all SAP products and hardware
         # Now it is possible to create product manufactutrer and model based partitioning files.
 	part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_" + model + ".xml"
-        if ! File.exists(part_xml)
+        if ! File.exist?(part_xml)
           part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_generic.xml"
-          if ! File.exists(part_xml)
+          if ! File.exist?(part_xml)
             part_xml=@media.partitioning_dir_base + '/' + product_partitioning + ".xml"
           end
         end
