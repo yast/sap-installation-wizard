@@ -8,6 +8,11 @@ echo '<?xml version="1.0"?>
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
 <general>
+  <mode>
+    <final_restart_services config:type="boolean">
+      false
+    </final_restart_services>
+  </mode>
   <ask-list config:type="list">
   ' > ../$DIR/include/$PROD.xml
 
