@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+<general>
+  <mode>
+    <final_restart_services config:type="boolean">
+      false
+    </final_restart_services>
+  </mode>
+  <ask-list config:type="list">
+  
+ </ask-list>
+</general>
+<software>
+  <!-- post-patterns config:type="list">
+    <pattern>sap-nw</pattern>
+  </post-patterns -->
+  <post-packages config:type="list">
+    <package>clamsap</package>
+    <package>ClusterTools2</package>
+    <package>cryptctl</package>
+    <package>libstdc++33</package>
+    <package>libstdc++33-32bit</package>
+    <package>sap-installation-wizard</package>
+    <package>sap-netscape-link</package>
+    <package>saprouter-systemd</package>
+    <package>sles4sap-white-papers</package>
+    <package>tuned</package>
+    <package>util-linux</package>
+    <package>util-linux-systemd</package>
+    <package>uuidd</package>
+    <package>yast2-sap-ha</package>
+    <package>yast2-sap-scp</package>
+    <package>yast2-sap-scp-prodlist</package>
+  </post-packages>
+</software>
+</profile>

@@ -1,0 +1,348 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+<general>
+  <mode>
+    <final_restart_services config:type="boolean">
+      false
+    </final_restart_services>
+  </mode>
+  <ask-list config:type="list">
+  
+          <ask>
+             <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">30</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP Master Password</b><br>Enter and repeat the master password for the SAP system.<br>
+		The system uses this master password for all accounts created by the installer<br> 
+		and for the secure store key phrase.<br>
+		The password must fulfill the following requirements:<br>
+		- Consists of 8 or 9 characters<br>
+		- Contains at least one digit and one lowercase character<br> 
+		- It can contain these special characters: #, $, @, _<br>
+		- It does not have a digit or an underscore (_) as the first character
+	     </p>
+	     ]]>
+	     </help>
+             <file>/tmp/ay_q_masterpass</file>
+             <path>users,0,user_password</path>
+             <question>SAP Master Password</question>
+             <password config:type="boolean">true</password>
+             <stage>cont</stage>
+             <default></default>
+             <script>
+                <filename>my_pwd.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_masterpwd() {
+	local pwd=$( cat /tmp/ay_q_masterpass )
+
+        if [ -z "$pwd" ]; then
+		echo "You must provide a master password for your installation!"
+		exit 1
+        fi
+	if [ "${#pwd}" -gt 14 ]; then 
+		echo "The master password cannot be longer than 14 chars currently."
+		echo "You entered a ${#pwd} chars long password." 
+		exit 1
+        fi
+	if [ "${#pwd}" -lt 8 ]; then
+		echo "The master password cannot be shorter than 8 chars."
+		echo "You entered a ${#pwd} chars long password."
+		exit 1
+	fi
+        if [ -n "${pwd//[0-9A-Za-z\$@_#]/}" ]; then
+		echo "The Password contains forbidden chars."
+		echo "Allowed are 0-9, A-Z, a-z and $ @ _ #"
+		echo "But you're using: '${pwd//[0-9A-Za-z\$_@#]/}'."
+		exit 1
+	fi	
+        if [ -z "${pwd//[A-Za-z\$@_#]/}" ]; then
+		echo "The Password must at least contain one numeric character 0-9."
+		exit 1
+        fi
+	if [ "${pwd#[_]}" != "$pwd" ]; then
+		echo "The Password may not start with a '_'." 
+		exit 1
+        fi
+	if [ "${pwd#[0-9]}" != "$pwd" ]; then
+		echo "The Password may not start with a numeric character."
+		exit 1
+	fi
+        exit 0
+}
+check_masterpwd "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the ASCS</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_ascsVirtualHostname</file>
+             <question>ASCS Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#        exit 0
+#        
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the CI</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_ciVirtualHostname</file>
+             <question>CI Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#	exit 0
+#	
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
+          <ask>
+             <dialog config:type="integer">20</dialog>
+             <element config:type="integer">10</element>
+             <help><![CDATA[
+             <p><b>Virtual Hostname of the SCS</b><br>Enter the virtual hostname the SAP system should use internally.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_scsVirtualHostname</file>
+             <question>SCS Virtual Hostname</question>
+             <stage>cont</stage>
+             <default>##VirtualHostname##</default>
+             <script>
+                <filename>my_host.sh</filename>
+                <rerun_on_error config:type="boolean">true</rerun_on_error>
+                <environment config:type="boolean">true</environment>
+                <source><![CDATA[
+function check_hostname() {
+        local host=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$host" ] && echo "You need to provide a hostname." && return 1
+        [ -n "${host//[0-9A-Za-z-\.]/}" ] && echo "The hostname can only consist of an alphanumeric string and a hyphen ('-'). Found this: '${host//[0-9A-Za-z-\.]/}'." && return 1
+
+        return 0
+}
+#CHECK=$( cat /tmp/ay_q_virt_network )
+#if [ "$CHECK" = "false" ]; then
+#	exit 0
+#	
+#fi
+check_hostname "$VAL"
+]]>
+                </source>
+                <debug config:type="boolean">false</debug>
+                <feedback config:type="boolean">true</feedback>
+             </script>
+          </ask>
+
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">20</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_dbsid</file>
+             <question>DB SID (Database System ID)</question>
+             <stage>cont</stage>
+             <default>MY_DEFAULT_SID</default>
+            <script>
+              <filename>my_sid.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_sid() {
+        local sid=$1 reserved_sids rsid
+        reserved_sids="ADD ALL AND ANY ASC COM DBA END EPS FOR GID IBM INT \
+        KEY LOG MON NIX NOT OFF OMS RAW ROW SAP SET SGA SHG SID SQL SYS TMP \
+        UID USR VAR"
+
+        LC_ALL=POSIX
+
+        [ -z "$sid" ] && echo "You need to provide a SID." && return 1
+        [ "${#sid}" -ne 3 ] && echo "The SID needs to be exactly 3 chars. You entered '${chema##id}'." && return 1
+        [ "${sid#[0-9]}" != "$sid" ] && echo "The SID needs to start with a letter. You entered '${sid}'." && return 1
+        [ -n "${sid//[0-9A-Z]/}" ] && echo "The SID needs to be upper case. You entered '${sid}'." && return 1
+        for rsid in $reserved_sids; do
+                case $sid in
+                        $rsid)
+                                echo "The SID '${sid}' is reserved and cannot be used."
+                                return 1
+                                ;;
+                esac
+         done
+         [ "${sid}" = "DAA" ] && echo "The System ID \"DAA\" is reserved for the Solution Manager Diagnostics Agent. Please choose a different one." && return 1
+         return 0
+}
+check_sid "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+          </ask>
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">20</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP Instance Number</b><br>Enter the SAP system's instance number.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_sapinstnr</file>
+             <question>SAP Instance Number</question>
+             <stage>cont</stage>
+             <script>
+              <filename>my_sap_ino.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_instance_no() {
+        local ino=$1
+
+        LC_ALL=POSIX
+
+        [ -z "$ino" ] && echo "You need to provide a SAP Instance Number." && return 1
+        [ "${#ino}" -ne 2 ] && echo "The SAP Instance Number needs to be exactly 2 digits long. You entered '${ino}'." && return 1
+        [ -n "${ino//[0-9]/}" ] && echo "The SAP Instance Number can only contain digits. You entered '${ino}'." && return 1
+
+        return 0
+}
+check_instance_no "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+            <default>00</default>
+          </ask>
+	<ask>
+	     <title>SAP System Parameters</title>
+             <dialog config:type="integer">10</dialog>
+             <element config:type="integer">20</element>
+             <width config:type="integer">70</width>
+             <height config:type="integer">20</height>
+             <help><![CDATA[
+             <p><b>SAP Profile Directory</b><br>Enter the path to th SAP profile path.</p>
+]]>
+</help>
+             <file>/tmp/ay_q_profileDir</file>
+             <question>SAP Profile Directory</question>
+             <stage>cont</stage>
+             <script>
+              <filename>my_sap_profileDir.sh</filename>
+              <rerun_on_error config:type="boolean">true</rerun_on_error>
+              <environment config:type="boolean">true</environment>
+              <source><![CDATA[
+function check_profileDir() {
+        local profileDir=$1
+
+        LC_ALL=POSIX
+
+        [  -z  "$profileDir" ] && echo "You need to provide a SAP Profile Directory." && return 1
+        [ ! -d "$profileDir" ] && echo "${profileDir} is not a directory." && return 1
+
+        return 0
+}
+check_instance_no "$VAL"
+]]>
+              </source>
+              <debug config:type="boolean">false</debug>
+              <feedback config:type="boolean">true</feedback>
+            </script>
+          </ask>
+ </ask-list>
+</general>
+<software>
+  <!-- post-patterns config:type="list">
+    <pattern>sap-nw</pattern>
+  </post-patterns -->
+  <post-packages config:type="list">
+    <package>clamsap</package>
+    <package>ClusterTools2</package>
+    <package>cryptctl</package>
+    <package>libstdc++33</package>
+    <package>libstdc++33-32bit</package>
+    <package>sap-installation-wizard</package>
+    <package>sap-netscape-link</package>
+    <package>saprouter-systemd</package>
+    <package>sles4sap-white-papers</package>
+    <package>tuned</package>
+    <package>util-linux</package>
+    <package>util-linux-systemd</package>
+    <package>uuidd</package>
+    <package>yast2-sap-ha</package>
+    <package>yast2-sap-scp</package>
+    <package>yast2-sap-scp-prodlist</package>
+  </post-packages>
+</software>
+</profile>

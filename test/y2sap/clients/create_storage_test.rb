@@ -21,7 +21,7 @@
 # find current contact information at www.suse.com.
 
 require_relative "../../spec_helper"
-require "sap/clients/create_storage"
+require "y2sap/clients/create_storage"
 
 describe Y2Sap::Clients::CreateStorage do
   subject(:client) { described_class.new }
