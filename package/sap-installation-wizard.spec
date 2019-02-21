@@ -31,7 +31,6 @@ Requires:       saprouter-systemd
 Requires:       yast2-hana-firewall
 Requires:       yast2-sap-scp
 Requires:       yast2-sap-scp-prodlist
-Requires:       perl-XML-XPath
 Requires:	xfsprogs
 Requires:       saptune
 Requires:       yast2-saptune
