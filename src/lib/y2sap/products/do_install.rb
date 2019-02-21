@@ -40,8 +40,6 @@ module Y2Sap
       return :next
     end
 
-  private
-
     def do_collect
       log.info("-- Start SAPProduct Write --")
       @script_list       = []
@@ -76,6 +74,9 @@ module Y2Sap
         end
         @partitioning_list << ret if ret != "NO"
       }
+      log.info("To partition: #{@partitioning_list}")
+      log.info("To install: #{@product_list}")
+      log.info("To execute: #{@script_list}")
     end
 
     # Start execute the install scripts

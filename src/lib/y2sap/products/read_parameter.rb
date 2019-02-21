@@ -111,7 +111,7 @@ module Y2Sap
       inifile_params = inifile_params.gsub("##DB##",@DB)
 
       # Create the parameter.ini file
-      if File.exists?(inifile_params)
+      if File.exist?(inifile_params)
         inifile = File.read(inifile_params)
         Dir.glob(@media.inst_dir + "/ay_q_*").each { |param|
            par = param.gsub(/^.*\/ay_q_/,"")
@@ -139,16 +139,16 @@ module Y2Sap
       script_name    = @media.ay_dir_base + '/' +  get_product_parameter("script_name")
       partitioning   = get_product_parameter("partitioning")   == "" ? "NO" : get_product_parameter("partitioning")
       SCR.Write( path(".target.ycp"), @media.inst_dir + "/product.data",  {
-             instDir:      @media.inst_dir,
-             instMaster:   @media.inst_dir + "/Instmaster",
-             TYPE:         @media.inst_master_type,
-             DB:           @DB,
-             PRODUCT_NAME: @PRODUCT_NAME,
-             PRODUCT_ID:   @PRODUCT_ID,
-             PARTITIONING: partitioning,
-             SID:          @sid,
-             INSTNUMBER:   @inst_number,
-             SCRIPT_NAME:  script_name
+            "instDir" =>      @media.inst_dir,
+            "instMaster" =>   @media.inst_dir + "/Instmaster",
+            "TYPE" =>         @media.inst_master_type,
+            "DB" =>           @DB,
+            "PRODUCT_NAME" => @PRODUCT_NAME,
+            "PRODUCT_ID" =>   @PRODUCT_ID,
+            "PARTITIONING" => partitioning,
+            "SID" =>          @sid,
+            "INSTNUMBER" =>   @inst_number,
+            "SCRIPT_NAME" =>  script_name
           })
 
       @products_to_install << @media.inst_dir

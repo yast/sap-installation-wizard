@@ -37,18 +37,18 @@ module Y2Sap
       xml     = IO.read( "/etc/sap-installation-wizard.xml" )
       doc     = Nokogiri::XML(xml)
       doc.xpath('//listentry').each do |node|
-	p  = {}
-	ok = false
-	node.children.each do |child|
-	  next if child.name == nil
-	  next if child.text == nil
-	  next if child.name == 'search'
-	  ok = true if child.name == 'name' && child.text == prod
-	  p[child.name] = child.text
-	end
-	if ok
-	  return p.has_key?(key) ? p[key] : ""
-	end
+        p  = {}
+        ok = false
+        node.children.each do |child|
+          next if child.name == nil
+          next if child.text == nil
+          next if child.name == 'search'
+          ok = true if child.name == 'name' && child.text == prod
+          p[child.name] = child.text
+        end
+        if ok
+          return p.has_key?(key) ? p[key] : ""
+        end
       end
       return ""
     end
@@ -107,21 +107,21 @@ module Y2Sap
          xmlpath = tmp[1]
          if xmlpath !~ /##PD##/
            doc.xpath(xmlfilter).each do |node|
-    	 atmp = [ tmp[0] , node, tmp[2], tmp[3], tmp[4], tmp[5] ]
-    	 nodes << atmp
+             atmp = [ tmp[0] , node, tmp[2], tmp[3], tmp[4], tmp[5] ]
+             nodes << atmp
            end
          else
            xmlpath.sub!(/##DB##/,db)
            product_dir.each do |pd|
-    	 pdpath = xmlpath.sub(/##PD##/,pd)
-    	 next if found.has_key?(pdpath)
-    	 found[pdpath] = 1
-    	 #puts pdpath
-    	 doc.xpath(pdpath).each do |node|
-    	   #puts pdpath
-    	   atmp = [ tmp[0] , node, tmp[2], tmp[3], tmp[4], tmp[5] ]
-    	   nodes << atmp
-    	 end
+             pdpath = xmlpath.sub(/##PD##/,pd)
+             next if found.has_key?(pdpath)
+             found[pdpath] = 1
+             #puts pdpath
+             doc.xpath(pdpath).each do |node|
+               #puts pdpath
+               atmp = [ tmp[0] , node, tmp[2], tmp[3], tmp[4], tmp[5] ]
+               nodes << atmp
+             end
            end
          end
        end
@@ -151,11 +151,11 @@ module Y2Sap
         match = /.*:(.*)\.#{db}\./.match(id)
         if match[1] != nil
           doc.xpath('//components[@output-dir="'+match[1]+'"]/display-name').each do |n1|
-    	gname = n1.text
+            gname = n1.text
           end
         end
         if gname !~ /#{name}/
-    	gname = name+" "+gname
+          gname = name+" "+gname
         end
         products[gname]['name']           = gname
         products[gname]['id']             = id

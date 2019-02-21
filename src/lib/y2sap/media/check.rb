@@ -151,11 +151,17 @@ module Y2Sap
 
     def search_labelfiles(prod_path)
       path   = prod_path.chomp
-      labels = []
+      labels = ""
       IO.popen(["find","-L",path,"-name","LABEL.ASC","-o","-name","info.txt"]) {  |io| 
-        labels << io.read.chomp
+        labels << io.read
       }
-      return labels
+      ret = []
+      log.info("labels #{labels}")
+      labels.split("\n").each do |label|
+        ret << label.chomp    
+      end
+      log.info("ret #{ret}")
+      return ret
     end
   end
 end
