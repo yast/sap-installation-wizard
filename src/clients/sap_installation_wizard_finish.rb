@@ -19,6 +19,6 @@
 # current contact information at www.suse.com.
 # ------------------------------------------------------------------------------
 
-require "y2sap/installation_finish"
+require "y2sap/clients/installation_finish"
 
 SapInstallationWizard::InstallationFinish.run
