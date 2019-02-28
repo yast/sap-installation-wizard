@@ -19,7 +19,7 @@
 # current contact information at www.suse.com.
 # ------------------------------------------------------------------------------
 
-require "sap/installation_finish"
+require "sap/clients/installation_finish"
 
 SapInstallationWizard::InstallationFinish.run
 
