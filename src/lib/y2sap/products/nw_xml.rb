@@ -26,6 +26,7 @@ module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver installation mode
   # Which products installation mode can be selected depends on the selected media
   module NWXML
+    include Yast	  
 
     def get_nw_products(inst_env,type,db,product_dir)
       filters = get_filters(type)
@@ -34,8 +35,13 @@ module Y2Sap
     end
 
     def config_value(prod,key)
-      xml     = IO.read( "/etc/sap-installation-wizard.xml" )
-      doc     = Nokogiri::XML(xml)
+      begin
+        xml     = IO.read( "/etc/sap-installation-wizard.xml" )
+        doc     = Nokogiri::XML(xml)
+      rescue
+	log.error("Can not read /etc/sap-installation-wizard.xml")
+	return ""
+      end
       doc.xpath('//listentry').each do |node|
         p  = {}
         ok = false
@@ -56,8 +62,13 @@ module Y2Sap
   private
 
     def get_filters(type)
-      xml     = IO.read( "/etc/sap-installation-wizard.xml" )
-      doc     = Nokogiri::XML(xml)
+      begin
+        xml     = IO.read( "/etc/sap-installation-wizard.xml" )
+        doc     = Nokogiri::XML(xml)
+      rescue
+	log.error("Can not read /etc/sap-installation-wizard.xml")
+	return ""
+      end
       filters = []
       doc.xpath('//listentry').each do |node|
         f  = [];
