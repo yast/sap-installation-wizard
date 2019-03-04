@@ -38,8 +38,6 @@ module Y2Sap
 
     def create_content_nw_product
       log.info("-- Start SelectNWProduct ---")
-      run = true
-
       product_item_table = []
       if @inst_type == 'STANDALONE'
         @DB = 'IND'

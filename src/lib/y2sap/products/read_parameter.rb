@@ -88,7 +88,7 @@ module Y2Sap
       xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + '/' +  get_product_parameter("ay_xml")	    
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
+	WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
         end
@@ -117,7 +117,7 @@ module Y2Sap
            par = param.gsub(/^.*\/ay_q_/,"")
            val = IO.read(param).chomp
            pattern = "##" + par + "##"
-           a = inifile.gsub!(/#{pattern}/,val)
+           inifile.gsub!(/#{pattern}/,val)
         }
         # Replace ##VirtualHostname## by the real hostname.
         inifile.gsub!(/##VirtualHostname##/,my_hostname)
