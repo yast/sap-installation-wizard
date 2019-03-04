@@ -87,14 +87,14 @@ module Y2Sap
         @inst_master_path    = ""
         @inst_master_cersion = ""
         @selected_media      = ""
-	@databases           = ["ORA","SYB","DB2","HDB","MAX"]
-	@dbmap = {
+        @databases           = ["ORA","SYB","DB2","HDB","MAX"]
+        @dbmap = {
           "ORA" =>  "ORA",
           "SYB" =>  "SYB",
           "DB2" =>  "DB6",
           "HDB" =>  "HDB",
           "MAX" =>  "ADA"
-	}
+        }
       end
     end
   end

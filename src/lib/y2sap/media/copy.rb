@@ -49,7 +49,7 @@ module Y2Sap
 
          # Checking the exit code (0 = OK, nil = still running, 'else' = error)
          exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
-	 if !exitcode.nil? && exitcode != 0
+         if !exitcode.nil? && exitcode != 0
            log.info("Copy has failed, exit code was: #{exitcode} stderr: %2" + SCR.Read(path(".process.read_stderr"), pid))
            error = "Copy has failed, exit code was: %s, stderr: %s" % [ exitcode, SCR.Read(path(".process.read_stderr"), pid) ]
            Popup.Error(error)

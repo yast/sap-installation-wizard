@@ -70,9 +70,9 @@ module Y2Sap
 
       def initialize
         Yast.import "Misc"
-	Yast.import "Arch"
+        Yast.import "Arch"
         @platform = 'LINUX'
-	@arch     =  Yast::Arch.architecture
+        @arch     =  Yast::Arch.architecture
         @mount_point = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),
           "/mnt"
@@ -109,7 +109,7 @@ module Y2Sap
           Yast::Path.new(".sysconfig.sap-installation-wizard.SAP_CDS_URL"),
           ""
         )
-	@sap_media_todo = {}
+        @sap_media_todo = {}
       end
     end
   end

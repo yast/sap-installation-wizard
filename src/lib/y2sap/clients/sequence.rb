@@ -32,59 +32,59 @@ module Y2Sap
       include Yast::Logger
 
       SEQUENCE_HASH = {
-	START => "read",
+        START => "read",
         "read" => {
           abort: :abort,
           next:  "read_im"
         },
-	"read_im" => {
+        "read_im" => {
           abort:   :abort,
           HANA:    "suplementary",
           B1:      "suplementary",
           TREX:    "suplementary",
           SAPINST: "net_weaver"
         },
-	"net_weaver" => {
+        "net_weaver" => {
           abort: :abort,
           next:  "suplementary_with_back"
         },
 
-	"suplementary" => {
+        "suplementary" => {
           abort:  :abort,
           next:   "add_repo"
         },
-	"suplementary_with_back" => {
+        "suplementary_with_back" => {
           abort: :abort,
           back:  "net_weaver",
           next:  "add_repo"
         },
-	"add_repo" => {
+        "add_repo" => {
           abort: :abort,
           next:  "nw_installation_mode"
         },
-	"nw_installation_mode" => {
+        "nw_installation_mode" => {
           abort:  :abort,
           next:   "nw_product"
         },
-	"nw_product" => {
+        "nw_product" => {
           abort:  :abort,
           next:   "read_parameter"
         },
-	"read_parameter" => {
+        "read_parameter" => {
           abort: :abort,
           back:  "suplementary",
-	  read_im: "read_im",
+          read_im: "read_im",
           next:  "install_sap"
         },
-	"install_sap" => {
+        "install_sap" => {
           abort: :abort,
           next:  "tuning"
         },
-	"tuning" => {
+        "tuning" => {
           abort: :abort,
           next:  "hana_firewall"
         },
-	"hana_firewall" => {
+        "hana_firewall" => {
           abort: :abort,
           next:  :next
         }
@@ -95,7 +95,7 @@ module Y2Sap
       end
 
       def run
-	log.info("Start the sap-installation-wizard")
+        log.info("Start the sap-installation-wizard")
         Yast::Wizard.CreateDialog
         Yast::Wizard.SetDesktopTitleAndIcon("sap-installation-wizard")
         super(sequence: SEQUENCE_HASH)
@@ -104,7 +104,7 @@ module Y2Sap
       def read
         @media    = Y2Sap::Media.new
         @products = Y2Sap::Products.new(@media)
-	@media.nil? ? :abort : :next
+        @media.nil? ? :abort : :next
       end
 
       def read_im
@@ -124,40 +124,40 @@ module Y2Sap
       end
 
       def nw_installation_mode
-	log.info("Start nw_installation_mode")
-	@products.nw_installation_mode
+        log.info("Start nw_installation_mode")
+        @products.nw_installation_mode
       end
 
       def nw_product
-	log.info("Start nw_product")
-	@products.nw_product
+        log.info("Start nw_product")
+        @products.nw_product
       end
 
       def install_sap
-	@products.install_sap
+        @products.install_sap
       end
 
       def add_repo
         #TODO
         print "add_repo"
-	:next
+        :next
       end
 
       def read_parameter
-	@products.read_parameter
-	:next
+        @products.read_parameter
+        :next
       end
 
       def tuning
         #TODO
         print "tuning"
-	:next
+        :next
       end
 
       def hana_firewall
         #TODO
         print "hana_firewall"
-	:next
+        :next
       end
 
     end

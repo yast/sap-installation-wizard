@@ -66,26 +66,26 @@ module Y2Sap
         end
 
         reset_variables()
-	next if !copy_product_media(prod["media"])
-	case @inst_master_type
-	  when "SAPINST"
-	     prepare_sapinst(prod)
-	  when "HANA"
-	     prepare_hana(prod)
-	  when /^B1/
-	     prepare_b1(prod)
-	  when "TREX"
-	     prepare_trex(prod)
-	end
-	next if @ERROR
-	@script << " -m '%s' -i '%s' -t '%s' -y '%s' -d '%s'" % [ 
+        next if !copy_product_media(prod["media"])
+        case @inst_master_type
+          when "SAPINST"
+             prepare_sapinst(prod)
+          when "HANA"
+             prepare_hana(prod)
+          when /^B1/
+             prepare_b1(prod)
+          when "TREX"
+             prepare_trex(prod)
+        end
+        next if @ERROR
+        @script << " -m '%s' -i '%s' -t '%s' -y '%s' -d '%s'" % [ 
             @inst_dir + "/Instmaster",
             @PRODUCT_ID,
             @DB,
             @inst_master_type,
             @inst_dir ]
-	log.info("Starting Installation : #{script}")
-	run_script()
+        log.info("Starting Installation : #{script}")
+        run_script()
       }
     end
 
@@ -111,11 +111,11 @@ module Y2Sap
     def copy_product_media(media)
       media.each { |medium|
         url = medium["url"].split("://")
-	url_apth = mount_source(url[0],url[1])
+        url_apth = mount_source(url[0],url[1])
         if "ERROR:" == url_apth[0,6]
           log.info("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
           Yast::Popup.Error("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
-	  return false
+          return false
         else
           case medium["type"].downcase
           when "supplement"
@@ -152,8 +152,8 @@ module Y2Sap
       end
       if @PRODUCT_ID == ""
          Yast::Popup.Error("The SAP PRODUCT_ID is not defined.")
-	 @ERROR = true
-	 return
+         @ERROR = true
+         return
       end
       SCR.Execute(path(".target.bash"), "cp " + @ay_dir_base + "/doc.dtd " + @inst_dir)
       SCR.Execute(path(".target.bash"), "cp " + @ay_dir_base + "/keydb.dtd " + @inst_dir)
@@ -170,7 +170,7 @@ module Y2Sap
       @PRODUCT_ID   = @inst_master_type
       if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
         Yast::Popup.Error("Some of the required parameters are not defined.")
-	@ERROR = true
+        @ERROR = true
         next
       end
       if ! prod.has_key?("sapMDC")

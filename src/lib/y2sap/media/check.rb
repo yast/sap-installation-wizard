@@ -90,12 +90,12 @@ module Y2Sap
       labels = []
       IO.readlines(path + '/start_dir.cd').each do |medium|
         next if medium =~ /Instmaster/
-	labels << IO.readlines(medium.chomp + '/LABEL.ASC')[0].chomp
+        labels << IO.readlines(medium.chomp + '/LABEL.ASC')[0].chomp
       end
       packages = ""
       #Now we read the packages file from the intstallation master
       IO.popen(["find",path + '/Instmaster',"-name","packages.xml"]) do |io|
-        packages << io.read  	      
+        packages << io.read                
       end
       log.debug("packages #{packages.size} #{packages}")
       dbm    = ""
@@ -119,7 +119,7 @@ module Y2Sap
             if label =~ /#{pattern}/ || label_1 =~ /#{pattern}/
               found_label = true
               break
-	    end
+            end
           end
           if !found_label
             found = false
@@ -127,17 +127,17 @@ module Y2Sap
           end
           #check if it is a database media
           @databases.each do |db|
-	    if ! label.index(db).nil?
+            if ! label.index(db).nil?
               log.debug("DB #{db} ##  #{label} ##  #{@dbmap[db]}")
               dbm = @dbmap[db]
               break
             end
           end
         end
-	if found
-	  tmp = xml_file.sub(/^.*Instmaster./,'')
+        if found
+          tmp = xml_file.sub(/^.*Instmaster./,'')
           valid << tmp.sub('/packages.xml','')
-	end
+        end
       end
       ret = {
         "product_dir" => valid,

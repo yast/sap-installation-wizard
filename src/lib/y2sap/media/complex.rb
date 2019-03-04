@@ -45,7 +45,7 @@ module Y2Sap
         @inst_master_version= Ops.get(inst_master_list, 2, "")
 
         log.info("found SAP instmaster at #{@inst_master_path} type #{@inst_master_type} version #{@inst_master_version}")
-	if @inst_master_path.nil? || @inst_master_path.size == 0
+        if @inst_master_path.nil? || @inst_master_path.size == 0
           Yast::Popup.Error(_("The location has expired or does not point to an SAP installation master.\nPlease check your input."))
         else
           run = false
@@ -143,7 +143,7 @@ module Y2Sap
         return :back  if ret == :back
         #Y2Sap::MediaCopy.copy_dir(@source_dir, @inst_dir, "Supplement")
         copy_dir(@source_dir, @inst_dir, "Supplement")
-	parse_xml(@inst_dir + "/Supplement/product.xml")
+        parse_xml(@inst_dir + "/Supplement/product.xml")
         run = Yast::Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))
       end
       return :next
