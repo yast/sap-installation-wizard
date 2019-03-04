@@ -8,6 +8,7 @@ task "coverage" do
 end
 
 Yast::Tasks.configuration do |conf|
+  conf.skip_license_check << /.*/
 end
 
 desc "Run unit tests with coverage."
