@@ -36,7 +36,7 @@ module Y2Sap
 
     def config_value(prod,key)
       begin
-        xml     = IO.read( "/etc/sap-installation-wizard.xml" )
+	xml     = IO.read( @media.partitioning_dir_base )
         doc     = Nokogiri::XML(xml)
       rescue
 	log.error("Can not read /etc/sap-installation-wizard.xml")
@@ -63,7 +63,7 @@ module Y2Sap
 
     def get_filters(type)
       begin
-        xml     = IO.read( "/etc/sap-installation-wizard.xml" )
+	xml     = IO.read( @media.partitioning_dir_base )
         doc     = Nokogiri::XML(xml)
       rescue
 	log.error("Can not read /etc/sap-installation-wizard.xml")

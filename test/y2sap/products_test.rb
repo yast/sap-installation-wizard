@@ -34,6 +34,7 @@ describe Y2Sap::Products do
     let(:media) { Y2Sap::Media.new }
     before do
       change_scr_root("/")
+      subject.media.product_definitions = DATA_PATH + "/system/etc/sap-installation-wizard.xml"
     end
     it "check the initalization of global variables" do
       expect(subject.products_to_install).to be_a(Array)
@@ -62,6 +63,7 @@ describe Y2Sap::Products do
     let(:media) { Y2Sap::Media.new }
     before do
       change_scr_root(File.join(DATA_PATH, "system"))
+      subject.media.product_definitions = DATA_PATH + "/system/etc/sap-installation-wizard.xml"
     end
     it "reads the base configuration from sysconfig file" do
       expect(subject.media.mount_point).to eq "/tmp/mnt"

@@ -38,6 +38,9 @@ module Y2Sap
       # @return [String] The directory where the media will be copied
       attr_reader :media_dir
 
+      # @return [String] The path where to the file of the product definitions
+      attr_accessor :product_definitions
+
       # @return [String] The directory where the sap installation envinroments will be created
       attr_reader :inst_dir_base
 
