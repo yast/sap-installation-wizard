@@ -59,7 +59,7 @@ module Y2Sap
           Ops.get_string(product_data, "TYPE", ""),
           Ops.get_string(product_data, "instDir", ""),
         )
-	log.info("product_data: #{product_data}")
+        log.info("product_data: #{product_data}")
         # Add script
         @script_list << "/bin/sh -x " + Ops.get_string(product_data, "SCRIPT_NAME", "") + params
 

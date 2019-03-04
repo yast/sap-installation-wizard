@@ -75,7 +75,7 @@ module Y2Sap
         case UI.UserInput
         when :next
           @PRODUCT_ID = Convert.to_string(UI.QueryWidget(Id(:products), :CurrentItem))
-	  if @PRODUCT_ID.nil?
+          if @PRODUCT_ID.nil?
             run = true
             Yast::Popup.Message(_("Select a product!"))
           else

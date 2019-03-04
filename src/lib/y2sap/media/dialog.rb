@@ -73,7 +73,7 @@ module Y2Sap
       Wizard.SetContents(
         _("SAP Installation Wizard"),
         content,
-	"",
+        "",
         @has_back,
         true
       )
@@ -195,9 +195,9 @@ module Y2Sap
 
     def do_loop(wizard)
       while true
-	user_input = UI.UserInput
+        user_input = UI.UserInput
         log.info("User Input #{user_input}")
-	case user_input
+        case user_input
         when :back
             return :back
         when :abort, :cancel

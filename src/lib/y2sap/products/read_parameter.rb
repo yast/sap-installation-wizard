@@ -36,10 +36,10 @@ module Y2Sap
       setup_installation_enviroment
       if Yast::Popup.YesNo(_("Installation profile is ready.\n" +
           "Are there more SAP products to be prepared for installation?"))
-	@media.product_count = @media.product_count.next
-	@media.inst_dir = "%s/%d" % [ @media.inst_dir_base, @media.product_count ]
+        @media.product_count = @media.product_count.next
+        @media.inst_dir = "%s/%d" % [ @media.inst_dir_base, @media.product_count ]
         SCR.Execute(path(".target.bash"), "mkdir -p " + @media.product_count )
-	return "read_im"
+        return "read_im"
       end
       return :next
     end
@@ -85,10 +85,10 @@ module Y2Sap
       )
       Wizard.RestoreAbortButton()
       # First we execute the autoyast xml file of the product if this exeists
-      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + '/' +  get_product_parameter("ay_xml")	    
+      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + '/' +  get_product_parameter("ay_xml")            
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
+        WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
         end
