@@ -707,23 +707,29 @@ module Yast
         mopts = "-o ro"
         if Builtins.haskey(parsedURL, "workgroup") &&
             Ops.get_string(parsedURL, "workgroup", "") != ""
-          mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "password", "")
         elsif Builtins.haskey(parsedURL, "user") &&
             Ops.get_string(parsedURL, "user", "") != ""
-          mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "password", "")
         else
           mopts = Ops.add(mopts, ",guest")
         end
+        mopts = mopts + ",dir_mode=0777,file_mode=0777"
+
+	server=Ops.get_string(parsedURL, "host", "")
+	if server =~ /windows.net$/
+	   mopts = mopts + ",sec=ntlmssp,vers=3.0"
+	end
 
         SCR.Execute(path(".target.bash"), Ops.add("/bin/umount ", @mountPoint)) # old (dead) mounts
         Builtins.y2milestone(
           "smbMount: %1",
-          "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mmount + " " + mopts
+          "/sbin/mount.cifs //" + server + mpath + " " + @mmount + " " + mopts
         )
         out = Convert.to_map(
           SCR.Execute(
             path(".target.bash_output"),
-            "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mmount + " " + mopts
+            "/sbin/mount.cifs //" + server + mpath + " " + @mmount + " " + mopts
           )
         )
         if Ops.get_string(out, "stderr", "") != ""
