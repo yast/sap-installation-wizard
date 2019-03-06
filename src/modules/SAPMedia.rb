@@ -1648,11 +1648,15 @@ module Yast
            when "smb"
             mopts = "-o ro"
             if url["workgroup"] != ""
-               mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
+               mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["password"]
             elsif url["user"] != ""
-               mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
+               mopts = mopts + ",username=" + url["user"] + ",password=" + url["password"]
             else
                mopts = mopts + ",guest"
+            end
+            mopts = mopts + ",dir_mode=0777,file_mode=0777"
+            if url["host"] =~ /windows.net$/
+              mopts = mopts + ",sec=ntlmssp,vers=3.0"
             end
             command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
         end
