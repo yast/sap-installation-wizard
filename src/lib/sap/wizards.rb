@@ -44,9 +44,9 @@ module Yast
         hanaInstanceNumbers = []
         Builtins.y2milestone("-- ApplyHANAFirewall SAPProduct Read --")
         prodCount = 0;
-        while Dir.exists?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
+        while Dir.exist?(  Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount) )
           instDir = Builtins.sformat("%1/%2/", SAPMedia.instDirBase, prodCount)
-          if File.exists?( instDir + "/installationSuccesfullyFinished.dat" ) && File.exists?( instDir + "/product.data")
+          if File.exist?( instDir + "/installationSuccesfullyFinished.dat" ) && File.exist?( instDir + "/product.data")
             productData = Convert.convert(
                SCR.Read(path(".target.ycp"), instDir + "/product.data"),
                :from => "any",

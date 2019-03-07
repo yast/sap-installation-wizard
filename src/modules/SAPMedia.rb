@@ -159,10 +159,10 @@ module Yast
       end
 
       # If there are installation profiles waiting to be installed, ask user what they want to do with them.
-      while Dir.exists?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
+      while Dir.exist?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
         @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
         @prodCount = @prodCount.next
-        if !File.exists?(@instDir + "/installationSuccesfullyFinished.dat") && File.exists?(@instDir + "/product.data")
+        if !File.exist?(@instDir + "/installationSuccesfullyFinished.dat") && File.exist?(@instDir + "/product.data")
           # Do not care about existing installations if we make autoinstallation
           next if Mode.mode() == "autoinstallation"
 

@@ -489,7 +489,7 @@ module Yast
                 " export PRC_DEACTIVATE_CHECKS=true;" +
                 SAPInst.instMasterPath + "/sapinst SAPINST_EXECUTE_PRODUCT_ID=" + SAPInst.PRODUCT_ID + " SAPINST_STOP_AFTER_DIALOG_PHASE=true SAPINST_DETAIL_SUMMARY=false"
           #TODO VIRTHOST MUST BE CONFIGURED HERE NOT IN THE SCRIPT
-          if File.exists?(SAPInst.instDir + "/ay_q_virt_hostname")
+          if File.exist?(SAPInst.instDir + "/ay_q_virt_hostname")
               hostname=IO.read(SAPInst.instDir + "/ay_q_virt_hostname")
               hostname = hostname.chomp
               cmd = cmd + " SAPINST_USE_HOSTNAME=" + hostname
