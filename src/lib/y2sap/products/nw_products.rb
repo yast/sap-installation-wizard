@@ -40,9 +40,9 @@ module Y2Sap
       log.info("-- Start SelectNWProduct ---")
       product_item_table = []
       if @inst_type == 'STANDALONE'
-        @DB = 'IND'
+        @db = 'IND'
       end
-      @product_list = get_nw_products(@media.inst_dir,@inst_type,@DB,@product_map["product_dir"])
+      @product_list = get_nw_products(@media.inst_dir,@inst_type,@db,@product_map["product_dir"])
       if @product_list.nil? or @product_list.empty?
          Yast::Popup.Error(_("The medium does not contain SAP installation data."))
          return :back
@@ -74,14 +74,14 @@ module Y2Sap
       while run
         case UI.UserInput
         when :next
-          @PRODUCT_ID = Convert.to_string(UI.QueryWidget(Id(:products), :CurrentItem))
-          if @PRODUCT_ID.nil?
+          @product_id = Convert.to_string(UI.QueryWidget(Id(:products), :CurrentItem))
+          if @product_id.nil?
             run = true
             Yast::Popup.Message(_("Select a product!"))
           else
             run = false
             @product_list.each { |map|
-               @PRODUCT_NAME = map["name"] if @PRODUCT_ID == map["id"]
+               @product_name = map["name"] if @product_id == map["id"]
             }
           end
         when :back

@@ -52,20 +52,20 @@ module Y2Sap
        @my_hostname  = Ops.get_string(hostname_out, "stdout", "")
        @my_hostname.strip!
 
-      # For HANA B1 and  TREX there is no @DB @PRODUCT_NAME and @PRODUCT_ID set at this time
+      # For HANA B1 and  TREX there is no @db @product_name and @product_id set at this time
       case @media.inst_master_type
         when "HANA"
-           @DB           = "HDB"
-           @PRODUCT_NAME = "HANA"
-           @PRODUCT_ID   = "HANA"
+           @db           = "HDB"
+           @product_name = "HANA"
+           @product_id   = "HANA"
         when /^B1/
-           @DB           = ""
-           @PRODUCT_NAME = "B1"
-           @PRODUCT_ID   = "B1"
+           @db           = ""
+           @product_name = "B1"
+           @product_id   = "B1"
         when "TREX"
-           @DB           = ""
-           @PRODUCT_NAME = "TREX"
-           @PRODUCT_ID   = "TREX"
+           @db           = ""
+           @product_name = "TREX"
+           @product_id   = "TREX"
       end
     end
 
@@ -107,27 +107,27 @@ module Y2Sap
     def setup_installation_enviroment
       inifile_params = get_product_parameter("inifile_params") == "" ? ""   : @media.ay_dir_base + '/' +  get_product_parameter("inifile_params")
 
-      # inifile_params can be contains DB-name
-      inifile_params = inifile_params.gsub("##DB##",@DB)
+      # inifile_params can be contains db-name
+      inifile_params = inifile_params.gsub("##DB##",@db)
 
       # Create the parameter.ini file
       if File.exist?(inifile_params)
         inifile = File.read(inifile_params)
-        Dir.glob(@media.inst_dir + "/ay_q_*").each { |param|
+        Dir.glob(@media.inst_dir + "/ay_q_*").each do |param|
            par = param.gsub(/^.*\/ay_q_/,"")
            val = IO.read(param).chomp
            pattern = "##" + par + "##"
            inifile.gsub!(/#{pattern}/,val)
-        }
+	end
         # Replace ##VirtualHostname## by the real hostname.
         inifile.gsub!(/##VirtualHostname##/,my_hostname)
         # Replace kernel base
-        File.readlines(@media.inst_dir + "/start_dir.cd").each { |path|
+        File.readlines(@media.inst_dir + "/start_dir.cd").each do |path|
           if path.include?("KERNEL")
             inifile.gsub!(/##kernel##/,path.chomp)
             break
           end
-        }
+	end
         File.write(@media.inst_dir + "/inifile.params",inifile)
       end
       if @media.inst_master_type == "SAPINST"
@@ -139,36 +139,36 @@ module Y2Sap
       script_name    = @media.ay_dir_base + '/' +  get_product_parameter("script_name")
       partitioning   = get_product_parameter("partitioning")   == "" ? "NO" : get_product_parameter("partitioning")
       SCR.Write( path(".target.ycp"), @media.inst_dir + "/product.data",  {
-            "instDir" =>      @media.inst_dir,
-            "instMaster" =>   @media.inst_dir + "/Instmaster",
-            "TYPE" =>         @media.inst_master_type,
-            "DB" =>           @DB,
-            "PRODUCT_NAME" => @PRODUCT_NAME,
-            "PRODUCT_ID" =>   @PRODUCT_ID,
-            "PARTITIONING" => partitioning,
-            "SID" =>          @sid,
-            "INSTNUMBER" =>   @inst_number,
-            "SCRIPT_NAME" =>  script_name
-          })
+        "inst_dir"     => @media.inst_dir,
+        "inst_master"  => @media.inst_dir + "/Instmaster",
+        "type"         => @media.inst_master_type,
+        "db"           => @db,
+        "product_name" => @product_name,
+        "product_id"   => @product_id,
+        "partitioning" => partitioning,
+        "sid"          => @sid,
+        "instnumber"   => @inst_number,
+        "script_name"  => script_name
+      })
 
       @products_to_install << @media.inst_dir
       # Adapt the rights of the installation directory
-      instDirMode = @media.inst_master_type == "SAPINST" ? "770" : "775"
+      inst_dir_mode = @media.inst_master_type == "SAPINST" ? "770" : "775"
       cmd = "groupadd sapinst; " +
             "usermod --groups sapinst root; " +
             "chgrp sapinst " + @media.inst_dir + ";" +
-            "chmod " + instDirMode + " " + @media.inst_dir + ";"
+            "chmod " + inst_dir_mode + " " + @media.inst_dir + ";"
       log.info("-- Prepare sapinst #{cmd}" )
       SCR.Execute(path(".target.bash"), cmd)
     end
 
     # @return [String] read a value from the product list
     def get_product_parameter(product_parameter)
-      @product_list.each { |p|
-        if p["id"] == @PRODUCT_ID
-          return p.has_key?(product_parameter) ? p[product_parameter] : ""
+      @product_list.each do |p|
+        if p["id"] == @product_id
+          return p.key?(product_parameter) ? p[product_parameter] : ""
         end
-      }
+      end
       return ""
     end
   end

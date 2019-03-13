@@ -39,6 +39,7 @@ module Yast
 end
 
 module SAPInstaller
+  # Add vendor repositories to SLES4SAP
   class AddRepoWizardDialog
     include Yast::UIShortcuts
     include Yast::I18n
@@ -61,8 +62,9 @@ module SAPInstaller
         when :add_repo
           begin
             begin
-                Yast::AddRepoInvoker.show
+              Yast::AddRepoInvoker.show
             rescue
+              log.error("ui_event_loop can not show ddRepoInvoker")
             end
           end while Yast::Popup.YesNo(_("Do you have more software repositories to add?"))
           return :next
@@ -79,15 +81,17 @@ module SAPInstaller
       end
     end
 
-    private
+  private
 
     def render_all
       Yast::Wizard.SetContents(
         _("Additional software repositories for your SAP installation"),
-        HVSquash(Frame("", VBox(
-          Left(Label(_("Do you use additional software repositories, such as 3rd-party SAP add-ons?"))),
-          Left(Label(_("Feel free to add them now. Otherwise, click \"Next\" to continue."))),
-          PushButton(Id(:add_repo), _("Add new software repositories"))
+        HVSquash(Frame("",
+          VBox(
+            Left(Label(_("Do you use additional software repositories, such as 3rd-party SAP add-ons?"))),
+            Left(Label(_("Feel free to add them now. Otherwise, click \"Next\" to continue."))),
+            PushButton(Id(:add_repo), _("Add new software repositories")
+          )
         ))),
         _("You now have an opportunity to add software repositories, for example: repositores for SAP partner solutions.\n" +
           "The step is completely optional, simply click \"Next\" if you do not use any additional repositories."),

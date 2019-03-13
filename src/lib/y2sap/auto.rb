@@ -28,9 +28,8 @@ require "y2sap/media/find"
 require "y2sap/media/mount"
 
 module Y2Sap
+  # Represent an AutoYaST module for the installation of SAP products
   class AutoInst < Y2Sap::Configuration::Media
-    # Represent an AutoYaST module for the installation of SAP products
-    #
     include Yast
     include Yast::Logger
     include Yast::I18n
@@ -59,34 +58,29 @@ module Y2Sap
     def write
       SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ")
       @product_count = -1
-      @sap_media_todo["products"].each { |prod|
-        if !prod.has_key?("media")
-           Yast::Popup.Error("You have to define the location of the installation media in the autoyast xml.")
-           next
+      @sap_media_todo["products"].each do |prod|
+        if !prod.key?("media")
+          Yast::Popup.Error("You have to define the location of the installation media in the autoyast xml.")
+          next
         end
 
-        reset_variables()
+        reset_variables
         next if !copy_product_media(prod["media"])
         case @inst_master_type
-          when "SAPINST"
-             prepare_sapinst(prod)
-          when "HANA"
-             prepare_hana(prod)
-          when /^B1/
-             prepare_b1(prod)
-          when "TREX"
-             prepare_trex(prod)
+        when "SAPINST"
+          prepare_sapinst(prod)
+        when "HANA"
+          prepare_hana(prod)
+        when /^B1/
+          prepare_b1(prod)
+        when "TREX"
+          prepare_trex(prod)
         end
         next if @ERROR
-        @script << " -m '%s' -i '%s' -t '%s' -y '%s' -d '%s'" % [ 
-            @inst_dir + "/Instmaster",
-            @PRODUCT_ID,
-            @DB,
-            @inst_master_type,
-            @inst_dir ]
-        log.info("Starting Installation : #{script}")
-        run_script()
-      }
+        @script << " -m '#{@inst_dir}/Instmaster' -i '#{@product_id}' -t '#{@DB}' -y '#{@inst_master_type}' -d '#{@inst_dir}'"
+	log.info("Starting Installation : #{script}")
+        run_script
+      end
     end
 
   private
@@ -94,22 +88,22 @@ module Y2Sap
     # installation this function resets the global variables in each loop
     # an increase the @product_count.
     def reset_variables
-      @media_list    = []
-      @script        = ""
-      @product_count = @product_count.next
-      @sid           = ""
+      @media_list       = []
+      @script           = ""
+      @product_count    = @product_count.next
+      @sid              = ""
       @inst_master_type = ""
       @inst_master_path = ""
-      @inst_dir = "%s/%s" % [ @inst_dir_base, @product_count ]
-      @DB = ""
-      @@PRODUCT_NAME = ""
-      @PRODUCT_ID    = ""
-      @ERROR         = false
+      @inst_dir         = "%s/%s" % [ @inst_dir_base, @product_count ]
+      @db               = ""
+      @product_name     = ""
+      @product_id       = ""
+      @error            = false
     end
 
     # Copies the installation media needed for one SAP product.
     def copy_product_media(media)
-      media.each { |medium|
+      media.each do |medium|
         url = medium["url"].split("://")
         url_apth = mount_source(url[0],url[1])
         if "ERROR:" == url_apth[0,6]
@@ -120,7 +114,7 @@ module Y2Sap
           case medium["type"].downcase
           when "supplement"
             copy_dir(@mount_point, @inst_dir, "Supplement")
-            #TODO execute profile.xml on media
+            # TODO EXECUTE profile.xml ON MEDIa
           when "sap"
             inst_master_list = is_instmaster(@mount_point)
             if inst_master_list.empty?
@@ -138,21 +132,21 @@ module Y2Sap
           end
         end
         umount_source()
-      }
+      end
     end
 
     # Sets the global variables for an sapinst (NetWeaver) installation evaluated
     # from the autoyast hash.
     def prepare_sapinst(prod)
-      @DB           = prod.has_key?("DB")          ? prod["DB"]          : ""
-      @PRODUCT_NAME = prod.has_key?("productName") ? prod["productName"] : ""
-      @PRODUCT_ID   = prod.has_key?("productID")   ? prod["productID"]   : ""
-      if prod.has_key?("iniFile")
+      @db           = prod.key?("DB")          ? prod["DB"]          : ""
+      @product_name = prod.key?("productName") ? prod["productName"] : ""
+      @product_id   = prod.key?("productID")   ? prod["productID"]   : ""
+      if prod.key?("iniFile")
          File.write(@inst_dir + "/inifile.params",  prod["iniFile"])
       end
-      if @PRODUCT_ID == ""
-         Yast::Popup.Error("The SAP PRODUCT_ID is not defined.")
-         @ERROR = true
+      if @product_id == ""
+         Yast::Popup.Error("The SAP product_id is not defined.")
+         @error = true
          return
       end
       SCR.Execute(path(".target.bash"), "cp " + @ay_dir_base + "/doc.dtd " + @inst_dir)
@@ -165,22 +159,22 @@ module Y2Sap
     # Sets the global variables for a HANA installation evaluated
     # from the autoyast hash.
     def prepare_hana(prod)
-      @DB           = "HANA"
-      @PRODUCT_NAME = @inst_master_type
-      @PRODUCT_ID   = @inst_master_type
-      if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
+      @db           = "HANA"
+      @product_name = @inst_master_type
+      @product_id   = @inst_master_type
+      if ! prod.key?("sapMasterPW") or ! prod.key?("sid") or ! prod.key?("sapInstNr")
         Yast::Popup.Error("Some of the required parameters are not defined.")
-        @ERROR = true
+        @error = true
         next
       end
-      if ! prod.has_key?("sapMDC")
+      if ! prod.key?("sapMDC")
         prod["sapMDC"] = "no"
       end
       File.write(@inst_dir + "/ay_q_masterpass", prod["sapMasterPW"])
       File.write(@inst_dir + "/ay_q_sid",        prod["sid"])
       File.write(@inst_dir + "/ay_q_sapinstnr",  prod["sapInstNr"])
       File.write(@inst_dir + "/ay_q_sapmdc",     prod["sapMDC"])
-      if prod.has_key?("sapVirtHostname")
+      if prod.key?("sapVirtHostname")
          File.write(@inst_dir + "/ay_q_virt_hostname",     prod["sapVirtHostname"])
       end
       @sid = prod["sid"]
@@ -214,11 +208,11 @@ module Y2Sap
         true,
         true
       )
-      Open3.popen2e(script) {|i,o,t|
+      Open3.popen2e(script) do |i,o,t|
         i.close
         n=0
         text=""
-        o.each_line {|line|
+        o.each_line do |line|
           f << line
           text << line
           if n > 30
@@ -228,9 +222,9 @@ module Y2Sap
           else
             n = n.next
           end
-        }
+	end
         exit_status = t.value.exitstatus
-      }
+      end
       f.close
       log.info("Exit code of script : #{exit_status}")
       if exit_status != 0

@@ -44,9 +44,9 @@ module Y2Sap
       @product_map    = @media.get_products_for_media(@media.inst_dir )
       log.info("@product_map #{@product_map}")
       @inst_type     = ""
-      @DB            = ""
-      @PRODUCT_ID    = ""
-      @PRODUCT_NAME  = ""
+      @db            = ""
+      @product_id    = ""
+      @product_name  = ""
 
       log.info("known variables " + self.instance_variables.join(" ") )
       log.info("@dialog_text #{@dialog_text}")
@@ -92,7 +92,7 @@ module Y2Sap
          UI.ChangeWidget(Id("STANDALONE"), :Enabled, false)
          UI.ChangeWidget(Id("SBC"),        :Enabled, false)
       end
-      adapt_db(@product_map["DB"])
+      adapt_db(@product_map["db"])
       media = File.read(@media.inst_dir  + "/start_dir.cd")
       if ! media.include?("KERNEL")
          UI.ChangeWidget(Id("STANDARD"),    :Enabled, false)
@@ -121,7 +121,7 @@ module Y2Sap
           UI.ChangeWidget(Id(:db), :Enabled, false)
           @inst_type = Convert.to_string(UI.QueryWidget(Id(:type), :CurrentButton))
         when /DB6|ADA|ORA|HDB|SYB/
-          @DB = Convert.to_string(UI.QueryWidget(Id(:db), :CurrentButton))
+          @db = Convert.to_string(UI.QueryWidget(Id(:db), :CurrentButton))
         when :next
           run = false
           if @inst_type == ""
@@ -129,7 +129,7 @@ module Y2Sap
             Yast::Popup.Message(_("Please choose an SAP installation type."))
             next
           end
-          if @inst_type !~ /STANDALONE|SBC/ and @DB == ""
+          if @inst_type !~ /STANDALONE|SBC/ and @db == ""
             run = true
             Yast::Popup.Message(_("Please choose a back-end database."))
             next
@@ -160,28 +160,28 @@ module Y2Sap
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
+           @db = data_base
          when "HDB"
            UI.ChangeWidget(Id("HDB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
+           @db = data_base
          when "SYB"
            UI.ChangeWidget(Id("SYB"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("DB6"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
+           @db = data_base
          when "DB6"
            UI.ChangeWidget(Id("DB6"), :Value, true)
            UI.ChangeWidget(Id("ADA"), :Enabled, false)
            UI.ChangeWidget(Id("HDB"), :Enabled, false)
            UI.ChangeWidget(Id("SYB"), :Enabled, false)
            UI.ChangeWidget(Id("ORA"), :Enabled, false)
-           @DB = data_base
+           @db = data_base
          when "ORA"
            # FATE
            Yast::Popup.Error( _("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))

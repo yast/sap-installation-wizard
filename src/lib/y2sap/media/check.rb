@@ -128,7 +128,7 @@ module Y2Sap
           #check if it is a database media
           @databases.each do |db|
             if ! label.index(db).nil?
-              log.debug("DB #{db} ##  #{label} ##  #{@dbmap[db]}")
+              log.debug("db #{db} ##  #{label} ##  #{@dbmap[db]}")
               dbm = @dbmap[db]
               break
             end
@@ -141,7 +141,7 @@ module Y2Sap
       end
       ret = {
         "product_dir" => valid,
-        "DB"          => dbm,
+        "db"          => dbm,
         "TREX"        => trex
       }
       return ret

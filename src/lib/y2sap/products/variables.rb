@@ -73,10 +73,10 @@ module Y2Sap
         script_name:  config_value("TREX", "script_name")
       }
       
-      @DB            = ""
+      @db            = ""
       @inst_type     = ""
-      @PRODUCT_ID    = ""
-      @PRODUCT_NAME  = ""
+      @product_id    = ""
+      @product_name  = ""
       @product_map   = {}
       @products_to_install = []
 

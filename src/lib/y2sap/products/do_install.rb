@@ -45,7 +45,7 @@ module Y2Sap
       @script_list       = []
       @partitioning_list = []
       @product_list      = []
-      @products_to_install.each { |instDir|
+      @products_to_install.each do |instDir|
         product_data = Convert.convert(
           SCR.Read(path(".target.ycp"), instDir + "/product.data"),
           :from => "any",
@@ -54,26 +54,26 @@ module Y2Sap
         params = Builtins.sformat(
           " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
           Ops.get_string(product_data, "instMaster", ""),
-          Ops.get_string(product_data, "PRODUCT_ID", ""),
-          Ops.get_string(product_data, "DB", ""),
-          Ops.get_string(product_data, "TYPE", ""),
-          Ops.get_string(product_data, "instDir", ""),
+          Ops.get_string(product_data, "product_id", ""),
+          Ops.get_string(product_data, "db", ""),
+          Ops.get_string(product_data, "type", ""),
+          Ops.get_string(product_data, "inst_dir", ""),
         )
         log.info("product_data: #{product_data}")
         # Add script
-        @script_list << "/bin/sh -x " + Ops.get_string(product_data, "SCRIPT_NAME", "") + params
+        @script_list << "/bin/sh -x " + Ops.get_string(product_data, "script_name", "") + params
 
         # Add product to install
-        @product_list << Ops.get_string(product_data, "PRODUCT_ID", "")
+        @product_list << Ops.get_string(product_data, "product_id", "")
 
         # Add product partitioning
-        ret = Ops.get_string(product_data, "PARTITIONING", "")
+        ret = Ops.get_string(product_data, "partitioning", "")
         if ret == nil
           # Default is base_partitioning
           ret = "base_partitioning"
         end
         @partitioning_list << ret if ret != "NO"
-      }
+      end
       log.info("To partition: #{@partitioning_list}")
       log.info("To install: #{@product_list}")
       log.info("To execute: #{@script_list}")
@@ -82,7 +82,7 @@ module Y2Sap
     # Start execute the install scripts
     def start_install_process
       require "open3"
-      @script_list.each { |intall_script|
+      @script_list.each do |intall_script|
         out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M"))
         date = Builtins.filterchars( Ops.get_string(out, "stdout", ""), "0123456789-.")
         logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
@@ -94,26 +94,26 @@ module Y2Sap
                                       true,
                                       true
                                       )
-        Open3.popen2e(intall_script) {|i,o,t|
-           i.close
-           n = 0
-           text = ""
-           o.each_line {|line|
-              f << line
-              text << line
-              if n > 30
-                  UI::ChangeWidget(Id("LOG"), :LastLine, text );
-                  n    = 0
-                  text = ""
-              else
-                  n = n.next
-              end
-           }
-        }
+        Open3.popen2e(intall_script) do |i,o,t|
+          i.close
+          n = 0
+          text = ""
+          o.each_line do |line|
+            f << line
+            text << line
+            if n > 30
+              UI::ChangeWidget(Id("LOG"), :LastLine, text );
+              n    = 0
+              text = ""
+            else
+              n = n.next
+            end
+	  end
+        end
         f.close
         sleep 5
         # Process.kill("TERM", pid)
-      }
+      end
     end
   end
 end

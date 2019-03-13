@@ -48,16 +48,16 @@ module Y2Sap
     attr_accessor :product_list
 
     # @return [String] The selected data base.
-    attr_accessor :DB
+    attr_accessor :db
 
     # @return [String] The selected installation mode.
     attr_accessor :inst_type
 
     # @return [String] The ID of the selected product.
-    attr_accessor :PRODUCT_ID
+    attr_accessor :product_id
 
     # @return [String] The name of selected product.
-    attr_accessor :PRODUCT_NAME
+    attr_accessor :product_name
 
     # @return [Map<String,String>] The list of the products can be installed 
     # and the data base.
