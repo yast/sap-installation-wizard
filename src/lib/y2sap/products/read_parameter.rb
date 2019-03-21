@@ -49,7 +49,7 @@ module Y2Sap
        @sid          =""
        @inst_number  =""
        hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname"))
-       @my_hostname  = Ops.get_string(hostname_out, "stdout", "")
+       @my_hostname = Ops.get_string(hostname_out, "stdout", "")
        @my_hostname.strip!
 
       # For HANA B1 and  TREX there is no @db @product_name and @product_id set at this time
@@ -85,7 +85,7 @@ module Y2Sap
       )
       Wizard.RestoreAbortButton()
       # First we execute the autoyast xml file of the product if this exeists
-      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + '/' +  get_product_parameter("ay_xml")            
+      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" +  get_product_parameter("ay_xml")            
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
         WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
@@ -105,7 +105,7 @@ module Y2Sap
     # Furthermore doc.dtd and keydb.dtd files will be copied into @media.inst_dir
     # For all SAP products the @media.inst_dir/product.data hash will be written 
     def setup_installation_enviroment
-      inifile_params = get_product_parameter("inifile_params") == "" ? ""   : @media.ay_dir_base + '/' +  get_product_parameter("inifile_params")
+      inifile_params = get_product_parameter("inifile_params") == "" ? ""   : @media.ay_dir_base + "/" +  get_product_parameter("inifile_params")
 
       # inifile_params can be contains db-name
       inifile_params = inifile_params.gsub("##DB##",@db)
@@ -136,7 +136,7 @@ module Y2Sap
       end
 
       #Write the product.data file
-      script_name    = @media.ay_dir_base + '/' +  get_product_parameter("script_name")
+      script_name    = @media.ay_dir_base + "/" +  get_product_parameter("script_name")
       partitioning   = get_product_parameter("partitioning")   == "" ? "NO" : get_product_parameter("partitioning")
       SCR.Write( path(".target.ycp"), @media.inst_dir + "/product.data",  {
         "inst_dir"     => @media.inst_dir,

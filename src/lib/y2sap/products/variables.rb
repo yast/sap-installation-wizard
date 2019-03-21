@@ -45,11 +45,11 @@ module Y2Sap
           name: _("Choose a Product")
         }
       }
-      
+
       # @product_list contains a list of hashes of the parameter of the products which can be installed
       # withe the selected installation medium. The parameter of HANA and B1 are constant
       # and can not be extracted from the datas on the IM of these products.
-      
+
       @product_list = []
       @product_list << {
         name:         "HANA",
@@ -72,7 +72,7 @@ module Y2Sap
         partitioning: config_value("TREX", "partitioning"),
         script_name:  config_value("TREX", "script_name")
       }
-      
+
       @db            = ""
       @inst_type     = ""
       @product_id    = ""

@@ -25,7 +25,7 @@ require "y2sap/clients/firstboot"
 
 describe Y2Sap::FirstbootInstSapClient do
   let(:client) do
-    instance_double(Y2Sap::FirstbootInstSapClient, main: :next)	  
+    instance_double(Y2Sap::FirstbootInstSapClient, main: :next)
   end
 
   describe "#main" do

@@ -34,7 +34,7 @@ module Y2Sap
       get_products(inst_env,db,nodes)
     end
 
-    def config_value(prod,key)
+    def config_value(prod, key)
       begin
         xml     = IO.read( @media.partitioning_dir_base )
         doc     = Nokogiri::XML(xml)
@@ -42,14 +42,14 @@ module Y2Sap
         log.error("Can not read /etc/sap-installation-wizard.xml")
         return ""
       end
-      doc.xpath('//listentry').each do |node|
+      doc.xpath("//listentry").each do |node|
         p  = {}
         ok = false
         node.children.each do |child|
-          next if child.name == nil
-          next if child.text == nil
-          next if child.name == 'search'
-          ok = true if child.name == 'name' && child.text == prod
+          next if child.name.nil?
+          next if child.text.nil?
+          next if child.name == "search"
+          ok = true if child.name == "name" && child.text == prod
           p[child.name] = child.text
         end
         if ok
@@ -70,7 +70,7 @@ module Y2Sap
         return ""
       end
       filters = []
-      doc.xpath('//listentry').each do |node|
+      doc.xpath("//listentry").each do |node|
         f  = [];
         n  = "";
         a  = "";
@@ -80,26 +80,26 @@ module Y2Sap
         ok = false;
         node.children.each do |child|
           case child.name
-        when 'search'
+        when "search"
           f << child.text
-        when 'name'
+        when "name"
           n = child.text
-        when 'ay_xml'
+        when "ay_xml"
           a = child.text
-        when 'partitioning'
+        when "partitioning"
           p = child.text
-        when 'script_name'
+        when "script_name"
           s = child.text
-        when 'inifile_params'
+        when "inifile_params"
           i = child.text
-        when 'type'
+        when "type"
           ok = true if child.text == type
           end
           if ok
         f.each do |filter|
           p = "base_partitioning" if( p == "" )
           s = "sap_inst.sh"       if( s == "" )
-          tmp = [ n, filter, a, p, s, i ]
+          tmp = [n, filter, a, p, s, i]
           filters << tmp
         end
           end
@@ -109,7 +109,7 @@ module Y2Sap
     end
     
     # searches the nodes from the product catalog file
-    def get_nodes(filters,inst_env,db,product_dir)
+    def get_nodes(filters, inst_env, db, product_dir)
        xml     = IO.read( inst_env + "/Instmaster/product.catalog" )
        doc     = Nokogiri::XML(xml)
        nodes   = []
@@ -118,7 +118,7 @@ module Y2Sap
          xmlpath = tmp[1]
          if xmlpath !~ /##PD##/
            doc.xpath(xmlfilter).each do |node|
-             atmp = [ tmp[0] , node, tmp[2], tmp[3], tmp[4], tmp[5] ]
+             atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
              nodes << atmp
            end
          else
@@ -130,7 +130,7 @@ module Y2Sap
              #puts pdpath
              doc.xpath(pdpath).each do |node|
                #puts pdpath
-               atmp = [ tmp[0] , node, tmp[2], tmp[3], tmp[4], tmp[5] ]
+               atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
                nodes << atmp
              end
            end
@@ -139,10 +139,10 @@ module Y2Sap
        return nodes
     end
     
-    def get_products(inst_env,db,nodes)
+    def get_products(inst_env, db, nodes)
       xml     = IO.read( inst_env + "/Instmaster/product.catalog" )
       doc     = Nokogiri::XML(xml)
-      make_hash = proc do |hash,key|
+      make_hash = proc do |hash, key|
         hash[key] = Hash.new(&make_hash)
       end
       products = Hash.new(&make_hash)
@@ -153,27 +153,27 @@ module Y2Sap
         gname = "";
         lname = "";
         #Get ID
-        id = node.attribute('id').text
+        id = node.attribute("id").text
         node.children.each do |child|
-         lname = child.text if child.name == 'display-name'
+         lname = child.text if child.name == "display-name"
         end
         gname = lname
         #puts id
         match = /.*:(.*)\.#{db}\./.match(id)
-        if match[1] != nil
-          doc.xpath('//components[@output-dir="'+match[1]+'"]/display-name').each do |n1|
+	if !match[1].nil?
+          doc.xpath("//components[@output-dir=\""+match[1]+"\"]/display-name").each do |n1|
             gname = n1.text
           end
         end
         if gname !~ /#{name}/
           gname = name+" "+gname
         end
-        products[gname]['name']           = gname
-        products[gname]['id']             = id
-        products[gname]['ay_xml']         = tmp[2]
-        products[gname]['partitioning']   = tmp[3]
-        products[gname]['script_name']    = tmp[4]
-        products[gname]['inifile_params'] = tmp[5]
+        products[gname]["name"]           = gname
+        products[gname]["id"]             = id
+        products[gname]["ay_xml"]         = tmp[2]
+        products[gname]["partitioning"]   = tmp[3]
+        products[gname]["script_name"]    = tmp[4]
+        products[gname]["inifile_params"] = tmp[5]
       end
       ret = []
       products.keys.sort.each do |key|
