@@ -39,7 +39,7 @@ describe Y2Sap::Products do
     it "check the initalization of global variables" do
       expect(subject.products_to_install).to be_a(Array)
       expect(subject.product_map).to be_a(Hash)
-      expect(subject.PRODUCT_NAME).to eq ""
+      expect(subject.product_name).to eq ""
       expect(subject.product_list.count).to eq 3
     end
     it "reads the default base configuration" do
@@ -51,12 +51,12 @@ describe Y2Sap::Products do
     it "initialize a HANA product enviroment" do
       subject.media.inst_master_type = "HANA"
       subject.init_envinroment
-      expect(subject.PRODUCT_NAME).to eq "HANA"
+      expect(subject.product_name).to eq "HANA"
     end
     it "initialize a B1 product enviroment" do
       subject.media.inst_master_type = "B1"
       subject.init_envinroment
-      expect(subject.PRODUCT_NAME).to eq "B1"
+      expect(subject.product_name).to eq "B1"
     end
   end
   context "sysconfig file does exist" do
