@@ -706,11 +706,11 @@ module Yast
         end
         mopts = "-o ro"
         if Builtins.haskey(parsedURL, "workgroup") &&
-            Ops.get_string(parsedURL, "workgroup", "") != ""
-          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "password", "")
+           Ops.get_string(parsedURL, "workgroup", "") != ""
+           mopts = mopts + ",username=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
         elsif Builtins.haskey(parsedURL, "user") &&
-            Ops.get_string(parsedURL, "user", "") != ""
-          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "password", "")
+           Ops.get_string(parsedURL, "user", "") != ""
+           mopts = mopts + ",username=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
         else
           mopts = Ops.add(mopts, ",guest")
         end
@@ -1648,9 +1648,9 @@ module Yast
            when "smb"
             mopts = "-o ro"
             if url["workgroup"] != ""
-               mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["password"]
+               mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
             elsif url["user"] != ""
-               mopts = mopts + ",username=" + url["user"] + ",password=" + url["password"]
+               mopts = mopts + ",username=" + url["user"] + ",password=" + url["pass"]
             else
                mopts = mopts + ",guest"
             end
