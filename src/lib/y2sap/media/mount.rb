@@ -64,9 +64,9 @@ module Y2Sap
       when "smb"
         mopts = "-o ro"
         if url["workgroup"] != ""
-          mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["password"]
+          mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
         elsif url["user"] != ""
-           mopts = mopts + ",username=" + url["user"] + ",password=" + url["password"]
+           mopts = mopts + ",username=" + url["user"] + ",password=" + url["pass"]
         else
            mopts = mopts + ",guest"
         end
@@ -141,10 +141,10 @@ module Y2Sap
       mopts = "-o ro"
       if parsedURL.has_key("workgroup") &&
         Ops.get_string(parsedURL, "workgroup", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
       elsif parsedURL.has_key("user") &&
         Ops.get_string(parsedURL, "user", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
       else
         mopts = mopts + ",guest"
       end
