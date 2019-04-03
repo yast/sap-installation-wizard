@@ -1,4 +1,5 @@
 # encoding: utf-8
+# rubocop:disable AlignHash
 
 # Copyright (c) [2017] SUSE LLC
 #
@@ -138,7 +139,7 @@ module Y2Sap
       end
 
       def add_repo
-        #TODO
+        # TODO: we have to implment this method
         print "add_repo"
         :next
       end
@@ -149,17 +150,16 @@ module Y2Sap
       end
 
       def tuning
-        #TODO
+        # TODO: we have to implment this method
         print "tuning"
         :next
       end
 
       def hana_firewall
-        #TODO
+        # TODO: we have to implment this method
         print "hana_firewall"
         :next
       end
-
     end
   end
 end

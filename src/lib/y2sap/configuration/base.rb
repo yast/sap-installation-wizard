@@ -22,9 +22,9 @@ require "yast"
 
 module Y2Sap
   module Configuration
-    include Yast
     # Class to read and edit thte SLES4SAP base configuration
     class Base
+      include Yast
 
       # @return [String] The architectur
       attr_reader :arch
@@ -71,7 +71,7 @@ module Y2Sap
       def initialize
         Yast.import "Misc"
         Yast.import "Arch"
-        @platform = 'LINUX'
+        @platform = "LINUX"
         @arch     =  Yast::Arch.architecture
         @mount_point = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.SOURCEMOUNT"),

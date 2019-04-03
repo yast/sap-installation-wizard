@@ -84,7 +84,7 @@ module Y2Sap
           -t '#{@db}' \
           -y '#{@inst_master_type}' \
           -d '#{@inst_dir}'"
-	log.info("Starting Installation : #{script}")
+        log.info("Starting Installation : #{script}")
         run_script
       end
     end
@@ -222,13 +222,13 @@ module Y2Sap
           f << line
           text << line
           if n > 30
-            UI::ChangeWidget(Id("LOG"), :LastLine, text );
+            UI::ChangeWidget(Id("LOG"), :LastLine, text)
             n    = 0
             text = ""
           else
             n = n.next
           end
-	end
+        end
         exit_status = t.value.exitstatus
       end
       f.close

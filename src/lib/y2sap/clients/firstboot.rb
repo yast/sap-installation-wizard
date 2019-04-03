@@ -23,8 +23,9 @@ require "yast"
 require "y2sap/partitioning/product_partitioning"
 
 module Y2Sap
-  include Yast
+  # Modul which will be started after the installation of the system
   class FirstbootInstSapClient < Client
+    include Yast
     include Y2Sap::ProductPartitioning
     include Yast::Logger
    
@@ -40,11 +41,16 @@ module Y2Sap
 
       @contents  = nil
       @help_text = ""
-      @closeMe   = false
+      @close_me   = false
+      create_dialog
+      ui_loop
+    end
 
+  private
+    def create_dialog
       if !Wizard.IsWizardDialog
         Wizard.CreateDialog
-        @closeMe = true
+        @close_me = true
       end
 
       # Check if hostname -f is set
@@ -53,19 +59,20 @@ module Y2Sap
       )
       @hostname = Ops.get_string(@out, "stdout", "")
       if @hostname == ""
-        if( Popup.AnyQuestion(_("The fully qualified hostname (FQHN) could not be detected."),
-                              _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
-                              _("Return to Network Setup"),
-                              _("Abort"),
-                              :focus_yes
-                              ))
+        if Popup.AnyQuestion(
+             _("The fully qualified hostname (FQHN) could not be detected."),
+             _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
+             _("Return to Network Setup"),
+             _("Abort"),
+             :focus_yes
+          )
           return :back
         else
           return :next
          end
       end
       @caption = _("Product Installation Mode")
-      @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
+      @help    = _("The standard installation of the Operating System has settled.") + "<br>" \
                  _("Now you can start the SAP Product Installation")
       @content = RadioButtonGroup(
         Id(:rb),
@@ -101,9 +108,11 @@ module Y2Sap
         true,
         true
       )
+    end
 
+    def ui_loop
       ret = nil
-      begin
+      until ret == :next || ret == :back
         ret = Wizard.UserInput
         log.info("ret #{ret}")
         case ret
@@ -112,7 +121,7 @@ module Y2Sap
         when :help
           Wizard.ShowHelp(@help)
         when :next
-          install   = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
+          install = Convert.to_string(UI.QueryWidget(Id(:rb), :CurrentButton))
           case install
           when "sap_install"
             WFM.CallFunction("sap_installation_wizard", [])
@@ -128,8 +137,8 @@ module Y2Sap
           SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
           Package.DoRemove(["sap-installation-start"])
         end
-      end until ret == :next || ret == :back
-      Wizard.CloseDialog() if @closeMe
+      end
+      Wizard.CloseDialog() if @close_me
       return ret
     end
   end
