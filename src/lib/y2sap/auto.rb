@@ -1,5 +1,4 @@
 # encoding: utf-8
-  
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -60,7 +59,9 @@ module Y2Sap
       @product_count = -1
       @sap_media_todo["products"].each do |prod|
         if !prod.key?("media")
-          Yast::Popup.Error("You have to define the location of the installation media in the autoyast xml.")
+          Yast::Popup.Error(
+            _("You have to define the location of the installation media in the autoyast xml.")
+          )
           next
         end
 
@@ -77,13 +78,19 @@ module Y2Sap
           prepare_trex(prod)
         end
         next if @ERROR
-        @script << " -m '#{@inst_dir}/Instmaster' -i '#{@product_id}' -t '#{@DB}' -y '#{@inst_master_type}' -d '#{@inst_dir}'"
+        @script << "
+          -m '#{@inst_dir}/Instmaster' \
+          -i '#{@product_id}' \
+          -t '#{@db}' \
+          -y '#{@inst_master_type}' \
+          -d '#{@inst_dir}'"
 	log.info("Starting Installation : #{script}")
         run_script
       end
     end
 
   private
+
     # As it is possible to install more then one SAP product in one autoyast
     # installation this function resets the global variables in each loop
     # an increase the @product_count.
@@ -94,7 +101,7 @@ module Y2Sap
       @sid              = ""
       @inst_master_type = ""
       @inst_master_path = ""
-      @inst_dir         = "%s/%s" % [ @inst_dir_base, @product_count ]
+      @inst_dir         = format("%s/%s",@inst_dir_base, @product_count)
       @db               = ""
       @product_name     = ""
       @product_id       = ""
@@ -105,8 +112,8 @@ module Y2Sap
     def copy_product_media(media)
       media.each do |medium|
         url = medium["url"].split("://")
-        url_apth = mount_source(url[0],url[1])
-        if "ERROR:" == url_apth[0,6]
+        url_apth = mount_source(url[0], url[1])
+        if "ERROR:" == url_apth[0, 6]
           log.info("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
           Yast::Popup.Error("Can not mount medium #{medium["url"]}. Reason #{url_apth}")
           return false
@@ -114,15 +121,15 @@ module Y2Sap
           case medium["type"].downcase
           when "supplement"
             copy_dir(@mount_point, @inst_dir, "Supplement")
-            # TODO EXECUTE profile.xml ON MEDIa
+            # TODO: EXECUTE profile.xml ON MEDIa
           when "sap"
             inst_master_list = is_instmaster(@mount_point)
             if inst_master_list.empty?
               sap_media = find_sap_media(@mount_point)
-              sap_media.each { |path,label|
+              sap_media.each do |path, label|
                 copy_dir(path, @media_dir, label)
                 @media_list << @media_dir + "/" + label
-              }
+              end
             else
               @inst_master_type = inst_master_list[0]
               @inst_master_path = inst_master_list[1]
@@ -131,7 +138,7 @@ module Y2Sap
             end
           end
         end
-        umount_source()
+        umount_source
       end
     end
 
@@ -142,16 +149,16 @@ module Y2Sap
       @product_name = prod.key?("productName") ? prod["productName"] : ""
       @product_id   = prod.key?("productID")   ? prod["productID"]   : ""
       if prod.key?("iniFile")
-         File.write(@inst_dir + "/inifile.params",  prod["iniFile"])
+        File.write(@inst_dir + "/inifile.params", prod["iniFile"])
       end
       if @product_id == ""
-         Yast::Popup.Error("The SAP product_id is not defined.")
-         @error = true
-         return
+        Yast::Popup.Error("The SAP product_id is not defined.")
+        @error = true
+        return
       end
       SCR.Execute(path(".target.bash"), "cp " + @ay_dir_base + "/doc.dtd " + @inst_dir)
       SCR.Execute(path(".target.bash"), "cp " + @ay_dir_base + "/keydb.dtd " + @inst_dir)
-      File.write(@inst_dir + "/start_dir.cd" , @media_list.join("\n"))
+      File.write(@inst_dir + "/start_dir.cd", @media_list.join("\n"))
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir + ";" + "chmod 770 " + @inst_dir)
       @script = @ay_dir_base + "/sap_inst_nodb.sh"
     end
@@ -162,20 +169,18 @@ module Y2Sap
       @db           = "HANA"
       @product_name = @inst_master_type
       @product_id   = @inst_master_type
-      if ! prod.key?("sapMasterPW") or ! prod.key?("sid") or ! prod.key?("sapInstNr")
+      if !prod.key?("sapMasterPW") || !prod.key?("sid") || !prod.key?("sapInstNr")
         Yast::Popup.Error("Some of the required parameters are not defined.")
         @error = true
         next
       end
-      if ! prod.key?("sapMDC")
-        prod["sapMDC"] = "no"
-      end
+      !prod.key?("sapMDC") || prod["sapMDC"] = "no"
       File.write(@inst_dir + "/ay_q_masterpass", prod["sapMasterPW"])
       File.write(@inst_dir + "/ay_q_sid",        prod["sid"])
       File.write(@inst_dir + "/ay_q_sapinstnr",  prod["sapInstNr"])
       File.write(@inst_dir + "/ay_q_sapmdc",     prod["sapMDC"])
       if prod.key?("sapVirtHostname")
-         File.write(@inst_dir + "/ay_q_virt_hostname",     prod["sapVirtHostname"])
+        File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
       end
       @sid = prod["sid"]
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
@@ -197,21 +202,22 @@ module Y2Sap
     end
 
     # Runs the sap installation script.
-    def run_script()
+    def run_script
       date = `date +%Y%m%d-%H%M`
       logfile = "/var/log/sap_inst." + date + ".log"
-      f = File.new(logfile,"w")
+      f = File.new(logfile, "w")
       exit_status = nil
-      Wizard.SetContents( _("SAP Product Installation"),
-        LogView(Id("LOG"),"",30,400),
+      Wizard.SetContents(
+        _("SAP Product Installation"),
+        LogView(Id("LOG"), "", 30, 400),
         "Help",
         true,
         true
       )
-      Open3.popen2e(script) do |i,o,t|
+      Open3.popen2e(script) do |i, o, t|
         i.close
-        n=0
-        text=""
+        n = 0
+        text = ""
         o.each_line do |line|
           f << line
           text << line
@@ -228,7 +234,10 @@ module Y2Sap
       f.close
       log.info("Exit code of script : #{exit_status}")
       if exit_status != 0
-        Yast::Popup.Error("Installation failed. For details please check log files at /var/tmp and /var/adm/autoinstall/logs.")
+        Yast::Popup.Error(
+          _("Installation failed. For details please check log files at \
+            /var/tmp and /var/adm/autoinstall/logs.")
+        )
       end
     end
   end
