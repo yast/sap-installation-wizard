@@ -21,11 +21,11 @@
 #
 require "yast"
 require "y2sap/partitioning/product_partitioning"
+include Yast
 
 module Y2Sap
   # Modul which will be started after the installation of the system
   class FirstbootInstSapClient < Client
-    include Yast
     include Y2Sap::ProductPartitioning
     include Yast::Logger
    
@@ -72,7 +72,7 @@ module Y2Sap
          end
       end
       @caption = _("Product Installation Mode")
-      @help    = _("The standard installation of the Operating System has settled.") + "<br>" \
+      @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
                  _("Now you can start the SAP Product Installation")
       @content = RadioButtonGroup(
         Id(:rb),
