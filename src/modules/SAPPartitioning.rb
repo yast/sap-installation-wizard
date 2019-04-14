@@ -34,9 +34,9 @@ module Yast
         # This is a generic way for all SAP products and hardware
 	# Now it is possible to create product manufactutrer and model based partitioning files.
         partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
-	if ! File.exists(partXML)
+	if ! File.exist?(partXML)
            partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
-	   if ! File.exists(partXML)
+	   if ! File.exist?(partXML)
                partXML=@partXMLPath + '/' + productPartitioning + ".xml"
 	   end
 	end

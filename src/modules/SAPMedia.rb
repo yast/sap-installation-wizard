@@ -159,10 +159,10 @@ module Yast
       end
 
       # If there are installation profiles waiting to be installed, ask user what they want to do with them.
-      while Dir.exists?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
+      while Dir.exist?(  Builtins.sformat("%1/%2/", @instDirBase, @prodCount) )
         @instDir = Builtins.sformat("%1/%2", @instDirBase, @prodCount)
         @prodCount = @prodCount.next
-        if !File.exists?(@instDir + "/installationSuccesfullyFinished.dat") && File.exists?(@instDir + "/product.data")
+        if !File.exist?(@instDir + "/installationSuccesfullyFinished.dat") && File.exist?(@instDir + "/product.data")
           # Do not care about existing installations if we make autoinstallation
           next if Mode.mode() == "autoinstallation"
 
@@ -706,24 +706,30 @@ module Yast
         end
         mopts = "-o ro"
         if Builtins.haskey(parsedURL, "workgroup") &&
-            Ops.get_string(parsedURL, "workgroup", "") != ""
-          mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+           Ops.get_string(parsedURL, "workgroup", "") != ""
+           mopts = mopts + ",username=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
         elsif Builtins.haskey(parsedURL, "user") &&
-            Ops.get_string(parsedURL, "user", "") != ""
-          mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+           Ops.get_string(parsedURL, "user", "") != ""
+           mopts = mopts + ",username=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
         else
           mopts = Ops.add(mopts, ",guest")
         end
+        mopts = mopts + ",dir_mode=0777,file_mode=0777"
+
+	server=Ops.get_string(parsedURL, "host", "")
+	if server =~ /windows.net$/
+	   mopts = mopts + ",sec=ntlmssp,vers=3.0"
+	end
 
         SCR.Execute(path(".target.bash"), Ops.add("/bin/umount ", @mountPoint)) # old (dead) mounts
         Builtins.y2milestone(
           "smbMount: %1",
-          "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mmount + " " + mopts
+          "/sbin/mount.cifs //" + server + mpath + " " + @mmount + " " + mopts
         )
         out = Convert.to_map(
           SCR.Execute(
             path(".target.bash_output"),
-            "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mmount + " " + mopts
+            "/sbin/mount.cifs //" + server + mpath + " " + @mmount + " " + mopts
           )
         )
         if Ops.get_string(out, "stderr", "") != ""
@@ -1642,11 +1648,15 @@ module Yast
            when "smb"
             mopts = "-o ro"
             if url["workgroup"] != ""
-               mopts = mopts + ",user=" + url["workgroup"] + "/" + url["user"] + "%" + url["password"]
+               mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
             elsif url["user"] != ""
-               mopts = mopts + ",user=" + url["user"] + "%" + url["password"]
+               mopts = mopts + ",username=" + url["user"] + ",password=" + url["pass"]
             else
                mopts = mopts + ",guest"
+            end
+            mopts = mopts + ",dir_mode=0777,file_mode=0777"
+            if url["host"] =~ /windows.net$/
+              mopts = mopts + ",sec=ntlmssp,vers=3.0"
             end
             command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @mediaDir + " " + mopts 
         end

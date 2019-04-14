@@ -8,7 +8,7 @@ module Yast
 
       # MAIN
       textdomain "sap-installation-wizard"
-      if File.exists?("/root/inst-sys/start_rdp_service")
+      if File.exist?("/root/inst-sys/start_rdp_service")
          rdp = IO.read("/root/inst-sys/start_rdp_service")
 	 rdp.strip
 	 if rdp != "false"
@@ -20,7 +20,7 @@ module Yast
 	 end
       end
       # Check if we have to start at the end of the installation
-      if !File.exists?("/root/inst-sys/start_sap_wizard")
+      if !File.exist?("/root/inst-sys/start_sap_wizard")
 	 return :next
       end
       start = IO.read("/root/inst-sys/start_sap_wizard")
