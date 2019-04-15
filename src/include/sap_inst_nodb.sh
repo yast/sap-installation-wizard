@@ -567,7 +567,7 @@ service sshd start
 create_sapstartsrv_resources
 
 # set virtual hostname
-create_virt_interface
+#create_virt_interface
 
 # Disable SAP Installation Prerequisite Checker due to saplocales
 export PRC_DEACTIVATE_CHECKS=true
