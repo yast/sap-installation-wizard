@@ -567,7 +567,7 @@ service sshd start
 create_sapstartsrv_resources
 
 # set virtual hostname
-create_virt_interface
+#create_virt_interface
 
 # Disable SAP Installation Prerequisite Checker due to saplocales
 export PRC_DEACTIVATE_CHECKS=true
@@ -579,7 +579,6 @@ export PRC_DEACTIVATE_CHECKS=true
 cd ${SAPINST_DIR}
 SAPINST_CMD="${SAPCD_INSTMASTER}/sapinst \
 	SAPINST_EXECUTE_PRODUCT_ID=${SAPINST_PRODUCT_ID} \
-	SAPINST_DETAIL_SUMMARY=false \
 	SAPINST_SKIP_SUCCESSFULLY_FINISHED_DIALOG=true \
 	SAPINST_INPUT_PARAMETERS_URL=${SAPINST_DIR}/inifile.params "
 

@@ -869,7 +869,7 @@ if [ -d /sapdata ]; then
 fi
 
 # set virtual hostname
-create_virt_interface
+#create_virt_interface
 
 # Disable SAP Installation Prerequisite Checker due to saplocales
 export PRC_DEACTIVATE_CHECKS=true

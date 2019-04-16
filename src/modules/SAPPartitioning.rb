@@ -5,6 +5,7 @@
 # vim: set tabstop=4:expandtab
 require "yast"
 require "fileutils"
+require "open3"
 
 module Yast
   class SAPPartitioningClass < Module
@@ -33,9 +34,9 @@ module Yast
         # This is a generic way for all SAP products and hardware
 	# Now it is possible to create product manufactutrer and model based partitioning files.
         partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_" + model + ".xml"
-	if ! File.exists(partXML)
+	if ! File.exist?(partXML)
            partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
-	   if ! File.exists(partXML)
+	   if ! File.exist?(partXML)
                partXML=@partXMLPath + '/' + productPartitioning + ".xml"
 	   end
 	end
@@ -55,79 +56,32 @@ module Yast
       partitionTable = Table()
       partitionTable = Builtins.add(
         partitionTable,
-        Header("device", "mountpoint", "fs type", "size")
+        Header("device", "mountpoint", "size")
       )
       items = []
-      i = 0
-      devmap = Storage.GetTargetMap
-      Builtins.foreach(devmap) do |devkey, devvalue|
-        if Ops.get_string(devvalue, "name", "") != "tmpfs" &&
-            Ops.get_string(devvalue, "device", "") != "tmpfs"
-          i = Ops.add(i, 1)
-          items = Builtins.add(
-            items,
-            Item(
-              Id(i),
-              Ops.get_string(devvalue, "device", ""),
-              "",
-              "",
-              Ops.add(
-                Builtins.tostring(
-                  Ops.divide(
-                    Ops.divide(
-                      Builtins.tofloat(Ops.get_integer(devvalue, "size_k", 0)),
-                      Convert.convert(1024, :from => "integer", :to => "float")
-                    ),
-                    Convert.convert(1024, :from => "integer", :to => "float")
-                  ),
-                  0
-                ),
-                " G"
-              )
-            )
-          )
-        end
-        partitions = Ops.get_list(devmap, [devkey, "partitions"], [])
-        Builtins.maplist(partitions) do |partition|
-          if Ops.get_string(partition, "name", "") != "tmpfs" &&
-              Ops.get_string(partition, "device", "") != "tmpfs"
-            i = i+1
+      n = 0
+      Open3.popen2e("df -h | grep hana") {|i,o,t|
+         i.close
+         o.each_line {|line|
+            fields=line.split(" ")
+            n = n+1
             items = Builtins.add(
               items,
               Item(
-                Id(i),
-                Ops.get_string(partition, "device", ""),
-                Ops.get_string(partition, "mount", ""),
-                Builtins.substring( Builtins.tostring(Ops.get(partition, "detected_fs")), 1),
-                Ops.add(
-                  Builtins.tostring(
-                    Ops.divide(
-                      Ops.divide(
-                        Builtins.tofloat(
-                          Ops.get_integer(partition, "size_k", 0)
-                        ),
-                        Convert.convert(
-                          1024,
-                          :from => "integer",
-                          :to   => "float"
-                        )
-                      ),
-                      Convert.convert(1024, :from => "integer", :to => "float")
-                    ),
-                    0
-                  ),
-                  " G"
-                )
+                Id(n),
+                fields[0],
+                fields[5],
+                fields[1]
               )
             )
-          end
-        end
-      end
+         }
+      }
+
       partitionTable = Builtins.add(partitionTable, items)
       UI.OpenDialog(
         VBox(
           Heading(info),
-          MinSize(60, Ops.add(i, 2), partitionTable),
+          MinSize(60, Ops.add(n, 2), partitionTable),
           PushButton("&OK")
         )
       )
