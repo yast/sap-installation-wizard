@@ -136,6 +136,13 @@ module Y2Sap
     end 
 
     def mount_smb(location)
+      at = location.rindex("@")
+      if !at.nil?
+        userinfo=location[0,at].split(":",2)
+        location=URL.EscapeString(userinfo[0],URL.transform_map_passwd ) +
+	       	":" + URL.EscapeString(userinfo[1],URL.transform_map_passwd ) +
+	       	"@" + location[at+1..-1]
+      end
       parsedURL = URL.Parse("smb://" + location)
       mpath = Ops.get_string(parsedURL, "path", "")
       mopts = "-o ro"
