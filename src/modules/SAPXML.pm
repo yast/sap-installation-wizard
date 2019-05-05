@@ -324,6 +324,7 @@ sub get_nw_products
        my $ok = 0;
        foreach my $c ( $node->getChildNodes )
        {
+	 next if !defined $c->string_value;
          push @f, $c->string_value if( 'search'         eq $c->getName );
          $n = $c->string_value     if( 'name'           eq $c->getName );
          $a = $c->string_value     if( 'ay_xml'         eq $c->getName );
