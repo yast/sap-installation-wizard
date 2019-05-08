@@ -192,52 +192,7 @@ check_masterpwd "$VAL"
     <pattern>sap-hana</pattern>
   </post-patterns -->
   <post-packages config:type="list">
-    <package>autoyast2-installation</package>
-    <package>bc</package>
-    <package>bing</package>
-    <package>bonnie</package>
-    <package>cairo</package>
-    <package>clamsap</package>
-    <package>ClusterTools2</package>
-    <package>cryptctl</package>
-    <package>expect</package>
-    <package>graphviz</package>
-    <package>gtk2</package>
-    <package>HANA-Firewall</package>
-    <package>java-1_7_1-ibm</package>
-    <package>java-1_7_1-ibm-jdbc</package>
-    <package>java-1_7_1-ibm-plugin</package>
-    <package>krb5-32bit</package>
-    <package>krb5-client</package>
-    <package>libgcc_s1</package>
-    <package>libstdc++6</package>
-    <package>libgomp1</package>
-    <package>libicu52_1</package>
-    <package>libjpeg62</package>
-    <package>libopenssl0_9_8</package>
-    <package>libpng12-0</package>
-    <package>libssh2-1</package>
-    <package>nfs-client</package>
-    <package>ntp</package>
-    <package>numactl</package>
-    <package>SAPHanaSR</package>
-    <package>sap-installation-wizard</package>
-    <package>sap-netscape-link</package>
-    <package>saprouter-systemd</package>
-    <package>sensors</package>
-    <package>sles4sap-white-papers</package>
-    <package>sudo</package>
-    <package>sysstat</package>
-    <package>tcsh</package>
-    <package>xfsprogs</package>
-    <package>xrdp</package>
-    <package>wxWidgets-compat-lib-config</package>
-    <package>wxWidgets-lang</package>
-    <package>yast2-hana-firewall</package>
-    <package>yast2-ncurses</package>
-    <package>yast2-sap-ha</package>
-    <package>yast2-sap-scp</package>
-    <package>yast2-sap-scp-prodlist</package>
+    <package>patterns-sap-hana</package>
   </post-packages>
 </software>
 </profile>
