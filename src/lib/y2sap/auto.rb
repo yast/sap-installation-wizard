@@ -25,6 +25,7 @@ require "y2sap/media/copy"
 require "y2sap/media/copy"
 require "y2sap/media/find"
 require "y2sap/media/mount"
+require "y2sap/products/do_install"
 
 module Y2Sap
   # Represent an AutoYaST module for the installation of SAP products
@@ -35,6 +36,7 @@ module Y2Sap
     include Y2Sap::MediaCopy
     include Y2Sap::MediaFind
     include Y2Sap::MediaMount
+    include Y2Sap::DoInstall
 
     # Initialize the the global varialbes
     # @return the value of the initialize function of the super class Y2Sap::Configuration::Media
@@ -64,7 +66,6 @@ module Y2Sap
           )
           next
         end
-
         reset_variables
         next if !copy_product_media(prod["media"])
         case @inst_master_type
@@ -85,7 +86,7 @@ module Y2Sap
           -y '#{@inst_master_type}' \
           -d '#{@inst_dir}'"
         log.info("Starting Installation : #{script}")
-        run_script
+        run_script(@script)
       end
     end
 
@@ -101,7 +102,7 @@ module Y2Sap
       @sid              = ""
       @inst_master_type = ""
       @inst_master_path = ""
-      @inst_dir         = format("%s/%s",@inst_dir_base, @product_count)
+      @inst_dir         = format("%s/%s", @inst_dir_base, @product_count)
       @db               = ""
       @product_name     = ""
       @product_id       = ""
@@ -201,44 +202,5 @@ module Y2Sap
       @script = @ay_dir_base + "/trex_inst.sh"
     end
 
-    # Runs the sap installation script.
-    def run_script
-      date = `date +%Y%m%d-%H%M`
-      logfile = "/var/log/sap_inst." + date + ".log"
-      f = File.new(logfile, "w")
-      exit_status = nil
-      Wizard.SetContents(
-        _("SAP Product Installation"),
-        LogView(Id("LOG"), "", 30, 400),
-        "Help",
-        true,
-        true
-      )
-      Open3.popen2e(script) do |i, o, t|
-        i.close
-        n = 0
-        text = ""
-        o.each_line do |line|
-          f << line
-          text << line
-          if n > 30
-            UI::ChangeWidget(Id("LOG"), :LastLine, text)
-            n    = 0
-            text = ""
-          else
-            n = n.next
-          end
-        end
-        exit_status = t.value.exitstatus
-      end
-      f.close
-      log.info("Exit code of script : #{exit_status}")
-      if exit_status != 0
-        Yast::Popup.Error(
-          _("Installation failed. For details please check log files at \
-            /var/tmp and /var/adm/autoinstall/logs.")
-        )
-      end
-    end
   end
 end

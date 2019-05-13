@@ -83,37 +83,49 @@ module Y2Sap
     def start_install_process
       require "open3"
       @script_list.each do |intall_script|
-        out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "date +%Y%m%d-%H%M"))
-        date = Builtins.filterchars( Ops.get_string(out, "stdout", ""), "0123456789-.")
-        logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
-        f = File.new( logfile, "w")
-        # pid = 0
-        Wizard.SetContents( _("SAP Product Installation"),
-                                      LogView(Id("LOG"),"",30,400),
-                                      "Help",
-                                      true,
-                                      true
-                                      )
-        Open3.popen2e(intall_script) do |i,o,t|
-          i.close
-          n = 0
-          text = ""
-          o.each_line do |line|
-            f << line
-            text << line
-            if n > 30
-              UI::ChangeWidget(Id("LOG"), :LastLine, text );
-              n    = 0
-              text = ""
-            else
-              n = n.next
-            end
-	  end
-        end
-        f.close
-        sleep 5
-        # Process.kill("TERM", pid)
+	run_script(intall_script)
       end
     end
+
+    # Runs the sap installation script.
+    def run_script(script)
+      date = `date +%Y%m%d-%H%M`
+      logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
+      f = File.new(logfile, "w")
+      exit_status = nil
+      Wizard.SetContents(
+        _("SAP Product Installation"),
+        LogView(Id("LOG"), "", 30, 400),
+        "Help",
+        true,
+        true
+      )
+      Open3.popen2e(script) do |i, o, t|
+        i.close
+        n = 0
+        text = ""
+        o.each_line do |line|
+          f << line
+          text << line
+          if n > 30
+            UI::ChangeWidget(Id("LOG"), :LastLine, text)
+            n    = 0
+            text = ""
+          else
+            n = n.next
+          end
+        end
+        exit_status = t.value.exitstatus
+      end
+      f.close
+      log.info("Exit code of script : #{exit_status}")
+      if exit_status != 0
+        Yast::Popup.Error(
+          _("Installation failed. For details please check log files at \
+            /var/tmp and /var/adm/autoinstall/logs.")
+        )
+      end
+    end
+
   end
 end

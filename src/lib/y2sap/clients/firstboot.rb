@@ -28,25 +28,23 @@ module Y2Sap
   class FirstbootInstSapClient < Client
     include Y2Sap::ProductPartitioning
     include Yast::Logger
-   
     def main
       Yast.import "UI"
       Yast.import "Wizard"
       Yast.import "Package"
       Yast.import "Popup"
 
-      # MAIN
-
       textdomain "sap-installation-wizard"
 
       @contents  = nil
       @help_text = ""
-      @close_me   = false
+      @close_me  = false
       create_dialog
       ui_loop
     end
 
   private
+
     def create_dialog
       if !Wizard.IsWizardDialog
         Wizard.CreateDialog
@@ -130,16 +128,21 @@ module Y2Sap
             hana_partitioning
             ret = :next
           end
-          SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
-          SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
-          SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
-          SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
-          SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
-          Package.DoRemove(["sap-installation-start"])
+	  clean_up
         end
       end
       Wizard.CloseDialog() if @close_me
       return ret
+    end
+
+    # Remove askfiles and some other temporal files
+    def clean_up
+       SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
+       SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
+       SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
+       SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
+       SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
+       Package.DoRemove(["sap-installation-start"])
     end
   end
 end
