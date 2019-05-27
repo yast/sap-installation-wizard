@@ -785,6 +785,11 @@ module Yast
         end
         Builtins.y2milestone("MountSource parsedURL=%1", parsedURL)
       elsif scheme == "smb"
+        at = location.rindex("@")
+        if !at.nil?
+          userinfo=location[0,at].split(":",2)
+          location=URL.EscapeString(userinfo[0],URL.transform_map_passwd ) + ":" + URL.EscapeString(userinfo[1],URL.transform_map_passwd )+ "@" + location[at+1..-1]
+        end
         parsedURL = URL.Parse(Ops.add("smb://", location))
         mpath = Ops.get_string(parsedURL, "path", "")
         isopath = Builtins.regexptokenize(
