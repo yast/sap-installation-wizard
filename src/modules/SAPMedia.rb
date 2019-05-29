@@ -791,6 +791,7 @@ module Yast
           location=URL.EscapeString(userinfo[0],URL.transform_map_passwd ) + ":" + URL.EscapeString(userinfo[1],URL.transform_map_passwd )+ "@" + location[at+1..-1]
         end
         parsedURL = URL.Parse(Ops.add("smb://", location))
+        Builtins.y2milestone("MountSource parsedURL=%1", parsedURL)
         mpath = Ops.get_string(parsedURL, "path", "")
         isopath = Builtins.regexptokenize(
           Ops.get_string(parsedURL, "path", ""),
@@ -806,10 +807,10 @@ module Yast
         mopts = "-o ro"
         if Builtins.haskey(parsedURL, "workgroup") &&
             Ops.get_string(parsedURL, "workgroup", "") != ""
-          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "password", "")
+          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
         elsif Builtins.haskey(parsedURL, "user") &&
             Ops.get_string(parsedURL, "user", "") != ""
-          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "password", "")
+          mopts = mopts + ",username=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
         else
           mopts = Ops.add(mopts, ",guest")
         end
@@ -836,7 +837,6 @@ module Yast
         else
           ret = ""
         end
-        Builtins.y2milestone("MountSource parsedURL=%1", parsedURL)
       elsif scheme == "local"
         isopath = Builtins.regexptokenize(location, "(.*)/(.*.iso)")
         if isopath != []
@@ -1751,9 +1751,9 @@ module Yast
            when "smb"
             mopts = "-o ro"
             if url["workgroup"] != ""
-               mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["password"]
+               mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
             elsif url["user"] != ""
-               mopts = mopts + ",username=" + url["user"] + ",password=" + url["password"]
+               mopts = mopts + ",username=" + url["user"] + ",password=" + url["pass"]
             else
                mopts = mopts + ",guest"
             end
