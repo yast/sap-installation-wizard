@@ -34,6 +34,7 @@ module Yast
       Yast.import "PackagesProposal"
       Yast.import "ProductControl"
       Yast.import "GetInstArgs"
+      Yast.import "WorkflowManager"
       #MAY BE TODO set the default value
       sles   = false
       sap    = false
@@ -137,6 +138,8 @@ module Yast
         to_install = []
         to_remove  = []
         ProductControl.ReadControlFile( @sap_control )
+	# update the cached control file
+        WorkflowManager.SetBaseWorkflow(true)
         ProductControl.EnableModule("sap")
         if(start_wizard)
            to_install << 'yast2-firstboot'
@@ -162,6 +165,8 @@ module Yast
 
     def constumize_sles_installation()
         ProductControl.ReadControlFile("/control.xml")
+        # update the cached control file
+        WorkflowManager.SetBaseWorkflow(true)
         PackagesProposal.RemoveResolvables('sap-wizard',:package,['yast2-firstboot','sap-installation-wizard','xrdp'])
         ProductControl.DisableModule("sap")
     end
