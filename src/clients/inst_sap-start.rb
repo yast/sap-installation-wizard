@@ -45,7 +45,7 @@ module Yast
         1,
         "/sap-control.xml"      )
 
-      @caption = _("Choose Operation System Edition")
+      @caption = _("Choose Operating System Edition")
       @help    = _("<p><b>Select operating system edition</b></p>" +
                    "<p>Option \"SUSE Linux Enterprise Server\" will proceed with the generic installation procedure without pre-selecting SAP-specific software packages.</p>" +
                    "<p>Option \"SUSE Linux Enterprise Server for SAP Applications\" will use an installation workflow tailored for an SAP server, the workflow helps to pre-select SAP-specific software packages, and better partition your hard disk.</p>" +
