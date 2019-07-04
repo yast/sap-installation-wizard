@@ -31,7 +31,7 @@ module Y2Sap
       # @return [String] The product counter.
       attr_accessor :product_count
 
-      #@return [String] The url to the media
+      # @return [String] The url to the media
       attr_accessor :location_cache
 
       # @return [String] The full path to the directory which should be copied.
@@ -49,22 +49,22 @@ module Y2Sap
       #   @instEnvList
       attr_accessor :to_install
 
-      #@return [String] The type of the installations master SAPINST, HANA, B1, TREX
+      # @return [String] The type of the installations master SAPINST, HANA, B1, TREX
       attr_accessor :inst_master_type
 
-      #@return [String] The local path to the installation master
+      # @return [String] The local path to the installation master
       attr_accessor :inst_master_path
 
-      #@return [String] The version of the installation master
+      # @return [String] The version of the installation master
       attr_accessor :inst_master_version
 
-      #@return [Hash<String,String>] Hash for remember which media was selected.
+      # @return [Hash<String,String>] Hash for remember which media was selected.
       attr_accessor :selected_media
 
-      #@return [List<String>] list of provided databases
+      # @return [List<String>] list of provided databases
       attr_reader :databases
 
-      #@return [Hash<String,String>] Hash for mapping the database name and token.
+      # @return [Hash<String,String>] Hash for mapping the database name and token.
       attr_accessor :dbmap
 
       def initialize
@@ -72,7 +72,7 @@ module Y2Sap
         @location_cache = "nfs.server.com/directory/"
         @need_umount    = true
         @product_cont   = 0
-        @inst_dir       = "%s/%d" % [ @inst_dir_base, @product_cont ]
+        @inst_dir       = format("%s/%d", @inst_dir_base, @product_cont)
         @unfinished_installations = []
         @to_install     = []
         @source_dir     = @mount_point
@@ -81,13 +81,13 @@ module Y2Sap
             @unfinished_installations << @inst_dir
           end
           @product_cont = @product_cont.next
-          @inst_dir = "%s/%d" % [ @inst_dir_base, @product_cont ]
+          @inst_dir = format("%s/%d", @inst_dir_base, @product_cont)
         end
         @inst_master_type    = ""
         @inst_master_path    = ""
         @inst_master_cersion = ""
         @selected_media      = ""
-        @databases           = ["ORA","SYB","DB2","HDB","MAX"]
+        @databases           = ["ORA", "SYB", "DB2", "HDB", "MAX"]
         @dbmap = {
           "ORA" =>  "ORA",
           "SYB" =>  "SYB",

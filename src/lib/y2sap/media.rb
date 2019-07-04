@@ -1,5 +1,4 @@
 # encoding: utf-8
-  
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -31,10 +30,8 @@ require "y2sap/media/complex"
 
 module Y2Sap
   # Represent a class to handle the SAP installation media.
-  # 
   # This class includes some modules created for the different functions
   # for handling of the SAP media
-  #
   class Media < Y2Sap::Configuration::Media
     include Yast
     include Yast::Logger
@@ -48,29 +45,29 @@ module Y2Sap
 
     # Initialize the Y2Sap::Media class
     # * Execute the initialuze function of the super class Y2Sap::Configuration::Media
-    # * Creates the @scheme_list containing the available schemes for the access 
+    # * Creates the @scheme_list containing the available schemes for the access
     #   to the SAP media
     # * Initialize the global variable @location_cache
     def initialize
       textdomain "sap-installation-wizard"
       super
       @scheme_list = [
-          Item(Id("local"), "dir://", true),
-          Item(Id("device"), "device://", false),
-          Item(Id("usb"), "usb://", false),
-          Item(Id("nfs"), "nfs://", false),
-          Item(Id("smb"), "smb://", false)
+        Item(Id("local"), "dir://", true),
+        Item(Id("device"), "device://", false),
+        Item(Id("usb"), "usb://", false),
+        Item(Id("nfs"), "nfs://", false),
+        Item(Id("smb"), "smb://", false)
       ]
       # Detect how many cdrom we have:
-      cdroms=`/usr/sbin/hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
+      cdroms = `/usr/sbin/hwinfo --cdrom | grep 'Device File:' | sed 's/Device File://' | gawk '{ print $1 }' | sed 's#/dev/##'`.split
       if cdroms.count == 1
         @scheme_list << Item(Id("cdrom"), "cdrom://", false)
       elsif cdroms.count > 1
-        i=1
-        cdroms.each { |cdrom|
-          @scheme_list << Item(Id("cdrom::" + cdrom  ), "cdrom" + i.to_s + "://", false)
+        i = 1
+        cdroms.each do |cdrom|
+          @scheme_list << Item(Id("cdrom::" + cdrom), "cdrom" + i.to_s + "://", false)
           i = i.next
-        }
+        end
       end
       @location_cache = ""
     end

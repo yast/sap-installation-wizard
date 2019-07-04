@@ -18,6 +18,7 @@
 # find current contact information at www.novell.com.
 
 module Y2Sap
+  # Functions for checking the sap media
   module MediaCheck
     include Yast
 
@@ -35,50 +36,50 @@ module Y2Sap
       search_labelfiles(prod_path).each do |label_file|
         filepath = label_file.split("/")
         IO.readlines(label_file).each do |line|
-           fields = line.split(":")
-           fields = line.split(" ") if filepath[-1] == "info.txt"
-           log.info("is_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
-           next if fields.size == 0
-           #Start checking the label
-           if fields[1] =~  /^HANA/
-             instmaster[0] = "HANA"
-             instmaster[1] = File.dirname(label_file)
-             instmaster[2] = ""
-             break
-           end
-           if fields[0] =~ /^B1/
-             instmaster[0] = fields[1]
-             instmaster[1] = File.dirname(label_file)
-             instmaster[2] = ""
-             break
-           end
-           if fields[1] == "SLTOOLSET" && ( fields[5] == platform_arch || fields[5] == "*" )
-             instmaster[0] = "SAPINST"
-             instmaster[1] = File.dirname(label_file)
-             cmd = instmaster[1] + "/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'"
-             IO.popen(cmd) { |f| instmaster[2] = f.gets }
-             instmaster[2].chomp!
-             break
-           end
-           if fields[3] == "SAPINST" && ( fields[5] == platform_arch || fields[5] == "*" )
-             instmaster[0] = "SAPINST"
-             instmaster[1] = File.dirname(label_file)
-             instmaster[2] = "NW70"
-             break
-           end
-           if fields[1] == "BusinessObjects"
-             instmaster[0] = "BOBJ"
-             instmaster[1] = File.dirname(label_file)
-             instmaster[2] = ""
-             break
-           end
-           if fields[1] == "TREX"
-             instmaster[0] = ".BOBJ"
-             instmaster[1] = File.dirname(label_file)
-             instmaster[2] = ""
-             break
-           end
-           # TODO packed SWPM
+          fields = line.split(":")
+          fields = line.split(" ") if filepath[-1] == "info.txt"
+          log.info("is_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
+          next if fields.size == 0
+          #Start checking the label
+          if fields[1] =~  /^HANA/
+            instmaster[0] = "HANA"
+            instmaster[1] = File.dirname(label_file)
+            instmaster[2] = ""
+            break
+          end
+          if fields[0] =~ /^B1/
+            instmaster[0] = fields[1]
+            instmaster[1] = File.dirname(label_file)
+            instmaster[2] = ""
+            break
+          end
+          if fields[1] == "SLTOOLSET" && ( fields[5] == platform_arch || fields[5] == "*" )
+            instmaster[0] = "SAPINST"
+            instmaster[1] = File.dirname(label_file)
+            cmd = instmaster[1] + "/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'"
+            IO.popen(cmd) { |f| instmaster[2] = f.gets }
+            instmaster[2].chomp!
+            break
+          end
+          if fields[3] == "SAPINST" && ( fields[5] == platform_arch || fields[5] == "*" )
+            instmaster[0] = "SAPINST"
+            instmaster[1] = File.dirname(label_file)
+            instmaster[2] = "NW70"
+            break
+          end
+          if fields[1] == "BusinessObjects"
+            instmaster[0] = "BOBJ"
+            instmaster[1] = File.dirname(label_file)
+            instmaster[2] = ""
+            break
+          end
+          if fields[1] == "TREX"
+            instmaster[0] = ".BOBJ"
+            instmaster[1] = File.dirname(label_file)
+            instmaster[2] = ""
+            break
+          end
+          # TODO: packed SWPM
         end
         break if instmaster.size > 0
       end
@@ -88,13 +89,13 @@ module Y2Sap
     def get_products_for_media(path)
       # First we read all LABEL.ASC files from the selected media
       labels = []
-      IO.readlines(path + '/start_dir.cd').each do |medium|
+      IO.readlines(path + "/start_dir.cd").each do |medium|
         next if medium =~ /Instmaster/
-        labels << IO.readlines(medium.chomp + '/LABEL.ASC')[0].chomp
+        labels << IO.readlines(medium.chomp + "/LABEL.ASC")[0].chomp
       end
       packages = ""
       #Now we read the packages file from the intstallation master
-      IO.popen(["find",path + '/Instmaster',"-name","packages.xml"]) do |io|
+      IO.popen(["find",path + "/Instmaster", "-name", "packages.xml"]) do |io|
         packages << io.read                
       end
       log.debug("packages #{packages.size} #{packages}")
@@ -108,13 +109,13 @@ module Y2Sap
         found = true
         labels.each do |label|
           found_label = false
-          label_1     = label.sub(':749:',':74:')
-          doc.xpath('/packages/package').each do |node|
-            pattern = node.get_attribute('label')
-            pattern.gsub!('/','\/')
-            pattern.gsub!('(','\(')
-            pattern.gsub!(')','\)')
-            pattern.gsub!('*','.*')
+          label_1     = label.sub(":749:",":74:")
+          doc.xpath("/packages/package").each do |node|
+            pattern = node.get_attribute("label")
+            pattern.gsub!('/', '\/')
+            pattern.gsub!('(', '\(')
+            pattern.gsub!(')', '\)')
+            pattern.gsub!('*', '.*')
             log.debug("pattern #{pattern}  #{label} #{label_1}")
             if label =~ /#{pattern}/ || label_1 =~ /#{pattern}/
               found_label = true
@@ -135,8 +136,8 @@ module Y2Sap
           end
         end
         if found
-          tmp = xml_file.sub(/^.*Instmaster./,'')
-          valid << tmp.sub('/packages.xml','')
+          tmp = xml_file.sub(/^.*Instmaster./,"")
+          valid << tmp.sub("/packages.xml","")
         end
       end
       ret = {
@@ -152,7 +153,7 @@ module Y2Sap
     def search_labelfiles(prod_path)
       path   = prod_path.chomp
       labels = ""
-      IO.popen(["find","-L",path,"-name","LABEL.ASC","-o","-name","info.txt"]) {  |io| 
+      IO.popen(["find", "-L",path, "-name", "LABEL.ASC", "-o", "-name", "info.txt"]) {  |io| 
         labels << io.read
       }
       ret = []

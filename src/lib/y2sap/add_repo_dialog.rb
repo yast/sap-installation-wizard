@@ -86,15 +86,28 @@ module SAPInstaller
     def render_all
       Yast::Wizard.SetContents(
         _("Additional software repositories for your SAP installation"),
-        HVSquash(Frame("",
-          VBox(
-            Left(Label(_("Do you use additional software repositories, such as 3rd-party SAP add-ons?"))),
-            Left(Label(_("Feel free to add them now. Otherwise, click \"Next\" to continue."))),
-            PushButton(Id(:add_repo), _("Add new software repositories")
+        HVSquash(
+          Frame(
+            "",
+            VBox(
+              Left(
+                Label(
+                  _("Do you use additional software repositories, such as 3rd-party SAP add-ons?")
+                )
+              ),
+              Left(
+               Label(
+                 _("Feel free to add them now. Otherwise, click \"Next\" to continue.")
+               )
+              ),
+              PushButton(Id(:add_repo), _("Add new software repositories"))
+            )
           )
-        ))),
-        _("You now have an opportunity to add software repositories, for example: repositores for SAP partner solutions.\n" +
-          "The step is completely optional, simply click \"Next\" if you do not use any additional repositories."),
+        ),
+        _("You now have an opportunity to add software repositories, \
+          for example: repositores for SAP partner solutions.\n \
+          The step is completely optional, simply click \"Next\" \
+          if you do not use any additional repositories."),
         true,
         true
       )

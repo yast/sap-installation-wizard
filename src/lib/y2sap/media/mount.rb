@@ -64,9 +64,9 @@ module Y2Sap
       when "smb"
         mopts = "-o ro"
         if url["workgroup"] != ""
-          mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["password"]
+          mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
         elsif url["user"] != ""
-           mopts = mopts + ",username=" + url["user"] + ",password=" + url["password"]
+           mopts = mopts + ",username=" + url["user"] + ",password=" + url["pass"]
         else
            mopts = mopts + ",guest"
         end
@@ -136,15 +136,22 @@ module Y2Sap
     end 
 
     def mount_smb(location)
+      at = location.rindex("@")
+      if !at.nil?
+        userinfo=location[0,at].split(":",2)
+        location=URL.EscapeString(userinfo[0],URL.transform_map_passwd ) +
+	       	":" + URL.EscapeString(userinfo[1],URL.transform_map_passwd ) +
+	       	"@" + location[at+1..-1]
+      end
       parsedURL = URL.Parse("smb://" + location)
       mpath = Ops.get_string(parsedURL, "path", "")
       mopts = "-o ro"
       if parsedURL.has_key("workgroup") &&
         Ops.get_string(parsedURL, "workgroup", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
       elsif parsedURL.has_key("user") &&
         Ops.get_string(parsedURL, "user", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + "%" + Ops.get_string(parsedURL, "password", "")
+        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
       else
         mopts = mopts + ",guest"
       end
