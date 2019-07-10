@@ -5,6 +5,7 @@ module Yast
     SAP_DISABLE_LINK   = "sap_disable"
     SAP_HANA_PART_LINK = "sap_hana_part"
     SAP_ACTION_ID      = "sap"
+    textdomain "sap-installation-wizard"
 
     def main
       Yast.import "PackagesProposal"

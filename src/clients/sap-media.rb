@@ -29,7 +29,7 @@ module Yast
   class SapMedia < Client
     include SapInstallationWizardWizardsInclude
     def main
-      textdomain  "sap-media"
+      textdomain  "sap-installation-wizard"
       Yast.import "SAPMedia"
       Yast.import "CommandLine"
       Yast.import "RichText"

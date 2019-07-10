@@ -14,7 +14,7 @@ module Yast
       Yast.import "AutoinstLVM"
       Yast.import "AutoinstRAID"
 
-      textdomain "installation"
+      textdomain "sap-installation-wizard"
 
       @devices = 0 #number of found free devices
       @neededLVG = [] #The list of the LVG have to be created
