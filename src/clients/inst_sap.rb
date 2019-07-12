@@ -7,7 +7,7 @@ module Yast
       Yast.import "SuSEFirewall"
 
       # MAIN
-      textdomain "autoinst"
+      textdomain "sap-installation-wizard"
       if File.exists?("/root/inst-sys/start_rdp_service")
          rdp = IO.read("/root/inst-sys/start_rdp_service")
 	 rdp.strip

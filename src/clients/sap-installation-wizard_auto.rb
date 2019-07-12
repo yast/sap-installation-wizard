@@ -32,7 +32,7 @@ module SapInst
 
         def initialize
             super
-            textdomain 'sapinst'
+            textdomain 'sap-installation-wizard'
         end
 
         def run

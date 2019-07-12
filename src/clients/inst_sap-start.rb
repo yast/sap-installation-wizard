@@ -28,7 +28,7 @@
 module Yast
   class InstSapStart < Client
     def main
-      textdomain "users"
+      textdomain "sap-installation-wizard"
       Yast.import "Pkg"
       Yast.import "Popup"
       Yast.import "PackagesProposal"
