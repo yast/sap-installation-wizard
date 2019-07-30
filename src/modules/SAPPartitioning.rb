@@ -37,6 +37,12 @@ module Yast
            partXML = @partXMLPath + '/' + productPartitioning + "_" + manufacturer + "_generic.xml"
 	   if ! File.exist?(partXML)
                partXML=@partXMLPath + '/' + productPartitioning + ".xml"
+               if productList.include?('B1')
+                  if ! Popup.YesNoHeadline(_("Your System is not certified for SAP Business One on HANA."),
+                      _("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
+                      return "abort"
+                  end
+               end
 	   end
 	end
         ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
