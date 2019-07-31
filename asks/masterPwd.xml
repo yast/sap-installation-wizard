@@ -34,7 +34,7 @@ function check_masterpwd() {
 		echo "You must provide a master password for your installation!"
 		exit 1
         fi
-	if [ "${#pwd}" -gt 14 ]; then 
+	if [ "${#pwd}" -gt 14 ]; then
 		echo "The master password cannot be longer than 14 chars currently."
 		echo "You entered a ${#pwd} chars long password." 
 		exit 1
