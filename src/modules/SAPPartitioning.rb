@@ -45,7 +45,7 @@ module Yast
                end
            end
         end
-        ret = WFM.CallFunction( "sap_create_storage_ng", [ partXML ])
+        ret = WFM.CallFunction( "sap_create_storage", [ partXML ])
         Builtins.y2milestone("sap_create_storage_ng returned: %1",ret)
 	if( ret == "abort" )
 	    return "abort"
