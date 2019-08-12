@@ -298,7 +298,7 @@ module Yast
             when "HANA"
 	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/hana_inst.sh -g"
-            when /^B1/
+            when "B1"
 	       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
 	       script = " /usr/share/YaST2/include/sap-installation-wizard/b1_inst.sh -g"
 	    when "TREX"
@@ -435,10 +435,10 @@ module Yast
         when "SAPINST"
           ret = :SAPINST
         when "HANA"
-          @instMasterType = "HANA"
           @mediaDir = @instDir
           ret = :HANA
         when /^B1/
+          @instMasterType = "B1"
           @mediaDir = @instDir
           ret = :B1
         when "TREX"
