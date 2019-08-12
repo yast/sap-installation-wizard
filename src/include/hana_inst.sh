@@ -462,7 +462,13 @@ hana_lcm_workflow()
 	  echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
 	;;
       esac
-      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} --components=${LCM_COMPONENTS} --sid=${SID} --number=${SAPINSTNR} --read_password_from_stdin=xml --configfile=${MEDIA_TARGET}/hana_mdc.conf
+      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+	       --ignore=check_signature_file \
+	       --components=${LCM_COMPONENTS} \
+	       --sid=${SID} \
+	       --number=${SAPINSTNR} \
+	       --read_password_from_stdin=xml \
+	       --configfile=${MEDIA_TARGET}/hana_mdc.conf
       rc=$?
       rm  ~/pwds.xml
    fi
