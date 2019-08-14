@@ -573,8 +573,100 @@ module Yast
     #
     def ParseXML(file)
       Builtins.y2milestone("-- SAPMedia.ParseXML Start ---")
-      ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
-      Builtins.y2milestone("ayast_setup returned %1 for %2", ret,  file)
+      ret = false
+      if file != ""
+        SCR.Write(
+          path(".target.string"),
+          "/tmp/current_media_path",
+          File.dirname(file)
+        )
+        profile = XML.XMLToYCPFile(file)
+        if profile != {} && Builtins.size(profile) == 0
+          # autoyast has read the autoyast configuration file but something went wrong
+          message = _(
+            "The XML parser reported an error while parsing the autoyast profile. The error message is:\n"
+          )
+          message = Ops.add(message, XML.XMLError)
+          Popup.Error(message)
+        end
+        AutoinstData.post_packages = []
+        Profile.current = { "general" => { "mode" => { "final_restart_services" => false , "activate_systemd_default_target" => false } }, "software" => {}, "scripts" => {} }
+        if Builtins.haskey(Ops.get_map(profile, "general", {}), "ask-list")
+          Ops.set(
+            Profile.current,
+            ["general", "ask-list"],
+            Builtins.merge(
+              Ops.get_list(Profile.current, ["general", "ask-list"], []),
+              Ops.get_list(profile, ["general", "ask-list"], [])
+            )
+          )
+          profile = Builtins.remove(profile, "general")
+        end
+        if Builtins.haskey(
+            Ops.get_map(profile, "software", {}),
+            "post-packages"
+          )
+          Ops.set(
+            Profile.current,
+            ["software", "post-packages"],
+            Builtins.merge(
+              Ops.get_list(Profile.current, ["software", "post-packages"], []),
+              Ops.get_list(profile, ["software", "post-packages"], [])
+            )
+          )
+          profile = Builtins.remove(profile, "software")
+        end
+        if Builtins.haskey(profile, "scripts")
+          Builtins.foreach(["init-scripts", "chroot-scripts", "post-scripts"]) do |key|
+            Ops.set(
+              Profile.current,
+              ["scripts", key],
+              Builtins.merge(
+                Ops.get_list(Profile.current, ["scripts", key], []),
+                Ops.get_list(profile, ["scripts", key], [])
+              )
+            )
+          end
+          AutoinstScripts.Import(Ops.get_map(Profile.current, "scripts", {})) # required for the chroot scripts wich are needed in stage1 already
+          profile = Builtins.remove(profile, "scripts")
+        end
+        Profile.Import(
+          Convert.convert(
+            Builtins.union(Profile.current, profile),
+            :from => "map",
+            :to   => "map <string, any>"
+          )
+        )
+        AutoInstall.Save
+        Wizard.CreateDialog
+
+        # SUSE firewall behaves differently in auto installation mode.
+        # Because SUSE firewall is configured (later) by this module, hence the current YaST mode must be preserved.
+        original_mode = Mode.mode()
+        Mode.SetMode("autoinstallation")
+
+        Stage.Set("continue")
+        WFM.CallFunction("inst_autopost", [])
+        AutoinstSoftware.addPostPackages(
+          Ops.get_list(Profile.current, ["software", "post-packages"], [])
+        )
+        if !Builtins.haskey(Profile.current, "networking")
+          Profile.current = Builtins.add(
+            Profile.current,
+            "networking",
+            { "keep_install_network" => true }
+          )
+        end
+        Pkg.TargetInit("/", false)
+        WFM.CallFunction("inst_rpmcopy", [])
+        WFM.CallFunction("inst_autoconfigure", [])
+
+        Mode.SetMode(original_mode)
+
+        Wizard.CloseDialog
+        SCR.Execute(path(".target.remove"), "/tmp/current_media_path")
+        ret = true
+      end
       ret
     end
 
