@@ -334,11 +334,11 @@ module Yast
       xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
+      if @PRODUCT_NAME == "B1"
+         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh")
+      end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i.back s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
-	if @PRODUCT_NAME == "B1"
-	   SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh")
-	end
         SAPMedia.ParseXML(xml_path)
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
