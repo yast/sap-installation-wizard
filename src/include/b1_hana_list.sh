@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License 
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
+PRODDIR=$1
 # get a list of installed HANA DBs
 SID='<selection config:type="list">'
 MASTERPW=""
-TIMEOUT=0
+NOASK=0
 if [ -d /hana/data ]
 then
 	all_sid_arr=(`ls -1 /hana/data/`)
@@ -42,19 +43,21 @@ else
 	do
 		if [ -e $i/product.data ]; then
 			grep PRODUCT_ID $i/product.data | grep -q HANA
-			if [ $? = 0 ]; then
+			if [ $? = 0 -a -e $i/ay_q_masterPwd ]; then
+				cp $i/ay_q_masterPwd $PRODDIR/ay_q_masterPwd
 				inst_nr=$( cat $i/ay_q_sapinstnr )
 				sid=$( cat $i/ay_q_sid )
-				SID="${SID}<entry><value>$sid:$inst_nr</value><label>$sid:$inst_nr</label></entry>"
-				MASTERPW=$( cat $i/ay_q_masterPwd )
-				TIMEOUT=1
+				echo "$sid:$inst_nr" > $PRODDIR/ay_q_sid
+				NOASK=1
 				break
 			fi
 		fi
 	done
 fi
-SID="${SID}</selection>"
-sed "s#<default>___SAPSID___</default>#${SID}#g"        /usr/share/YaST2/include/sap-installation-wizard/B1.templ.xml > /usr/share/YaST2/include/sap-installation-wizard/B1.xml
-sed "s#___MASTERPW___#${MASTERPW}#g" -i /usr/share/YaST2/include/sap-installation-wizard/B1.xml
-sed "s#___TIMEOUT___#${TIMEOUT}#g"   -i /usr/share/YaST2/include/sap-installation-wizard/B1.xml
 
+if [ ${NOASK} -eq 1 ]; then
+	cp /usr/share/YaST2/include/sap-installation-wizard/B1.noask.xml /usr/share/YaST2/include/sap-installation-wizard/B1.xml
+else
+	SID="${SID}</selection>"
+	sed "s#<default>___SAPSID___</default>#${SID}#g" /usr/share/YaST2/include/sap-installation-wizard/B1.templ.xml > /usr/share/YaST2/include/sap-installation-wizard/B1.xml
+fi
