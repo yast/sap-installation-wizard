@@ -335,7 +335,7 @@ module Yast
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
       if @PRODUCT_NAME == "B1"
-         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh")
+         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh " + SAPMedia.instDir )
       end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i.back s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )

@@ -25,7 +25,6 @@
              <password config:type="boolean">true</password>
              <stage>cont</stage>
              <default>___MASTERPW___</default>
-             <timeout config:type="integer">___TIMEOUT___</timeout>
           </ask>
 	  <ask>
 	     <title>SAP System Parameters</title>
@@ -39,7 +38,6 @@
              <question>SID (SAP HANA System ID)</question>
              <stage>cont</stage>
 	     <default>___SAPSID___</default>
-             <timeout config:type="integer">___TIMEOUT___</timeout>
           </ask>
   </ask-list>
 </general>
