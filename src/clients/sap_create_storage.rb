@@ -167,6 +167,14 @@ module Yast
         end
       end #END foreach @profile partitioning
 
+      if @neededLVG == []
+         if Popup.YesNo(_("The required partitions are already created. Do you want to continue?"))
+            return "ok"
+	 else
+            return "abort"
+	 end
+      end
+
       Builtins.y2milestone(
         "Partitioning profile after parsing partition sizes %1",
         @profile
