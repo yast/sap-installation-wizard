@@ -24,7 +24,6 @@
              <question>SAP HANA Master Password</question>
              <password config:type="boolean">true</password>
              <stage>cont</stage>
-             <default>___MASTERPW___</default>
           </ask>
 	  <ask>
 	     <title>SAP System Parameters</title>
