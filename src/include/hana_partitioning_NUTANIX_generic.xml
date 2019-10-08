@@ -1,11 +1,12 @@
+<?xml version="1.0"?>
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
   <partitioning config:type="list">
     <drive>
       <device>/dev/sdb</device>
-	  <device>/dev/sdc</device>
-	  <device>/dev/sdd</device>
-	  <device>/dev/sde</device>
+      <device>/dev/sdc</device>
+      <device>/dev/sdd</device>
+      <device>/dev/sde</device>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
@@ -23,15 +24,15 @@
           <size>max</size>
         </partition>
       </partitions>
-      <pesize></pesize>
+      <pesize/>
       <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
     <drive>
       <device>/dev/sdf</device>
-	  <device>/dev/sdg</device>
-	  <device>/dev/sdh</device>
-	  <device>/dev/sdi</device>
+      <device>/dev/sdg</device>
+      <device>/dev/sdh</device>
+      <device>/dev/sdi</device>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
@@ -49,7 +50,7 @@
           <size>max</size>
         </partition>
       </partitions>
-      <pesize></pesize>
+      <pesize/>
       <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
@@ -72,7 +73,7 @@
           <size>max</size>
         </partition>
       </partitions>
-      <pesize></pesize>
+      <pesize/>
       <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
@@ -95,11 +96,11 @@
           <size>max</size>
         </partition>
       </partitions>
-      <pesize></pesize>
+      <pesize/>
       <type config:type="symbol">CT_DISK</type>
       <use>all</use>
-    </drive>	
-	<drive>
+    </drive>
+    <drive>
       <device>/dev/hanalog</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
@@ -115,7 +116,7 @@
       <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
-	<drive>
+    <drive>
       <device>/dev/hanadata</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
@@ -131,7 +132,7 @@
       <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
-	<drive>
+    <drive>
       <device>/dev/hanashared</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
@@ -147,7 +148,7 @@
       <type config:type="symbol">CT_LVM</type>
       <use>all</use>
     </drive>
-	<drive>
+    <drive>
       <device>/dev/usrsap</device>
       <is_lvm_vg config:type="boolean">true</is_lvm_vg>
       <partitions config:type="list">
@@ -161,6 +162,6 @@
       <pesize>4M</pesize>
       <type config:type="symbol">CT_LVM</type>
       <use>all</use>
-    </drive>	
+    </drive>
   </partitioning>
 </profile>
