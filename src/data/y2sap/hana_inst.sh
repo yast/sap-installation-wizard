@@ -70,7 +70,7 @@ MEDIA_TARGET=$( dirname $SAPCD_INSTMASTER)
 
 if [ "${ARCH}" = "PPC64LE" ]; then
 	if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
- 	 	ARCH="PPC64"
+		ARCH="PPC64"
 	fi
 fi
 
@@ -100,7 +100,7 @@ ERR_create_xuser_failed=10
 ERR_rpm_install=11
 ERR_internal=12
 ERR_missing_entries=13
-ERR_nomasterpass=14
+ERR_nomasterPwd=14
 ERR_last=15
 
 err_message[0]="Ok"
@@ -356,7 +356,7 @@ hana_installation_summary ()
         # IP Address:	${phys_ip}
         # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
         # IP for Nameserver:	`grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' '`
-        # Default Gateway:	$( ip route list | gawk '/default/ { print $3}' )
+	# Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
         #
         # SAP HANA System ID:	${SID}
         # SAP HANA Instance:	${SAPINSTNR}
@@ -409,7 +409,7 @@ hana_lcm_workflow()
            COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
            LCM_COMPONENTS=client,afl,studio,server
        else
-           if [ "${ARCH:0:5}" = "PPC64LE" ];then
+           if [ "${ARCH:0:5}" = "PPC64" ];then
               COMPONENTS="HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} HDB_AFL_LINUX_${ARCH}"
               LCM_COMPONENTS=client,afl,server
            else
@@ -425,7 +425,7 @@ hana_lcm_workflow()
               COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_CLIENT32 SAP_HANA_DATABASE SAP_HANA_STUDIO'
               LCM_COMPONENTS=client,afl,studio,server
            else
-              if [ "${ARCH:0:5}" = "PPC64LE" ];then
+              if [ "${ARCH:0:5}" = "PPC64" ];then
                  COMPONENTS='SAP_HANA_AFL SAP_HANA_CLIENT SAP_HANA_DATABASE'
                  LCM_COMPONENTS=client,afl,server
               else
@@ -462,7 +462,13 @@ hana_lcm_workflow()
 	  echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
 	;;
       esac
-      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} --components=${LCM_COMPONENTS} --sid=${SID} --number=${SAPINSTNR} --read_password_from_stdin=xml --configfile=${MEDIA_TARGET}/hana_mdc.conf
+      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+	       --ignore=check_signature_file \
+	       --components=${LCM_COMPONENTS} \
+	       --sid=${SID} \
+	       --number=${SAPINSTNR} \
+	       --read_password_from_stdin=xml \
+	       --configfile=${MEDIA_TARGET}/hana_mdc.conf
       rc=$?
       rm  ~/pwds.xml
    fi
@@ -547,7 +553,7 @@ extract_media_archives()
    else
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
-      if [ -n ${missing} ]; then
+      if [ -n "${missing}" ]; then
          yast_popup_wait "Cannot install, HANA component folders missing on media: ${missing}"
          rc=1
       else

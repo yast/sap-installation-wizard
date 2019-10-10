@@ -43,7 +43,7 @@ module Y2Sap
       end
       return :next
     end
-    
+
     # initialize some variables
     def init_envinroment
        @sid          =""
@@ -85,7 +85,10 @@ module Y2Sap
       )
       Wizard.RestoreAbortButton()
       # First we execute the autoyast xml file of the product if this exeists
-      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" +  get_product_parameter("ay_xml")            
+      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" +  get_product_parameter("ay_xml")
+      if @product_name == "B1"
+              SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh " + SAPMedia.instDir )
+      end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
         WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
@@ -103,7 +106,7 @@ module Y2Sap
     # This is @media.inst_dir
     # For SAP NW products the initfile.params file will be adapted.
     # Furthermore doc.dtd and keydb.dtd files will be copied into @media.inst_dir
-    # For all SAP products the @media.inst_dir/product.data hash will be written 
+    # For all SAP products the @media.inst_dir/product.data hash will be written
     def setup_installation_enviroment
       inifile_params = get_product_parameter("inifile_params") == "" ? ""   : @media.ay_dir_base + "/" +  get_product_parameter("inifile_params")
 
@@ -118,7 +121,7 @@ module Y2Sap
            val = IO.read(param).chomp
            pattern = "##" + par + "##"
            inifile.gsub!(/#{pattern}/,val)
-	end
+        end
         # Replace ##VirtualHostname## by the real hostname.
         inifile.gsub!(/##VirtualHostname##/,my_hostname)
         # Replace kernel base
@@ -127,7 +130,7 @@ module Y2Sap
             inifile.gsub!(/##kernel##/,path.chomp)
             break
           end
-	end
+        end
         File.write(@media.inst_dir + "/inifile.params",inifile)
       end
       if @media.inst_master_type == "SAPINST"

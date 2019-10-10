@@ -42,6 +42,12 @@ module Y2Sap
           part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_generic.xml"
           if ! File.exist?(part_xml)
             part_xml=@media.partitioning_dir_base + '/' + product_partitioning + ".xml"
+            if product_list.include?('B1')
+               if ! Popup.YesNoHeadline(_("Your System is not certified for SAP Business One on HANA."),
+                  _("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
+                       return "abort"
+               end
+            end
           end
         end
         ret = WFM.CallFunction( "sap_create_storage_ng", [ part_xml ])
