@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <general>
+    <mode>
+      <final_restart_services config:type="boolean">
+        false
+      </final_restart_services>
+    </mode>
+  </general>
+  <software>
+    <!-- post-patterns config:type="list">
+    <pattern>sap-b1</pattern>
+  </post-patterns -->
+    <post-packages config:type="list">
+      <package>patterns-sap-b1</package>
+    </post-packages>
+  </software>
+</profile>

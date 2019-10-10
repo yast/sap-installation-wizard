@@ -18,7 +18,7 @@
              <p><b>SAP HANA Master Password</b><br>Enter exiting password for the SYSTEM user.<br>
 	     </p>
 	     ]]></help>
-        <file>/tmp/ay_q_masterpass</file>
+        <file>/tmp/ay_q_masterPwd</file>
         <path>users,0,user_password</path>
         <question>SAP HANA Master Password</question>
         <password config:type="boolean">true</password>
@@ -31,11 +31,11 @@
           <source><![CDATA[
 function check_masterpwd() {
         # search for pwd from HANA input
-        [ -f /dev/shm/ay_q_masterpass ] && return 0
+        [ -f /dev/shm/ay_q_masterPwd ] && return 0
         for i in `ls /data/SAP_INST/`; do
            grep HANA /data/SAP_INST/$i/product.data > /dev/null 2>&1
            if [ $? -eq 0 ]; then
-              [ -f /data/SAP_INST/$i/ay_q_masterpass ] && return 0
+              [ -f /data/SAP_INST/$i/ay_q_masterPwd ] && return 0
               break
            fi
         done
@@ -66,11 +66,11 @@ check_masterpwd "$VAL"
         </script>
         <default_value_script>
           <source><![CDATA[
-if [ -f /dev/shm/ay_q_masterpass ];then
-   cat /dev/shm/ay_q_masterpass
+if [ -f /dev/shm/ay_q_masterPwd ];then
+   cat /dev/shm/ay_q_masterPwd
 else
-   if [ -f /data/SAP_INST/0/ay_q_masterpass ];then
-      cat /data/SAP_INST/0/ay_q_masterpass
+   if [ -f /data/SAP_INST/0/ay_q_masterPwd ];then
+      cat /data/SAP_INST/0/ay_q_masterPwd
    fi
 fi
 ]]></source>

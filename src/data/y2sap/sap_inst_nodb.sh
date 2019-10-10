@@ -126,7 +126,7 @@ ERR_create_xuser_failed=10
 ERR_rpm_install=11
 ERR_internal=12
 ERR_missing_entries=13
-ERR_nomasterpass=14
+ERR_nomasterPwd=14
 ERR_last=15
 
 err_message[0]="Ok"
@@ -486,9 +486,6 @@ service nscd status > /dev/null 2>&1
 virt_hostname=""
 if [ -f ${A_VIRTHOSTNAME} ]; then
         virt_hostname=`< ${A_VIRTHOSTNAME}`
-else
-        # Fallback for products which do not support virtual hostnames
-        virt_hostname=${REAL_HOSTNAME}
 fi
 
 
@@ -567,7 +564,9 @@ service sshd start
 create_sapstartsrv_resources
 
 # set virtual hostname
-create_virt_interface
+if [ "${virt_hostname}" ] ; then
+       create_virt_interface
+fi
 
 # Disable SAP Installation Prerequisite Checker due to saplocales
 export PRC_DEACTIVATE_CHECKS=true

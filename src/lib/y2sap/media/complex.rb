@@ -55,27 +55,26 @@ module Y2Sap
         when "SAPINST"
           ret = :SAPINST
         when "HANA"
-          @inst_master_type = "HANA"
+          @inst_master_type = 'HANA'
           @media_dir = @inst_dir
           ret = :HANA
         when /^B1/
+	  @inst_master_type = 'B1'
           @media_dir = @inst_dir
           ret = :B1
         when "TREX"
           ret = :TREX
       end
-      if @inst_master_type == 'HANA'
-        # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
-        #Y2Sap::MediaCopy.copy_dir(@inst_master_path, @media_dir, "Instmaster")
+      if @inst_master_type == 'HANA' || @inst_master_type == 'B1'
+        # HANA and instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
+        # And should not be copied twice
         copy_dir(@inst_master_path, @media_dir, "Instmaster")
         @inst_master_path = @media_dir + "/Instmaster"
       else
         if ! File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + '-' + @inst_master_version  )
            #Make a local copy of the installation master
-           #Y2Sap::MediaCopy.copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
            copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
         end
-        #Y2Sap::MediaCopy.copy_dir(@inst_master_path, @inst_dir, "Instmaster")
         copy_dir(@inst_master_path, @inst_dir, "Instmaster")
         @inst_master_path = @inst_dir + "/Instmaster"
       end

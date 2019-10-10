@@ -142,6 +142,7 @@ module Y2Sap
        SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
        SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
        SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
+       SCR.Execute(path(".target.bash"), "rm -rf /var/lib/YaST2/reconfig_system")
        Package.DoRemove(["sap-installation-start"])
     end
   end
