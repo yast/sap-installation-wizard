@@ -176,7 +176,7 @@ module Y2Sap
         next
       end
       !prod.key?("sapMDC") || prod["sapMDC"] = "no"
-      File.write(@inst_dir + "/ay_q_masterpass", prod["sapMasterPW"])
+      File.write(@inst_dir + "/ay_q_masterPwd", prod["sapMasterPW"])
       File.write(@inst_dir + "/ay_q_sid",        prod["sid"])
       File.write(@inst_dir + "/ay_q_sapinstnr",  prod["sapInstNr"])
       File.write(@inst_dir + "/ay_q_sapmdc",     prod["sapMDC"])

@@ -56,7 +56,7 @@ while getopts "i:m:d:t:g:y:h\?" options; do
         esac
 done
 
-MASTERPW=$( cat $SAPINST_DIR/ay_q_masterpass )
+MASTERPW=$( cat $SAPINST_DIR/ay_q_masterPwd )
 SID=$( cat $SAPINST_DIR/ay_q_sid )
 INST=$( cat $SAPINST_DIR/ay_q_sapinstnr )
 if [ -e $SAPINST_DIR/ay_q_virt_hostname ]; then
