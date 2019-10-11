@@ -53,8 +53,8 @@ module Y2Sap
       # @return [String] The directory where the autoyast xml are placed
       attr_reader :ay_dir_base # @ayXMLPath
 
-      # @return [String] Path to the product installation script
-      attr_accessor :install_script
+      # @return [String] Path to the directory containing the product installation scripts
+      attr_accessor :sapinst_path
 
       # @return [String] The mode of the installation:
       #   * manual  Normal instalation
@@ -97,8 +97,8 @@ module Y2Sap
           Yast::Path.new(".sysconfig.sap-installation-wizard.PRODUCT_XML_PATH"),
           "/usr/share/YaST2/data/y2sap"
         )
-        @install_script = Yast::Misc.SysconfigRead(
-          Yast::Path.new(".sysconfig.sap-installation-wizard.SAPINST_SCRIPT"),
+        @sapinst_path = Yast::Misc.SysconfigRead(
+          Yast::Path.new(".sysconfig.sap-installation-wizard.SAPINST_PATH"),
           "/usr/share/YaST2/data/y2sap/sap_inst.sh"
         )
         @inst_mode = Yast::Misc.SysconfigRead(

@@ -36,6 +36,13 @@ Requires:       saptune
 Requires:       yast2-saptune
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  yast2-ruby-bindings >= 4.0.6
+BuildRequires:  rubygem(rspec)
+BuildRequires:  rubygem(yast-rake)
+# speed up the tests in SLE15-SP1+ or TW
+%if 0%{?sle_version} >= 150100 || 0%{?suse_version} > 1500
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
+%endif
 ExclusiveArch:  x86_64 ppc64le
 Obsoletes:      sap-media-changer <= 2.17
 Provides:       sap-media-changer  = %{version}
@@ -49,13 +56,22 @@ Authors:
     hguo@suse.com
 
 %prep
-%setup -n %{name}-%{version}
+%setup -q
+
+%check
+rake test:unit
 
 %build
 
+%install
+%yast_install
+%yast_metainfo
+%ifarch ppc64le
+   sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/include/sap-installation-wizard/HANA.xml 
+%endif
+
 %post
 %{fillup_only -n sap-installation-wizard}
-#insserv boot.sles4sap
 
 %preun
 
@@ -64,21 +80,17 @@ Authors:
 %clean
 rm -rf  %{buildroot}
 
-%install
-make DESTDIR=%{buildroot} install
-%ifarch ppc64le
-   sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/include/sap-installation-wizard/HANA.xml 
-%endif
-
 %files
 %defattr(-,root,root)
-%license COPYING
+%{yast_clientdir}
+%{yast_libdir}
+%{yast_desktopdir}
+%{yast_metainfodir}
+%{yast_fillupdir}
+%{yast_ybindir}
+%{yast_scrconfdir}
+%{yast_icondir}
 %doc windows_cheat_sheet.pdf sap-autoinstallation.txt hana-autoyast.xml
-%config /etc/sap-installation-wizard.xml
-%{_datadir}/YaST2/
-%{_fillupdir}/sysconfig.sap-installation-wizard
-%defattr(0755,root,root)
-%{_datadir}/applications/
-/usr/sbin/start_sap_docker.sh
+%license COPYING
 
 %changelog

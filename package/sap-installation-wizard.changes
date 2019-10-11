@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
 Fri Oct 11 07:55:06 UTC 2019 - Peter Varkoly <varkoly@suse.com>
 
+- First version after rewriting the whole module
 - (jira#SLE7505) Include Nutanix as new partner for Business One image
 - Include Supermicro as new partner for Business One image
 - Now we can detect if the ask dialog is neccessary for B1.
@@ -13,25 +14,64 @@ Fri Oct 11 07:55:06 UTC 2019 - Peter Varkoly <varkoly@suse.com>
 - Avoid copying B1 image twice.
 - Ignore media check files.
 - Reactivate warning if hardware is not certified.
-- bsc#1116880 - SAP Installation Wizard fails to install NetWeaver on SLES4SAP 
+- bsc#1116880 - SAP Installation Wizard fails to install NetWeaver on SLES4SAP
 - 4.2.1
 
 -------------------------------------------------------------------
-Wed Jul  3 14:38:28 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+Thu Jul  4 11:14:04 UTC 2019 - Peter Varkoly <varkoly@suse.com>
 
-- First version after rewriting the whole module
 - bsc#1116880 - SAP Installation Wizard fails to install NetWeaver
   on SLES4SAP 15SP1
-- bsc#1132835 SAP Installation Wizard incorrectly handles some
-  characters
-- bsc#1111828 [0.9.1 Build 2.22] sap-installation-wizard fails
-  to install from SMB
-- 4.2.0 
+- 4.1.16 
+
+-------------------------------------------------------------------
+Tue May 14 19:45:00 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1135074 [Build 225.1] openQA test fails in wizard_hana_install
+- bsc#1132835 SAP Installation Wizard incorrectly handles some characters
+  Fix parsing of samba url if password contains special characters.
+- bsc#1132525 SAP Installation Wizard fails to install HANA SPS04 on
+  SLES4SAP 15SP1 RC2 Build213.1
+  Do not install packages, install pattens instead of.
+- 4.1.15
+
+-------------------------------------------------------------------
+Tue Apr 16 11:50:47 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1132360 [Build 211.2] yast error after partitioning in
+  sap-installation-wizard.
+  - Remove not dropped yast functions.
+  - Disabling virt interface creation. This is not used and 
+    can make trouble in test envinroments.
+- 4.1.14
+
+-------------------------------------------------------------------
+Thu Mar 28 14:07:29 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1111828 sap-installation-wizard fails to install from SMB
+  Fix the name of the password attribute by evaluating the result of
+  URL.Parse
+- Fix typo: File.exists( ->  File.exist?
+- Take care of uniform using of exists? exist? function
+- 4.1.13
+
+-------------------------------------------------------------------
+Wed Mar  6 16:18:16 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1111828 [0.9.1 Build 2.22] sap-installation-wizard fails to install from SMB
+  - Fix smb mount add required parameter for windows.net
+- 4.1.12 
+
+-------------------------------------------------------------------
+Thu Feb 28 11:25:49 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1125529 Enable Remote Desktop Protocol (RDP) Service and
+  open port in Firewall does not work.  
 
 -------------------------------------------------------------------
 Wed Feb 20 16:02:10 UTC 2019 - Peter Varkoly <varkoly@suse.com>
 
-- bsc#125865 ayast_setup restarts all services and kills the GU 
+- bsc#1125865 ayast_setup restarts all services and kills the GU 
 
 -------------------------------------------------------------------
 Wed Jan 23 15:57:03 UTC 2019 - Peter Varkoly <varkoly@suse.com>

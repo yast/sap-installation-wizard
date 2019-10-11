@@ -23,9 +23,9 @@ INSTDIR="/data/SAP_INST"
 
 ## Description: this points to the media-set configuration XML file.
 ## Type:    string
-## Default: "/etc/sap-installation-wizard.xml"
+## Default: "/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml"
 #
-MEDIAS_XML="/etc/sap-installation-wizard.xml"
+MEDIAS_XML="/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml"
 
 ## Description: this points to the directory containing autoyast XML files of the products.
 ## Type:    string
@@ -39,11 +39,11 @@ PRODUCT_XML_PATH="/usr/share/YaST2/data/y2sap"
 #
 PART_XML_PATH="/usr/share/YaST2/data/y2sap"
 
-## Description: this points to the default installation script.
+## Description: this points to the directory where the shap install scripts are placed.
 ## Type:    string
-## Default: "/usr/share/YaST2/include/sap-installation-wizard/sap_inst.sh"
+## Default: "/usr/lib/YaST2/bin/"
 #
-SAPINST_SCRIPT="/usr/share/YaST2/data/y2sap/sap_inst.sh"
+SAPINST_PATH="/usr/lib/YaST2/bin/"
 
 ## Description: do you want the "do you want to install another product?" loop?
 ## Type:    yesno

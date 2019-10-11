@@ -139,7 +139,7 @@ module Y2Sap
       end
 
       #Write the product.data file
-      script_name    = @media.ay_dir_base + "/" +  get_product_parameter("script_name")
+      script_name    = @media.sapinst_path + "/" +  get_product_parameter("script_name")
       partitioning   = get_product_parameter("partitioning")   == "" ? "NO" : get_product_parameter("partitioning")
       SCR.Write( path(".target.ycp"), @media.inst_dir + "/product.data",  {
         "inst_dir"     => @media.inst_dir,
