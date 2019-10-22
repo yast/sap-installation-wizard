@@ -1,22 +1,7 @@
+<?xml version="1.0"?>
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
   <partitioning config:type="list">
-    <drive>
-      <device>/dev/sda</device>
-      <type config:type="symbol">CT_DISK</type>
-      <is_lvm_vg config:type="boolean">false</is_lvm_vg>
-      <partitions config:type="list">
-        <partition>
-          <create config:type="boolean">true</create>
-          <format config:type="boolean">true</format>
-          <partition_id config:type="integer">130</partition_id>
-          <filesystem config:type="symbol">swap</filesystem>
-          <mount>swap</mount>
-          <size>2G</size>
-        </partition>
-      </partitions>
-      <use>free</use>
-    </drive>
     <drive>
       <device>/dev/sdb</device>
       <initialize config:type="boolean">true</initialize>
@@ -36,7 +21,7 @@
           <size>max</size>
         </partition>
       </partitions>
-      <pesize></pesize>
+      <pesize/>
       <type config:type="symbol">CT_DISK</type>
       <use>all</use>
     </drive>
@@ -59,7 +44,7 @@
           <raid_options/>
           <resize config:type="boolean">false</resize>
           <size_min>RAM*3</size_min>
-          <size>max</size>
+          <size/>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -74,8 +59,9 @@
           <partition_id config:type="integer">131</partition_id>
           <raid_options/>
           <resize config:type="boolean">false</resize>
-          <size_min>RAM*1</size_min>
-          <size>16%</size>
+          <size_min>RAM*0.5</size_min>
+          <size_max>512G</size_max>
+          <size/>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -91,7 +77,8 @@
           <raid_options/>
           <resize config:type="boolean">false</resize>
           <size_min>RAM*1</size_min>
-          <size>16%</size>
+          <size_max>1T</size_max>
+          <size/>
         </partition>
         <partition>
           <create config:type="boolean">true</create>
@@ -106,8 +93,9 @@
           <partition_id config:type="integer">131</partition_id>
           <raid_options/>
           <resize config:type="boolean">false</resize>
-          <size_min>RAM*1</size_min>
-          <size>16%</size>
+          <size_min>RAM*2</size_min>
+          <size_max>200G</size_max>
+          <size/>
         </partition>
       </partitions>
       <pesize>4M</pesize>
