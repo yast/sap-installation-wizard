@@ -144,7 +144,7 @@
 		    </arguments>
                 </module>
                 <module>
-		    <label>Check Network Configuartion for SAP</label>
+		    <label>Check Network Configuration for SAP</label>
 	            <name>firstboot_inst_sap_net_check</name>
 		</module>
                 <module>
