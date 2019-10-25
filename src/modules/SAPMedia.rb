@@ -5,9 +5,11 @@
 # vim: set tabstop=4: set expandtab
 require "yast"
 require "fileutils"
+require "autoinstall/clients/ayast_setup"
 
 module Yast
   class SAPMediaClass < Module
+    include Y2Autoinstall::Clients::AyastSetup  
     def main
       #Basic yast stuff
       Yast.import "URL"
@@ -571,7 +573,7 @@ module Yast
     #
     def ParseXML(file)
       Builtins.y2milestone("-- SAPMedia.ParseXML Start ---")
-      ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
+      ret = openFile({ "filename" => file, "dopackages" => "yes" })
       Builtins.y2milestone("ayast_setup returned %1 for %2", ret,  file)
       ret
     end
