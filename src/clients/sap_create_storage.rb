@@ -364,14 +364,22 @@ module Yast
     # Function to calculate the kb values from GiB and Tb
     # **********************************************
     def getDimensionedValue(value)
-             @ltmp     = Builtins.regexptokenize(value, "(.*)([G|T])")
+	    @ltmp     = Builtins.regexptokenize(value, "(\d+)(.*)$")
 	     size      = Ops.get_string(@ltmp, 0, "")
 	     dimension = Ops.get_string(@ltmp, 1, "")
 	     case dimension
-	       when "G"
+	       when "MiB"
+                  size = size.to_i*1024*1024
+	       when "M"
+                  size = size.to_i*1000*1000
+	       when "GiB"
                   size = size.to_i*1024*1024*1024
-	       when "T"
+	       when "G"
+                  size = size.to_i*1000*1000*1000
+	       when "TiB"
                   size = size.to_i*1024*1024*1024*1024
+	       when "T"
+                  size = size.to_i*1000*1000*1000*1000
                else
                   size = 1024*1024*1024
 	     end
