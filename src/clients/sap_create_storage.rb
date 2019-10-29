@@ -123,7 +123,7 @@ module Yast
 	       minSize = minSize.to_f * @memory
                Ops.set( @profile, ["partitioning", i, "partitions", j, "size_min"], minSize)
 	     else
-	       minSize = 1000*1000*1000
+	       minSize = 1024*1024*1024
 	     end
              #Evaluate the max size of the partition
              maxSize = Ops.get_string(drive, ["partitions", j, "size_max"], "")
@@ -146,10 +146,10 @@ module Yast
 
              if size == ""
 	        if minSize > maxSize
-                   size = maxSize/1000/1000/1000
+                   size = maxSize/1024/1024/1024
                    Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G")
 	        else
-                   size = minSize/1000/1000/1000
+                   size = minSize/1024/1024/1024
                    Ops.set( @profile, ["partitioning", i, "partitions", j, "size"], size.to_s + "G" )
 	        end
 	     end
@@ -281,8 +281,8 @@ module Yast
             message = _("<size=30><b><color=red>Warning</color></b></size><br>")
 	    message << _("Your system does not meet the requirements.")
             message << Builtins.sformat(_("There is less disk space than recommended for this LVG %1.<br>"), _LVG)
-            message << Builtins.sformat(_("The recommended amount of %1 GiB is not available.<br>"), min )
-            message << Builtins.sformat(_("The total currently available amount %1 GiB can not be used for the SAP installation.<br>"), have )
+            message << Builtins.sformat(_("The recommended amount of %1 GB is not available.<br>"), min )
+            message << Builtins.sformat(_("The total currently available amount %1 GB can not be used for the SAP installation.<br>"), have )
             message << _("There is no guarantee that the system will work properly if you continue the installation.")
 	    if( @devices > 1 )
                 message << Builtins.sformat(_("Otherwise you can abort the installation or go back to select different partitions for the LVG %1."), _LVG )
@@ -396,7 +396,7 @@ module Yast
         buttons = VBox()
         Builtins.foreach(@freeDevices) do |dev, tmp|
           tmp1 = "CHECK"+_LVG + "#" + dev
-          tmp2 = Builtins.sformat("%1 %2GiB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
+          tmp2 = Builtins.sformat("%1 %2GB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
           buttons = Builtins.add(
             buttons,
             Left(CheckBox(Id(tmp1), Opt(:notify), tmp2, false))
@@ -415,7 +415,7 @@ module Yast
         buttons = VBox()
         Builtins.foreach(@freeDevices) do |dev, tmp|
           tmp1 = Ops.add("SWAP#", dev)
-          tmp2 = Builtins.sformat("%1 %2GiB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
+          tmp2 = Builtins.sformat("%1 %2GB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
           buttons = Builtins.add(
             buttons,
             Left(CheckBox(Id(tmp1), Opt(:notify), tmp2, false))
