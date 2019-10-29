@@ -276,13 +276,13 @@ module Yast
 	  end
           Builtins.y2milestone("Checking _LVG %1 min: %2 size %3", _LVG, min, Ops.get(@LVGsize, _LVG, 0))
           if min > Ops.get(@LVGsize, _LVG, 0)
-            min  = min/1024/1024/1024
-            have = Ops.get(@LVGsize, _LVG, 0)/1024/1024/1024
+            min  = min/1000/1000/1000
+            have = Ops.get(@LVGsize, _LVG, 0)/1000/1000/1000
             message = _("<size=30><b><color=red>Warning</color></b></size><br>")
 	    message << _("Your system does not meet the requirements.")
             message << Builtins.sformat(_("There is less disk space than recommended for this LVG %1.<br>"), _LVG)
-            message << Builtins.sformat(_("The recommended amount of %1 GiB is not available.<br>"), min )
-            message << Builtins.sformat(_("The total currently available amount %1 GiB can not be used for the SAP installation.<br>"), have )
+            message << Builtins.sformat(_("The recommended amount of %1 GB is not available.<br>"), min )
+            message << Builtins.sformat(_("The total currently available amount %1 GB can not be used for the SAP installation.<br>"), have )
             message << _("There is no guarantee that the system will work properly if you continue the installation.")
 	    if( @devices > 1 )
                 message << Builtins.sformat(_("Otherwise you can abort the installation or go back to select different partitions for the LVG %1."), _LVG )
@@ -370,15 +370,15 @@ module Yast
 	     case dimension
 	       when "MiB"
                   size = size.to_i*1024*1024
-	       when "M"
+	       when /^M|MB$/
                   size = size.to_i*1000*1000
 	       when "GiB"
                   size = size.to_i*1024*1024*1024
-	       when "G"
+	       when /^G|GB$/
                   size = size.to_i*1000*1000*1000
 	       when "TiB"
                   size = size.to_i*1024*1024*1024*1024
-	       when "T"
+	       when /^T|TB$/
                   size = size.to_i*1000*1000*1000*1000
                else
                   size = 1024*1024*1024
@@ -396,7 +396,7 @@ module Yast
         buttons = VBox()
         Builtins.foreach(@freeDevices) do |dev, tmp|
           tmp1 = "CHECK"+_LVG + "#" + dev
-          tmp2 = Builtins.sformat("%1 %2GiB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
+          tmp2 = Builtins.sformat("%1 %2GB",dev, Ops.get(@freeDevices, dev, 0) / 1000 / 1000 /1000 )
           buttons = Builtins.add(
             buttons,
             Left(CheckBox(Id(tmp1), Opt(:notify), tmp2, false))
@@ -415,7 +415,7 @@ module Yast
         buttons = VBox()
         Builtins.foreach(@freeDevices) do |dev, tmp|
           tmp1 = Ops.add("SWAP#", dev)
-          tmp2 = Builtins.sformat("%1 %2GiB",dev, Ops.get(@freeDevices, dev, 0) / 1024 / 1024 /1024 )
+          tmp2 = Builtins.sformat("%1 %2GB",dev, Ops.get(@freeDevices, dev, 0) / 1000 / 1000 /1000 )
           buttons = Builtins.add(
             buttons,
             Left(CheckBox(Id(tmp1), Opt(:notify), tmp2, false))
