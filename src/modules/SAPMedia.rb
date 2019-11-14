@@ -9,7 +9,7 @@ require "autoinstall/clients/ayast_setup"
 
 module Yast
   class SAPMediaClass < Module
-    include Y2Autoinstall::Clients::AyastSetup  
+    include Y2Autoinstall::Clients::AyastSetup
     def main
       #Basic yast stuff
       Yast.import "URL"
