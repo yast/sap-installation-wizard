@@ -2,6 +2,38 @@ stages:
   - validate
   - test
   - coverage
+  
+latest_validate:
+    stage: validate
+    image: suntorytimed/yast-ci:latest
+    script: rubocop
+    allow_failure: true
+
+latest_test:
+    stage: test
+    image: suntorytimed/yast-ci:latest
+    script: rake test:unit
+
+latest_coverage:
+    stage: coverage
+    image: suntorytimed/yast-ci:latest
+    script: rake coverage
+  
+sle15SP1_validate:
+    stage: validate
+    image: suntorytimed/yast-ci:sle15-sp1
+    script: rubocop
+    allow_failure: true
+
+sle15SP1_test:
+    stage: test
+    image: suntorytimed/yast-ci:sle15-sp1
+    script: rake test:unit
+
+sle15SP1_coverage:
+    stage: coverage
+    image: suntorytimed/yast-ci:sle15-sp1
+    script: rake coverage
 
 sle15SP0_validate:
     stage: validate
