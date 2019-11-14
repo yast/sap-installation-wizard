@@ -2,3 +2,13 @@
 sap-installation-wizard-*
 sap-installation-wizard-*.tar.bz2
 y2signal.log
+coverage/
+src/include/B1.noask.xml
+src/include/B1.templ.xml
+src/include/DIST-APP1.xml
+src/include/DIST-ASCS.xml
+src/include/DIST-DB.xml
+src/include/GATEWAY.xml
+src/include/HA-ERS.xml
+src/include/STD.xml
+
