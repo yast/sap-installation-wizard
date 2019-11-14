@@ -70,7 +70,7 @@ MEDIA_TARGET=$( dirname $SAPCD_INSTMASTER)
 
 if [ "${ARCH}" = "PPC64LE" ]; then
 	if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
- 	 	ARCH="PPC64"
+		ARCH="PPC64"
 	fi
 fi
 
@@ -78,7 +78,7 @@ fi
 INSTALL_COUNT=$( echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}' )
 
 # YaST Uebergabeparameterdateien
-A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterpass"
+A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterPwd"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
 A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
@@ -100,7 +100,7 @@ ERR_create_xuser_failed=10
 ERR_rpm_install=11
 ERR_internal=12
 ERR_missing_entries=13
-ERR_nomasterpass=14
+ERR_nomasterPwd=14
 ERR_last=15
 
 err_message[0]="Ok"
@@ -343,7 +343,6 @@ hana_installation_summary ()
 
         summary_file="/root/installation${INSTALL_COUNT}_summary_${SID}.txt"
         tmpfile="${TMPDIR}/yast_popup_inst_summary.ycp"
-        phys_ip=`host \`hostname\` | awk {'print $4'}`
 	phys_ip=$( ip address show  | grep $phys_ip | gawk '{ print $2 }' )
 
         cat > ${summary_file} <<-EOF
@@ -356,7 +355,7 @@ hana_installation_summary ()
         # IP Address:	${phys_ip}
         # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
         # IP for Nameserver:	`grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' '`
-        # Default Gateway:	$( ip route list | gawk '/default/ { print $3}' )
+	# Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
         #
         # SAP HANA System ID:	${SID}
         # SAP HANA Instance:	${SAPINSTNR}
@@ -494,7 +493,7 @@ hana_unified_installer_workflow()
    fi
 
    LINUX26_SUPPORT=/usr/bin/uname26  # workaround for saposcol bug (does not detect Linux kernel 3.x which is shipped with SLES11 SP2)
-   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterpass`\n`cat ${MEDIA_TARGET}/ay_q_masterpass`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
+   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterPwd`\n`cat ${MEDIA_TARGET}/ay_q_masterPwd`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
    # Unified Installer always returns rc 0, regardless of success :-(
    # workaround: test connection to HANA to determine success
    [ -f ${A_SID} ] && SID=`< ${A_SID}`
@@ -509,7 +508,7 @@ hana_unified_installer_workflow()
       ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/SAPCAR -xvf ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR
       if [ $? -eq 0 ]; then
           cd SAP_HANA_AFL
-          ./hdbinst -b -p `cat ${MEDIA_TARGET}/ay_q_masterpass` -s ${SID}
+          ./hdbinst -b -p `cat ${MEDIA_TARGET}/ay_q_masterPwd` -s ${SID}
           rc=$?
           if [ $rc -ne 0 ]; then
              echo "could not install AFL, error=$rc"
@@ -553,7 +552,7 @@ extract_media_archives()
    else
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
-      if [ -n ${missing} ]; then
+      if [ -n "${missing}" ]; then
          yast_popup_wait "Cannot install, HANA component folders missing on media: ${missing}"
          rc=1
       else
@@ -598,7 +597,7 @@ extract_media_archives()
 
    cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
    cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
-   #cp ${MEDIA_TARGET}/ay_q_masterpass /dev/shm
+   #cp ${MEDIA_TARGET}/ay_q_masterPwd /dev/shm
    cleanup
 
 exit $rc

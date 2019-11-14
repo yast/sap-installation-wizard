@@ -335,13 +335,11 @@ module Yast
       xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
+      if @PRODUCT_NAME == "B1"
+         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh " + SAPMedia.instDir )
+      end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
-	if @PRODUCT_NAME == "B1"
-           out       = Convert.to_map( SCR.Execute(path(".target.bash_output"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh"))
-           selection = Ops.get_string(out, "stdout", "").chomp
-           SCR.Execute(path(".target.bash"), "sid -i.back 's#<default>___SAPSID___</default>#" + selection + "#' " + xml_path)
-        end
         SAPMedia.ParseXML(xml_path)
         if File.exist?("/tmp/ay_q_sid")
            sid = IO.read("/tmp/ay_q_sid").chomp    
@@ -406,10 +404,13 @@ module Yast
 
       if Popup.YesNo(_("Installation profile is ready.\n" +
                        "Are there more SAP products to be prepared for installation?"))
-         ret = :readIM
          SAPMedia.prodCount = SAPMedia.prodCount.next
          SAPMedia.instDir = Builtins.sformat("%1/%2", SAPMedia.instDirBase, SAPMedia.prodCount)
          SCR.Execute(path(".target.bash"), "mkdir -p " + SAPMedia.instDir )
+	 return :readIM
+      end
+      if SAPMedia.instMode == "preauto"
+         return :end
       end
       return ret
     end
@@ -498,6 +499,10 @@ module Yast
           #Process.kill("TERM", pid)
       }
       return :next
+    rescue StandardError => e
+      Builtins.y2milestone("An internal error accoured:" + e.message )
+      Popup.Error( e.message )
+      return :abort
     end
 
     private

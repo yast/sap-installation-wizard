@@ -135,7 +135,7 @@ Possible values are <b>no</b>, <b>low isolation</b> and <b>high isolation</b>.
 	     </p>
 	     ]]>
 	     </help>
-             <file>/tmp/ay_q_masterpass</file>
+             <file>/tmp/ay_q_masterPwd</file>
              <path>users,0,user_password</path>
              <question>SAP HANA Master Password</question>
              <password config:type="boolean">true</password>
@@ -147,7 +147,7 @@ Possible values are <b>no</b>, <b>low isolation</b> and <b>high isolation</b>.
                 <environment config:type="boolean">true</environment>
                 <source><![CDATA[
 function check_masterpwd() {
-	local pwd=$( cat /tmp/ay_q_masterpass )
+	local pwd=$( cat /tmp/ay_q_masterPwd )
 
         if [ -z "$pwd" ]; then
 		echo "You must provide a master password for your installation!"
