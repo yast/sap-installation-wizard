@@ -151,8 +151,6 @@ module Y2Sap
 
     def get_hw_info
       hwinfo = []
-      product = ""
-      product_vendor = ""
       bios = Convert.to_list(SCR.Read(path(".probe.bios")))
 
       if Builtins.size(bios) != 1

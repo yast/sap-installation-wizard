@@ -30,7 +30,6 @@ module Y2Sap
       if pid.nil? || pid < 1
         return ask_me_to_retry(sourceDir, targetDir, subDir)
       end
-      progress = 0
       source_size = human_size(sourceDir)
       techsize    = tech_size(sourceDir)
       Progress.Simple(

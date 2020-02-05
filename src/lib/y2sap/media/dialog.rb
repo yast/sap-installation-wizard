@@ -271,8 +271,8 @@ module Y2Sap
           urlPath = mount_source(scheme, @location_cache)
           if urlPath != ""
             ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
-            if Ops.get_string(@ltmp, 0, "") != ""
-              Popup.Error( _("Failed to mount the location: ") + Ops.get_string(@ltmp, 0, ""))
+            if Ops.get_string(ltmp, 0, "") != ""
+              Popup.Error( _("Failed to mount the location: ") + Ops.get_string(ltmp, 0, ""))
               next
             end
           end

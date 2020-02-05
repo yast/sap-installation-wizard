@@ -22,8 +22,6 @@
 module Y2Sap
   module MediaFind
     include Yast
-    @path_map
-    @base
 
     def find_sap_media
       make_hash = proc do |hash,key|

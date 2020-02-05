@@ -67,7 +67,7 @@ module Y2Sap
           return :back
         else
           return :next
-         end
+        end
       end
       @caption = _("Product Installation Mode")
       @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
@@ -128,7 +128,7 @@ module Y2Sap
             hana_partitioning
             ret = :next
           end
-	  clean_up
+          clean_up
         end
       end
       Wizard.CloseDialog() if @close_me
