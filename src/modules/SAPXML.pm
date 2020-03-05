@@ -464,8 +464,10 @@ sub get_products_for_media{
    {
       my $dtd_file = $xml_file;
       $dtd_file =~ s/.xml$/.dtd/;
+      my $to_remove = 0;
       if( ! -e "$prodEnvPath/$dtd_file" ) {
             system("cp $DTDFILE $prodEnvPath/$dtd_file");
+	    $to_remove = 1;
             #print "$dtd_file\n";
       }
       my $xp = XML::XPath->new(filename => "$prodEnvPath/$xml_file") or next;
@@ -524,6 +526,9 @@ sub get_products_for_media{
       $xml_file =~ s#./Instmaster/##;
       $xml_file =~ s#/packages.xml##;
       push @valid, $xml_file if( $found );
+      if( $to_remove ) {
+          system("rm -f $prodEnvPath/$dtd_file");
+      }
    }
    return {
    		"productDir" => \@valid,
