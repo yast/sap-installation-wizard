@@ -124,6 +124,7 @@ sub is_instmaster {
                #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
                $instmaster[0] = "HANA";
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = $fields[2]
                last;
             }elsif ($fields[0] eq "B1AH" or $fields[0] eq "B1A" or $fields[0] eq "B1H") {
                #B1AH 1.0.2.147
@@ -465,8 +466,10 @@ sub get_products_for_media{
    {
       my $dtd_file = $xml_file;
       $dtd_file =~ s/.xml$/.dtd/;
+      my $to_remove = 0;
       if( ! -e "$prodEnvPath/$dtd_file" ) {
             system("cp $DTDFILE $prodEnvPath/$dtd_file");
+	    $to_remove = 1;
             #print "$dtd_file\n";
       }
       my $xp = XML::XPath->new(filename => "$prodEnvPath/$xml_file") or next;
@@ -525,6 +528,9 @@ sub get_products_for_media{
       $xml_file =~ s#./Instmaster/##;
       $xml_file =~ s#/packages.xml##;
       push @valid, $xml_file if( $found );
+      if( $to_remove ) {
+          system("rm -f $prodEnvPath/$dtd_file");
+      }
    }
    return {
    		"productDir" => \@valid,

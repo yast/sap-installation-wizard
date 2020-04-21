@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 # ------------------------------------------------------------------------------
-# Copyright (c) 2017 SUSE LLC
+# Copyright (c) 2020 SUSE LLC
 #
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -23,23 +23,15 @@ require "yast"
 require "y2firewall/firewalld"
 require "installation/finish_client"
 
-module SapInstallationWizard
-    class InstallationFinish < ::Installation::FinishClient
-        def initialize
-            textdomain "sap-installation-wizard"
-            @firewalld = Y2Firewall::Firewalld.instance
-            @firewalld.read
-        end
-
-        def title
-            "Writting sap-installation-wizard Configuration"
-        end
-
-        def modes
-            [:installation]
-        end
-
-        def write
+module Y2SystemRoleHandlers
+    class Sles4SapRoleFinish
+       include Yast::Logger
+       def run
+            role = ::Installation::SystemRole.current_role
+            if !role
+               log.warn("Current role not found, not saving the config")
+               return
+            end
             return true if !@firewalld.installed?
             if Service.Enabled("xrdp")
                 external = @firewalld.find_zone(@firewalld.default_zone)
@@ -47,6 +39,6 @@ module SapInstallationWizard
                 @firewalld.write
             end
             true
-        end
+       end
     end
 end
