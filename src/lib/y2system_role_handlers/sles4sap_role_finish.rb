@@ -32,6 +32,8 @@ module Y2SystemRoleHandlers
                log.warn("Current role not found, not saving the config")
                return
             end
+	    @firewalld = Y2Firewall::Firewalld.instance
+            @firewalld.read
             return true if !@firewalld.installed?
             if Service.Enabled("xrdp")
                 external = @firewalld.find_zone(@firewalld.default_zone)
