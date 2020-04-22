@@ -24,7 +24,7 @@ require "y2firewall/firewalld"
 require "installation/finish_client"
 
 module Y2SystemRoleHandlers
-    class Sles4SapRoleFinish
+    class Sles4sapRoleFinish
        include Yast::Logger
        def run
             role = ::Installation::SystemRole.current_role
