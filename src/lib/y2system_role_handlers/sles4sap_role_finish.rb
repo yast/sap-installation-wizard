@@ -26,6 +26,7 @@ require "installation/finish_client"
 module Y2SystemRoleHandlers
     class Sles4sapRoleFinish
        include Yast::Logger
+       Yast.import "Service"
        def run
             role = ::Installation::SystemRole.current_role
             if !role
