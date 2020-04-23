@@ -28,6 +28,7 @@ module Y2SystemRoleHandlers
        include Yast::Logger
        Yast.import "Service"
        def run
+            log.info("Sles4sapRoleFinish started")
             role = ::Installation::SystemRole.current_role
             if !role
                log.warn("Current role not found, not saving the config")
@@ -36,7 +37,9 @@ module Y2SystemRoleHandlers
 	    @firewalld = Y2Firewall::Firewalld.instance
             @firewalld.read
             return true if !@firewalld.installed?
-            if Service.Enabled("xrdp")
+            log.info("Sles4sapRoleFinish firewall installed")
+            if Yast::Service.Enabled("xrdp")
+                log.info("Sles4sapRoleFinish xrd enabled")
                 external = @firewalld.find_zone(@firewalld.default_zone)
                 external.add_service("ms-wbt")
                 @firewalld.write
