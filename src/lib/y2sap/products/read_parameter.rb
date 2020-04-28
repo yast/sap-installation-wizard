@@ -56,10 +56,10 @@ module Y2Sap
 
       # For HANA B1 and  TREX there is no @db @product_name and @product_id set at this time
       case @media.inst_master_type
-        when "HANA"
+        when /^HANA/
            @db           = "HDB"
            @product_name = "HANA"
-           @product_id   = "HANA"
+           @product_id   = @media.inst_master_type
         when /^B1/
            @db           = ""
            @product_name = "B1"

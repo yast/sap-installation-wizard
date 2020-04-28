@@ -44,7 +44,7 @@ module Y2Sap
           if fields[1] =~  /^HANA/
             instmaster[0] = "HANA"
             instmaster[1] = File.dirname(label_file)
-            instmaster[2] = ""
+            instmaster[2] = fields[2]
             break
           end
           if fields[0] =~ /^B1/
