@@ -567,7 +567,7 @@ module Yast
     #
     ############################################################
     def GetProductParameter(productParameter)
-      Builtins.y2milestone("-- Start SAPProduct GetProductParameter --")
+      Builtins.y2milestone("-- Start SAPProduct GetProductParameter -- %1 %2",@PRODUCT_ID,productParameter)
       @productList.each { |p|
           if p["id"] == @PRODUCT_ID
              return p.has_key?(productParameter) ? p[productParameter] : ""

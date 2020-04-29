@@ -349,11 +349,11 @@
       </media>
     </listentry>
     <listentry>
-      <name>HANA1</name>
-      <id>HANA1</id>
-      <type>HANA1</type>
-      <ay_xml>HANA1.xml</ay_xml>
-      <script_name>hana1_inst.sh</script_name>
+      <name>HANA</name>
+      <id>HANA1.0</id>
+      <type>HANA</type>
+      <ay_xml>HANA1.0.xml</ay_xml>
+      <script_name>hana_inst.sh</script_name>
       <partitioning>hana_partitioning</partitioning>
       <media>
         <listentry>1.0</listentry>
