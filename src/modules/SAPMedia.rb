@@ -123,6 +123,12 @@ module Yast
       #The type of the actual read installation master
       @instMasterType
 
+      #The version of the actual installation master
+      @instMasterVersion
+
+      #The path to the actual installation master
+      @instMasterPath
+
       #The control hash for sap media
       @SAPMediaTODO = {}
 
@@ -238,8 +244,9 @@ module Yast
                                    mediaList << @mediaDir + "/" + label
                                  }
                  else
-                     @instMasterType = instMasterList[0]
-                     @instMasterPath = instMasterList[1]
+                     @instMasterType    = instMasterList[0]
+                     @instMasterPath    = instMasterList[1]
+                     @instMasterVersion = instMasterList[2]
                      CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
                      mediaList << @instDir + "/" + "Instmaster"
                  end
@@ -265,11 +272,14 @@ module Yast
              @DB           = "HANA"
              @PRODUCT_NAME = @instMasterType
              @PRODUCT_ID   = @instMasterType
+	     if( @PRODUCT_NAME == "HANA" && @instMasterVersion == "1.0" )
+                 @PRODUCT_ID   = "HANA1.0"
+             end
 	     if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
 	        Popup.Error("Some of the required parameters are not defined.")
 		next
 	     end
-	     if ! prod.has_key?("sapMDC")
+	     if @PRODUCT_ID == "HANA1.0" && ! prod.has_key?("sapMDC")
                   prod["sapMDC"] = "no"
 	     end
 	     File.write(@instDir + "/ay_q_masterPwd",  prod["sapMasterPW"])

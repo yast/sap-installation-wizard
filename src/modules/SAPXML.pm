@@ -114,8 +114,8 @@ sub is_instmaster {
             if ($filepath[-1] eq "info.txt") {
                @fields = split(" ");
             }
-	    logger(" Field 1 : ".$fields[1]) if ($DEBUG);
 	    next if (! defined $fields[1] );
+	    logger(" Field 1,2,3 : ".$fields[1].":".$fields[2].":".$fields[3]) if ($DEBUG);
             # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
             # HANA DB server component is found first!!
             if ($fields[1] =~ /^HANA/ ) {

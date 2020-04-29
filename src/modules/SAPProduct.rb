@@ -62,6 +62,13 @@ module Yast
                        "script_name"  => SAPXML.ConfigValue("HANA","script_name")
       }
       @productList << {
+                       "name"         => "HANA",
+		       "id"           => "HANA1.0",
+		       "ay_xml"       => SAPXML.ConfigValue("HANA1.0","ay_xml"),
+                       "partitioning" => SAPXML.ConfigValue("HANA","partitioning"),
+                       "script_name"  => SAPXML.ConfigValue("HANA","script_name")
+      }
+      @productList << {
                        "name"         => "B1",
                        "id"           => "B1",
                        "ay_xml"       => SAPXML.ConfigValue("B1","ay_xml"),
@@ -307,7 +314,7 @@ module Yast
         when "HANA"
            @DB           = "HDB"
            @PRODUCT_NAME = "HANA"
-           @PRODUCT_ID   = "HANA"
+	   @PRODUCT_ID   = SAPMedia.instMasterVersion == "1.0" ? "HANA1.0" : "HANA"
         when /^B1/
            @DB           = ""
            @PRODUCT_NAME = "B1"

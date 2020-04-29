@@ -4,16 +4,16 @@
 #
 # Copyright (c) 2013 SAP AG
 #
-# This program is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU General Public License as 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation only version 2 of the License.
 #
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License 
+# You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 usage () {
@@ -202,7 +202,7 @@ yast_popup_wait () {
 		}
 EOF
 
-	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile} 
+	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
 	rm ${tmpfile}
 }
 
@@ -226,12 +226,12 @@ hana_volumes()
    hanadatadir=/hana/data
    hanalogdir=/hana/log
 
-   if [ ! -d ${hanamount} ]; then mkdir -p ${hanamount}; fi 
+   if [ ! -d ${hanamount} ]; then mkdir -p ${hanamount}; fi
    if [ ! -d ${hanadatadir}/${SID} ]; then mkdir -p ${hanadatadir}/${SID}; fi
    if [ ! -d ${hanalogdir}/${SID} ]; then mkdir -p ${hanalogdir}/${SID}; fi
 }
 
-hana_get_input() 
+hana_get_input()
 {
    # SAP System ID
    [ -f ${A_SID} ] && SID=`< ${A_SID}`
@@ -262,7 +262,7 @@ EOF
 
 
 hana_setenv_unified_installer()
-{  
+{
   # there are two versions of the HANA Unified Installer response file
   # Try the newer one if present
   oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
@@ -397,7 +397,7 @@ hana_lcm_workflow()
    hana_get_input
    hana_setenv_lcm
 
-   # Does the HANA media have 
+   # Does the HANA media have
    # 1. a full SPx DVD folder strucure ?
    # 2. or a selected components folder structure ?
    # 3. or a selected components folder structure built specifically for B1 ?
@@ -461,13 +461,22 @@ hana_lcm_workflow()
 	  echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
 	;;
       esac
-      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
-	       --ignore=check_signature_file \
-	       --components=${LCM_COMPONENTS} \
-	       --sid=${SID} \
-	       --number=${SAPINSTNR} \
-	       --read_password_from_stdin=xml \
-	       --configfile=${MEDIA_TARGET}/hana_mdc.conf
+      if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
+		cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+		--ignore=check_signature_file \
+		--components=${LCM_COMPONENTS} \
+		--sid=${SID} \
+		--number=${SAPINSTNR} \
+		--read_password_from_stdin=xml \
+		--configfile=${MEDIA_TARGET}/hana_mdc.conf
+      else
+		cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+		--ignore=check_signature_file \
+		--components=${LCM_COMPONENTS} \
+		--sid=${SID} \
+		--number=${SAPINSTNR} \
+		--read_password_from_stdin=xml
+      fi
       rc=$?
       rm  ~/pwds.xml
    fi
@@ -520,7 +529,6 @@ hana_unified_installer_workflow()
       echo "AFL directory ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH} does not exist"
       rc=1
    fi
-   
    return $rc
 }
 
@@ -569,7 +577,7 @@ extract_media_archives()
       fi
 
       # HDB 32-bit client required for B1 Server/ServerTools
-      if [ "${ARCH}" = "X86_64" ]; then 
+      if [ "${ARCH}" = "X86_64" ]; then
          if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
             ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
          else
@@ -589,7 +597,6 @@ extract_media_archives()
    if [ $rc -eq 0 ]; then
       # Cleanup-PopUp
       #yast_popup "Installation finished."
-      
       hana_installation_summary
    else
       yast_popup_wait "Installation failed.\nFor details please check log files at /var/tmp and /var/adm/autoinstall/logs"
