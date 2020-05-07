@@ -121,6 +121,12 @@ module Yast
       #The type of the actual read installation master
       @instMasterType
 
+      #The version of the actual installation master
+      @instMasterVersion
+
+      #The path to the actual installation master
+      @instMasterPath
+
       #The control hash for sap media
       @SAPMediaTODO = {}
 
@@ -236,8 +242,9 @@ module Yast
                                    mediaList << @mediaDir + "/" + label
                                  }
                  else
-                     @instMasterType = instMasterList[0]
-                     @instMasterPath = instMasterList[1]
+                     @instMasterType    = instMasterList[0]
+                     @instMasterPath    = instMasterList[1]
+                     @instMasterVersion = instMasterList[2]
                      CopyFiles(@instMasterPath, @instDir, "Instmaster", false)
                      mediaList << @instDir + "/" + "Instmaster"
                  end
@@ -263,14 +270,17 @@ module Yast
              @DB           = "HANA"
              @PRODUCT_NAME = @instMasterType
              @PRODUCT_ID   = @instMasterType
+	     if( @PRODUCT_NAME == "HANA" && @instMasterVersion == "1.0" )
+                 @PRODUCT_ID   = "HANA1.0"
+             end
 	     if ! prod.has_key?("sapMasterPW") or ! prod.has_key?("sid") or ! prod.has_key?("sapInstNr")
 	        Popup.Error("Some of the required parameters are not defined.")
 		next
 	     end
-	     if ! prod.has_key?("sapMDC")
+	     if @PRODUCT_ID == "HANA1.0" && ! prod.has_key?("sapMDC")
                   prod["sapMDC"] = "no"
 	     end
-	     File.write(@instDir + "/ay_q_masterpass", prod["sapMasterPW"])
+	     File.write(@instDir + "/ay_q_masterPwd",  prod["sapMasterPW"])
 	     File.write(@instDir + "/ay_q_sid",        prod["sid"])
 	     File.write(@instDir + "/ay_q_sapinstnr",  prod["sapInstNr"])
 	     File.write(@instDir + "/ay_q_sapmdc",     prod["sapMDC"])
@@ -444,7 +454,7 @@ module Yast
         when "TREX"
           ret = :TREX
       end
-      if @instMasterType == 'HANA'
+      if @instMasterType == 'HANA' || @instMasterType == 'B1'
         # HANA instmaster must reside in "Instmaster" directory, instead of "Instmaster-HANA" directory.
         CopyFiles(@instMasterPath, @mediaDir, "Instmaster", false)
         @instMasterPath = @mediaDir + "/Instmaster"
@@ -571,100 +581,9 @@ module Yast
     #
     def ParseXML(file)
       Builtins.y2milestone("-- SAPMedia.ParseXML Start ---")
-      ret = false
-      if file != ""
-        SCR.Write(
-          path(".target.string"),
-          "/tmp/current_media_path",
-          File.dirname(file)
-        )
-        profile = XML.XMLToYCPFile(file)
-        if profile != {} && Builtins.size(profile) == 0
-          # autoyast has read the autoyast configuration file but something went wrong
-          message = _(
-            "The XML parser reported an error while parsing the autoyast profile. The error message is:\n"
-          )
-          message = Ops.add(message, XML.XMLError)
-          Popup.Error(message)
-        end
-        AutoinstData.post_packages = []
-        Profile.current = { "general" => { "mode" => { "final_restart_services" => false , "activate_systemd_default_target" => false } }, "software" => {}, "scripts" => {} }
-        if Builtins.haskey(Ops.get_map(profile, "general", {}), "ask-list")
-          Ops.set(
-            Profile.current,
-            ["general", "ask-list"],
-            Builtins.merge(
-              Ops.get_list(Profile.current, ["general", "ask-list"], []),
-              Ops.get_list(profile, ["general", "ask-list"], [])
-            )
-          )
-          profile = Builtins.remove(profile, "general")
-        end
-        if Builtins.haskey(
-            Ops.get_map(profile, "software", {}),
-            "post-packages"
-          )
-          Ops.set(
-            Profile.current,
-            ["software", "post-packages"],
-            Builtins.merge(
-              Ops.get_list(Profile.current, ["software", "post-packages"], []),
-              Ops.get_list(profile, ["software", "post-packages"], [])
-            )
-          )
-          profile = Builtins.remove(profile, "software")
-        end
-        if Builtins.haskey(profile, "scripts")
-          Builtins.foreach(["init-scripts", "chroot-scripts", "post-scripts"]) do |key|
-            Ops.set(
-              Profile.current,
-              ["scripts", key],
-              Builtins.merge(
-                Ops.get_list(Profile.current, ["scripts", key], []),
-                Ops.get_list(profile, ["scripts", key], [])
-              )
-            )
-          end
-          AutoinstScripts.Import(Ops.get_map(Profile.current, "scripts", {})) # required for the chroot scripts wich are needed in stage1 already
-          profile = Builtins.remove(profile, "scripts")
-        end
-        Profile.Import(
-          Convert.convert(
-            Builtins.union(Profile.current, profile),
-            :from => "map",
-            :to   => "map <string, any>"
-          )
-        )
-        AutoInstall.Save
-        Wizard.CreateDialog
-
-        # SUSE firewall behaves differently in auto installation mode.
-        # Because SUSE firewall is configured (later) by this module, hence the current YaST mode must be preserved.
-        original_mode = Mode.mode()
-        Mode.SetMode("autoinstallation")
-
-        Stage.Set("continue")
-        WFM.CallFunction("inst_autopost", [])
-        AutoinstSoftware.addPostPackages(
-          Ops.get_list(Profile.current, ["software", "post-packages"], [])
-        )
-        if !Builtins.haskey(Profile.current, "networking")
-          Profile.current = Builtins.add(
-            Profile.current,
-            "networking",
-            { "keep_install_network" => true }
-          )
-        end
-        Pkg.TargetInit("/", false)
-        WFM.CallFunction("inst_rpmcopy", [])
-        WFM.CallFunction("inst_autoconfigure", [])
-	Mode.SetMode(original_mode)
-        Wizard.CloseDialog
-        SCR.Execute(path(".target.remove"), "/tmp/current_media_path")
-        ret = true
-      end
+      ret =  WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
+      Builtins.y2milestone("ayast_setup returned %1 for %2", ret,  file)
       ret
-
     end
 
     # ***********************************
@@ -1198,6 +1117,7 @@ module Yast
     publish :variable => :instDir,           :type => "string"
     publish :variable => :instDirBase,       :type => "string"
     publish :variable => :instMasterType,    :type => "string"
+    publish :variable => :instMasterVersion, :type => "string"
     publish :variable => :instMode,          :type => "string"
     publish :variable => :exportSAPCDs,      :type => "string"
     publish :variable => :mountPoint,        :type => "string"

@@ -9,6 +9,7 @@ install:
 	install -d $(DESTDIR)/usr/share/fillup-templates/
 	install -d $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
 	install -d $(DESTDIR)/usr/share/YaST2/lib/sap/clients/
+	install -d $(DESTDIR)/usr/share/YaST2/lib/y2system_role_handlers/
 	install -d $(DESTDIR)/usr/sbin/
 	#Include files *.sh *.xml .dtd inifile.params.* will be copied by wildcard match
 	#All other files must be placed one by one
@@ -20,6 +21,7 @@ install:
 	install -m 644 include/hana_mdc.conf           $(DESTDIR)/usr/share/YaST2/include/sap-installation-wizard/
 	install -m 644 lib/sap/*.rb $(DESTDIR)/usr/share/YaST2/lib/sap/
 	install -m 644 lib/sap/clients/*.rb $(DESTDIR)/usr/share/YaST2/lib/sap/clients/
+	install -m 644 lib/y2system_role_handlers/sles4sap_role_finish.rb $(DESTDIR)/usr/share/YaST2/lib/y2system_role_handlers/
 	install -m 644 clients/* $(DESTDIR)/usr/share/YaST2/clients/
 	install -m 644 modules/* $(DESTDIR)/usr/share/YaST2/modules/
 	install -m 755 desktop/sap-installation-wizard.desktop $(DESTDIR)/usr/share/applications/YaST2/

@@ -2,6 +2,11 @@
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
 <general>
+  <mode>
+    <final_restart_services config:type="boolean">
+      false
+    </final_restart_services>
+  </mode>
   <ask-list config:type="list">
   
           <ask>
@@ -22,7 +27,7 @@
 	     </p>
 	     ]]>
 	     </help>
-             <file>/tmp/ay_q_masterpass</file>
+             <file>/tmp/ay_q_masterPwd</file>
              <path>users,0,user_password</path>
              <question>SAP Master Password</question>
              <password config:type="boolean">true</password>
@@ -34,15 +39,15 @@
                 <environment config:type="boolean">true</environment>
                 <source><![CDATA[
 function check_masterpwd() {
-	local pwd=$( cat /tmp/ay_q_masterpass )
+	local pwd=$( cat /tmp/ay_q_masterPwd )
 
         if [ -z "$pwd" ]; then
 		echo "You must provide a master password for your installation!"
 		exit 1
         fi
-	if [ "${#pwd}" -gt 9 ]; then 
-		echo "The master password cannot be longer than 9 chars currently."
-		echo "You entered a ${#pwd} chars long password." 
+	if [ "${#pwd}" -gt 14 ]; then
+		echo "The master password cannot be longer than 14 chars currently."
+		echo "You entered a ${#pwd} chars long password."
 		exit 1
         fi
 	if [ "${#pwd}" -lt 8 ]; then
@@ -53,7 +58,7 @@ function check_masterpwd() {
         if [ -n "${pwd//[0-9A-Za-z\$@_#]/}" ]; then
 		echo "The Password contains forbidden chars."
 		echo "Allowed are 0-9, A-Z, a-z and $ @ _ #"
-		echo "But you're using: '${pwd//[0-9A-Za-z_@#]/}'."
+		echo "But you're using: '${pwd//[0-9A-Za-z\$_@#]/}'."
 		exit 1
 	fi	
         if [ -z "${pwd//[A-Za-z\$@_#]/}" ]; then
@@ -170,22 +175,7 @@ check_instance_no "$VAL"
     <pattern>sap-nw</pattern>
   </post-patterns -->
   <post-packages config:type="list">
-    <package>clamsap</package>
-    <package>ClusterTools2</package>
-    <package>cryptctl</package>
-    <package>libstdc++33</package>
-    <package>libstdc++33-32bit</package>
-    <package>sap-installation-wizard</package>
-    <package>sap-netscape-link</package>
-    <package>saprouter-systemd</package>
-    <package>sles4sap-white-papers</package>
-    <package>tuned</package>
-    <package>util-linux</package>
-    <package>util-linux-systemd</package>
-    <package>uuidd</package>
-    <package>yast2-sap-ha</package>
-    <package>yast2-sap-scp</package>
-    <package>yast2-sap-scp-prodlist</package>
+    <package>patterns-sap-nw</package>
   </post-packages>
 </software>
 </profile>

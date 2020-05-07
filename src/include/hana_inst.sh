@@ -4,16 +4,16 @@
 #
 # Copyright (c) 2013 SAP AG
 #
-# This program is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU General Public License as 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation only version 2 of the License.
 #
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License 
+# You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 usage () {
@@ -70,7 +70,7 @@ MEDIA_TARGET=$( dirname $SAPCD_INSTMASTER)
 
 if [ "${ARCH}" = "PPC64LE" ]; then
 	if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
- 	 	ARCH="PPC64"
+		ARCH="PPC64"
 	fi
 fi
 
@@ -78,7 +78,7 @@ fi
 INSTALL_COUNT=$( echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}' )
 
 # YaST Uebergabeparameterdateien
-A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterpass"
+A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterPwd"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
 A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
@@ -100,7 +100,7 @@ ERR_create_xuser_failed=10
 ERR_rpm_install=11
 ERR_internal=12
 ERR_missing_entries=13
-ERR_nomasterpass=14
+ERR_nomasterPwd=14
 ERR_last=15
 
 err_message[0]="Ok"
@@ -202,7 +202,7 @@ yast_popup_wait () {
 		}
 EOF
 
-	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile} 
+	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
 	rm ${tmpfile}
 }
 
@@ -226,12 +226,12 @@ hana_volumes()
    hanadatadir=/hana/data
    hanalogdir=/hana/log
 
-   if [ ! -d ${hanamount} ]; then mkdir -p ${hanamount}; fi 
+   if [ ! -d ${hanamount} ]; then mkdir -p ${hanamount}; fi
    if [ ! -d ${hanadatadir}/${SID} ]; then mkdir -p ${hanadatadir}/${SID}; fi
    if [ ! -d ${hanalogdir}/${SID} ]; then mkdir -p ${hanalogdir}/${SID}; fi
 }
 
-hana_get_input() 
+hana_get_input()
 {
    # SAP System ID
    [ -f ${A_SID} ] && SID=`< ${A_SID}`
@@ -262,7 +262,7 @@ EOF
 
 
 hana_setenv_unified_installer()
-{  
+{
   # there are two versions of the HANA Unified Installer response file
   # Try the newer one if present
   oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
@@ -343,7 +343,6 @@ hana_installation_summary ()
 
         summary_file="/root/installation${INSTALL_COUNT}_summary_${SID}.txt"
         tmpfile="${TMPDIR}/yast_popup_inst_summary.ycp"
-        phys_ip=`host \`hostname\` | awk {'print $4'}`
 	phys_ip=$( ip address show  | grep $phys_ip | gawk '{ print $2 }' )
 
         cat > ${summary_file} <<-EOF
@@ -356,7 +355,7 @@ hana_installation_summary ()
         # IP Address:	${phys_ip}
         # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
         # IP for Nameserver:	`grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' '`
-        # Default Gateway:	$( ip route list | gawk '/default/ { print $3}' )
+	# Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
         #
         # SAP HANA System ID:	${SID}
         # SAP HANA Instance:	${SAPINSTNR}
@@ -398,7 +397,7 @@ hana_lcm_workflow()
    hana_get_input
    hana_setenv_lcm
 
-   # Does the HANA media have 
+   # Does the HANA media have
    # 1. a full SPx DVD folder strucure ?
    # 2. or a selected components folder structure ?
    # 3. or a selected components folder structure built specifically for B1 ?
@@ -462,13 +461,22 @@ hana_lcm_workflow()
 	  echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
 	;;
       esac
-      cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
-	       --ignore=check_signature_file \
-	       --components=${LCM_COMPONENTS} \
-	       --sid=${SID} \
-	       --number=${SAPINSTNR} \
-	       --read_password_from_stdin=xml \
-	       --configfile=${MEDIA_TARGET}/hana_mdc.conf
+      if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
+		cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+		--ignore=check_signature_file \
+		--components=${LCM_COMPONENTS} \
+		--sid=${SID} \
+		--number=${SAPINSTNR} \
+		--read_password_from_stdin=xml \
+		--configfile=${MEDIA_TARGET}/hana_mdc.conf
+      else
+		cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+		--ignore=check_signature_file \
+		--components=${LCM_COMPONENTS} \
+		--sid=${SID} \
+		--number=${SAPINSTNR} \
+		--read_password_from_stdin=xml
+      fi
       rc=$?
       rm  ~/pwds.xml
    fi
@@ -494,7 +502,7 @@ hana_unified_installer_workflow()
    fi
 
    LINUX26_SUPPORT=/usr/bin/uname26  # workaround for saposcol bug (does not detect Linux kernel 3.x which is shipped with SLES11 SP2)
-   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterpass`\n`cat ${MEDIA_TARGET}/ay_q_masterpass`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
+   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterPwd`\n`cat ${MEDIA_TARGET}/ay_q_masterPwd`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
    # Unified Installer always returns rc 0, regardless of success :-(
    # workaround: test connection to HANA to determine success
    [ -f ${A_SID} ] && SID=`< ${A_SID}`
@@ -509,7 +517,7 @@ hana_unified_installer_workflow()
       ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/SAPCAR -xvf ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR
       if [ $? -eq 0 ]; then
           cd SAP_HANA_AFL
-          ./hdbinst -b -p `cat ${MEDIA_TARGET}/ay_q_masterpass` -s ${SID}
+          ./hdbinst -b -p `cat ${MEDIA_TARGET}/ay_q_masterPwd` -s ${SID}
           rc=$?
           if [ $rc -ne 0 ]; then
              echo "could not install AFL, error=$rc"
@@ -521,7 +529,6 @@ hana_unified_installer_workflow()
       echo "AFL directory ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH} does not exist"
       rc=1
    fi
-   
    return $rc
 }
 
@@ -553,7 +560,7 @@ extract_media_archives()
    else
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
-      if [ -n ${missing} ]; then
+      if [ -n "${missing}" ]; then
          yast_popup_wait "Cannot install, HANA component folders missing on media: ${missing}"
          rc=1
       else
@@ -570,7 +577,7 @@ extract_media_archives()
       fi
 
       # HDB 32-bit client required for B1 Server/ServerTools
-      if [ "${ARCH}" = "X86_64" ]; then 
+      if [ "${ARCH}" = "X86_64" ]; then
          if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
             ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
          else
@@ -590,7 +597,6 @@ extract_media_archives()
    if [ $rc -eq 0 ]; then
       # Cleanup-PopUp
       #yast_popup "Installation finished."
-      
       hana_installation_summary
    else
       yast_popup_wait "Installation failed.\nFor details please check log files at /var/tmp and /var/adm/autoinstall/logs"
@@ -598,7 +604,7 @@ extract_media_archives()
 
    cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
    cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
-   #cp ${MEDIA_TARGET}/ay_q_masterpass /dev/shm
+   #cp ${MEDIA_TARGET}/ay_q_masterPwd /dev/shm
    cleanup
 
 exit $rc

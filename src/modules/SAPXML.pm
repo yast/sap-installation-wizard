@@ -114,8 +114,8 @@ sub is_instmaster {
             if ($filepath[-1] eq "info.txt") {
                @fields = split(" ");
             }
-	    logger(" Field 1 : ".$fields[1]) if ($DEBUG);
 	    next if (! defined $fields[1] );
+	    logger(" Field 1,2,3 : ".$fields[1].":".$fields[2].":".$fields[3]) if ($DEBUG);
             # the HANA DVD includes a subcomponent with sapinst, so we must make sure that
             # HANA DB server component is found first!!
             if ($fields[1] =~ /^HANA/ ) {
@@ -124,6 +124,7 @@ sub is_instmaster {
                #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
                $instmaster[0] = "HANA";
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = $fields[2];
                last;
             }elsif ($fields[0] eq "B1AH" or $fields[0] eq "B1A" or $fields[0] eq "B1H") {
                #B1AH 1.0.2.147
@@ -275,6 +276,9 @@ sub ConfigValue{
 	 next if( not defined $c->getName      or ! $c->getName );
 	 next if( not defined $c->string_value or ! $c->string_value );
          $ok = 1 if( 'name' eq $c->getName and $c->string_value eq $prod );
+	 if( 'id' eq $c->getName ) {
+		 $ok = $c->string_value eq $prod;
+	 }
          if( 'search'       eq $c->getName ) {
 	        push @f, $c->string_value;
 		next;
@@ -324,6 +328,7 @@ sub get_nw_products
        my $ok = 0;
        foreach my $c ( $node->getChildNodes )
        {
+	 next if !defined $c->string_value;
          push @f, $c->string_value if( 'search'         eq $c->getName );
          $n = $c->string_value     if( 'name'           eq $c->getName );
          $a = $c->string_value     if( 'ay_xml'         eq $c->getName );

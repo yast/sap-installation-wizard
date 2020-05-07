@@ -62,6 +62,13 @@ module Yast
                        "script_name"  => SAPXML.ConfigValue("HANA","script_name")
       }
       @productList << {
+                       "name"         => "HANA",
+		       "id"           => "HANA1.0",
+		       "ay_xml"       => SAPXML.ConfigValue("HANA1.0","ay_xml"),
+                       "partitioning" => SAPXML.ConfigValue("HANA","partitioning"),
+                       "script_name"  => SAPXML.ConfigValue("HANA","script_name")
+      }
+      @productList << {
                        "name"         => "B1",
                        "id"           => "B1",
                        "ay_xml"       => SAPXML.ConfigValue("B1","ay_xml"),
@@ -307,7 +314,7 @@ module Yast
         when "HANA"
            @DB           = "HDB"
            @PRODUCT_NAME = "HANA"
-           @PRODUCT_ID   = "HANA"
+	   @PRODUCT_ID   = SAPMedia.instMasterVersion == "1.0" ? "HANA1.0" : "HANA"
         when /^B1/
            @DB           = ""
            @PRODUCT_NAME = "B1"
@@ -335,6 +342,9 @@ module Yast
       xml_path       = GetProductParameter("ay_xml")         == "" ? ""   : SAPMedia.ayXMLPath + '/' +  GetProductParameter("ay_xml")
       partitioning   = GetProductParameter("partitioning")   == "" ? "NO" : GetProductParameter("partitioning")
 
+      if @PRODUCT_NAME == "B1"
+         SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh " + SAPMedia.instDir )
+      end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + my_hostname + "/g " + xml_path )
         SAPMedia.ParseXML(xml_path)
@@ -401,10 +411,13 @@ module Yast
 
       if Popup.YesNo(_("Installation profile is ready.\n" +
                        "Are there more SAP products to be prepared for installation?"))
-         ret = :readIM
          SAPMedia.prodCount = SAPMedia.prodCount.next
          SAPMedia.instDir = Builtins.sformat("%1/%2", SAPMedia.instDirBase, SAPMedia.prodCount)
          SCR.Execute(path(".target.bash"), "mkdir -p " + SAPMedia.instDir )
+	 return :readIM
+      end
+      if SAPMedia.instMode == "preauto"
+         return :end
       end
       return ret
     end
@@ -493,6 +506,10 @@ module Yast
           #Process.kill("TERM", pid)
       }
       return :next
+    rescue StandardError => e
+      Builtins.y2milestone("An internal error accoured:" + e.message )
+      Popup.Error( e.message )
+      return :abort
     end
 
     private
@@ -550,7 +567,7 @@ module Yast
     #
     ############################################################
     def GetProductParameter(productParameter)
-      Builtins.y2milestone("-- Start SAPProduct GetProductParameter --")
+      Builtins.y2milestone("-- Start SAPProduct GetProductParameter -- %1 %2",@PRODUCT_ID,productParameter)
       @productList.each { |p|
           if p["id"] == @PRODUCT_ID
              return p.has_key?(productParameter) ? p[productParameter] : ""

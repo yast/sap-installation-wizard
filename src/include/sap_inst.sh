@@ -20,13 +20,12 @@ usage () {
 	cat <<-EOF
 
 		#######################################################################
-		# `basename $0` -i -m [ -d -t -g ]
+		# `basename $0` -i -m [ -d -t -y ]
 		#
 		#  i ) SAPINST_PRODUCT_ID - SAPINST Product ID
 		#  m ) SAPCD_INSTMASTER - Path to the SAP Installation Master Medium
 		#  d ) SAPINST_DIR - The directory where the installation will be prepared
 		#  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
-		#  g ) INSTALLATION_TYPE - Start SAPINST in GUI-mode? 
                 #  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
 		#      (default: GUI, anything else starts SAPINST in dark mode)
 		#
@@ -126,7 +125,7 @@ ERR_create_xuser_failed=10
 ERR_rpm_install=11
 ERR_internal=12
 ERR_missing_entries=13
-ERR_nomasterpass=14
+ERR_nomasterPwd=14
 ERR_last=15
 
 err_message[0]="Ok"
@@ -732,9 +731,6 @@ service nscd status > /dev/null 2>&1
 virt_hostname=""
 if [ -f ${A_VIRTHOSTNAME} ]; then
         virt_hostname=`< ${A_VIRTHOSTNAME}`
-else
-        # Fallback for products which do not support virtual hostnames
-        virt_hostname=${REAL_HOSTNAME}
 fi
 
 
@@ -761,15 +757,6 @@ DBCPU=$(( `grep -c processor /proc/cpuinfo` - 1 ))
 LOADJOBS=$(( `grep -c processor /proc/cpuinfo` * 2 ))
 # minimum of 4 parallel load jobs
 [ 4 -gt ${LOADJOBS} ] && LOADJOBS=4
-
-
-# SAP Installation Type - "GUI" for graphical SAPINST - or "anything else" for dark installation
-# INSTALLATION_TYPE="GUI"
-INSTALLATION_TYPE=${INSTALLATION_TYPE:=GUI}
-
-SAPINST_RESOLUTION=`/sbin/fbresolution`
-[ -f ${SAPINST_DIR}/ay_q_sapinst_resolution ] && SAPINST_RESOLUTION=`< ${${SAPINST_DIR}/ay_q_sapinst_resolution}`
-
 
 SID=$( gawk -F"=" '/NW_GetSidNoProfiles.sid/ { print $2 }' ${SAPINST_DIR}/inifile.params | sed 's/^ //g' )
 DBSID=$( gawk -F"=" '/getDBInfo.dbsid/ { print $2 }' ${SAPINST_DIR}/inifile.params | sed 's/^ //g' )
@@ -869,7 +856,9 @@ if [ -d /sapdata ]; then
 fi
 
 # set virtual hostname
-create_virt_interface
+if [ "${virt_hostname}" ] ; then
+       create_virt_interface
+fi
 
 # Disable SAP Installation Prerequisite Checker due to saplocales
 export PRC_DEACTIVATE_CHECKS=true
@@ -882,7 +871,8 @@ cd ${SAPINST_DIR}
 SAPINST_CMD="${SAPCD_INSTMASTER}/sapinst \
 	SAPINST_EXECUTE_PRODUCT_ID=${SAPINST_PRODUCT_ID} \
 	SAPINST_SKIP_SUCCESSFULLY_FINISHED_DIALOG=true \
-	SAPINST_INPUT_PARAMETERS_URL=${SAPINST_DIR}/inifile.params "
+	SAPINST_INPUT_PARAMETERS_URL=${SAPINST_DIR}/inifile.params \
+	SAPINST_START_GUISERVER=false "
 
 if [ -e ${SAPINST_DIR}/ay_q_virt_hostname ]; then
 	SAPINST_CMD="$SAPINST_CMD SAPINST_USE_HOSTNAME=${virt_hostname} "
