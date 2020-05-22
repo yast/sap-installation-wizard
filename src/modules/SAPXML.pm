@@ -154,8 +154,8 @@ sub is_instmaster {
             if ($filepath[-1] eq "info.txt") {
                @fields = split(" ");
             }
-	    logger(" Field 1 : ".$fields[1]) if ($DEBUG);
 	    next if (! defined $fields[1] );
+	    logger(" Field 1,2,3 : ".$fields[1].":".$fields[2].":".$fields[3]) if ($DEBUG);
 	    if( $fields[0]  eq 'SAP' and $fields[1] eq 'SAP' and $fields[2] eq 'SAP' ) {
 	       # This is a new special case for BOne bundle.
 	       my $labelDir = dirname($label_file);
@@ -179,6 +179,7 @@ sub is_instmaster {
                #HDB:HANA:1.0:LINUXX86_64:SAP HANA Platform Edition 1.0 for SAP Business One::51050933
                $instmaster[0] = "HANA";
                $instmaster[1] = dirname($label_file);
+	       $instmaster[2] = $fields[2];
                last;
             }elsif ($fields[0] eq "B1AH" or $fields[0] eq "B1A" or $fields[0] eq "B1H") {
                #B1AH 1.0.2.147
@@ -329,6 +330,9 @@ sub ConfigValue{
        foreach my $c ( $node->getChildNodes )
        {
          $ok = 1 if( 'name' eq $c->getName and $c->string_value eq $prod );
+	 if( 'id' eq $c->getName ) {
+		 $ok = $c->string_value eq $prod;
+	 }
          if( 'search'       eq $c->getName ) {
 	        push @f, $c->string_value;
 		next;

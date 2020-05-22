@@ -90,35 +90,7 @@ check_instance_no "$VAL"
             </script>
             <default>00</default>
         </ask>
-	<ask>
-	     <title>SAP HANA System Parameters</title>
-             <dialog config:type="integer">10</dialog>
-             <element config:type="integer">30</element>
-             <help><![CDATA[
-             <p><b>SAP HANA Multitenant Database Container Setting.</p>
-Possible values are <b>no</b>, <b>low isolation</b> and <b>high isolation</b>.
-<b>IMPORTANT</b> This feature is only available on Life Cycle Manager Installer Tool (since SP7).
-]]>
-</help>
-             <file>/tmp/ay_q_sapmdc</file>
-             <question>SAP HANA Multitenant Database Container Setting</question>
-             <stage>cont</stage>
-		<selection config:type="list">
-		  <entry>
-		    <value>no</value>
-		    <label>No</label>
-		  </entry>
-		  <entry>
-		    <value>low</value>
-		    <label>Yes with Low Isolation</label>
-		  </entry>
-		  <entry>
-		    <value>high</value>
-		    <label>Yes with High Isolation</label>
-		  </entry>
-		</selection>
-          </ask>
-          <ask>
+        <ask>
              <title>SAP HANA System Parameters</title>
              <dialog config:type="integer">10</dialog>
              <element config:type="integer">40</element>
