@@ -40,7 +40,7 @@ describe Y2Sap::Products do
       expect(subject.products_to_install).to be_a(Array)
       expect(subject.product_map).to be_a(Hash)
       expect(subject.product_name).to eq ""
-      expect(subject.product_list.count).to eq 3
+      expect(subject.product_list.count).to eq 4
     end
     it "reads the default base configuration" do
       expect(subject.media.mount_point).to eq "/mnt"
