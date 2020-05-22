@@ -59,6 +59,13 @@ module Y2Sap
         script_name:  config_value("HANA", "script_name")
       }
       @product_list << {
+        name:         "HANA",
+	id:           "HANA1.0",
+	ay_xml:       config_value("HANA1.0", "ay_xml"),
+	partitioning: config_value("HANA1.0", "partitioning"),
+	script_name:  config_value("HANA1.0", "script_name")
+      }
+      @product_list << {
         name:         "B1",
         id:           "B1",
         ay_xml:       config_value("B1", "ay_xml"),

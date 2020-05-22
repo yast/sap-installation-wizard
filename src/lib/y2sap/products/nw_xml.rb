@@ -50,6 +50,7 @@ module Y2Sap
           next if child.text.nil?
           next if child.name == "search"
           ok = true if child.name == "name" && child.text == prod
+          ok = true if child.name == "id"   && child.text == prod
           p[child.name] = child.text
         end
         if ok

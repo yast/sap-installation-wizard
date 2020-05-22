@@ -59,7 +59,7 @@ module Y2Sap
         when /^HANA/
            @db           = "HDB"
            @product_name = "HANA"
-           @product_id   = @media.inst_master_type
+	   @product_id   = @media.inst_master_version == "1.0" ? "HANA1.0" : "HANA"
         when /^B1/
            @db           = ""
            @product_name = "B1"

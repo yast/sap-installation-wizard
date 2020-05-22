@@ -349,6 +349,17 @@
       </media>
     </listentry>
     <listentry>
+      <name>HANA</name>
+      <id>HANA1.0</id>
+      <type>HANA</type>
+      <ay_xml>HANA1.0.xml</ay_xml>
+      <script_name>hana_inst.sh</script_name>
+      <partitioning>hana_partitioning</partitioning>
+      <media>
+        <listentry>1.0</listentry>
+      </media>
+    </listentry>
+    <listentry>
       <name>B1</name>
       <id>B1</id>
       <type>HANA</type>
