@@ -6,7 +6,7 @@ Fri Oct 11 07:55:06 UTC 2019 - Peter Varkoly <varkoly@suse.com>
 - Include Supermicro as new partner for Business One image
 - Now we can detect if the ask dialog is neccessary for B1.
 - This is not the case if HANA was installed inmediately befor.
-- ow we provides 3 HANA/B1 screnarios:
+- Now we provides 3 HANA/B1 screnarios:
     1. Installing HANA + B1 directly one after the other.
     2. Installing only HANA
     3. Installing B1 if already a HANA server is installed.
@@ -15,6 +15,7 @@ Fri Oct 11 07:55:06 UTC 2019 - Peter Varkoly <varkoly@suse.com>
 - Ignore media check files.
 - Reactivate warning if hardware is not certified.
 - bsc#1116880 - SAP Installation Wizard fails to install NetWeaver on SLES4SAP
+- bsc#1083546  [doc] mdc is now default for hana 2.0 sps1
 - 4.2.1
 
 -------------------------------------------------------------------

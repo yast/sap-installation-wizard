@@ -26,14 +26,16 @@ PreReq:         /bin/mkdir %insserv_prereq %fillup_prereq yast2
 BuildRequires:  yast2
 Requires:       HANA-Firewall
 Requires:       autoyast2
+Requires:	xfsprogs
+%if ! %{defined _SAPBOne}
 Requires:       sap-netscape-link
 Requires:       saprouter-systemd
 Requires:       yast2-hana-firewall
 Requires:       yast2-sap-scp
 Requires:       yast2-sap-scp-prodlist
-Requires:	xfsprogs
 Requires:       saptune
 Requires:       yast2-saptune
+%endif
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
