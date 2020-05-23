@@ -38,6 +38,7 @@ Requires:       yast2-saptune
 %endif
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  autoyast2
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
 BuildRequires:  rubygem(rspec)
 BuildRequires:  rubygem(yast-rake)
