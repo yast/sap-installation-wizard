@@ -26,6 +26,8 @@ PreReq:         /bin/mkdir %insserv_prereq %fillup_prereq yast2
 BuildRequires:  yast2
 Requires:       HANA-Firewall
 Requires:       autoyast2
+Requires:       autoyast2-installation
+Requires:	ruby2.5-rubygem-nokogiri
 Requires:	xfsprogs
 %if ! %{defined _SAPBOne}
 Requires:       sap-netscape-link
@@ -38,10 +40,13 @@ Requires:       yast2-saptune
 %endif
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  autoyast2
+BuildRequires:	ruby2.5-rubygem-nokogiri
+BuildRequires:  autoyast2-installation
+BuildRequires:  yast2-network
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
 BuildRequires:  rubygem(rspec)
 BuildRequires:  rubygem(yast-rake)
+BuildRequires:  yast2-devtools
 # speed up the tests in SLE15-SP1+ or TW
 %if 0%{?sle_version} >= 150100 || 0%{?suse_version} > 1500
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
@@ -87,12 +92,17 @@ rm -rf  %{buildroot}
 %{yast_clientdir}
 %{yast_libdir}
 %{yast_desktopdir}
-%{yast_metainfodir}
 %{yast_fillupdir}
 %{yast_ybindir}
 %{yast_scrconfdir}
 %{yast_icondir}
-%doc windows_cheat_sheet.pdf sap-autoinstallation.txt hana-autoyast.xml
+#%{yast_metainfodir}
+/usr/share/YaST2/data/y2sap/
+%if ! %{defined _SAPBOne}
+%doc windows_cheat_sheet.pdf sap-autoinstallation.txt hana-autoyast.xml README README.md
+%else
+%doc README README.md
+%endif
 %license COPYING
 
 %changelog
