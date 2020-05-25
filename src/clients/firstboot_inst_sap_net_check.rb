@@ -35,10 +35,10 @@ module Yast
                               _("Abort"),
                               :focus_yes
                               ))
-            return :back
-         else
-            return :next
-         end
+          return :back
+        else
+          return :next
+        end
       end
       Wizard.CloseDialog() if @closeMe
       return :next
