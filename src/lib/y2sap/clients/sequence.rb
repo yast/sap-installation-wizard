@@ -47,9 +47,17 @@ module Y2Sap
         },
         "net_weaver" => {
           abort: :abort,
-          next:  "suplementary_with_back"
+	  back:  "read_im",
+          next:  "nw_installation_mode"
         },
-
+        "nw_installation_mode" => {
+          abort:  :abort,
+          next:   "nw_product"
+        },
+        "nw_product" => {
+          abort:  :abort,
+          next:   "suplementary_with_back"
+        },
         "suplementary" => {
           abort:  :abort,
           next:   "add_repo"
@@ -61,15 +69,7 @@ module Y2Sap
         },
         "add_repo" => {
           abort: :abort,
-          next:  "nw_installation_mode"
-        },
-        "nw_installation_mode" => {
-          abort:  :abort,
-          next:   "nw_product"
-        },
-        "nw_product" => {
-          abort:  :abort,
-          next:   "read_parameter"
+          next:  "read_parameter"
         },
         "read_parameter" => {
           abort: :abort,
