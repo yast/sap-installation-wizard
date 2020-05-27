@@ -52,32 +52,32 @@ module Y2Sap
 
       @product_list = []
       @product_list << {
-        name:         "HANA",
-        id:           "HANA",
-        ay_xml:       config_value("HANA", "ay_xml"),
-        partitioning: config_value("HANA", "partitioning"),
-        script_name:  config_value("HANA", "script_name")
+        "name"        => "HANA",
+        "id"          => "HANA",
+        "ay_xml"      => config_value("HANA", "ay_xml"),
+        "partitioning"=> config_value("HANA", "partitioning"),
+        "script_name" => config_value("HANA", "script_name")
       }
       @product_list << {
-        name:         "HANA",
-	id:           "HANA1.0",
-	ay_xml:       config_value("HANA1.0", "ay_xml"),
-	partitioning: config_value("HANA1.0", "partitioning"),
-	script_name:  config_value("HANA1.0", "script_name")
+        "name"        => "HANA",
+        "id"          => "HANA1.0",
+        "ay_xml"      => config_value("HANA1.0", "ay_xml"),
+        "partitioning"=> config_value("HANA1.0", "partitioning"),
+        "script_name" => config_value("HANA1.0", "script_name")
       }
       @product_list << {
-        name:         "B1",
-        id:           "B1",
-        ay_xml:       config_value("B1", "ay_xml"),
-        partitioning: config_value("B1", "partitioning"),
-        script_name:  config_value("B1", "script_name")
+        "name"        => "B1",
+        "id"          => "B1",
+        "ay_xml"      => config_value("B1", "ay_xml"),
+        "partitioning"=> config_value("B1", "partitioning"),
+        "script_name" => config_value("B1", "script_name")
       }
       @product_list << {
-        name:         "TREX",
-        id:           "TREX",
-        ay_xml:       config_value("TREX", "ay_xml"),
-        partitioning: config_value("TREX", "partitioning"),
-        script_name:  config_value("TREX", "script_name")
+        "name"        => "TREX",
+        "id"          => "TREX",
+        "ay_xml"      => config_value("TREX", "ay_xml"),
+        "partitioning"=> config_value("TREX", "partitioning"),
+        "script_name" => config_value("TREX", "script_name")
       }
 
       @db            = ""

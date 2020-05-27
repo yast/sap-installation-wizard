@@ -38,9 +38,6 @@ module Y2Sap
       # @return [String] The directory where the media will be copied
       attr_reader :media_dir
 
-      # @return [String] The path where to the file of the product definitions
-      attr_accessor :product_definitions
-
       # @return [String] The directory where the sap installation envinroments will be created
       attr_reader :inst_dir_base
 
@@ -87,7 +84,7 @@ module Y2Sap
         )
         @product_definitions = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.MEDIAS_XML"),
-          "/etc/sap-installation-wizard.xml"
+          "/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml"
         )
         @partitioning_dir_base = Yast::Misc.SysconfigRead(
           Yast::Path.new(".sysconfig.sap-installation-wizard.PART_XML_PATH"),

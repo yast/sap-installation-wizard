@@ -51,6 +51,7 @@ module Y2Sap
     def initialize
       textdomain "sap-installation-wizard"
       super
+      log.info("Start Y2Sap::Media.new")
       @scheme_list = [
         Item(Id("local"), "dir://", true),
         Item(Id("device"), "device://", false),

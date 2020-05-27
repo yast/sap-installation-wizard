@@ -23,6 +23,7 @@ module Y2Sap
     include Yast
 
     def is_instmaster(prod_path)
+      log.info("Started MediaCheck is_instmaster #{prod_path}")
       instmaster = []
       if File.exist? prod_path + "/tx_trex_content"
         instmaster[0] = "TREX"
@@ -87,6 +88,7 @@ module Y2Sap
     end
 
     def get_products_for_media(path)
+      log.info("Start MediaCheck get_products_for_media #{path}")
       # First we read all LABEL.ASC files from the selected media
       labels = []
       IO.readlines(path + "/start_dir.cd").each do |medium|

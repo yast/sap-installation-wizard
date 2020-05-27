@@ -33,7 +33,9 @@ module Y2Sap
     include Y2Autoinstall::Clients::AyastSetup
 
     def read_product_parameter
+      log.info("Start read_product_parameter")
       init_envinroment
+      log.info("@db #{@db} @product_name #{@product_name} @product_id #{@product_id}")
       eval_product_ay
       setup_installation_enviroment
       if Yast::Popup.YesNo(_("Installation profile is ready.\n" +
@@ -169,8 +171,10 @@ module Y2Sap
 
     # @return [String] read a value from the product list
     def get_product_parameter(product_parameter)
+      log.info("get_product_parameter #{product_parameter} #{@product_id}")
       @product_list.each do |p|
         if p["id"] == @product_id
+          log.info("get_product_parameter foud parameter #{p[product_parameter]}")
           return p.key?(product_parameter) ? p[product_parameter] : ""
         end
       end
