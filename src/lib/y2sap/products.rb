@@ -78,6 +78,7 @@ module Y2Sap
 
     def initialize(media)
       textdomain "sap-installation-wizard"
+      log.info("Start Y2Sap::Products.new #{media}")
       @media = media
       init_variables
     end

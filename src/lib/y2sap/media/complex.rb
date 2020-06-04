@@ -27,7 +27,7 @@ module Y2Sap
     include Y2Sap::MediaFind
 
     def installation_master
-      log.info("-- Start Y2Sap::MediaCopy::installation_master ---")
+      log.info("Start Y2Sap MediaComplex installation_master ---")
       ret = nil
       run = true
       while run

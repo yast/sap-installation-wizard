@@ -53,7 +53,7 @@ module Y2Sap
         )
         params = Builtins.sformat(
           " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
-          Ops.get_string(product_data, "instMaster", ""),
+          Ops.get_string(product_data, "inst_master", ""),
           Ops.get_string(product_data, "product_id", ""),
           Ops.get_string(product_data, "db", ""),
           Ops.get_string(product_data, "type", ""),
@@ -90,8 +90,9 @@ module Y2Sap
     # Runs the sap installation script.
     def run_script(script)
       date = `date +%Y%m%d-%H%M`
-      logfile = "/var/adm/autoinstall/logs/sap_inst." + date + ".log"
+      logfile = "/var/adm/autoinstall/logs/sap_inst." + date.chop + ".log"
       f = File.new(logfile, "w")
+      f << "Run script:" << script
       exit_status = nil
       Wizard.SetContents(
         _("SAP Product Installation"),
