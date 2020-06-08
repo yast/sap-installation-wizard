@@ -26,7 +26,7 @@ module Y2Sap
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
-    include Y2Autoinstall::Clients::AyastSetup
+    #include Y2Autoinstall::Clients::AyastSetup
 
     def parse_xml(file)
        ret = openFile({ "filename" => file, "dopackages" => "yes" })

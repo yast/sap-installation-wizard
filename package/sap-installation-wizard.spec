@@ -40,6 +40,7 @@ Requires:       yast2-saptune
 %endif
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildRequires:  ruby2.5-stdlib
 BuildRequires:	ruby2.5-rubygem-nokogiri
 BuildRequires:  autoyast2-installation
 BuildRequires:  yast2-network
