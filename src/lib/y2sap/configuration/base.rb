@@ -42,7 +42,7 @@ module Y2Sap
       attr_reader :inst_dir_base
 
       # @return [String] The file containing the base definitions of SAP products
-      attr_reader :product_definitions # @xmlFilePath
+      attr_accessor :product_definitions # @xmlFilePath
 
       # @return [String] The directory where the partitioning xml files are placed
       attr_reader :partitioning_dir_base # @partXMLPath
