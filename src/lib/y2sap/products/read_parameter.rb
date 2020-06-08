@@ -30,7 +30,7 @@ module Y2Sap
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
-    include Y2Autoinstall::Clients::AyastSetup
+    #include Y2Autoinstall::Clients::AyastSetup
 
     def read_product_parameter
       log.info("Start read_product_parameter")
