@@ -20,7 +20,7 @@
 # find current contact information at www.novell.com.
 
 require "yast"
-#require "autoinstall/clients/ayast_setup"
+require "autoinstall/clients/ayast_setup"
 
 module Y2Sap
   # Read the installation parameter.
@@ -30,7 +30,7 @@ module Y2Sap
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
-    #include Y2Autoinstall::Clients::AyastSetup
+    include Y2Autoinstall::Clients::AyastSetup
 
     def read_product_parameter
       log.info("Start read_product_parameter")
@@ -91,11 +91,13 @@ module Y2Sap
       # First we execute the autoyast xml file of the product if this exeists
       xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" +  get_product_parameter("ay_xml")
       if @product_name == "B1"
-              SCR.Execute(path(".target.bash"), "/usr/share/YaST2/include/sap-installation-wizard/b1_hana_list.sh " + SAPMedia.instDir )
+              SCR.Execute(path(".target.bash"), @media.sapinst_path "/b1_hana_list.sh " + @media.inst_dir + " " + @media.ay_dir_base )
       end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
+	#WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
+        ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
+        log.info("ayast_setup returned '" + ret + "' for: " +xml_path)
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
         end

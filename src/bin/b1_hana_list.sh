@@ -18,6 +18,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 PRODDIR=$1
+DATADIR=$2
 # get a list of installed HANA DBs
 SID='<selection config:type="list">'
 MASTERPW=""
@@ -56,8 +57,8 @@ else
 fi
 
 if [ ${NOASK} -eq 1 ]; then
-	cp /usr/share/YaST2/include/sap-installation-wizard/B1.noask.xml /usr/share/YaST2/include/sap-installation-wizard/B1.xml
+	cp ${DATADIR}/B1.noask.xml ${DATADIR}/B1.xml
 else
 	SID="${SID}</selection>"
-	sed "s#<default>___SAPSID___</default>#${SID}#g" /usr/share/YaST2/include/sap-installation-wizard/B1.templ.xml > /usr/share/YaST2/include/sap-installation-wizard/B1.xml
+	sed "s#<default>___SAPSID___</default>#${SID}#g" ${DATADIR}/B1.templ.xml > ${DATADIR}/B1.xml
 fi
