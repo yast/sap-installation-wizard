@@ -20,7 +20,7 @@
 # find current contact information at www.novell.com.
 
 require "yast"
-require "autoinstall/clients/ayast_setup"
+#require "autoinstall/clients/ayast_setup"
 
 module Y2Sap
   # Read the installation parameter.
@@ -95,7 +95,7 @@ module Y2Sap
       end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	ret = openFile({ "filename" => +xml_path, "dopackages" => "yes" })
+	WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
         end

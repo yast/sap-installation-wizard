@@ -19,7 +19,7 @@
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
 require "yast"
-require "autoinstall/clients/ayast_setup"
+#require "autoinstall/clients/ayast_setup"
 
 module Y2Sap
   module MediaDialog
@@ -29,7 +29,8 @@ module Y2Sap
     #include Y2Autoinstall::Clients::AyastSetup
 
     def parse_xml(file)
-       ret = openFile({ "filename" => file, "dopackages" => "yes" })
+       ret = WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
+       #ret = openFile({ "filename" => file, "dopackages" => "yes" })
        log.info("ayast_setup returned '" + ret + "' for: " + file)
        return ret
     end
