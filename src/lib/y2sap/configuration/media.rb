@@ -26,7 +26,7 @@ module Y2Sap
     # Class to read and edit thte SLES4SAP configurations corresponding the media
     class Media < Base
       # @return [String] In this directory will be installed the next sap product
-      attr_reader :inst_dir
+      attr_accessor :inst_dir
 
       # @return [String] The product counter.
       attr_accessor :product_count
