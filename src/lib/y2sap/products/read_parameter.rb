@@ -91,13 +91,13 @@ module Y2Sap
       # First we execute the autoyast xml file of the product if this exeists
       xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" +  get_product_parameter("ay_xml")
       if @product_name == "B1"
-              SCR.Execute(path(".target.bash"), @media.sapinst_path "/b1_hana_list.sh " + @media.inst_dir + " " + @media.ay_dir_base )
+              SCR.Execute(path(".target.bash"), @media.sapinst_path + "/b1_hana_list.sh " + @media.inst_dir + " " + @media.ay_dir_base )
       end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
 	#WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
         ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
-        log.info("ayast_setup returned '" + ret + "' for: " +xml_path)
+        log.info("ayast_setup returned '" + ret + "' for: " + xml_path)
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
         end
