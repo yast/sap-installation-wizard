@@ -71,8 +71,8 @@ module Y2Sap
         super
         @location_cache = "nfs.server.com/directory/"
         @need_umount    = true
-        @product_cont   = 0
-        @inst_dir       = format("%s/%d", @inst_dir_base, @product_cont)
+        @product_count  = 0
+        @inst_dir       = format("%s/%d", @inst_dir_base, @product_count)
         @unfinished_installations = []
         @to_install     = []
         @source_dir     = @mount_point
@@ -80,8 +80,8 @@ module Y2Sap
           if !File.exist?(@inst_dir + "/installationSuccesfullyFinished.dat") && File.exist?(@inst_dir + "/product.data")
             @unfinished_installations << @inst_dir
           end
-          @product_cont = @product_cont.next
-          @inst_dir = format("%s/%d", @inst_dir_base, @product_cont)
+          @product_count = @product_count.next
+          @inst_dir = format("%s/%d", @inst_dir_base, @product_count)
         end
         @inst_master_type    = ""
         @inst_master_path    = ""
