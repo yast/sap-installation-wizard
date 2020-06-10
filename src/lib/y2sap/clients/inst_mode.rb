@@ -33,7 +33,7 @@ module Y2Sap
     # * as a normal SLES
     # * as a SLES4SAP
     # * as a SLES4SAP starting the installation wizard
-    class InstMode < Client
+    class InstMode < Yast::Client
       def main
         textdomain "sap-installation-wizard"
         Yast.import "Pkg"

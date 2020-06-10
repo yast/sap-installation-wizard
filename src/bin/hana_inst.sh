@@ -335,6 +335,7 @@ hana_installation_summary ()
         tmpfile="${TMPDIR}/yast_popup_inst_summary.ycp"
         phys_ip=`host \`hostname\` | awk {'print $4'}`
 	phys_ip=$( ip address show  | grep $phys_ip | gawk '{ print $2 }' )
+	nameserver=$( grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' ' )
 
         cat > ${summary_file} <<-EOF
         #########################################################################
@@ -345,8 +346,8 @@ hana_installation_summary ()
         # Domain Name:	`dnsdomainname`
         # IP Address:	${phys_ip}
         # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
-        # IP for Nameserver:	`grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' '`
-	# Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
+        # IP for Nameserver:	${nameserver}
+        # Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
         #
         # SAP HANA System ID:	${SID}
         # SAP HANA Instance:	${SAPINSTNR}
@@ -509,30 +510,31 @@ extract_media_archives()
       fi
    fi
 
-   if [ $rc -eq  0 ]; then
-      # HDB 64-bit client: B1 expects client under /usr/sap.
-      # Unified Installer does not allow to customize client path, so we set a link
-      if [ ! -h /usr/sap/hdbclient ]; then
-            ln -s /hana/shared/${SID}/hdbclient /usr/sap/hdbclient
-      fi
-
-      # HDB 32-bit client required for B1 Server/ServerTools
-      if [ "${ARCH}" = "X86_64" ]; then
-         if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
-            ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
-         else
-            if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/SAP_HANA_CLIENT/hdbinst ]; then
-               ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/SAP_HANA_CLIENT/hdbinst --batch
-            else
-               if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 1.0\ FOR\ B1/LINX32SUSE/SAP_HANA_CLIENT/hdbinst ]; then
-                  ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 1.0\ FOR\ B1/LINX32SUSE/SAP_HANA_CLIENT/hdbinst --batch
-               else
-                  yast_popup_wait "Cannot find HANA 32-bit client, please install manually before SAP BusinessOne installation"
-               fi
-            fi
-         fi
-      fi
-   fi
+   #For HANA 2 probably we do not need it
+   #if [ $rc -eq  0 ]; then
+   #   # HDB 64-bit client: B1 expects client under /usr/sap.
+   #   # Unified Installer does not allow to customize client path, so we set a link
+   #   if [ ! -h /usr/sap/hdbclient ]; then
+   #         ln -s /hana/shared/${SID}/hdbclient /usr/sap/hdbclient
+   #   fi
+   #
+   #   # HDB 32-bit client required for B1 Server/ServerTools
+   #   if [ "${ARCH}" = "X86_64" ]; then
+   #      if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst ]; then
+   #         ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_CLIENT_LINUXINTEL/hdbinst --batch
+   #      else
+   #         if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/SAP_HANA_CLIENT/hdbinst ]; then
+   #            ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP_HANA_CLIENT32/SAP_HANA_CLIENT/hdbinst --batch
+   #         else
+   #            if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 1.0\ FOR\ B1/LINX32SUSE/SAP_HANA_CLIENT/hdbinst ]; then
+   #               ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 1.0\ FOR\ B1/LINX32SUSE/SAP_HANA_CLIENT/hdbinst --batch
+   #            else
+   #               yast_popup_wait "Cannot find HANA 32-bit client, please install manually before SAP BusinessOne installation"
+   #            fi
+   #         fi
+   #      fi
+   #   fi
+   #fi
 
    if [ $rc -eq 0 ]; then
       # Cleanup-PopUp
