@@ -43,7 +43,7 @@ module Y2Sap
         @media.product_count = @media.product_count.next
         @media.inst_dir = "%s/%d" % [ @media.inst_dir_base, @media.product_count ]
         SCR.Execute(path(".target.bash"), "mkdir -p " + @media.inst_dir )
-        return "read_im"
+        return :read_im
       end
       return :next
     end
