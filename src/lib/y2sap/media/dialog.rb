@@ -31,7 +31,7 @@ module Y2Sap
     def parse_xml(file)
        ret = WFM.CallFunction("ayast_setup", ["setup","filename="+file, "dopackages=yes" ] )
        #ret = openFile({ "filename" => file, "dopackages" => "yes" })
-       log.info("ayast_setup returned '" + ret + "' for: " + file)
+       log.info("ayast_setup returned for: " + file)
        return ret
     end
 
