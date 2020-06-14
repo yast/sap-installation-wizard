@@ -95,8 +95,8 @@ module Y2Sap
       end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
-        #ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
+	#WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
+        ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
         log.info("ayast_setup returned for: " + xml_path)
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
