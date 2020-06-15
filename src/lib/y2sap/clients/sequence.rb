@@ -146,7 +146,6 @@ module Y2Sap
 
       def read_parameter
         @products.read_parameter
-        :next
       end
 
       def tuning
