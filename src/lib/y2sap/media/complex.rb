@@ -56,11 +56,9 @@ module Y2Sap
           ret = :SAPINST
         when "HANA"
           @inst_master_type = 'HANA'
-          //@media_dir = @inst_dir
           ret = :HANA
         when /^B1/
 	  @inst_master_type = 'B1'
-          //@media_dir = @inst_dir
           ret = :B1
         when "TREX"
           ret = :TREX
