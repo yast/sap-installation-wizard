@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # b1_hana_inst.sh - is a script used to list available HANA DBs for SAP Business One installations.
 #   SAP Business One, version for SAP HANA
 #   SAP Business One analytics powered by SAP HANA
@@ -43,7 +43,7 @@ else
 	for i in $INSTDIR/*
 	do
 		if [ -e $i/product.data ]; then
-			grep PRODUCT_ID $i/product.data | grep -q HANA
+			grep product_id  $i/product.data | grep -q HANA
 			if [ $? = 0 -a -e $i/ay_q_masterPwd ]; then
 				cp $i/ay_q_masterPwd $PRODDIR/ay_q_masterPwd
 				inst_nr=$( cat $i/ay_q_sapinstnr )
@@ -57,8 +57,8 @@ else
 fi
 
 if [ ${NOASK} -eq 1 ]; then
-	cp ${DATADIR}/B1.noask.xml ${DATADIR}/B1.xml
+	cp ${PRODUCT_XML_PATH}/B1.noask.xml ${PRODUCT_XML_PATH}/B1.xml
 else
 	SID="${SID}</selection>"
-	sed "s#<default>___SAPSID___</default>#${SID}#g" ${DATADIR}/B1.templ.xml > ${DATADIR}/B1.xml
+	sed "s#<default>___SAPSID___</default>#${SID}#g" ${PRODUCT_XML_PATH}/B1.templ.xml > ${PRODUCT_XML_PATH}/B1.xml
 fi
