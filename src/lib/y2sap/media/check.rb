@@ -49,9 +49,9 @@ module Y2Sap
             break
           end
           if fields[0] =~ /^B1/
-            instmaster[0] = fields[1]
+            instmaster[0] = fields[0]
             instmaster[1] = File.dirname(label_file)
-            instmaster[2] = ""
+            instmaster[2] = fields[1]
             break
           end
           if fields[1] == "SLTOOLSET" && ( fields[5] == platform_arch || fields[5] == "*" )
