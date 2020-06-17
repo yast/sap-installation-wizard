@@ -280,11 +280,11 @@ b1_post_process()
 ###########################################
 # Main
 ###########################################
-   rc=0
-   USER_INSTALL_DIR="/usr/sap/SAPBusinessOne"
+  rc=0
+  USER_INSTALL_DIR="/usr/sap/SAPBusinessOne"
 
-   # check if HANA processes are running
-   ps aux | grep -v grep | grep hdbindexserver | grep ${A_SID,,} > /dev/null 2>&1
+  # check if HANA processes are running
+  ps aux | grep -v grep | grep sapstartsrv | grep -i ${A_SID} > /dev/null 2>&1
   if [ $? -ne 0 ];
   then
       yast_popup "SAP HANA ${A_SID} is not running, please start it now. If SAP HANA is not yet installed, please install it now. Afterwards install SAP Business One."

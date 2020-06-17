@@ -510,7 +510,7 @@ extract_media_archives()
       fi
    fi
    #TODO It is only for HANAB1
-   if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 2.0\ FOR\ B1/LINX.32SUSE/SAP_HANA_CLIENT/hdbinst ]; then
+   if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 2.0\ FOR\ B1/LINX64SUSE/SAP_HANA_CLIENT/hdbinst ]; then
       ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 2.0\ FOR\ B1/LINX64SUSE/SAP_HANA_CLIENT/hdbinst --batch
    else
       yast_popup_wait "Cannot find HANA client, please install manually before SAP BusinessOne installation"
