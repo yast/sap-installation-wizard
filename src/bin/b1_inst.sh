@@ -41,6 +41,7 @@ EOF
 
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
+. /etc/sysconfig/sap-installation-wizard
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:h\?" options; do
@@ -184,7 +185,7 @@ parameters()
 # Reading the default parameters file and add the custom defined parameters
     PROPERTIES="${MEDIA_TARGET}/b1h_properties"
     touch $PROPERTIES
-    cat /usr/share/YaST2/include/sap-installation-wizard/b1h_default_properties > $PROPERTIES
+    cat ${PRODUCT_XML_PATH}/b1h_default_properties > $PROPERTIES
     echo "B1S_TECHUSER_PASSWORD=${A_MASTERPASS}
 #BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"30015\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
 BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"3${A_SAPINSTNR}15\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
