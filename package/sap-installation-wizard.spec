@@ -74,7 +74,7 @@ rake test:unit
 %install
 rake install DESTDIR="%{buildroot}"
 %ifarch ppc64le
-   sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/include/sap-installation-wizard/HANA.xml 
+   sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/data/y2sap/HANA.xml 
 %endif
 
 %post
