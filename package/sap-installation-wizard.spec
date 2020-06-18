@@ -96,7 +96,6 @@ rm -rf  %{buildroot}
 %{yast_ybindir}
 %{yast_scrconfdir}
 %{yast_icondir}
-#%{yast_metainfodir}
 /usr/share/YaST2/data/y2sap/
 %if ! %{defined _SAPBOne}
 %doc windows_cheat_sheet.pdf sap-autoinstallation.txt hana-autoyast.xml README README.md
