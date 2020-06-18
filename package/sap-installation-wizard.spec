@@ -62,7 +62,6 @@ A YaST module providing an installation wizard for SAP applications
 Authors:
 --------
     varkoly@suse.com
-    hguo@suse.com
 
 %prep
 %setup -q
