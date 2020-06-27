@@ -82,7 +82,9 @@ A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterPwd"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
 A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
-A_SAPMDC=`< ${MEDIA_TARGET}/ay_q_sapmdc`
+if [ -e ${MEDIA_TARGET}/ay_q_sapmdc ]; then
+	A_SAPMDC=`< ${MEDIA_TARGET}/ay_q_sapmdc`
+fi
 
 ###########################################
 # Define ERRORS section
@@ -200,7 +202,7 @@ hana_check_components()
 {
    components_not_found=""
    for component in ${COMPONENTS}; do
-       if [ ! -d ${MEDIA_TARGET}/Instmaster/DATA_UNITS/${component} ]; then
+       if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/${component} ]; then
            found=0
            components_not_found="${components_not_found}\n${component}"
        fi
@@ -243,9 +245,17 @@ hana_setenv_lcm()
   cat > ~/pwds.xml <<-EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <Passwords>
-   <password>${MASTERPASS}</password>
-   <sapadm_password>${MASTERPASS}</sapadm_password>
-   <system_user_password>${MASTERPASS}</system_user_password>
+    <root_password><![CDATA[${MASTERPASS}]]></root_password>
+    <sapadm_password><![CDATA[${MASTERPASS}]]></sapadm_password>
+    <master_password><![CDATA[${MASTERPASS}]]></master_password>
+    <sapadm_password><![CDATA[${MASTERPASS}]]></sapadm_password>
+    <password><![CDATA[${MASTERPASS}]]></password>
+    <system_user_password><![CDATA[${MASTERPASS}]]></system_user_password>
+    <lss_user_password><![CDATA[${MASTERPASS}]]></lss_user_password>
+    <lss_backup_password><![CDATA[${MASTERPASS}]]></lss_backup_password>
+    <streaming_cluster_manager_password><![CDATA[${MASTERPASS}]]></streaming_cluster_manager_password>
+    <ase_user_password><![CDATA[${MASTERPASS}]]></ase_user_password>
+    <org_manager_password><![CDATA[${MASTERPASS}]]></org_manager_password>
 </Passwords>
 EOF
 }
@@ -255,7 +265,7 @@ hana_setenv_unified_installer()
 {
   # there are two versions of the HANA Unified Installer response file
   # Try the newer one if present
-  oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
+  oldfile=${SAPCD_INSTMASTER}/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
   newfile=${oldfile}.v2
   if [ -f ${newfile} ]; then
     FILE=${newfile}
@@ -383,13 +393,16 @@ EOF
 
 hana_lcm_workflow()
 {
-   HDBLCMDIR=$( dirname "$1" )
+   HDBLCMDIR="${SAPCD_INSTMASTER}/SAP_HANA_DATABASE"
    WORKDIR=/var/tmp/
    rc=0
    hana_volumes
    hana_get_input
    hana_setenv_lcm
 
+   if [ ! -d ${SAPCD_INSTMASTER}/SAP_HANA_DATABASE ]; then
+	find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
+   fi
    case $A_SAPMDC in
      no )
        echo -e "db_mode=\n"  > ${MEDIA_TARGET}/hana_mdc.conf
@@ -403,20 +416,22 @@ hana_lcm_workflow()
    esac
    cd "${HDBLCMDIR}"
    if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
-       cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+       cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=check_signature_file \
-            --components=${LCM_COMPONENTS} \
+            --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
+            --groupid=79 \
             --read_password_from_stdin=xml \
             --configfile=${MEDIA_TARGET}/hana_mdc.conf
    else
-       cat ~/pwds.xml | ./hdblcm --batch --action=install ${LCM_COMPONENTS_ROOT} \
+       cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=check_signature_file \
-            --components=${LCM_COMPONENTS} \
+            --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
 	    --ignore=check_min_mem,check_signature_file \
+            --groupid=79 \
             --read_password_from_stdin=xml
    fi
    rc=$?
@@ -434,7 +449,7 @@ hana_unified_installer_workflow()
    hana_get_input
    hana_setenv_unified_installer
 
-   oldfile=${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
+   oldfile=${SAPCD_INSTMASTER}/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
    newfile=${oldfile}.v2
    if [ -f ${newfile} ]; then
      FILE=${newfile}
@@ -495,9 +510,9 @@ extract_media_archives()
    # HANA 1.0 <= SP6: Unified Installer
    # HANA 1.0 => SP7: Life Cycle Manager (hdblcm)
    extract_media_archives
-   HDBLCM=`find ${MEDIA_TARGET}/Instmaster/DATA_UNITS/ -name hdblcm`
+   HDBLCM=`find ${SAPCD_INSTMASTER} -name hdblcm`
    if [ -n "${HDBLCM}" ]; then
-      hana_lcm_workflow "${HDBLCM}"
+      hana_lcm_workflow
    else
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
@@ -509,13 +524,6 @@ extract_media_archives()
          rc=$?
       fi
    fi
-   #TODO It is only for HANAB1
-   if [ -f ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 2.0\ FOR\ B1/LINX64SUSE/SAP_HANA_CLIENT/hdbinst ]; then
-      ${MEDIA_TARGET}/Instmaster/DATA_UNITS/SAP\ HANA\ CLIENT\ 2.0\ FOR\ B1/LINX64SUSE/SAP_HANA_CLIENT/hdbinst --batch
-   else
-      yast_popup_wait "Cannot find HANA client, please install manually before SAP BusinessOne installation"
-   fi
-
    if [ $rc -eq 0 ]; then
       # Cleanup-PopUp
       #yast_popup "Installation finished."

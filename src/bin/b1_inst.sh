@@ -185,17 +185,39 @@ parameters()
 # Reading the default parameters file and add the custom defined parameters
     PROPERTIES="${MEDIA_TARGET}/b1h_properties"
     touch $PROPERTIES
-    cat ${PRODUCT_XML_PATH}/b1h_default_properties > $PROPERTIES
-    echo "B1S_TECHUSER_PASSWORD=${A_MASTERPASS}
-#BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"30015\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
-BCKP_HANA_SERVERS=<servers><server><system address=\"${IP_ADDR}\"/><database port=\"3${A_SAPINSTNR}15\" user=\"SYSTEM\" password=\"${A_MASTERPASS}\"/></server></servers>
+    cat > $PROPERTIES <<-EOF
+B1S_SAMBA_AUTOSTART=true
+B1S_SHARED_FOLDER_OVERWRITE=true
+BCKP_BACKUP_COMPRESS=true
+BCKP_HANA_SERVERS=<servers><server><system address="${IP_ADDR}"/><database instance="${A_SAPINSTNR}" port="3${A_SAPINSTNR}13" tenant-db="${A_SID}" user="SYSTEM" password="${A_MASTERPASS}"/></server></servers>
+HANA_DATABASE_ADMIN_ID=b1oadm
+HANA_DATABASE_ADMIN_PASSWD=${A_MASTERPASS}
+HANA_DATABASE_INSTANCE=${A_SAPINSTNR}
 HANA_DATABASE_SERVER=${IP_ADDR}
-HANA_DATABASE_SERVER_PORT=3${A_SAPINSTNR}15
+HANA_DATABASE_SERVER_PORT=3${A_SAPINSTNR}13
+HANA_DATABASE_TENANT_DB=${A_SID}
+HANA_DATABASE_USER_ID=SYSTEM
 HANA_DATABASE_USER_PASSWORD=${A_MASTERPASS}
-LOCAL_ADDRESS=${IP_ADDR}
+LANDSCAPE_INSTALL_ACTION=create
+LICENSE_SERVER_ACTION=register
+LICENSE_SERVER_NODE=standalone
+SELECTED_FEATURES=B1ServerTools,B1ServerToolsXApp,B1SLDAgent,B1BackupService,B1Server,B1AnalyticsPlatform,B1ServiceLayerComponent
+SITE_USER_ID=B1SiteUser
 SITE_USER_PASSWORD=${A_MASTERPASS}
-SLD_CERTIFICATE_PASSWORD=${A_MASTERPASS}
-SLD_SERVER_ADDR=${IP_ADDR}" >> $PROPERTIES
+SLD_CERTIFICATE_ACTION=self
+SLD_DATABASE_ACTION=create
+SLD_DATABASE_NAME=SLDDATA
+SLD_SERVER_PROTOCOL=https
+SLD_SERVER_TYPE=op
+INSTALLATION_FOLDER=/usr/sap/SAPBusinessOne
+INST_FOLDER_CORRECT_PERMISSIONS=true
+#Log files location
+BCKP_PATH_LOG=/var/log/SAPBusinessOne/BackupService/logs
+#Backup location
+BCKP_PATH_TARGET=/hana/shared/backup_service/backups
+#Working folder
+BCKP_PATH_WORKING=/tmp/backup_service
+EOF
 
 if [ $? -ne 0 ];
 then
