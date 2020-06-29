@@ -182,7 +182,8 @@ mkdir /var/log/SAPBusinessOne/
 
 parameters()
 {
-# Reading the default parameters file and add the custom defined parameters
+    #Clean up services
+    sed i /40000/d /etc/service
     PROPERTIES="${MEDIA_TARGET}/b1h_properties"
     touch $PROPERTIES
     cat > $PROPERTIES <<-EOF
@@ -190,7 +191,7 @@ B1S_SAMBA_AUTOSTART=true
 B1S_SHARED_FOLDER_OVERWRITE=true
 BCKP_BACKUP_COMPRESS=true
 BCKP_HANA_SERVERS=<servers><server><system address="${IP_ADDR}"/><database instance="${A_SAPINSTNR}" port="3${A_SAPINSTNR}13" tenant-db="${A_SID}" user="SYSTEM" password="${A_MASTERPASS}"/></server></servers>
-HANA_DATABASE_ADMIN_ID=b1oadm
+HANA_DATABASE_ADMIN_ID=${A_SID,,}adm
 HANA_DATABASE_ADMIN_PASSWD=${A_MASTERPASS}
 HANA_DATABASE_INSTANCE=${A_SAPINSTNR}
 HANA_DATABASE_SERVER=${IP_ADDR}
@@ -202,6 +203,7 @@ LANDSCAPE_INSTALL_ACTION=create
 LICENSE_SERVER_ACTION=register
 LICENSE_SERVER_NODE=standalone
 SELECTED_FEATURES=B1ServerTools,B1ServerToolsXApp,B1SLDAgent,B1BackupService,B1Server,B1AnalyticsPlatform,B1ServiceLayerComponent
+SERVICE_PORT=40000
 SITE_USER_ID=B1SiteUser
 SITE_USER_PASSWORD=${A_MASTERPASS}
 SLD_CERTIFICATE_ACTION=self
@@ -209,6 +211,8 @@ SLD_DATABASE_ACTION=create
 SLD_DATABASE_NAME=SLDDATA
 SLD_SERVER_PROTOCOL=https
 SLD_SERVER_TYPE=op
+SL_LB_PORT=40000
+SL_LB_MEMBER_ONLY=false
 INSTALLATION_FOLDER=/usr/sap/SAPBusinessOne
 INST_FOLDER_CORRECT_PERMISSIONS=true
 #Log files location
