@@ -182,8 +182,6 @@ mkdir /var/log/SAPBusinessOne/
 
 parameters()
 {
-    #Clean up services
-    sed i /40000/d /etc/service
     PROPERTIES="${MEDIA_TARGET}/b1h_properties"
     touch $PROPERTIES
     cat > $PROPERTIES <<-EOF
@@ -203,7 +201,7 @@ LANDSCAPE_INSTALL_ACTION=create
 LICENSE_SERVER_ACTION=register
 LICENSE_SERVER_NODE=standalone
 SELECTED_FEATURES=B1ServerTools,B1ServerToolsXApp,B1SLDAgent,B1BackupService,B1Server,B1AnalyticsPlatform,B1ServiceLayerComponent
-SERVICE_PORT=40000
+SERVICE_PORT=40001
 SITE_USER_ID=B1SiteUser
 SITE_USER_PASSWORD=${A_MASTERPASS}
 SLD_CERTIFICATE_ACTION=self
