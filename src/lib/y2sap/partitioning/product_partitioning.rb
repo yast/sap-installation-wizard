@@ -20,6 +20,7 @@
 # find current contact information at www.novell.com.
 
 require "yast"
+require "open3"
 
 module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver installation mode
@@ -68,78 +69,23 @@ module Y2Sap
     def show_partitions(info)
       ret = nil
       partitionTable = Table()
-      partitionTable << Header("device", "mountpoint", "fs type", "size")
+      partitionTable << Header("device", "mountpoint", "size")
       items = []
-      i = 0
-      devmap = Storage.GetTargetMap
-      Builtins.foreach(devmap) do |devkey, devvalue|
-        if Ops.get_string(devvalue, "name", "") != "tmpfs" &&
-            Ops.get_string(devvalue, "device", "") != "tmpfs"
-          i = Ops.add(i, 1)
-          items = Builtins.add(
-            items,
-            Item(
-              Id(i),
-              Ops.get_string(devvalue, "device", ""),
-              "",
-              "",
-              Ops.add(
-                Builtins.tostring(
-                  Ops.divide(
-                    Ops.divide(
-                      Builtins.tofloat(Ops.get_integer(devvalue, "size_k", 0)),
-                      Convert.convert(1024, :from => "integer", :to => "float")
-                    ),
-                    Convert.convert(1024, :from => "integer", :to => "float")
-                  ),
-                  0
-                ),
-                " G"
-              )
-            )
-          )
-        end
-        partitions = Ops.get_list(devmap, [devkey, "partitions"], [])
-        Builtins.maplist(partitions) do |partition|
-          if Ops.get_string(partition, "name", "") != "tmpfs" &&
-              Ops.get_string(partition, "device", "") != "tmpfs"
-            i = i+1
-            items = Builtins.add(
-              items,
-              Item(
-                Id(i),
-                Ops.get_string(partition, "device", ""),
-                Ops.get_string(partition, "mount", ""),
-                Builtins.substring( Builtins.tostring(Ops.get(partition, "detected_fs")), 1),
-                Ops.add(
-                  Builtins.tostring(
-                    Ops.divide(
-                      Ops.divide(
-                        Builtins.tofloat(
-                          Ops.get_integer(partition, "size_k", 0)
-                        ),
-                        Convert.convert(
-                          1024,
-                          :from => "integer",
-                          :to   => "float"
-                        )
-                      ),
-                      Convert.convert(1024, :from => "integer", :to => "float")
-                    ),
-                    0
-                  ),
-                  " G"
-                )
-              )
-            )
-          end
-        end
+      n = 0
+      Open3.popen2e("df -h | grep vg_hana") do |i, o, t|
+         i.close
+         o.each_line do |line|
+           fields = line.split
+	   items << Item(Id(n),fields[0],fields[5],fields[1])
+	   n=n.next
+	 end
       end
+      n=n.next
       partitionTable = Builtins.add(partitionTable, items)
       UI.OpenDialog(
         VBox(
           Heading(info),
-          MinSize(60, Ops.add(i, 2), partitionTable),
+          MinSize(60, Ops.add(n, 2), partitionTable),
           PushButton("&OK")
         )
       )
