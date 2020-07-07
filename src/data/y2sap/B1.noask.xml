@@ -16,4 +16,7 @@
       <package>patterns-sap-b1</package>
     </post-packages>
   </software>
+  <networking>
+    <keep_install_network config:type="boolean">true</keep_install_network>
+  </networking>
 </profile>

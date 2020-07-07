@@ -19,4 +19,7 @@
     <package>patterns-sap-nw</package>
   </post-packages>
 </software>
+  <networking>
+    <keep_install_network config:type="boolean">true</keep_install_network>
+  </networking>
 </profile>

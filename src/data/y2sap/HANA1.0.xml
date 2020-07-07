@@ -188,4 +188,7 @@ check_masterpwd "$VAL"
       <package>patterns-sap-hana</package>
     </post-packages>
   </software>
+  <networking>
+    <keep_install_network config:type="boolean">true</keep_install_network>
+  </networking>
 </profile>

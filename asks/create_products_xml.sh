@@ -73,7 +73,10 @@ if [ -e $PROD.post-packages.xml ]; then
 else
 	cat post-packages.xml >> $XMLFILE
 fi
-echo '</profile>' >> $XMLFILE
+echo '  <networking>
+    <keep_install_network config:type="boolean">true</keep_install_network>
+  </networking>
+</profile>' >> $XMLFILE
 #now we check if it is OK
 xmllint --noout $XMLFILE
 done
