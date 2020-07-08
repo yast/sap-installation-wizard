@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Jul  8 05:42:57 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP B1 Image - remove obsolete HANA partitioning files
+  (bsc#1173848)
+- 4.2.4
+
+-------------------------------------------------------------------
 Tue Jul  7 07:51:34 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - Autoyast removes network configuration if no networks section exist
