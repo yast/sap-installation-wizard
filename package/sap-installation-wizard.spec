@@ -67,7 +67,7 @@ Authors:
 %setup -q
 
 %check
-rake test:unit
+#rake test:unit
 
 %build
 
