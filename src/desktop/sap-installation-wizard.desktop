@@ -6,7 +6,7 @@ X-KDE-ModuleType=Library
 X-KDE-RootOnly=true
 X-KDE-HasReadOnlyMode=true
 X-KDE-Library=yast2
-X-SuSE-YaST-Call=sap-installation-wizard
+X-SuSE-YaST-Call=sap_installation_wizard
 
 X-SuSE-YaST-Group=Software
 X-SuSE-YaST-Argument=
@@ -22,7 +22,7 @@ X-SuSE-YaST-AutoInstResource=sap-inst
 X-SuSE-translate=false
 
 Icon=yast-sw_single
-Exec=xdg-su -c "/sbin/yast2 sap-installation-wizard"
+Exec=xdg-su -c "/sbin/yast2 sap_installation_wizard"
 
 Name=SAP Installation Wizard
 GenericName=SAP Installation Wizard
