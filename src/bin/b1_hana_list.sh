@@ -19,12 +19,26 @@
 
 PRODDIR=$1
 DATADIR=$2
-# get a list of installed HANA DBs
-SID='<selection config:type="list">'
-MASTERPW=""
-NOASK=0
-if [ -d /hana/data ]
+. /etc/sysconfig/sap-installation-wizard
+for i in ${INSTDIR}/*
+do
+	if [ -e $i/product.data ]; then
+		grep product_id  $i/product.data | grep -q HANA
+		if [ $? = 0 -a -e $i/ay_q_masterPwd ]; then
+			cp $i/ay_q_masterPwd ${PRODDIR}/ay_q_masterPwd
+			inst_nr=$( cat $i/ay_q_sapinstnr )
+			sid=$( cat $i/ay_q_sid )
+			echo "${sid}:${inst_nr}" > ${PRODDIR}/ay_q_sid
+			NOASK=1
+			break
+		fi
+	fi
+done
+
+if [ -z "${NOASK}" -a -d /hana/data ]
 then
+	# get a list of installed HANA DBs
+	SID='<selection config:type="list">'
 	all_sid_arr=(`ls -1 /hana/data/`)
 
 	# checking which one is running
@@ -37,26 +51,9 @@ then
 		break
 	    fi
 	done
-	#return the results
-else
-	. /etc/sysconfig/sap-installation-wizard
-	for i in $INSTDIR/*
-	do
-		if [ -e $i/product.data ]; then
-			grep product_id  $i/product.data | grep -q HANA
-			if [ $? = 0 -a -e $i/ay_q_masterPwd ]; then
-				cp $i/ay_q_masterPwd $PRODDIR/ay_q_masterPwd
-				inst_nr=$( cat $i/ay_q_sapinstnr )
-				sid=$( cat $i/ay_q_sid )
-				echo "$sid:$inst_nr" > $PRODDIR/ay_q_sid
-				NOASK=1
-				break
-			fi
-		fi
-	done
 fi
 
-if [ ${NOASK} -eq 1 ]; then
+if [ "${NOASK}" ]; then
 	cp ${PRODUCT_XML_PATH}/B1.noask.xml ${PRODUCT_XML_PATH}/B1.xml
 else
 	SID="${SID}</selection>"
