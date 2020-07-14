@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Tue Jul 14 15:15:33 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- Wizard reports No Suitable Disks Found on system installed with HANA partitions
+  (bsc#1173960)
+- error : No such client module sap-partitioning-wizard
+  (bsc#1173702)
+- SLES15-SP2-Installer-for-SAP-Business-One.x86_64-15.2-Build8.2
+  automatic partitioning errors out when cumulative disk is over 1TB
+  (bsc#1173927)
+- 4.2.5
+
+-------------------------------------------------------------------
 Wed Jul  8 05:42:57 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - SAP B1 Image - remove obsolete HANA partitioning files
