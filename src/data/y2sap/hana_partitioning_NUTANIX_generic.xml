@@ -141,7 +141,7 @@
           <lv_name>hanashared-vol</lv_name>
           <mount>/hana/shared</mount>
           <size_min>RAM*1</size_min>
-          <size_max>1T</size_max>
+          <size_max>1TiB</size_max>
         </partition>
       </partitions>
       <pesize>4M</pesize>
