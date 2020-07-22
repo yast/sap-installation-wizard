@@ -33,7 +33,7 @@ module Y2Sap
     def do_install
       do_collect
       ret = create_partitions(@partitioning_list, @product_list)
-      if( ret == "abort" )
+      if( ret == :abort )
         return :abort
       end
       start_install_process

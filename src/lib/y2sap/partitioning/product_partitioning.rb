@@ -53,8 +53,8 @@ module Y2Sap
         end
         ret = WFM.CallFunction( "sap_create_storage_ng", [ part_xml ])
         log.info("sap_create_storage_ng returned: #{ret}")
-        if( ret == "abort" )
-          return "abort"
+        if( ret == :abort )
+          return :abort
         end
       end
       log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
