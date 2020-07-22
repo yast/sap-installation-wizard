@@ -36,6 +36,7 @@ module Y2Sap
       when "smb"
         mount_smb(location)
       when "local"
+        @source_dir = location
         mount_local(location)
       when "cdrom"
         mount_device("cdrom/" + location)
