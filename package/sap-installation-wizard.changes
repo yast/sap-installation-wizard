@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Wed Jul 22 08:55:04 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP B1 Image - SAP Installation wizard does not accept local folders
+  (bsc#1173680)
+- 15.2 Build 9.1] Wizard reports No Suitable Disks Found on system installed with HANA partitions
+  (bsc#1173960)
+- SAP B1 Image - SAP HANA is installed into the root filesystem
+  (bsc#1173931)
+- 4.2.6
+
+-------------------------------------------------------------------
 Tue Jul 14 15:15:33 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - Wizard reports No Suitable Disks Found on system installed with HANA partitions
