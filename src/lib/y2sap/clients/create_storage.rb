@@ -141,19 +141,19 @@ module Y2Sap
       # @param partitioning [Hash] Profile content
       # @return [Boolean]
       def already_mounted?(partitioning)
-        mounted = devicegraph.filesystems.map(&:mount_point)
+        #mounted = devicegraph.filesystems.map(&:mount_point)
+        mounted = []
+        File.open('/etc/fstab').each do |line|
+           mounted << line.split()[1]
+        end
         wanted = partitioning.map do |drive|
           drive.fetch("partitions", []).map { |p| p["mount"] }
         end
         wanted.flatten!
         existing = mounted & wanted
 
-        log.debug "MOUNTS #{mounted}"
-        log.debug "PARTS #{wanted}"
-
-        if !existing.empty?
-          log.info "These partitions were already created: #{existing.join(", ")}"
-        end
+        log.info "MOUNTS #{mounted}"
+        log.info "PARTS #{wanted}"
 
         !existing.empty?
       end
