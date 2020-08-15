@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Aug 15 05:32:45 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP B1 Image - sap_installation_wizard does not work based on
+  with firstboot_inst_sap (bsc#1175162)
+- 4.2.8 
+
+-------------------------------------------------------------------
 Mon Aug  3 14:11:41 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - HANA B1 Partitioner could not be started
