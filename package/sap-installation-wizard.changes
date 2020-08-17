@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Sat Aug 15 05:32:45 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+Mon Aug 17 11:23:17 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - SAP B1 Image - sap_installation_wizard does not work based on
   with firstboot_inst_sap (bsc#1175162)
