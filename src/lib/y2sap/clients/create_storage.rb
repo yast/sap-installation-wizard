@@ -141,11 +141,7 @@ module Y2Sap
       # @param partitioning [Hash] Profile content
       # @return [Boolean]
       def already_mounted?(partitioning)
-        #mounted = devicegraph.filesystems.map(&:mount_point)
-        mounted = []
-        File.open('/etc/fstab').each do |line|
-           mounted << line.split()[1]
-        end
+        mounted = devicegraph.filesystems.map(&:mount_path)
         wanted = partitioning.map do |drive|
           drive.fetch("partitions", []).map { |p| p["mount"] }
         end
