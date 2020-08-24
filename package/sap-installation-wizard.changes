@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug 24 08:26:18 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One image available: 15.2 Build14.2:
+  "required partitioning was already created" (bsc#1175608 )
+- 4.2.9
+
+-------------------------------------------------------------------
 Mon Aug 17 11:23:17 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - SAP B1 Image - sap_installation_wizard does not work based on
