@@ -21,8 +21,6 @@ module Yast
          @closeMe = true
       end
 
-      Service.Restart("network")
-
       # Check if hostname -f is set
       @out = Convert.to_map(
         SCR.Execute(path(".target.bash_output"), "hostname -f")

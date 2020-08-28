@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Aug 28 17:50:00 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- UEFI Boot Entry is not created (bsc#1174778)
+- 4.2.10 
+
+-------------------------------------------------------------------
 Mon Aug 24 08:26:18 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - SAP Business One image available: 15.2 Build14.2:

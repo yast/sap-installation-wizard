@@ -50,6 +50,9 @@ module Y2Sap
         @close_me = true
       end
 
+      # Create uefi boot entry if necessary
+      SCR.Execute(path(".target.bash_output"), "/usr/lib/YaST2/bin/create_uefi_boot_entry.sh")
+
       # Check if hostname -f is set
       @out = Convert.to_map(
         SCR.Execute(path(".target.bash_output"), "hostname -f")
