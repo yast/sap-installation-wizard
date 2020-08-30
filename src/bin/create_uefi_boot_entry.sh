@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 if [ -d /sys/firmware/efi ]; then
 	PUUID=$( sed -r 's/.*root=UUID=(\S+).*/\1/' /proc/cmdline )
@@ -7,5 +7,5 @@ if [ -d /sys/firmware/efi ]; then
 	if [ "${DEVICE}" == "${PART}" ]; then
 	    DEVICE=${PART/[0-9]/}
 	fi
-	efibootmgr -c -d $DEVICE -p 2 -L "sapb1hana" -l \\EFI\\BOOT\\GRUBX64.EFI
+	efibootmgr -c -b 000A -d $DEVICE -p 2 -L "sapb1hana" -l \\EFI\\BOOT\\BOOTX64.EFI
 fi
