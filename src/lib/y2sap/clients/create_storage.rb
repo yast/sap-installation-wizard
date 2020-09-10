@@ -61,6 +61,10 @@ module Y2Sap
           return :abort
         end
 
+	if disk == :abort
+          return :abort
+	end
+
         return :abort unless commit(partitioning, disk)
         Yast::Wizard.CloseDialog
 

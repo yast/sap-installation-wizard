@@ -62,8 +62,10 @@ module Y2Sap
     end
 
     def hana_partitioning
-      create_partitions(["hana_partitioning"],["HANA"])
-      show_partitions("SAP file system creation successfully done:")
+      ret = create_partitions(["hana_partitioning"],["HANA"])
+      if ret != :abort
+        show_partitions("SAP file system creation successfully done:")
+      end
     end
 
     def show_partitions(info)
