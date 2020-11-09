@@ -98,7 +98,7 @@ rm -rf  %{buildroot}
 %{yast_icondir}
 /usr/share/YaST2/data/y2sap/
 %if ! %{defined _SAPBOne}
-%doc windows_cheat_sheet.pdf sap-autoinstallation.txt hana-autoyast.xml README README.md
+%doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
 %else
 %doc README README.md
 %endif
