@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Nov  9 15:22:56 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178440) - [Build S.38.1] openQA test fails in 
+  sles4sap_product_installation_mode: Can't find YCP client
+  component inst_sap-start
+- 4.2.12
+
+-------------------------------------------------------------------
 Tue Oct 13 12:06:21 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - (bsc#1177392) Internal error in yast sap_create_storage_ng 
