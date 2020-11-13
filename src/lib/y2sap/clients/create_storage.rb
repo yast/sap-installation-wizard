@@ -23,7 +23,7 @@ require "y2sap/partitioning/storage_proposal"
 require "y2storage"
 require "autoinstall/dialogs/disk_selector"
 require "autoinstall/dialogs/question"
-require "autoinstall/storage_proposal_issues_presenter"
+require "installation/autoinst_issues/issues_presenter"
 
 Yast.import "XML"
 Yast.import "Wizard"
@@ -178,7 +178,7 @@ module Y2Sap
         relevant_issues = issues_list.select { |i| RELEVANT_ISSUES_CLASSES.include?(i.class) }
         return :ok if relevant_issues.empty?
         buttons_set = relevant_issues.any?(&:fatal?) ? :abort : :question
-        presenter = Y2Autoinstallation::StorageProposalIssuesPresenter.new(relevant_issues)
+        presenter = ::Installation::AutoinstIssues::IssuesPresenter.new(relevant_issues)
         Y2Autoinstallation::Dialogs::Question.new(
           # TRANSLATORS: issues found while proposing the partitioning layout
           _("Partitioning issues"), presenter.to_html, timeout: 0, buttons_set: buttons_set

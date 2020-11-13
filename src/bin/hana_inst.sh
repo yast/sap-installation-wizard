@@ -393,14 +393,15 @@ EOF
 
 hana_lcm_workflow()
 {
-   HDBLCMDIR="${SAPCD_INSTMASTER}/SAP_HANA_DATABASE"
    WORKDIR=/var/tmp/
    rc=0
    hana_volumes
    hana_get_input
    hana_setenv_lcm
 
-   if [ ! -d ${SAPCD_INSTMASTER}/SAP_HANA_DATABASE ]; then
+   #Detect if it is a B1 installation
+   B1=$( grep "FOR.B1" ${SAPCD_INSTMASTER}/* )
+   if [ -n "$B1" -a ! -d ${SAPCD_INSTMASTER}/SAP_HANA_DATABASE ]; then
 	find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
    fi
    case $A_SAPMDC in
@@ -512,6 +513,7 @@ extract_media_archives()
    extract_media_archives
    HDBLCM=`find ${SAPCD_INSTMASTER} -name hdblcm`
    if [ -n "${HDBLCM}" ]; then
+      export HDBLCMDIR=$( dirname ${HDBLCM} )
       hana_lcm_workflow
    else
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"

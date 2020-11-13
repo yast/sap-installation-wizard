@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Nov 13 14:02:02 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178731) L3-Question: sap-installation-wizard broken
+- (bsc#1177392) [Build 51.1] Internal error in yast sap_create_storage_ng
+  /usr/share/YaST2/include/sap-installation-wizard/hana_partitioning.xml
+- 4.2.14
+
+-------------------------------------------------------------------
 Thu Nov 12 18:19:03 UTC 2020 - Peter Varkoly <varkoly@suse.com>
 
 - (bsc#1178722) [Build S.45.2] openQA test fails in 
