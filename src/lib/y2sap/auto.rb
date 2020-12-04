@@ -21,7 +21,7 @@
 require "open3"
 require "yast"
 require "y2sap/configuration/media"
-require "y2sap/media/copy"
+require "y2sap/media/check"
 require "y2sap/media/copy"
 require "y2sap/media/find"
 require "y2sap/media/mount"
@@ -33,6 +33,7 @@ module Y2Sap
     include Yast
     include Yast::Logger
     include Yast::I18n
+    include Y2Sap::MediaCheck
     include Y2Sap::MediaCopy
     include Y2Sap::MediaFind
     include Y2Sap::MediaMount
@@ -50,16 +51,17 @@ module Y2Sap
     # @return [true]
     def import(settings)
       @sap_media_todo = settings
-      log.info("-- SAPMedia.Import Start --- #{@sap_media_todo}")
+      log.info("-- Y2Sap::AutoInst.import Start --- #{@sap_media_todo}")
       true
     end
 
     # Implementing the write function for the auto installation
     # Executes the installation.
-    def write
+    def write(profile)
       SCR.Execute(path(".target.bash"), "groupadd sapinst; usermod --groups sapinst root; ")
       @product_count = -1
-      @sap_media_todo["products"].each do |prod|
+      log.info("-- Y2Sap::AutoInst.write Start --- #{profile}")
+      profile["products"].each do |prod|
         if !prod.key?("media")
           Yast::Popup.Error(
             _("You have to define the location of the installation media in the autoyast xml.")
@@ -173,7 +175,7 @@ module Y2Sap
       if !prod.key?("sapMasterPW") || !prod.key?("sid") || !prod.key?("sapInstNr")
         Yast::Popup.Error("Some of the required parameters are not defined.")
         @error = true
-        next
+        return :abort
       end
       !prod.key?("sapMDC") || prod["sapMDC"] = "no"
       File.write(@inst_dir + "/ay_q_masterPwd", prod["sapMasterPW"])
@@ -184,7 +186,8 @@ module Y2Sap
         File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
       end
       @sid = prod["sid"]
-      SCR.Execute(path(".target.bash"), "chgrp sapinst " + @instDir + ";" + "chmod 775 " + @instDir)
+      SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir)
+      SCR.Execute(path(".target.bash"), "chmod 775 " + @inst_dir)
       @script = @ay_dir_base + "/hana_inst.sh -g"
     end
 
