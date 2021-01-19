@@ -10,6 +10,7 @@ Fri Jan 15 10:21:05 UTC 2021 - Peter Varkoly <varkoly@suse.com>
 
 - (bsc#1178715) - [Build 78.1] openQA test fails in wizard_hana_install
   Fix autoinstallation workflow. Rename autoyast module
+-  Add symlink for compatibility
 - 4.3.2
 
 -------------------------------------------------------------------

@@ -76,6 +76,9 @@ rake install DESTDIR="%{buildroot}"
 %ifarch ppc64le
    sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/data/y2sap/HANA.xml 
 %endif
+#Make symlink for compatibility reason
+cd %{buildroot}/%{yast_clientdir}
+ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 
 %post
 %{fillup_only -n sap-installation-wizard}
