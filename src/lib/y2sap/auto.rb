@@ -87,7 +87,7 @@ module Y2Sap
           -t '#{@db}' \
           -y '#{@inst_master_type}' \
           -d '#{@inst_dir}'"
-        log.info("Starting Installation : #{script}")
+        log.info("Starting Installation : #{@script}")
         run_script(@script)
       end
     end
