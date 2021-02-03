@@ -20,6 +20,7 @@
 # find current contact information at www.novell.com.
 require "yast"
 require "autoinstall/clients/ayast_setup"
+Yast.import "UI"
 
 module Y2Sap
   module MediaDialog

@@ -3,6 +3,7 @@
 # hana_inst.sh - is a script used to install SAP HANA
 #
 # Copyright (c) 2013 SAP AG
+# Copyright (c) [2013-2021] SUSE LLC
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as

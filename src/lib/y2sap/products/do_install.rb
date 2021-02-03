@@ -22,6 +22,7 @@
 require "yast"
 require "open3"
 require "y2sap/partitioning/product_partitioning"
+Yast.import "UI"
 
 module Y2Sap
 

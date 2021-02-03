@@ -21,12 +21,15 @@
 
 require "yast"
 require "open3"
+Yast.import "UI"
 
 module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver installation mode
   # Which products installation mode can be selected depends on the selected media
   module ProductPartitioning
     include Yast
+    include Yast::UI
+    include Yast::UIShortcuts
     def create_partitions(product_partitioning_list, product_list)
       log.info("********Starting partitioning with #{product_partitioning_list} #{product_list}")
 

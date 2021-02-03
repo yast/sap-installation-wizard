@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 # ------------------------------------------------------------------------------
-# Copyright (c) 2015 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2021 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of version 2 of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 # ------------------------------------------------------------------------------
 #
 # Summary: In the wizard workflow, display a dialog to let user add additional zypper repos.
+# Authors: Peter Varkoly <varkoly@suse.com>
 # Authors: Howard Guo <hguo@suse.com>
 
 require "yast"
@@ -41,6 +42,7 @@ end
 module SAPInstaller
   # Add vendor repositories to SLES4SAP
   class AddRepoWizardDialog
+    include Yast::UI
     include Yast::UIShortcuts
     include Yast::I18n
     include Yast::Logger

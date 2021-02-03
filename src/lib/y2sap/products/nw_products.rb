@@ -20,6 +20,7 @@
 # find current contact information at www.novell.com.
 
 require "yast"
+Yast.import "UI"
 
 module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver product to install

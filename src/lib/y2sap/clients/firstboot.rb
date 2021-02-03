@@ -25,6 +25,8 @@ require "y2sap/partitioning/product_partitioning"
 module Y2Sap
   # Modul which will be started after the installation of the system
   class FirstbootInstSapClient < Yast::Client
+    include Yast::UI
+    include Yast::UIShortcuts
     include Y2Sap::ProductPartitioning
     include Yast::Logger
     def main

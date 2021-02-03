@@ -27,6 +27,7 @@ require "y2sap/media/dialog"
 require "y2sap/media/find"
 require "y2sap/media/mount"
 require "y2sap/media/complex"
+Yast.import "UI"
 
 module Y2Sap
   # Represent a class to handle the SAP installation media.
@@ -36,6 +37,8 @@ module Y2Sap
     include Yast
     include Yast::Logger
     include Yast::I18n
+    include Yast::UI
+    include Yast::UIShortcuts
     include Y2Sap::MediaCheck
     include Y2Sap::MediaCopy
     include Y2Sap::MediaDialog
