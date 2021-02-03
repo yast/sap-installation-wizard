@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-# Copyright (c) [2018] SUSE LLC
+# Copyright (c) [2021] SUSE LLC
 #
 # All Rights Reserved.
 #
@@ -28,6 +28,8 @@ module Y2Sap
   # Install the selected products.
   module DoInstall
     include Yast
+    include Yast::UI
+    include Yast::UIShortcuts
     include ProductPartitioning
 
     def do_install
