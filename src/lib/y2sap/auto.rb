@@ -163,7 +163,7 @@ module Y2Sap
       SCR.Execute(path(".target.bash"), "cp " + @ay_dir_base + "/keydb.dtd " + @inst_dir)
       File.write(@inst_dir + "/start_dir.cd", @media_list.join("\n"))
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir + ";" + "chmod 770 " + @inst_dir)
-      @script = @ay_dir_base + "/sap_inst_nodb.sh"
+      @script = @sapinst_path + "/sap_inst_nodb.sh"
     end
 
     # Sets the global variables for a HANA installation evaluated
@@ -188,21 +188,21 @@ module Y2Sap
       @sid = prod["sid"]
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir)
       SCR.Execute(path(".target.bash"), "chmod 775 " + @inst_dir)
-      @script = @ay_dir_base + "/hana_inst.sh -g"
+      @script = @sapinst_path + "/hana_inst.sh -g"
     end
 
     # Sets the global variables for a Busines One installation evaluated
     # from the autoyast hash.
     def prepare_b1(prod)
       prepare_hana(prod)
-      @script = @ay_dir_base + "/b1_inst.sh -g"
+      @script = @sapinst_path + "/b1_inst.sh -g"
     end
 
     # Sets the global variables for a TREX installation evaluated
     # from the autoyast hash.
     def prepare_trex(prod)
       prepare_hana(prod)
-      @script = @ay_dir_base + "/trex_inst.sh"
+      @script = @sapinst_path + "/trex_inst.sh"
     end
 
   end
