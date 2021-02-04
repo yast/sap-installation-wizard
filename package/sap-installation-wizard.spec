@@ -20,7 +20,7 @@ Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.3.5
+Version:        4.3.6
 Release:        0
 PreReq:         /bin/mkdir %insserv_prereq %fillup_prereq yast2
 BuildRequires:  yast2
