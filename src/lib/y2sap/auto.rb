@@ -81,8 +81,7 @@ module Y2Sap
           prepare_trex(prod)
         end
         next if @ERROR
-        @script << "
-          -m '#{@inst_dir}/Instmaster' \
+        @script << " -m '#{@inst_dir}/Instmaster' \
           -i '#{@product_id}' \
           -t '#{@db}' \
           -y '#{@inst_master_type}' \
