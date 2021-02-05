@@ -70,7 +70,8 @@ module SapInst
     # TODO evtl we can export the copied directories and installed products
     def export
       log.info("-- sap-installation-wizard_auto.export Start")
-      return @sap_autoinst.sap_media_todo
+      #return @sap_autoinst.sap_media_todo
+      return {}
     end
 
     # Insignificant to autoyast.
