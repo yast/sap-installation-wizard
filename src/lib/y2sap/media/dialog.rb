@@ -22,6 +22,10 @@ require "yast"
 require "autoinstall/clients/ayast_setup"
 Yast.import "UI"
 
+=begin
+textdomain "sap-installation-wizard"
+=end
+
 module Y2Sap
   module MediaDialog
     include Yast
