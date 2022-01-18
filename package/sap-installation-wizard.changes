@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jan 18 14:42:07 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
+
+- Added missing "textdomain" statements (bsc#1194801)
+- 4.4.0
+
+-------------------------------------------------------------------
 Thu Feb  4 10:40:28 UTC 2021 - Peter Varkoly <varkoly@suse.com>
 
 - Adapt API change in IssuesPresenter
