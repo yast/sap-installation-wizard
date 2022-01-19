@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Wed Jan 19 13:50:46 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
+
+- Unit tests:
+  - Enable RSpec verifying doubles to ensue that the mocked
+    methods really exist (bsc#1194784)
+  - Fixed to actually pass
+  - Run them during RPM build
+- Do not crash if the partitioning XML is not valid
+- 4.4.1
+
+-------------------------------------------------------------------
 Tue Jan 18 14:42:07 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
 
 - Added missing "textdomain" statements (bsc#1194801)

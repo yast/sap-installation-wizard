@@ -27,10 +27,6 @@ require "yast"
 
 describe Y2Sap::Media do
   context "no sysconfig file exist" do
-    subject { described_class.new }
-    before do
-      change_scr_root("/")
-    end
     it "reads the default base configuration" do
       expect(subject.mount_point).to eq "/mnt"
       expect(subject.inst_mode).to   eq "manual"
@@ -47,8 +43,12 @@ describe Y2Sap::Media do
   end
   context "sysconfig file does exist" do
     subject { described_class.new }
-    before do
+    around do |example|
+      # change the SCR root to a testing directory
       change_scr_root(File.join(DATA_PATH, "system"))
+      example.run
+      # restore it back
+      reset_scr_root
     end
     it "reads the base configuration from sysconfig file" do
       expect(subject.mount_point).to eq "/tmp/mnt"
@@ -62,9 +62,16 @@ describe Y2Sap::Media do
     before do
       allow(Yast::SCR).to receive(:Execute).with(Yast::Path.new(".target.bash_output"), /du/)
         .and_return(out)
-      change_scr_root(File.join(DATA_PATH, "system"))
-      subject { described_class.new }
     end
+
+    around do |example|
+      # change the SCR root to a testing directory
+      change_scr_root(File.join(DATA_PATH, "system"))
+      example.run
+      # restore it back
+      reset_scr_root
+    end
+
     it "reads the tech size of /etc" do
       expect(subject.tech_size("/etc")).to eq(200)
     end

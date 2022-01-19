@@ -54,7 +54,7 @@ describe Y2Sap::Clients::CreateStorage do
   end
   let(:issues_list) { [] }
 
-  let(:usr) { instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_point: "/usr") }
+  let(:usr) { instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_path: "/usr") }
   let(:filesystems) { [usr] }
 
   describe "#main" do
@@ -191,7 +191,7 @@ describe Y2Sap::Clients::CreateStorage do
 
     context "when any wanted mount point already exist" do
       let(:hana_data) do
-        instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_point: "/hana/data")
+        instance_double(Y2Storage::Filesystems::BlkFilesystem, mount_path: "/hana/data")
       end
       let(:filesystems) { [usr, hana_data] }
 
@@ -205,6 +205,7 @@ describe Y2Sap::Clients::CreateStorage do
       end
 
       it "logs existing mount points" do
+        allow(client.log).to receive(:info).and_call_original
         expect(client.log).to receive(:info).with(/\/hana\/data/).and_call_original
         client.main
       end
