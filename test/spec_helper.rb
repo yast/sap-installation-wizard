@@ -29,6 +29,14 @@ ENV["LC_ALL"] = "en_US.UTF-8"
 require "yast"
 require "yast/rspec"
 
+# configure RSpec
+RSpec.configure do |config|
+  config.mock_with :rspec do |c|
+    # https://relishapp.com/rspec/rspec-mocks/v/3-0/docs/verifying-doubles/partial-doubles
+    c.verify_partial_doubles = true
+  end
+end
+
 if ENV["COVERAGE"]
   require "simplecov"
   SimpleCov.start do
