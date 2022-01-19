@@ -103,6 +103,9 @@ module Y2Sap
 
         profile = Yast::XML.XMLToYCPFile(filename)
         profile && profile["partitioning"]
+      rescue Yast::XMLDeserializationError
+        log.error("Cannot parse XML file #{filename}")
+        nil
       end
 
       # Select a disk with to use
