@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb 28 20:33:01 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- Install the packages for hana if hana partitionig was made.
+- Use the first found hdblcm command.
+- Make code more readable.
+- 4.4.2
+
+-------------------------------------------------------------------
 Wed Jan 19 13:50:46 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
 
 - Unit tests:
