@@ -129,9 +129,10 @@ module Y2Sap
             WFM.CallFunction("sap_installation_wizard", [])
             ret = :next
           when "hana_partitioning"
-	    require "y2sap/media"
-	    @media  = Y2Sap::Media.new
+            require "y2sap/media"
+            @media  = Y2Sap::Media.new
             hana_partitioning
+            Package.DoInstall(["patterns-sap-hana"])
             ret = :next
           end
           clean_up
