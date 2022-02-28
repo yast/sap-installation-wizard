@@ -512,7 +512,7 @@ extract_media_archives()
    # HANA 1.0 <= SP6: Unified Installer
    # HANA 1.0 => SP7: Life Cycle Manager (hdblcm)
    extract_media_archives
-   HDBLCM=`find ${SAPCD_INSTMASTER} -name hdblcm | grep -P 'DATABASE|SERVER'`
+   HDBLCM=`find ${SAPCD_INSTMASTER} -name hdblcm | grep -m 1 -P 'DATABASE|SERVER'`
    if [ -n "${HDBLCM}" ]; then
       export HDBLCMDIR=$( dirname ${HDBLCM} )
       hana_lcm_workflow
