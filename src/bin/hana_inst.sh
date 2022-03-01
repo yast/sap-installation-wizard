@@ -199,6 +199,34 @@ EOF
 	rm ${tmpfile}
 }
 
+yast_failed () {
+	local tmpfile
+	tmpfile="${TMPDIR}/yast_popup_wait.ycp"
+	cat > ${tmpfile} <<-EOF
+require "yast"
+
+class SapWarn < Yast::Client
+        def main
+                Yast.import "Popup"
+                run = Popup.ErrorAnyQuestion(
+                        _("Installation failed"),
+                        _("For details please check log files at /var/tmp and /var/adm/autoinstall/logs\nClean up the the installation environment?"),
+                        _("yes"),
+                        _("no"),
+                        :focus_yes
+                )
+                if not run
+                        %x( touch /tmp/do-not-rm )
+                end
+        end
+end
+SapWarn.new.main
+EOF
+        [ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
+        rm ${tmpfile}
+
+}
+
 hana_check_components()
 {
    components_not_found=""
@@ -324,15 +352,19 @@ hana_setenv_unified_installer()
 }
 
 cleanup() {
-  # Cleanup
-  rm -f  ${MEDIA_TARGET}/ay_*
-  # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
-  sed -i "s${MASTERPASS}**********g" /var/log/YaST2/y2log
-  sed -i "s${MASTERPASS}**********g" /var/adm/autoinstall/logs/*
+  if [ ! -e /tmp/do-not-rm ]; then
+	  # Cleanup
+	  rm -f  ${MEDIA_TARGET}/ay_*
+	  # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
+	  sed -i "s${MASTERPASS}**********g" /var/log/YaST2/y2log
+	  sed -i "s${MASTERPASS}**********g" /var/adm/autoinstall/logs/*
 
-  rm -rf ${SAPCD_INSTMASTER}
-  # delete since created via mktemp
-  rm -rf ${TMPDIR}
+	  rm -rf ${SAPCD_INSTMASTER}
+	  # delete since created via mktemp
+	  rm -rf ${TMPDIR}
+  else
+	  rm /tmp/do-not-rm
+  fi
 }
 
 hana_installation_summary ()
