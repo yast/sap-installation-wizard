@@ -564,7 +564,7 @@ extract_media_archives()
       #yast_popup "Installation finished."
       hana_installation_summary
    else
-      yast_popup_wait "Installation failed.\nFor details please check log files at /var/tmp and /var/adm/autoinstall/logs"
+      yast_failed
    fi
 
    cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
