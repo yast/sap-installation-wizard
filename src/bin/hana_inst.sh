@@ -201,7 +201,7 @@ EOF
 
 yast_failed () {
 	local tmpfile
-	tmpfile="${TMPDIR}/yast_popup_wait.ycp"
+	tmpfile="${TMPDIR}/yast_failed.rb"
 	cat > ${tmpfile} <<-EOF
 require "yast"
 
@@ -223,7 +223,7 @@ end
 SapWarn.new.main
 EOF
         [ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
-        rm ${tmpfile}
+#        rm ${tmpfile}
 
 }
 
