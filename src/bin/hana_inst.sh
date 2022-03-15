@@ -451,7 +451,8 @@ hana_lcm_workflow()
    cd "${HDBLCMDIR}"
    if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
-            --ignore=check_signature_file \
+	    --ignore=check_min_mem,check_signature_file \
+	    --lss_trust_unsigned_server \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
@@ -460,11 +461,11 @@ hana_lcm_workflow()
             --configfile=${MEDIA_TARGET}/hana_mdc.conf
    else
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
-            --ignore=check_signature_file \
+	    --ignore=check_min_mem,check_signature_file \
+	    --lss_trust_unsigned_server \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
-	    --ignore=check_min_mem,check_signature_file \
             --groupid=79 \
             --read_password_from_stdin=xml
    fi
