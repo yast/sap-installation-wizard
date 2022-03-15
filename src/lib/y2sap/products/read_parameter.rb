@@ -24,7 +24,7 @@ textdomain "sap-installation-wizard"
 =end
 
 require "yast"
-#require "autoinstall/clients/ayast_setup"
+require "autoinstall/clients/ayast_setup"
 
 module Y2Sap
   # Read the installation parameter.
@@ -34,7 +34,7 @@ module Y2Sap
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
-    #include Y2Autoinstall::Clients::AyastSetup
+    include Y2Autoinstall::Clients::AyastSetup
 
     def read_product_parameter
       log.info("Start read_product_parameter")
@@ -100,9 +100,9 @@ module Y2Sap
       end
       if File.exist?( xml_path )
         SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
-        #ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
-        log.info("ayast_setup returned for: " + xml_path)
+	#WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
+        ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
+        log.info("ayast_setup returned '#{ret}' for '#{xml_path}'" )
         if File.exist?("/tmp/ay_q_sid")
            @sid = IO.read("/tmp/ay_q_sid").chomp
         end
