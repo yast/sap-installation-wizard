@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Aug 10 09:05:39 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- yast2 sap-installation-wizard fails on # in NFS mount
+  (bsc#1197430)
+- 4.4.3 
+
+-------------------------------------------------------------------
 Mon Feb 28 20:33:01 UTC 2022 - Peter Varkoly <varkoly@suse.com>
 
 - Install the packages for hana if hana partitionig was made.
