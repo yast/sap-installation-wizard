@@ -25,6 +25,7 @@ textdomain "sap-installation-wizard"
 
 module Y2Sap
   module MediaComplex
+  # Handling of medias
     include Yast
     include Y2Sap::MediaDialog
     include Y2Sap::MediaCopy
@@ -46,7 +47,7 @@ module Y2Sap
         inst_master_list    = is_instmaster(@source_dir)
         @inst_master_type   = Ops.get(inst_master_list, 0, "")
         @inst_master_path   = Ops.get(inst_master_list, 1, "")
-        @inst_master_version= Ops.get(inst_master_list, 2, "")
+        @inst_master_version = Ops.get(inst_master_list, 2, "")
 
         log.info("found SAP instmaster at #{@inst_master_path} type #{@inst_master_type} version #{@inst_master_version}")
         if @inst_master_path.nil? || @inst_master_path.size == 0
@@ -56,23 +57,23 @@ module Y2Sap
         end
       end
       case @inst_master_type
-        when "SAPINST"
-          ret = :SAPINST
-        when "HANA"
-          @inst_master_type = 'HANA'
-          ret = :HANA
-        when /^B1/
-	  @inst_master_type = 'B1'
-          ret = :B1
-        when "TREX"
-          ret = :TREX
+      when "SAPINST"
+        ret = :SAPINST
+      when "HANA"
+        @inst_master_type = "HANA"
+        ret = :HANA
+      when /^B1/
+        @inst_master_type = "B1"
+        ret = :B1
+      when "TREX"
+        ret = :TREX
       end
-      if @inst_master_type == 'HANA' || @inst_master_type == 'B1'
+      if @inst_master_type == "HANA" || @inst_master_type == "B1"
         # HANA and B1 instmaster must copied directly into @inst_dir
         copy_dir(@inst_master_path, @inst_dir, "Instmaster")
         @inst_master_path = @inst_dir + "/Instmaster"
       else
-        if ! File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + '-' + @inst_master_version  )
+        if ! File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + "-" + @inst_master_version  )
            #Make a local copy of the installation master
            copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
         end

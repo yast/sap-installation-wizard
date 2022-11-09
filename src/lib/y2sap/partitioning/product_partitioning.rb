@@ -45,24 +45,23 @@ module Y2Sap
       product_partitioning_list.each do |product_partitioning|
         # This is a generic way for all SAP products and hardware
         # Now it is possible to create product manufactutrer and model based partitioning files.
-        part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_" + model + ".xml"
-        if ! File.exist?(part_xml)
-          part_xml = @media.partitioning_dir_base + '/' + product_partitioning + "_" + manufacturer + "_generic.xml"
-          if ! File.exist?(part_xml)
-            part_xml=@media.partitioning_dir_base + '/' + product_partitioning + ".xml"
-            if product_list.include?('B1')
-               if ! Popup.YesNoHeadline(_("Your System is not certified for SAP Business One on HANA."),
-                  _("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
-                       return "abort"
+        part_xml = @media.partitioning_dir_base + "/" + product_partitioning + "_" + manufacturer + "_" + model + ".xml"
+        if !File.exist?(part_xml)
+          part_xml = @media.partitioning_dir_base + "/" + product_partitioning + "_" + manufacturer + "_generic.xml"
+          if !File.exist?(part_xml)
+            part_xml=@media.partitioning_dir_base + "/" + product_partitioning + ".xml"
+            if product_list.include?("B1")
+               if !Popup.YesNoHeadline(
+                     _("Your System is not certified for SAP Business One on HANA."),
+                     _("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
+                 return "abort"
                end
             end
           end
         end
-        ret = WFM.CallFunction( "sap_create_storage_ng", [ part_xml ])
+        ret = WFM.CallFunction("sap_create_storage_ng", [part_xml])
         log.info("sap_create_storage_ng returned: #{ret}")
-        if( ret == :abort )
-          return :abort
-        end
+        return :abort if ret == :abort
       end
       log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
       deep_copy(ret)
@@ -70,9 +69,7 @@ module Y2Sap
 
     def hana_partitioning
       ret = create_partitions(["hana_partitioning"],["HANA"])
-      if ret != :abort
-        show_partitions("SAP file system creation successfully done:")
-      end
+      show_partitions("SAP file system creation successfully done:") if ret != :abort
     end
 
     def show_partitions(info)
@@ -85,9 +82,9 @@ module Y2Sap
          i.close
          o.each_line do |line|
            fields = line.split
-	   items << Item(Id(n),fields[0],fields[5],fields[1])
-	   n=n.next
-	 end
+           items << Item(Id(n), fields[0], fields[5], fields[1])
+           n=n.next
+         end
       end
       n=n.next
       partitionTable = Builtins.add(partitionTable, items)
@@ -108,13 +105,10 @@ module Y2Sap
       hwinfo = []
       bios = Convert.to_list(SCR.Read(path(".probe.bios")))
 
-      if Builtins.size(bios) != 1
-        Builtins.y2warning("Warning: BIOS list size is %1", Builtins.size(bios))
-      end
+      Builtins.y2warning("Warning: BIOS list size is %1", Builtins.size(bios)) if Builtins.size(bios) != 1
 
       biosinfo = Ops.get_map(bios, 0, {})
       smbios = Ops.get_list(biosinfo, "smbios", [])
-
       sysinfo = {}
 
       Builtins.foreach(smbios) do |inf|

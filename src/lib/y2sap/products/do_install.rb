@@ -29,7 +29,6 @@ textdomain "sap-installation-wizard"
 =end
 
 module Y2Sap
-
   # Install the selected products.
   module DoInstall
     include Yast
@@ -40,9 +39,7 @@ module Y2Sap
     def do_install
       do_collect
       ret = create_partitions(@partitioning_list, @product_list)
-      if( ret == :abort )
-        return :abort
-      end
+      return :abort if ret == :abort
       start_install_process
       return :next
     end
@@ -52,9 +49,9 @@ module Y2Sap
       @script_list       = []
       @partitioning_list = []
       @product_list      = []
-      @products_to_install.each do |instDir|
+      @products_to_install.each do |inst_dir|
         product_data = Convert.convert(
-          SCR.Read(path(".target.ycp"), instDir + "/product.data"),
+          SCR.Read(path(".target.ycp"), inst_dir + "/product.data"),
           :from => "any",
           :to   => "map <string, any>"
         )
@@ -90,7 +87,7 @@ module Y2Sap
     def start_install_process
       require "open3"
       @script_list.each do |intall_script|
-	run_script(intall_script)
+        run_script(intall_script)
       end
     end
 

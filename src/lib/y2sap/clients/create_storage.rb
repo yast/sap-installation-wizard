@@ -36,7 +36,7 @@ module Y2Sap
       include Yast::I18n
       include Yast::Logger
 
-      #Presenter class different on SP2 and SP3
+      # Presenter class different on SP2 and SP3
       def issues_class
         require "installation/autoinst_issues/issues_presenter"
         ::Installation::AutoinstIssues::IssuesPresenter
@@ -69,9 +69,7 @@ module Y2Sap
           return :abort
         end
 
-	if disk == :abort
-          return :abort
-	end
+        return :abort if disk == :abort
 
         return :abort unless commit(partitioning, disk)
         Yast::Wizard.CloseDialog

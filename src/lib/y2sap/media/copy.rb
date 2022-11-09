@@ -21,38 +21,39 @@
 
 module Y2Sap
   module MediaCopy
+  # Copy content of media to target directory
     include Yast
     Yast.import "Progress"
 
-    def copy_dir(sourceDir, targetDir, subDir)
-      log.info("Y2Sap::MediaCopy.copy_dir called: #{sourceDir}, #{targetDir}, #{subDir}" )
-      pid=start_copy(sourceDir, targetDir, subDir)
+    def copy_dir(source_dir, target_dir, sub_dir)
+      log.info("Y2Sap::MediaCopy.copy_dir called: #{source_dir}, #{target_dir}, #{sub_dir}")
+      pid=start_copy(source_dir, target_dir, sub_dir)
       if pid.nil? || pid < 1
-        return ask_me_to_retry(sourceDir, targetDir, subDir)
+        return ask_me_to_retry(source_dir, target_dir, sub_dir)
       end
-      source_size = human_size(sourceDir)
-      techsize    = tech_size(sourceDir)
+      source_size = human_size(source_dir)
+      techsize    = tech_size(source_dir)
       Progress.Simple(
         "Copying Media",
-        "Copying SAP " + subDir + " ( 0M of " + source_size + " )",
+        "Copying SAP " + sub_dir + " ( 0M of " + source_size + " )",
         techsize,
         ""
       )
       Progress.NextStep
       while SCR.Read(path(".process.running"), pid) == true
          sleep(1)
-         techsize  = tech_size(targetDir + "/" + subDir)
+         techsize  = tech_size(target_dir + "/" + sub_dir)
          Progress.Step(techsize)
-         humansize = human_size(targetDir + "/" + subDir)
-         Progress.Title( "Copying Media " + subDir + " ( " + humansize + " of " + source_size + " )")
+         humansize = human_size(target_dir + "/" + sub_dir)
+         Progress.Title("Copying Media " + sub_dir + " ( " + humansize + " of " + source_size + " )")
 
          # Checking the exit code (0 = OK, nil = still running, 'else' = error)
          exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
          if !exitcode.nil? && exitcode != 0
            log.info("Copy has failed, exit code was: #{exitcode} stderr: %2" + SCR.Read(path(".process.read_stderr"), pid))
-           error = "Copy has failed, exit code was: %s, stderr: %s" % [ exitcode, SCR.Read(path(".process.read_stderr"), pid) ]
+           error = "Copy has failed, exit code was: %s, stderr: %s" % [exitcode, SCR.Read(path(".process.read_stderr"), pid)]
            Popup.Error(error)
-           return ask_me_to_retry(sourceDir, targetDir, subDir)
+           return ask_me_to_retry(source_dir, target_dir, sub_dir)
          end
       end
       # release the process from the agent
@@ -63,28 +64,28 @@ module Y2Sap
 
     def start_copy(source, target, subdir)
       log.info("CopyFiles called: #{source}, #{target}, #{subdir}")
-      cmd = "mkdir -p '%s/%s'" % [ target , subdir ]
+      cmd = "mkdir -p '%s/%s'" % [target, subdir]
       SCR.Execute(path(".target.bash"), cmd)
 
       # our copy command
-      cmd = "find '%s/'* -maxdepth 0 -exec cp -a '{}' '%s/%s/' \\;" % [ source, target , subdir ]
+      cmd = "find '%s/'* -maxdepth 0 -exec cp -a '{}' '%s/%s/' \\;" % [source, target, subdir]
       pid = Convert.to_integer(SCR.Execute(path(".process.start_shell"), cmd))
       return pid
     end
 
     def tech_size(dir)
-      cmd = "du -s0 '%s' | awk '{printf $1}'" %  dir
+      cmd = "du -s0 '%s' | awk '{printf $1}'" % dir
       out = SCR.Execute(path(".target.bash_output"), cmd)
       out["stdout"].to_i
     end
 
     def human_size(dir)
-      cmd = "du -sh0 '%s' | awk '{printf $1}'" %  dir
-      out = Convert.to_map( SCR.Execute(path(".target.bash_output"), cmd ))
+      cmd = "du -sh0 '%s' | awk '{printf $1}'" % dir
+      out = Convert.to_map(SCR.Execute(path(".target.bash_output"), cmd))
       out["stdout"]
     end
 
-    def ask_me_to_retry(sourceDir, targetDir, subDir)
+    def ask_me_to_retry(source_dir, target_dir, sub_dir)
       if Popup.ErrorAnyQuestion(
           "Failed to copy files from medium",
           "Would you like to retry?",
@@ -92,7 +93,7 @@ module Y2Sap
           "Abort",
           :focus_yes
         )
-        copy_dir(sourceDir, targetDir, subDir)
+        copy_dir(source_dir, target_dir, sub_dir)
       else
         UI.CloseDialog
         return :abort

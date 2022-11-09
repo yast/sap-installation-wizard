@@ -26,18 +26,18 @@ module Y2Sap
   # Creates a gui for selecting the SAP NetWeaver installation mode
   # Which products installation mode can be selected depends on the selected media
   module NWXML
-    include Yast          
+    include Yast
 
-    def get_nw_products(inst_env,type,db,product_dir)
+    def get_nw_products(inst_env, type, db, product_dir)
       filters = get_filters(type)
-      nodes   = get_nodes(filters,inst_env,db,product_dir)
-      get_products(inst_env,db,nodes)
+      nodes   = get_nodes(filters, inst_env, db, product_dir)
+      get_products(inst_env, db, nodes)
     end
 
     def config_value(prod, key)
       begin
-        xml     = IO.read( @media.product_definitions )
-        doc     = Nokogiri::XML(xml)
+        xml = IO.read(@media.product_definitions)
+        doc = Nokogiri::XML(xml)
       rescue
         log.error("Can not read #{@media.product_definitions}")
         return ""
@@ -53,9 +53,7 @@ module Y2Sap
           ok = true if child.name == "id"   && child.text == prod
           p[child.name] = child.text
         end
-        if ok
-          return p.has_key?(key) ? p[key] : ""
-        end
+        return p.has_key?(key) ? p[key] : "" if ok
       end
       return ""
     end
@@ -64,45 +62,45 @@ module Y2Sap
 
     def get_filters(type)
       begin
-        xml     = IO.read( @media.product_definitions )
+        xml     = IO.read(@media.product_definitions)
         doc     = Nokogiri::XML(xml)
       rescue
-        log.error("Can not read #{@media.product_definitions}" )
+        log.error("Can not read #{@media.product_definitions}")
         return ""
       end
       filters = []
       doc.xpath("//listentry").each do |node|
-        f  = [];
-        n  = "";
-        a  = "";
-        p  = "";
-        s  = "";
-        i  = "";
-        ok = false;
+        f  = []
+        n  = ""
+        a  = ""
+        p  = ""
+        s  = ""
+        i  = ""
+        ok = false
         node.children.each do |child|
           case child.name
-        when "search"
-          f << child.text
-        when "name"
-          n = child.text
-        when "ay_xml"
-          a = child.text
-        when "partitioning"
-          p = child.text
-        when "script_name"
-          s = child.text
-        when "inifile_params"
-          i = child.text
-        when "type"
-          ok = true if child.text == type
+          when "search"
+            f << child.text
+          when "name"
+            n = child.text
+          when "ay_xml"
+            a = child.text
+          when "partitioning"
+            p = child.text
+          when "script_name"
+            s = child.text
+          when "inifile_params"
+            i = child.text
+          when "type"
+            ok = true if child.text == type
           end
           if ok
-        f.each do |filter|
-          p = "base_partitioning" if( p == "" )
-          s = "sap_inst.sh"       if( s == "" )
-          tmp = [n, filter, a, p, s, i]
-          filters << tmp
-        end
+            f.each do |filter|
+              p = "base_partitioning" if( p == "" )
+              s = "sap_inst.sh"       if( s == "" )
+              tmp = [n, filter, a, p, s, i]
+              filters << tmp
+            end
           end
         end
       end
@@ -111,7 +109,7 @@ module Y2Sap
     
     # searches the nodes from the product catalog file
     def get_nodes(filters, inst_env, db, product_dir)
-       xml     = IO.read( inst_env + "/Instmaster/product.catalog" )
+       xml     = IO.read(inst_env + "/Instmaster/product.catalog")
        doc     = Nokogiri::XML(xml)
        nodes   = []
        found   = {}
@@ -123,9 +121,9 @@ module Y2Sap
              nodes << atmp
            end
          else
-           xmlpath.sub!(/##DB##/,db)
+           xmlpath.sub!(/##DB##/, db)
            product_dir.each do |pd|
-             pdpath = xmlpath.sub(/##PD##/,pd)
+             pdpath = xmlpath.sub(/##PD##/, pd)
              next if found.has_key?(pdpath)
              found[pdpath] = 1
              #puts pdpath
@@ -161,7 +159,7 @@ module Y2Sap
         gname = lname
         #puts id
         match = /.*:(.*)\.#{db}\./.match(id)
-	if !match[1].nil?
+        if !match[1].nil?
           doc.xpath("//components[@output-dir=\""+match[1]+"\"]/display-name").each do |n1|
             gname = n1.text
           end

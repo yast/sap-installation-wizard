@@ -98,9 +98,9 @@ module SAPInstaller
                 )
               ),
               Left(
-               Label(
-                 _("Feel free to add them now. Otherwise, click \"Next\" to continue.")
-               )
+                Label(
+                  _("Feel free to add them now. Otherwise, click \"Next\" to continue.")
+                )
               ),
               PushButton(Id(:add_repo), _("Add new software repositories"))
             )
