@@ -94,7 +94,6 @@
 	<package>yast2-sap-ha</package>
 	<package>yast2-sap-scp</package>
 	<package>yast2-sap-scp-prodlist</package>
-	<package>yast2-saptune</package>
 	<package>zip</package>
 	<package>zlib</package>
   </post-packages>
