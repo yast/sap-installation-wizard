@@ -27,8 +27,8 @@ BuildRequires:  yast2
 Requires:       HANA-Firewall
 Requires:       autoyast2
 Requires:       autoyast2-installation
-Requires:	ruby2.5-rubygem-nokogiri
-Requires:	xfsprogs
+Requires:       ruby2.5-rubygem-nokogiri
+Requires:     	xfsprogs
 %if ! %{defined _SAPBOne}
 Requires:       sap-netscape-link
 Requires:       saprouter-systemd
