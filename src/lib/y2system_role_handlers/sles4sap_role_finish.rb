@@ -24,26 +24,27 @@ require "y2firewall/firewalld"
 require "installation/finish_client"
 
 module Y2SystemRoleHandlers
-    class Sles4sapRoleFinish
-       include Yast::Logger
-       def run
-            log.info("Sles4sapRoleFinish started")
-            role = ::Installation::SystemRole.current_role
-            if !role
-               log.warn("Current role not found, not saving the config")
-               return
-            end
-	    @firewalld = Y2Firewall::Firewalld.instance
-            @firewalld.read
-            return true if !@firewalld.installed?
-            log.info("Sles4sapRoleFinish firewall installed")
-            if ::Installation::Services.enabled.include?("xrdp")
-                log.info("Sles4sapRoleFinish xrd enabled")
-                external = @firewalld.find_zone(@firewalld.default_zone)
-                external.add_service("ms-wbt")
-                @firewalld.write
-            end
-            true
-       end
+  # Open xrdp port if xrdp.service was enabled.
+  class Sles4sapRoleFinish
+    include Yast::Logger
+    def run
+      log.info("Sles4sapRoleFinish started")
+      role = ::Installation::SystemRole.current_role
+      if !role
+        log.warn("Current role not found, not saving the config")
+        return
+      end
+      @firewalld = Y2Firewall::Firewalld.instance
+      @firewalld.read
+      return true if !@firewalld.installed?
+      log.info("Sles4sapRoleFinish firewall installed")
+      if ::Installation::Services.enabled.include?("xrdp")
+        log.info("Sles4sapRoleFinish xrd enabled")
+        external = @firewalld.find_zone(@firewalld.default_zone)
+        external.add_service("ms-wbt")
+        @firewalld.write
+      end
+      true
     end
+  end
 end
