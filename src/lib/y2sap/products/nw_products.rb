@@ -44,10 +44,8 @@ module Y2Sap
     def create_content_nw_product
       log.info("-- Start SelectNWProduct ---")
       product_item_table = []
-      if @inst_type == 'STANDALONE'
-        @db = 'IND'
-      end
-      @product_list = get_nw_products(@media.inst_dir,@inst_type,@db,@product_map["product_dir"])
+      @db = "IND" if @inst_type == "STANDALONE"
+      @product_list = get_nw_products(@media.inst_dir, @inst_type, @db, @product_map["product_dir"])
       if @product_list.nil? or @product_list.empty?
          Yast::Popup.Error(_("The medium does not contain SAP installation data."))
          return :back
@@ -55,7 +53,7 @@ module Y2Sap
       @product_list.each { |map|
          name = map["name"]
          id   = map["id"]
-         product_item_table << Item(Id(id),name,false)
+         product_item_table << Item(Id(id), name, false)
       }
       log.info("@product_list #{@product_list}")
 

@@ -49,13 +49,14 @@ module Y2Sap
         if !File.exist?(part_xml)
           part_xml = @media.partitioning_dir_base + "/" + product_partitioning + "_" + manufacturer + "_generic.xml"
           if !File.exist?(part_xml)
-            part_xml=@media.partitioning_dir_base + "/" + product_partitioning + ".xml"
+            part_xml = @media.partitioning_dir_base + "/" + product_partitioning + ".xml"
             if product_list.include?("B1")
-               if !Popup.YesNoHeadline(
-                     _("Your System is not certified for SAP Business One on HANA."),
-                     _("It is not guaranteed that your system will work properly. Do you want to continue the installation?"))
-                 return "abort"
-               end
+              if !Popup.YesNoHeadline(
+                _("Your System is not certified for SAP Business One on HANA."),
+                _("It is not guaranteed that your system will work properly. Do you want to continue the installation?")
+              )
+                return "abort"
+              end
             end
           end
         end
@@ -68,7 +69,7 @@ module Y2Sap
     end
 
     def hana_partitioning
-      ret = create_partitions(["hana_partitioning"],["HANA"])
+      ret = create_partitions(["hana_partitioning"], ["HANA"])
       show_partitions("SAP file system creation successfully done:") if ret != :abort
     end
 
@@ -79,14 +80,14 @@ module Y2Sap
       items = []
       n = 0
       Open3.popen2e("df -h | grep vg_hana") do |i, o, t|
-         i.close
-         o.each_line do |line|
-           fields = line.split
-           items << Item(Id(n), fields[0], fields[5], fields[1])
-           n=n.next
-         end
+        i.close
+        o.each_line do |line|
+          fields = line.split
+          items << Item(Id(n), fields[0], fields[5], fields[1])
+          n = n.next
+        end
       end
-      n=n.next
+      n = n.next
       partitionTable = Builtins.add(partitionTable, items)
       UI.OpenDialog(
         VBox(
@@ -99,7 +100,8 @@ module Y2Sap
       UI.CloseDialog
       deep_copy(ret)
     end
-   private
+
+  private
 
     def get_hw_info
       hwinfo = []

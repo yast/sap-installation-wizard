@@ -62,12 +62,12 @@ module Y2Sap
       @hostname = Ops.get_string(@out, "stdout", "")
       if @hostname == ""
         if Popup.AnyQuestion(
-             _("The fully qualified hostname (FQHN) could not be detected."),
-             _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
-             _("Return to Network Setup"),
-             _("Abort"),
-             :focus_yes
-          )
+          _("The fully qualified hostname (FQHN) could not be detected."),
+          _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
+          _("Return to Network Setup"),
+          _("Abort"),
+          :focus_yes
+        )
           return :back
         else
           return :next
@@ -130,7 +130,7 @@ module Y2Sap
             ret = :next
           when "hana_partitioning"
             require "y2sap/media"
-            @media  = Y2Sap::Media.new
+            @media = Y2Sap::Media.new
             hana_partitioning
             Package.DoInstall(["patterns-sap-hana"])
             ret = :next
@@ -144,13 +144,13 @@ module Y2Sap
 
     # Remove askfiles and some other temporal files
     def clean_up
-       SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
-       SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
-       SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
-       SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
-       SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
-       SCR.Execute(path(".target.bash"), "rm -rf /var/lib/YaST2/reconfig_system")
-       Package.DoRemove(["sap-installation-start"])
+      SCR.Execute(path(".target.bash"), "rm -rf /tmp/may_*")
+      SCR.Execute(path(".target.bash"), "rm -rf /tmp/ay_*")
+      SCR.Execute(path(".target.bash"), "rm -rf /tmp/mnt1")
+      SCR.Execute(path(".target.bash"), "rm -rf /tmp/current_media_path")
+      SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
+      SCR.Execute(path(".target.bash"), "rm -rf /var/lib/YaST2/reconfig_system")
+      Package.DoRemove(["sap-installation-start"])
     end
   end
 end
