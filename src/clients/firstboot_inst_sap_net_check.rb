@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 module Yast
+  # Check if the hostname was set for the server
   class FirstbootInstSapNetCheckClient < Client
-  # Check if the hostname was set
     def main
       Yast.import "UI"
       Yast.import "Wizard"
@@ -10,7 +10,6 @@ module Yast
       Yast.import "Service"
 
       # MAIN
-
       textdomain "sap-installation-wizard"
 
       @contents  = nil
@@ -29,12 +28,12 @@ module Yast
       @hostname = Ops.get_string(@out, "stdout", "")
       if @hostname == ""
         if Popup.AnyQuestion(
-             _("The fully qualified hostname (FQHN) could not be detected."),
-             _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
-             _("Return to Network Setup"),
-             _("Abort"),
-             :focus_yes
-           )
+          _("The fully qualified hostname (FQHN) could not be detected."),
+          _("Do you want to return to network setup or abort the SAP product installation and start the installed system?"),
+          _("Return to Network Setup"),
+          _("Abort"),
+          :focus_yes
+        )
           return :back
         else
           return :next

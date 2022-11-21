@@ -46,22 +46,23 @@ module Y2Sap
       product_item_table = []
       @db = "IND" if @inst_type == "STANDALONE"
       @product_list = get_nw_products(@media.inst_dir, @inst_type, @db, @product_map["product_dir"])
-      if @product_list.nil? or @product_list.empty?
-         Yast::Popup.Error(_("The medium does not contain SAP installation data."))
-         return :back
+      if @product_list.nil? || @product_list.empty?
+        Yast::Popup.Error(_("The medium does not contain SAP installation data."))
+        return :back
       end
-      @product_list.each { |map|
-         name = map["name"]
-         id   = map["id"]
-         product_item_table << Item(Id(id), name, false)
-      }
+      @product_list.each do |map|
+        name = map["name"]
+        id   = map["id"]
+        product_item_table << Item(Id(id), name, false)
+      end
       log.info("@product_list #{@product_list}")
 
       Wizard.SetContents(
         @dialog_text[:nw_select_product][:name],
         VBox(
-          SelectionBox(Id(:products),
-            _("Your SAP installation master supports the following products.\n"+
+          SelectionBox(
+            Id(:products),
+            _("Your SAP installation master supports the following products.\n" +
               "Please choose the product you wish to install:"),
             product_item_table
           )
@@ -83,9 +84,9 @@ module Y2Sap
             Yast::Popup.Message(_("Select a product!"))
           else
             run = false
-            @product_list.each { |map|
-               @product_name = map["name"] if @product_id == map["id"]
-            }
+            @product_list.each do |map| 
+              @product_name = map["name"] if @product_id == map["id"]
+            end
           end
         when :back
           return :back
@@ -100,4 +101,3 @@ module Y2Sap
     end
   end
 end
-

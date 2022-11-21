@@ -27,8 +27,8 @@ textdomain "sap-installation-wizard"
 =end
 
 module Y2Sap
-  module MediaDialog
   # Module containing the dialogs of the wizard
+  module MediaDialog
     include Yast
     include Yast::UI
     include Yast::UIShortcuts
@@ -61,7 +61,7 @@ module Y2Sap
         supplement_dialog
       end
       # Render the wizard
-      if(@content_advanced_ops == Empty())
+      if @content_advanced_ops == Empty()
         content = VBox(
           Left(@content_before_input),
           VSpacing(2),
@@ -95,15 +95,21 @@ module Y2Sap
     # Function to build a dialog to copy the installation master
     def inst_master_dialog
       @has_back = false
-      instmaster_media = local_media().select { |name| name =~ /Instmaster-/ }
+      instmaster_media = local_media.select { |name| name =~ /Instmaster-/ }
       if !instmaster_media.empty?
         if !@sap_cds_url.empty?
           # If SAP_CD is mounted from network location, do not allow empty selection
           @content_before_input = VBox(
-            Frame(_("Ready for use from:  " + @sap_cds_url),
-                  Label(Id(:mediums), Opt(:hstretch), media.join("\n"))),
-            Frame(_("Choose an installation master"),
-                  Left(ComboBox(Id(:local_im), Opt(:notify), "", instmaster_media))),
+            Frame(
+              _("Ready for use from:  " + @sap_cds_url),
+              Label(Id(:mediums), Opt(:hstretch), media.join("\n"))
+            ),
+            Frame(
+              _("Choose an installation master"),
+              Left(
+                ComboBox(Id(:local_im), Opt(:notify), "", instmaster_media)
+              )
+            )
           )
         else
           # Otherwise, allow user to enter new installation master
@@ -115,15 +121,31 @@ module Y2Sap
       end
       @content_input = HBox(
         ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-        InputField(Id(:location),Opt(:hstretch),
-        _("Prepare SAP installation master"),
-        @location_cache)
+        InputField(
+          Id(:location),
+          Opt(:hstretch),
+          _("Prepare SAP installation master"),
+          @location_cache
+        )
       )
-      advanced_ops = [Left(CheckBox(Id(:auto),_("Collect installation profiles for SAP products but do not execute installation."), false))]
+      advanced_ops = [
+        Left(
+          CheckBox(
+            Id(:auto),
+            _("Collect installation profiles for SAP products but do not execute installation."), false
+          )
+        )
+      ]
       if !@sap_cds_url.empty?
         # link & export options are not applicable if SAP_CD is mounted from network location
         advanced_ops += [
-          Left(CheckBox(Id(:export),_("Serve all installation mediums (including master) to local network via NFS."), false))
+          Left(
+            CheckBox(
+              Id(:export),
+              _("Serve all installation mediums (including master) to local network via NFS."),
+              false
+            )
+          )
         ]
       end
       @content_advanced_ops = VBox(*advanced_ops)
@@ -136,13 +158,13 @@ module Y2Sap
 
     # Function to build a dialog to copy a sap media
     def sapmedium_dialog
-      product_media = local_media().select { |name| !(name =~ /Instmaster-/) }
+      product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
       if !product_media.empty?
-        mediaItems = []
+        media_items = []
         product_media.each { |medium|
-          mediaItems << Item(Id(medium),  medium,  @selected_media.has_key?(medium) ? @selected_media[medium] : true)
+          media_items << Item(Id(medium), medium, @selected_media.key?(medium) ? @selected_media[medium] : true)
         }
-        @content_before_input = VBox(MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), mediaItems))
+        @content_before_input = VBox(MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), media_items))
       end
       @content_input = VBox(
         Left(RadioButton(Id(:do_copy_medium), Opt(:notify), _("Copy a medium"), true)),
@@ -165,19 +187,27 @@ module Y2Sap
 
     # Function to build a dialog to copy a suplementary media
     def supplement_dialog
-      product_media = local_media().select { |name| !(name =~ /Instmaster-/) }
+      product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
       if !product_media.empty?
         @content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n")))
       end
       @content_input = HBox(
-        ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-        InputField(Id(:location),Opt(:hstretch),
-        _("Prepare SAP supplementary medium"),
-         @location_cache)
+        ComboBox(
+          Id(:scheme),
+          Opt(:notify),
+          " ",
+          @scheme_list
+        ),
+        InputField(
+          Id(:location),
+          Opt(:hstretch),
+          _("Prepare SAP supplementary medium"),
+          @location_cache
+        )
       )
     end
 
-    #Sets the default value for location if the scheme was changed
+    # Sets the default value for location if the scheme was changed
     def do_default_values(wizard)
       @scheme_cache = Convert.to_string(UI.QueryWidget(Id(:scheme), :Value))
       log.info("do_default_values #{@location_cache} #{@scheme_cache} #{@location_cache}")
@@ -215,23 +245,19 @@ module Y2Sap
         when :abort, :cancel
           return :abort
         when :skip_copy_medium
-          [:scheme, :location].each { |widget|
-            UI.ChangeWidget(Id(widget), :Enabled, false)
-          }
+          [:scheme, :location].each { |widget| UI.ChangeWidget(Id(widget), :Enabled, false) }
           UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
         when :do_copy_medium
-          [:scheme, :location].each { |widget|
-            UI.ChangeWidget(Id(widget), :Enabled, true)
-          }
+          [:scheme, :location].each { |widget| UI.ChangeWidget(Id(widget), :Enabled, true) }
           UI.ChangeWidget(Id(:skip_copy_medium), :Value, false)
         when :local_im
           # Choosing an already prepared installation master
           im = UI.QueryWidget(Id(:local_im), :Value)
           if im == "---"
-              # Re-enable media input
-              UI.ChangeWidget(Id(:scheme), :Enabled, true)
-              UI.ChangeWidget(Id(:location), :Enabled, true)
-              next
+            # Re-enable media input
+            UI.ChangeWidget(Id(:scheme), :Enabled, true)
+            UI.ChangeWidget(Id(:location), :Enabled, true)
+            next
           end
           # Write down media location and disable media input
           UI.ChangeWidget(Id(:scheme), :Value, "dir")
@@ -243,21 +269,15 @@ module Y2Sap
           log.info("scheme changed")
           do_default_values(wizard)
         when "media"
-          #We have modified the list of selected media
+          # We have modified the list of selected media
           UI.ChangeWidget(Id(:skip_copy_medium), :Value, true)
           UI.ChangeWidget(Id(:do_copy_medium), :Value, false)
-          [:scheme, :location].each { |widget|
-            UI.ChangeWidget(Id(widget), :Enabled, false)
-          }
+          [:scheme, :location].each { |widget| UI.ChangeWidget(Id(widget), :Enabled, false) }
         when :next
-          #Set the selected Items
+          # Set the selected Items
           if UI.WidgetExists(Id("media"))
-            @selected_media.each_key { |medium|
-              @selected_media[medium] = false
-            }
-            UI.QueryWidget(Id("media"),:SelectedItems).each { |medium|
-              @selected_media[medium] = true
-            }
+            @selected_media.each_key { |medium| @selected_media[medium] = false }
+            UI.QueryWidget(Id("media"), :SelectedItems).each { |medium| @selected_media[medium] = true }
             log.info("selected_media #{@selected_media}")
           end
 
@@ -278,21 +298,21 @@ module Y2Sap
             @source_dir = @media_dir + "/" + Convert.to_string(UI.QueryWidget(Id(:local_im), :Value))
             return :forw
           end
-          urlPath = mount_source(scheme, @location_cache)
-          if urlPath != ""
-            ltmp    = Builtins.regexptokenize(urlPath, "ERROR:(.*)")
+          url_path = mount_source(scheme, @location_cache)
+          if url_path != ""
+            ltmp = Builtins.regexptokenize(url_path, "ERROR:(.*)")
             if Ops.get_string(ltmp, 0, "") != ""
               Popup.Error(_("Failed to mount the location: ") + Ops.get_string(ltmp, 0, ""))
               next
             end
           end
           if scheme != "local"
-            @source_dir = @mount_point +  "/" + urlPath
-          elsif urlPath != ""
-            @source_dir = urlPath
+            @source_dir = @mount_point + "/" + url_path
+          elsif url_path != ""
+            @source_dir = url_path
           end
           @umount_source = true
-          log.info("end urlPath #{urlPath}, @source_dir #{@source_dir}, scheme #{scheme}")
+          log.info("end url_path #{url_path}, @source_dir #{@source_dir}, scheme #{scheme}")
           break # No more input
         end # Case user input
       end # While true

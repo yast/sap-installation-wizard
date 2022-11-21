@@ -90,7 +90,6 @@ module Y2Sap
       @product_name  = ""
       @product_map   = {}
       @products_to_install = []
-
     end
   end
 end

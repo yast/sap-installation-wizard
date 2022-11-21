@@ -1,6 +1,4 @@
 # encoding: utf-8
-# rubocop:disable AlignHash
-
 # Copyright (c) [2017] SUSE LLC
 #
 # All Rights Reserved.

@@ -22,8 +22,8 @@ module Y2Sap
   module MediaCheck
     include Yast
 
-    def is_instmaster(prod_path)
-      log.info("Started MediaCheck is_instmaster #{prod_path}")
+    def find_instmaster(prod_path)
+      log.info("Started MediaCheck find_instmaster #{prod_path}")
       instmaster = []
       if File.exist? prod_path + "/tx_trex_content"
         instmaster[0] = "TREX"
@@ -41,8 +41,8 @@ module Y2Sap
           fields = line.split(" ") if filepath[-1] == "info.txt"
           log.info("is_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
           next if fields.size == 0
-          #Start checking the label
-          if fields[1] =~  /^HANA/
+          # Start checking the label
+          if fields[1] =~ /^HANA/
             instmaster[0] = "HANA"
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = fields[2]
@@ -54,7 +54,7 @@ module Y2Sap
             instmaster[2] = fields[1]
             break
           end
-          if fields[1] == "SLTOOLSET" && ( fields[5] == platform_arch || fields[5] == "*" )
+          if fields[1] == "SLTOOLSET" && (fields[5] == platform_arch || fields[5] == "*")
             instmaster[0] = "SAPINST"
             instmaster[1] = File.dirname(label_file)
             cmd = instmaster[1] + "/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'"
@@ -62,7 +62,7 @@ module Y2Sap
             instmaster[2].chomp!
             break
           end
-          if fields[3] == "SAPINST" && ( fields[5] == platform_arch || fields[5] == "*" )
+          if fields[3] == "SAPINST" && (fields[5] == platform_arch || fields[5] == "*")
             instmaster[0] = "SAPINST"
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = "NW70"
@@ -96,9 +96,9 @@ module Y2Sap
         labels << IO.readlines(medium.chomp + "/LABEL.ASC")[0].chomp
       end
       packages = ""
-      #Now we read the packages file from the intstallation master
-      IO.popen(["find",path + "/Instmaster", "-name", "packages.xml"]) do |io|
-        packages << io.read                
+      # Now we read the packages file from the intstallation master
+      IO.popen(["find", path + "/Instmaster", "-name", "packages.xml"]) do |io|
+        packages << io.read
       end
       log.debug("packages #{packages.size} #{packages}")
       dbm    = ""
@@ -111,7 +111,7 @@ module Y2Sap
         found = true
         labels.each do |label|
           found_label = false
-          label_1     = label.sub(":749:",":74:")
+          label_1     = label.sub(":749:", ":74:")
           doc.xpath("/packages/package").each do |node|
             pattern = node.get_attribute("label")
             pattern.gsub!('/', '\/')
@@ -128,9 +128,9 @@ module Y2Sap
             found = false
             break
           end
-          #check if it is a database media
+          # check if it is a database media
           @databases.each do |db|
-            if ! label.index(db).nil?
+            if !label.index(db).nil?
               log.debug("db #{db} ##  #{label} ##  #{@dbmap[db]}")
               dbm = @dbmap[db]
               break
@@ -138,7 +138,7 @@ module Y2Sap
           end
         end
         if found
-          tmp = xml_file.sub(/^.*Instmaster./,"")
+          tmp = xml_file.sub(/^.*Instmaster./, "")
           valid << tmp.sub("/packages.xml","")
         end
       end
@@ -155,17 +155,14 @@ module Y2Sap
     def search_labelfiles(prod_path)
       path   = prod_path.chomp
       labels = ""
-      IO.popen(["find", "-L",path, "-name", "LABEL.ASC", "-o", "-name", "info.txt"]) {  |io| 
+      IO.popen(["find", "-L", path, "-name", "LABEL.ASC", "-o", "-name", "info.txt"]) do |io|
         labels << io.read
-      }
+      end
       ret = []
       log.info("labels #{labels}")
-      labels.split("\n").each do |label|
-        ret << label.chomp    
-      end
+      labels.split("\n").each { |label| ret << label.chomp }
       log.info("ret #{ret}")
       return ret
     end
   end
 end
-

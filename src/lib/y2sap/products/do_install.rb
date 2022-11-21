@@ -72,7 +72,7 @@ module Y2Sap
 
         # Add product partitioning
         ret = Ops.get_string(product_data, "partitioning", "")
-        if ret == nil
+        if ret.nil?
           # Default is base_partitioning
           ret = "base_partitioning"
         end

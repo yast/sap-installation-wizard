@@ -69,13 +69,13 @@ module Y2Sap
 
       def initialize
         @platform = "LINUX"
-        @arch     =  Yast::Arch.architecture
+        @arch = Yast::Arch.architecture
         @mount_point           = config_read("SOURCEMOUNT", "/mnt")
         @media_dir             = config_read("MEDIADIR", "/data/SAP_CDs")
         @inst_dir_base         = config_read("INSTDIR", "/data/SAP_INST")
         @product_definitions   = config_read(
-            "MEDIAS_XML",
-            "/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml"
+          "MEDIAS_XML",
+          "/usr/share/YaST2/data/y2sap/sap-installation-wizard.xml"
         )
         @partitioning_dir_base = config_read("PART_XML_PATH", "/usr/share/YaST2/data/y2sap")
         @ay_dir_base           = config_read("PRODUCT_XML_PATH", "/usr/share/YaST2/data/y2sap")
@@ -85,10 +85,12 @@ module Y2Sap
         @sap_media_todo = {}
       end
 
+    private
+
       def config_read(path, def_val)
         return Yast::Misc.SysconfigRead(
-            Yast::Path.new(".sysconfig.sap-installation-wizard." +path),
-            def_val
+          Yast::Path.new(".sysconfig.sap-installation-wizard." + path),
+          def_val
         )
       end
     end

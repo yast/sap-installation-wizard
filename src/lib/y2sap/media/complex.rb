@@ -44,7 +44,7 @@ module Y2Sap
           end
         end
         log.info("looking for instmaster in #{@source_dir}")
-        inst_master_list    = is_instmaster(@source_dir)
+        inst_master_list    = find_instmaster(@source_dir)
         @inst_master_type   = Ops.get(inst_master_list, 0, "")
         @inst_master_path   = Ops.get(inst_master_list, 1, "")
         @inst_master_version = Ops.get(inst_master_list, 2, "")
@@ -71,16 +71,15 @@ module Y2Sap
       if @inst_master_type == "HANA" || @inst_master_type == "B1"
         # HANA and B1 instmaster must copied directly into @inst_dir
         copy_dir(@inst_master_path, @inst_dir, "Instmaster")
-        @inst_master_path = @inst_dir + "/Instmaster"
       else
-        if ! File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + "-" + @inst_master_version  )
-           #Make a local copy of the installation master
-           copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
+        if !File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + "-" + @inst_master_version)
+          # Make a local copy of the installation master
+          copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
         end
         copy_dir(@inst_master_path, @inst_dir, "Instmaster")
-        @inst_master_path = @inst_dir + "/Instmaster"
       end
-      umount_source()
+      @inst_master_path = @inst_dir + "/Instmaster"
+      umount_source
       return ret
     end
 
@@ -100,33 +99,29 @@ module Y2Sap
             return :abort
           end
         when :back
-           return :back
+          return :back
         when :forw
-           run = Yast::Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
+          run = Yast::Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         when :next
-           #media=Y2Sap::MediaFind.find_sap_media()
-           media=find_sap_media()
-           media.each { |path,label|
-             if File.exist?(@media_dir + "/" + label)
-               Yast::Popup.Warning("The selected medium '%s' was already copied." % label)
-               next
-             end
-             #Y2Sap::MediaCopy.copy_dir(path, @media_dir, label)
-             copy_dir(path, @media_dir, label)
-             @selected_media[label] = true;
-           }
-           run = Yast::Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
+          media = find_sap_media
+          media.each do |path, label|
+            if File.exist?(@media_dir + "/" + label)
+              Yast::Popup.Warning(format(_("The selected medium '%s' was already copied."), label))
+              next
+            end
+            copy_dir(path, @media_dir, label)
+            @selected_media[label] = true
+          end
+          run = Yast::Popup.YesNo(_("Are there more SAP product mediums to be prepared?"))
         end
       end
-      mediaList = []
-      @selected_media.each_key { |medium|
-        if @selected_media[medium]
-          mediaList << @media_dir + "/" + medium
-        end
-      }
-      mediaList << @inst_dir + "/" + "Instmaster"
-      IO.write(@inst_dir + "/start_dir.cd" , mediaList.join("\n"))
-      log.info("End net_weaver #{@inst_dir}" )
+      media_list = []
+      @selected_media.each_key do |medium|
+        media_list << @media_dir + "/" + medium if @selected_media[medium]
+      end
+      media_list << @inst_dir + "/" + "Instmaster"
+      IO.write(@inst_dir + "/start_dir.cd", media_list.join("\n"))
+      log.info("End net_weaver #{@inst_dir}")
       return :next
     end
 
@@ -141,8 +136,7 @@ module Y2Sap
             return :abort
           end
         end
-        return :back  if ret == :back
-        #Y2Sap::MediaCopy.copy_dir(@source_dir, @inst_dir, "Supplement")
+        return :back if ret == :back
         copy_dir(@source_dir, @inst_dir, "Supplement")
         parse_xml(@inst_dir + "/Supplement/product.xml")
         run = Yast::Popup.YesNo(_("Are there more supplementary mediums to be prepared?"))

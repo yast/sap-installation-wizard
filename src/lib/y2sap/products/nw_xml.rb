@@ -53,7 +53,7 @@ module Y2Sap
           ok = true if child.name == "id"   && child.text == prod
           p[child.name] = child.text
         end
-        return p.has_key?(key) ? p[key] : "" if ok
+        return p.has?(key) ? p[key] : "" if ok
       end
       return ""
     end
@@ -94,79 +94,74 @@ module Y2Sap
           when "type"
             ok = true if child.text == type
           end
-          if ok
-            f.each do |filter|
-              p = "base_partitioning" if( p == "" )
-              s = "sap_inst.sh"       if( s == "" )
-              tmp = [n, filter, a, p, s, i]
-              filters << tmp
-            end
+          next if !ok
+          f.each do |filter|
+            p = "base_partitioning" if p == ""
+            s = "sap_inst.sh"       if s == ""
+            tmp = [n, filter, a, p, s, i]
+            filters << tmp
           end
         end
       end
       return filters
     end
-    
+
     # searches the nodes from the product catalog file
     def get_nodes(filters, inst_env, db, product_dir)
-       xml     = IO.read(inst_env + "/Instmaster/product.catalog")
-       doc     = Nokogiri::XML(xml)
-       nodes   = []
-       found   = {}
-       filters.each do |tmp|
-         xmlpath = tmp[1]
-         if xmlpath !~ /##PD##/
-           doc.xpath(xmlfilter).each do |node|
-             atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
-             nodes << atmp
-           end
-         else
-           xmlpath.sub!(/##DB##/, db)
-           product_dir.each do |pd|
-             pdpath = xmlpath.sub(/##PD##/, pd)
-             next if found.has_key?(pdpath)
-             found[pdpath] = 1
-             #puts pdpath
-             doc.xpath(pdpath).each do |node|
-               #puts pdpath
-               atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
-               nodes << atmp
-             end
-           end
-         end
-       end
-       return nodes
+      xml     = IO.read(inst_env + "/Instmaster/product.catalog")
+      doc     = Nokogiri::XML(xml)
+      nodes   = []
+      found   = {}
+      filters.each do |tmp|
+        xmlpath = tmp[1]
+        if xmlpath !~ /##PD##/
+          doc.xpath(xmlfilter).each do |node|
+            atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
+            nodes << atmp
+          end
+        else
+          xmlpath.sub!(/##DB##/, db)
+          product_dir.each do |pd|
+            pdpath = xmlpath.sub(/##PD##/, pd)
+            next if found.has?(pdpath)
+            found[pdpath] = 1
+            # puts pdpath
+            doc.xpath(pdpath).each do |node|
+              # puts pdpath
+              atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
+              nodes << atmp
+            end
+          end
+        end
+      end
+      return nodes
     end
-    
+
     def get_products(inst_env, db, nodes)
-      xml     = IO.read( inst_env + "/Instmaster/product.catalog" )
+      xml     = IO.read(inst_env + "/Instmaster/product.catalog")
       doc     = Nokogiri::XML(xml)
       make_hash = proc do |hash, key|
         hash[key] = Hash.new(&make_hash)
       end
       products = Hash.new(&make_hash)
-    
+
       nodes.each do |tmp|
         name  = tmp[0]
         node  = tmp[1]
-        gname = "";
-        lname = "";
-        #Get ID
+        gname = ""
+        lname = ""
+        # Get ID
         id = node.attribute("id").text
-        node.children.each do |child|
-         lname = child.text if child.name == "display-name"
-        end
+        node.children.each { |child| lname = child.text if child.name == "display-name" }
         gname = lname
-        #puts id
+        # puts id
         match = /.*:(.*)\.#{db}\./.match(id)
         if !match[1].nil?
-          doc.xpath("//components[@output-dir=\""+match[1]+"\"]/display-name").each do |n1|
+          doc.xpath("//components[@output-dir=\"" + match[1] + "\"]/display-name").each do |n1|
             gname = n1.text
           end
         end
-        if gname !~ /#{name}/
-          gname = name+" "+gname
-        end
+        gname = name + " " + gname if gname !~ /#{name}/
         products[gname]["name"]           = gname
         products[gname]["id"]             = id
         products[gname]["ay_xml"]         = tmp[2]

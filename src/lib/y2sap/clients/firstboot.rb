@@ -75,7 +75,7 @@ module Y2Sap
       end
       @caption = _("Product Installation Mode")
       @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
-                 _("Now you can start the SAP Product Installation")
+        _("Now you can start the SAP Product Installation")
       @content = RadioButtonGroup(
         Id(:rb),
         VBox(

@@ -37,7 +37,6 @@ module Y2Sap
     def create_partitions(product_partitioning_list, product_list)
       log.info("********Starting partitioning with #{product_partitioning_list} #{product_list}")
 
-      ret = nil
       hwinfo = get_hw_info
       manufacturer = Ops.get(hwinfo, 0, "") # "FUJITSU", "IBM", "HP", "Dell Inc."
       model = Ops.get(hwinfo, 1, "") # "PowerEdge R620", "PowerEdge R910"
@@ -74,12 +73,11 @@ module Y2Sap
     end
 
     def show_partitions(info)
-      ret = nil
-      partitionTable = Table()
-      partitionTable << Header("device", "mountpoint", "size")
+      partition_table = Table()
+      partition_table << Header("device", "mountpoint", "size")
       items = []
       n = 0
-      Open3.popen2e("df -h | grep vg_hana") do |i, o, t|
+      Open3.popen2e("df -h | grep vg_hana") do |i, o, _|
         i.close
         o.each_line do |line|
           fields = line.split
@@ -88,11 +86,11 @@ module Y2Sap
         end
       end
       n = n.next
-      partitionTable = Builtins.add(partitionTable, items)
+      partition_table = Builtins.add(partition_table, items)
       UI.OpenDialog(
         VBox(
           Heading(info),
-          MinSize(60, Ops.add(n, 2), partitionTable),
+          MinSize(60, Ops.add(n, 2), partition_table),
           PushButton("&OK")
         )
       )
@@ -107,7 +105,7 @@ module Y2Sap
       hwinfo = []
       bios = Convert.to_list(SCR.Read(path(".probe.bios")))
 
-      Builtins.y2warning("Warning: BIOS list size is %1", Builtins.size(bios)) if Builtins.size(bios) != 1
+      log.warning("Warning: BIOS list size is %1", Builtins.size(bios)) if Builtins.size(bios) != 1
 
       biosinfo = Ops.get_map(bios, 0, {})
       smbios = Ops.get_list(biosinfo, "smbios", [])

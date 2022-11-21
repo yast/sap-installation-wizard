@@ -20,11 +20,12 @@
 # find current contact information at www.novell.com.
 
 module Y2Sap
+  # Search different kind of SAP medias
   module MediaFind
     include Yast
 
     def find_sap_media
-      make_hash = proc do |hash,key|
+      make_hash = proc do |hash, key|
         hash[key] = Hash.new(&make_hash)
       end
       @path_map = Hash.new(&make_hash)
@@ -33,31 +34,30 @@ module Y2Sap
       exports
       linux_x86_64
       if @path_map.empty?
-        lf=@base+"/LABEL.ASC"
+        lf = base + "/LABEL.ASC"
         if File.exist?(lf)
-          label=IO.readlines(lf,":")
+          label = IO.readlines(lf, ":")
           if label.length > 2
-            @path_map[base]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-") + label[3].chop.gsub(/\W/,"-")
+            @path_map[base] = label[1].gsub(/\W/, "-") + label[2].gsub(/\W/, "-") + label[3].chop.gsub(/\W/, "-")
           end
         end
       end
       return @path_map
     end
 
+    # Searches the SAPLUP media
     def sap_lup
-      #Searching the SAPLUP
       command = "find '" + @base + "' -maxdepth 5 -type d -name 'SL_CONTROLLER_*'"
       out     = SCR.Execute(path(".target.bash_output"), command)
       stdout  = out["stdout"] || ""
-      stdout.split("\n").each { |d|
-        lf=d+"/LABEL.ASC"
-        if File.exist?(lf)
-          label=IO.readlines(lf,":")
-          if label.length > 2
-            @path_map[d]=label[1].gsub(/\W/,"-") + label[2].gsub(/\W/,"-")
-          end
+      stdout.split("\n").each do |d|
+        lf = d + "/LABEL.ASC"
+        next if !File.exist?(lf)
+        label = IO.readlines(lf, ":")
+        if label.length > 2
+          @path_map[d] = label[1].gsub(/\W/, "-") + label[2].gsub(/\W/, "-")
         end
-      }
+      end
     end
 
     # Searches all directories which name starts with EXP"
@@ -65,15 +65,14 @@ module Y2Sap
       command = "find '" + @base + "' -maxdepth 5 -type d -name 'EXP?'"
       out     = SCR.Execute(path(".target.bash_output"), command)
       stdout  = out["stdout"] || ""
-      stdout.split("\n").each { |d|
-        lf=d+"/LABEL.ASC"
-        if File.exist?(lf)
-          label=IO.readlines(lf,":")
-          if label.length > 3
-            @path_map[d]=label[4].chop.gsub(/\W/,"-")
-          end
+      stdout.split("\n").each do |d|
+        lf = d + "/LABEL.ASC"
+        next if !File.exist?(lf)
+        label = IO.readlines(lf, ":")
+        if label.length > 3
+          @path_map[d] = label[4].chop.gsub(/\W/, "-")
         end
-      }
+      end
     end
 
     # Searches all directories which names contains LINUX_X86_64"Y
@@ -81,15 +80,14 @@ module Y2Sap
       command = "find '" + @base + "' -maxdepth 5 -type d -name '*LINUX_X86_64'"
       out     = SCR.Execute(path(".target.bash_output"), command)
       stdout  = out["stdout"] || ""
-      stdout.split("\n").each { |d|
-        lf=d+"/LABEL.ASC"
-        if File.exist?(lf)
-          label=IO.readlines(lf,":")
-          if label.length > 3
-            @path_map[d]=label[2].gsub(/\W/,"-") + label[3].gsub(/\W/,"-") + label[4].chop.gsub(/\W/,"-")
-          end
+      stdout.split("\n").each do |d|
+        lf = d + "/LABEL.ASC"
+        next if !File.exist?(lf)
+        label = IO.readlines(lf, ":")
+        if label.length > 3
+          @path_map[d] = label[2].gsub(/\W/, "-") + label[3].gsub(/\W/, "-") + label[4].chop.gsub(/\W/, "-")
         end
-      }
+      end
     end
 
     # @return [List<String>] Delivers a list of already copied media
@@ -97,8 +95,8 @@ module Y2Sap
       media = []
       if File.exist?(@media_dir)
         media = Dir.entries(@media_dir)
-        media.delete('.')
-        media.delete('..')
+        media.delete(".")
+        media.delete("..")
       end
       return media
     end
