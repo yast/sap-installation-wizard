@@ -449,10 +449,14 @@ hana_lcm_workflow()
      ;;
    esac
    cd "${HDBLCMDIR}"
+   TOIGNORE="check_signature_file"
+   if [ -e /var/tmp/hana-install-ignore ]; then
+      TOIGNORE=$( cat /var/tmp/hana-install-ignore )
+   fi
    if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
-	    --ignore=check_min_mem,check_signature_file \
-	    --lss_trust_unsigned_server \
+	          --ignore=$TOIGNORE \
+	          --lss_trust_unsigned_server \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
@@ -461,8 +465,8 @@ hana_lcm_workflow()
             --configfile=${MEDIA_TARGET}/hana_mdc.conf
    else
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
-	    --ignore=check_min_mem,check_signature_file \
-	    --lss_trust_unsigned_server \
+	          --ignore=$TOIGNORE \
+	          --lss_trust_unsigned_server \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
