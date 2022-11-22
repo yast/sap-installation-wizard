@@ -34,7 +34,7 @@ module Y2Sap
       exports
       linux_x86_64
       if @path_map.empty?
-        lf = base + "/LABEL.ASC"
+        lf = @base + "/LABEL.ASC"
         if File.exist?(lf)
           label = IO.readlines(lf, ":")
           if label.length > 2
