@@ -450,8 +450,8 @@ hana_lcm_workflow()
    esac
    cd "${HDBLCMDIR}"
    TOIGNORE="check_signature_file"
-   if [ -e /var/tmp/hana-install-ignore ]; then
-      TOIGNORE=$( cat /var/tmp/hana-install-ignore )
+   if [ -e /root/hana-install-ignore ]; then
+      TOIGNORE=$( cat /root/hana-install-ignore )
    fi
    if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
