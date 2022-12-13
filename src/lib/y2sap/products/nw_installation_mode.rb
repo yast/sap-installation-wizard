@@ -64,28 +64,14 @@ module Y2Sap
                   VBox(
                     Left(Label(_("Installation Type"))),
                     RadioButtonGroup(
-                      Id(:type),
-                      VBox(
-                        RadioButton(Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
-                        RadioButton(Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
-                        RadioButton(Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
-                        RadioButton(Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
-                        RadioButton(Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false)
-                      )
+                      Id(:type), nw_installation_modes
                     )
                   ),
                   HSpacing(3),
                   VBox(
                     Left(Label(_("Back-end Databases"))),
                     RadioButtonGroup(
-                      Id(:db),
-                      VBox(
-                        RadioButton(Id("ADA"), Opt(:notify, :hstretch), _("SAP MaxDB"), false),
-                        RadioButton(Id("HDB"), Opt(:notify, :hstretch), _("SAP HANA"), false),
-                        RadioButton(Id("SYB"), Opt(:notify, :hstretch), _("SAP ASE"), false),
-                        RadioButton(Id("DB6"), Opt(:notify, :hstretch), _("IBM DB2"), false),
-                        RadioButton(Id("ORA"), Opt(:notify, :hstretch), _("Oracle"), false)
-                      )
+                      Id(:db), nw_dbs
                     )
                   )
                 )
@@ -114,6 +100,26 @@ module Y2Sap
         UI.ChangeWidget(Id("DB6"), :Enabled, false)
         UI.ChangeWidget(Id("ORA"), :Enabled, false)
       end
+    end
+
+    def nw_installation_modes
+      return VBox(
+        RadioButton(Id("STANDARD"),    Opt(:notify, :hstretch), _("SAP Standard System"), false),
+        RadioButton(Id("DISTRIBUTED"), Opt(:notify, :hstretch), _("Distributed System"), false),
+        RadioButton(Id("HA"),          Opt(:notify, :hstretch), _("SAP High-Availability System"), false),
+        RadioButton(Id("STANDALONE"),  Opt(:notify, :hstretch), _("SAP Standalone Engines"), false),
+        RadioButton(Id("SBC"),         Opt(:notify, :hstretch), _("System Rename"), false)
+      )
+    end
+
+    def nw_dbs
+      return VBox(
+        RadioButton(Id("ADA"), Opt(:notify, :hstretch), _("SAP MaxDB"), false),
+        RadioButton(Id("HDB"), Opt(:notify, :hstretch), _("SAP HANA"), false),
+        RadioButton(Id("SYB"), Opt(:notify, :hstretch), _("SAP ASE"), false),
+        RadioButton(Id("DB6"), Opt(:notify, :hstretch), _("IBM DB2"), false),
+        RadioButton(Id("ORA"), Opt(:notify, :hstretch), _("Oracle"), false)
+      )
     end
 
     # The loop for handling the gui inputs

@@ -112,9 +112,9 @@ module Y2Sap
         # WFM.CallFunction("ayast_setup", ["setup", "filename="+xml_path, "dopackages=yes"])
         ret = openFile("filename" => xml_path, "dopackages" => "yes")
         log.info("ayast_setup returned '#{ret}' for '#{xml_path}'")
-        @sid = IO.read("/tmp/ay_q_sid").chomp if File.exist?("/tmp/ay_q_sid")
-        @inst_number = IO.read("/tmp/ay_q_sapinstnr").chomp if File.exist?("/tmp/ay_q_sapinstnr")
-        SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + @media.inst_dir)
+        @sid = IO.read("/var/run/ay_q_sid").chomp if File.exist?("/var/run/ay_q_sid")
+        @inst_number = IO.read("/var/run/ay_q_sapinstnr").chomp if File.exist?("/var/run/ay_q_sapinstnr")
+        SCR.Execute(path(".target.bash"), "mv /var/run/ay_* " + @media.inst_dir)
       end
     end
 

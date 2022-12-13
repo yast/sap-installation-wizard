@@ -8,7 +8,7 @@
              <p><b>SAP Profile Directory</b><br>Enter the path to th SAP profile path.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_profileDir</file>
+             <file>/var/run/ay_q_profileDir</file>
              <question>SAP Profile Directory</question>
              <stage>cont</stage>
              <script>

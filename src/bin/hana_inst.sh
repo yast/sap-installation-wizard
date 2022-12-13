@@ -127,106 +127,6 @@ err_message[15]=""
 # Functions:
 ###########################################
 
-yast_popup () {
-
-        if [ "$NOGUI" = "yes" ]; then
-                echo $1
-                return
-        fi
-
-	# open a YaST popup with the given text
-	local tmpfile
-
-        tmpfile="${TMPDIR}/yast_popup.ycp"
-
-	cat > ${tmpfile} <<-EOF
-		{
-			import "Popup";
-			Popup::AnyTimedMessage ( "", "$1", 10 );
-		}
-EOF
-
-	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
-	rm ${tmpfile}
-}
-
-
-yast_popup_timed () {
-
-        if [ "$NOGUI" = "yes" ]; then
-                echo $1
-                return
-        fi
-
-	# open a YaST popup with the given text
-	local tmpfile
-
-        tmpfile="${TMPDIR}/yast_popup.ycp"
-
-	cat > ${tmpfile} <<-EOF
-		{
-			import "Popup";
-			Popup::ShowTextTimed ( "Information", "$1", 10 );
-		}
-EOF
-
-	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
-	rm ${tmpfile}
-}
-
-
-yast_popup_wait () {
-
-        if [ "$NOGUI" = "yes" ]; then
-                echo $1
-                return
-        fi
-
-	# open a YaST popup with the given text and wait for user input
-        # used for program termination message
-	local tmpfile
-
-	tmpfile="${TMPDIR}/yast_popup_wait.ycp"
-
-	cat > ${tmpfile} <<-EOF
-		{
-			import "Popup";
-			Popup::AnyMessage ( "Program Termination", "$1");
-		}
-EOF
-
-	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
-	rm ${tmpfile}
-}
-
-yast_failed () {
-	local tmpfile
-	tmpfile="${TMPDIR}/yast_failed.rb"
-	cat > ${tmpfile} <<-EOF
-require "yast"
-
-class SapWarn < Yast::Client
-        def main
-                Yast.import "Popup"
-                run = Popup.ErrorAnyQuestion(
-                        _("Installation failed"),
-                        _("For details please check log files at /var/tmp and /var/adm/autoinstall/logs\nClean up the the installation environment?"),
-                        _("yes"),
-                        _("no"),
-                        :focus_yes
-                )
-                if not run
-                        %x( touch /tmp/do-not-rm )
-                end
-        end
-end
-SapWarn.new.main
-EOF
-        [ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
-#        rm ${tmpfile}
-
-}
-
 hana_check_components()
 {
    components_not_found=""
@@ -352,76 +252,52 @@ hana_setenv_unified_installer()
 }
 
 cleanup() {
-  if [ ! -e /tmp/do-not-rm ]; then
+  if [ ! -e /root/hana-install-do-not-rm ]; then
 	  # Cleanup
 	  rm -f  ${MEDIA_TARGET}/ay_*
 	  # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
-	  sed -i "s${MASTERPASS}**********g" /var/log/YaST2/y2log
-	  sed -i "s${MASTERPASS}**********g" /var/adm/autoinstall/logs/*
-
 	  rm -rf ${SAPCD_INSTMASTER}
 	  # delete since created via mktemp
 	  rm -rf ${TMPDIR}
-  else
-	  rm /tmp/do-not-rm
   fi
 }
 
 hana_installation_summary ()
 {
-        # document the parameters used when installing for documentation and
-        # open a YaST popup after the installation finished
-        local tmpfile
-        local summary_file
+  # document the parameters used when installing for documentation and
+  # open a YaST popup after the installation finished
+  local tmpfile
+  local summary_file
 
-        summary_file="/root/installation${INSTALL_COUNT}_summary_${SID}.txt"
-        tmpfile="${TMPDIR}/yast_popup_inst_summary.ycp"
-        phys_ip=`host \`hostname\` | awk {'print $4'}`
+  summary_file="/root/installation${INSTALL_COUNT}_summary_${SID}.txt"
+  phys_ip=`host \`hostname\` | awk {'print $4'}`
 	phys_ip=$( ip address show  | grep $phys_ip | gawk '{ print $2 }' )
 	nameserver=$( grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' ' )
 
-        cat > ${summary_file} <<-EOF
-        #########################################################################
-        # The system ${SID} is installed with the following parameters
-        # ( File can be found here: ${summary_file} )
-        #########################################################################
-        # Hostname:	`hostname`
-        # Domain Name:	`dnsdomainname`
-        # IP Address:	${phys_ip}
-        # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
-        # IP for Nameserver:	${nameserver}
-        # Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
-        #
-        # SAP HANA System ID:	${SID}
-        # SAP HANA Instance:	${SAPINSTNR}
-        # Data Volume:	${hanadatadir}
-        # Log Volume:	${hanalogdir}
-        #########################################################################
-        # `basename $0` ended at `date +"%Y/%m/%d, %T (%Z)"`
-        #########################################################################
+  cat > ${summary_file} <<-EOF
+  #########################################################################
+  # The system ${SID} is installed with the following parameters
+  # ( File can be found here: ${summary_file} )
+  #########################################################################
+  # Hostname:	`hostname`
+  # Domain Name:	`dnsdomainname`
+  # IP Address:	${phys_ip}
+  # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
+  # IP for Nameserver:	${nameserver}
+  # Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
+  #
+  # SAP HANA System ID:	${SID}
+  # SAP HANA Instance:	${SAPINSTNR}
+  # Data Volume:	${hanadatadir}
+  # Log Volume:	${hanalogdir}
+  #########################################################################
+  # `basename $0` ended at `date +"%Y/%m/%d, %T (%Z)"`
+  #########################################################################
 EOF
 
-	cp ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
+	cp  ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
+  cat ${summary_file}
 
-        if [ "$NOGUI" = "yes" ]; then
-                cat ${summary_file}
-                return
-        fi
-
-        cat > ${tmpfile} <<-EOF
-                {
-                        import "Popup";
-
-#                        Popup::ShowFile ("Installation Summary: SAP HANA", "${summary_file}");
-#                        Popup::AnyTimedMessage ( "Installation Summary: SAP HANA", source, 10 );
-                        string source = (string) SCR::Read(.target.string, "${summary_file}");
-                        Popup::ShowTextTimed ("Installation Summary: SAP HANA", source, 100);
-
-                }
-EOF
-
-        /sbin/yast2 ${tmpfile}
-        rm ${tmpfile}
 }
 
 hana_lcm_workflow()
@@ -557,7 +433,7 @@ extract_media_archives()
       COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
       missing=$(hana_check_components)
       if [ -n "${missing}" ]; then
-         yast_popup_wait "Cannot install, HANA component folders missing on media: ${missing}"
+         echo "Cannot install, HANA component folders missing on media: ${missing}" > ${MEDIA_TARGET}/installation_failed
          rc=1
       else
          hana_unified_installer_workflow
@@ -565,16 +441,11 @@ extract_media_archives()
       fi
    fi
    if [ $rc -eq 0 ]; then
-      # Cleanup-PopUp
-      #yast_popup "Installation finished."
       hana_installation_summary
-   else
-      yast_failed
    fi
 
    cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
    cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
-   #cp ${MEDIA_TARGET}/ay_q_masterPwd /dev/shm
    cleanup
 
 exit $rc

@@ -37,26 +37,26 @@ module Y2Sap
     def create_partitions(product_partitioning_list, product_list)
       log.info("********Starting partitioning with #{product_partitioning_list} #{product_list}")
 
-      hwinfo = get_hw_info
+      hwinfo = hw_info
       manufacturer = Ops.get(hwinfo, 0, "") # "FUJITSU", "IBM", "HP", "Dell Inc."
       model = Ops.get(hwinfo, 1, "") # "PowerEdge R620", "PowerEdge R910"
 
       product_partitioning_list.each do |product_partitioning|
-        # This is a generic way for all SAP products and hardware
-        # Now it is possible to create product manufactutrer and model based partitioning files.
-        part_xml = @media.partitioning_dir_base + "/" + product_partitioning + "_" + manufacturer + "_" + model + ".xml"
+        part_base = @media.partitioning_dir_base + "/" + product_partitioning
+        part_xml = part_base + "_" + manufacturer + "_" + model + ".xml"
         if !File.exist?(part_xml)
-          part_xml = @media.partitioning_dir_base + "/" + product_partitioning + "_" + manufacturer + "_generic.xml"
+          part_xml = part_base + "_" + manufacturer + "_generic.xml"
           if !File.exist?(part_xml)
-            part_xml = @media.partitioning_dir_base + "/" + product_partitioning + ".xml"
-            if product_list.include?("B1")
-              if !Popup.YesNoHeadline(
-                _("Your System is not certified for SAP Business One on HANA."),
-                _("It is not guaranteed that your system will work properly. Do you want to continue the installation?")
-              )
-                return "abort"
-              end
-            end
+            part_xml = part_base + ".xml"
+          end
+        end
+        # B1 need to be installed for certified hardware
+        if part_xml == part_base + ".xml" && product_list.include?("B1")
+          if !Popup.YesNoHeadline(
+            _("Your System is not certified for SAP Business One on HANA."),
+            _("It is not guaranteed that your system will work properly. Do you want to continue the installation?")
+          )
+            return :abort
           end
         end
         ret = WFM.CallFunction("sap_create_storage_ng", [part_xml])
@@ -101,12 +101,10 @@ module Y2Sap
 
   private
 
-    def get_hw_info
+    def hw_info
       hwinfo = []
       bios = Convert.to_list(SCR.Read(path(".probe.bios")))
-
-      log.warning("Warning: BIOS list size is %1", Builtins.size(bios)) if Builtins.size(bios) != 1
-
+      log.warning("Warning: BIOS list size is %1", Builtins.size(bios)) if bios.size != 1
       biosinfo = Ops.get_map(bios, 0, {})
       smbios = Ops.get_list(biosinfo, "smbios", [])
       sysinfo = {}
@@ -124,4 +122,3 @@ module Y2Sap
     end
   end
 end
-

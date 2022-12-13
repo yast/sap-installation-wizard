@@ -18,7 +18,7 @@
 #
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
-
+require "shellwords"
 module Y2Sap
   # Module containing to mount the source medias
   module MediaMount
@@ -62,21 +62,21 @@ module Y2Sap
       command = ""
       case url["scheme"]
       when "nfs"
-        command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @media_dir
+        command = "mount -o nolock " + url["host"] + ":" + url["path"].shellescape + " " + @media_dir
       when "smb"
         mopts = "-o ro"
-        if url["workgroup"] != ""
-          mopts += ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
+        mopts += if url["workgroup"] != ""
+          ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"].shellescape
         elsif url["user"] != ""
-          mopts += ",username=" + url["user"] + ",password=" + url["pass"]
+          ",username=" + url["user"] + ",password=" + url["pass"].shellescape
         else
-          mopts += ",guest"
+          ",guest"
         end
         mopts += ",dir_mode=0777,file_mode=0777"
         if url["host"] =~ /windows.net$/
           mopts += ",sec=ntlmssp,vers=3.0"
         end
-        command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @media_dir + " " + mopts
+        command = "/sbin/mount.cifs //" + url["host"] + url["path"].shellescape + " " + @media_dir + " " + mopts
       end
       out = Convert.to_map(SCR.Execute(path(".target.bash_output"), command))
       return Ops.get_string(out, "stderr", "") == ""
@@ -109,7 +109,7 @@ module Y2Sap
         return "ERROR:Can not mount required device."
       end
       @need_umount = true
-      @source_dir  = @mount_point + "/" + Ops.get_string(url, "path", "")
+      @source_dir  = @mount_point + "/" + url["path"].shellescape
       log.info("MountSource url #{url}")
     end
 
@@ -118,7 +118,7 @@ module Y2Sap
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "mount -o nolock " + url["host"] + ":'" + url["path"] + "' '" + @mount_point + "'"
+          "mount -o nolock " + url["host"] + ":" + url["path"].shellescape + " '" + @mount_point + "'"
         )
       )
       log.info("MountSource url #{url}")
@@ -138,17 +138,17 @@ module Y2Sap
           "@" + location[at + 1..-1]
       end
       url = URL.Parse("smb://" + location)
-      mpath = url["path"]
+      mpath = url["path"].shellescape
       mopts = "-o ro"
-      if url.key?("workgroup") && url["workgroup"] != ""
-        mopts += ",user=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
+      mopts += if url.key?("workgroup") && url["workgroup"] != ""
+        ",user=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"].shellescape
       elsif url.key?("user") && url["user"] != ""
-        mopts += ",user=" + url["user"] + ",password=" + url["pass"]
+        ",user=" + url["user"] + ",password=" + url["pass"].shellescape
       else
-        mopts += ",guest"
+        ",guest"
       end
 
-      log.info("smbMount: /sbin/mount.cifs '//" + url["host"] + mpath + "' '" + @mount_point + "' " + mopts)
+      log.info("smbMount: /sbin/mount.cifs //" + url["host"] + mpath + "' '" + @mount_point + "' " + mopts)
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),

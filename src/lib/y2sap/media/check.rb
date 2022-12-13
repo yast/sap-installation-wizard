@@ -46,13 +46,13 @@ module Y2Sap
             instmaster[0] = "HANA"
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = fields[2]
-            break
+            return instmaster
           end
           if fields[0] =~ /^B1/
             instmaster[0] = fields[0]
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = fields[1]
-            break
+            return instmaster
           end
           if fields[1] == "SLTOOLSET" && (fields[5] == platform_arch || fields[5] == "*")
             instmaster[0] = "SAPINST"
@@ -60,29 +60,27 @@ module Y2Sap
             cmd = instmaster[1] + "/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'"
             IO.popen(cmd) { |f| instmaster[2] = f.gets }
             instmaster[2].chomp!
-            break
+            return instmaster
           end
           if fields[3] == "SAPINST" && (fields[5] == platform_arch || fields[5] == "*")
             instmaster[0] = "SAPINST"
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = "NW70"
-            break
+            return instmaster
           end
           if fields[1] == "BusinessObjects"
             instmaster[0] = "BOBJ"
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = ""
-            break
+            return instmaster
           end
           if fields[1] == "TREX"
             instmaster[0] = ".BOBJ"
             instmaster[1] = File.dirname(label_file)
             instmaster[2] = ""
-            break
+            return instmaster
           end
-          # TODO: packed SWPM
         end
-        break if instmaster.size > 0
       end
       return instmaster
     end
@@ -95,19 +93,12 @@ module Y2Sap
         next if medium =~ /Instmaster/
         labels << IO.readlines(medium.chomp + "/LABEL.ASC")[0].chomp
       end
-      packages = ""
-      # Now we read the packages file from the intstallation master
-      IO.popen(["find", path + "/Instmaster", "-name", "packages.xml"]) do |io|
-        packages << io.read
-      end
-      log.debug("packages #{packages.size} #{packages}")
       dbm    = ""
       trex   = false
       valid  = []
-      log.info("@dbmap #{@dbmap}")
-      packages.split("\n").each do |xml_file|
-        xml   = IO.read(xml_file.chomp)
-        doc   = Nokogiri::XML(xml)
+      # Now we search all packages.xml and compare it with the existing labels
+      IO.popen(["find", path + "/Instmaster", "-name", "packages.xml"]).readlines.each do |xml_file|
+        doc   = Nokogiri::XML(IO.read(xml_file.chomp))
         found = true
         labels.each do |label|
           found_label = false
@@ -142,12 +133,11 @@ module Y2Sap
           valid << tmp.sub("/packages.xml","")
         end
       end
-      ret = {
+      return {
         "product_dir" => valid,
         "db"          => dbm,
         "TREX"        => trex
       }
-      return ret
     end
 
   private

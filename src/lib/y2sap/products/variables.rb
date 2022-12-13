@@ -23,12 +23,14 @@
 textdomain "sap-installation-wizard"
 =end
 
+require "nokogiri"
+
 module Y2Sap
   # Module for the global variables in the Y2SAP::Products class
   module ProductsVariables
     # Initialize the global variables
     def init_variables
-      @dialog_text = {}
+      @product_definitions_reader = Nokogiri::XML(IO.read(@media.product_definitions))
       @dialog_text = {
         nw_inst_type: {
           help:  _("<p>Choose SAP product installation and back-end database.</p>") +
@@ -50,46 +52,46 @@ module Y2Sap
         }
       }
 
-      # @product_list contains a list of hashes of the parameter of the products which can be installed
-      # withe the selected installation medium. The parameter of HANA and B1 are constant
-      # and can not be extracted from the datas on the IM of these products.
-
-      @product_list = []
-      @product_list << {
-        "name"        => "HANA",
-        "id"          => "HANA",
-        "ay_xml"      => config_value("HANA", "ay_xml"),
-        "partitioning"=> config_value("HANA", "partitioning"),
-        "script_name" => config_value("HANA", "script_name")
-      }
-      @product_list << {
-        "name"        => "HANA",
-        "id"          => "HANA1.0",
-        "ay_xml"      => config_value("HANA1.0", "ay_xml"),
-        "partitioning"=> config_value("HANA1.0", "partitioning"),
-        "script_name" => config_value("HANA1.0", "script_name")
-      }
-      @product_list << {
-        "name"        => "B1",
-        "id"          => "B1",
-        "ay_xml"      => config_value("B1", "ay_xml"),
-        "partitioning"=> config_value("B1", "partitioning"),
-        "script_name" => config_value("B1", "script_name")
-      }
-      @product_list << {
-        "name"        => "TREX",
-        "id"          => "TREX",
-        "ay_xml"      => config_value("TREX", "ay_xml"),
-        "partitioning"=> config_value("TREX", "partitioning"),
-        "script_name" => config_value("TREX", "script_name")
-      }
-
+      @product_list  = init_product_list
       @db            = ""
       @inst_type     = ""
       @product_id    = ""
       @product_name  = ""
       @product_map   = {}
       @products_to_install = []
+    end
+
+  private
+
+    # @product_list contains a list of hashes of the parameter of the products which can be installed
+    def init_product_list
+      return [
+        {
+          "name"        => "HANA",
+          "id"          => "HANA",
+          "ay_xml"      => config_value("HANA", "ay_xml"),
+          "partitioning"=> config_value("HANA", "partitioning"),
+          "script_name" => config_value("HANA", "script_name")
+        }, {
+          "name"        => "HANA",
+          "id"          => "HANA1.0",
+          "ay_xml"      => config_value("HANA1.0", "ay_xml"),
+          "partitioning"=> config_value("HANA1.0", "partitioning"),
+          "script_name" => config_value("HANA1.0", "script_name")
+        }, {
+          "name"        => "B1",
+          "id"          => "B1",
+          "ay_xml"      => config_value("B1", "ay_xml"),
+          "partitioning"=> config_value("B1", "partitioning"),
+          "script_name" => config_value("B1", "script_name")
+        }, {
+          "name"        => "TREX",
+          "id"          => "TREX",
+          "ay_xml"      => config_value("TREX", "ay_xml"),
+          "partitioning"=> config_value("TREX", "partitioning"),
+          "script_name" => config_value("TREX", "script_name")
+        }
+      ]
     end
   end
 end

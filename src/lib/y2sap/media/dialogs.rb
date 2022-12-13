@@ -41,7 +41,7 @@ module Y2Sap
           # If SAP_CD is mounted from network location, do not allow empty selection
           @content_before_input = VBox(
             Frame(
-              _("Ready for use from:  " + @sap_cds_url),
+              format(_("Ready for use from: %s"),  @sap_cds_url),
               Label(Id(:mediums), Opt(:hstretch), media.join("\n"))
             ),
             Frame(

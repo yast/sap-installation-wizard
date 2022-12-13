@@ -29,20 +29,18 @@ module Y2Sap
     include Yast
 
     def get_nw_products(inst_env, type, db, product_dir)
+      begin
+        @product_catalog_reader = Nokogiri::XML(IO.read(inst_env + "/Instmaster/product.catalog"))
+      rescue
+        log.error("Can not read #{inst_env}/Instmaster/product.catalog")
+      end
       filters = get_filters(type)
-      nodes   = get_nodes(filters, inst_env, db, product_dir)
-      get_products(inst_env, db, nodes)
+      nodes   = get_nodes(filters, db, product_dir)
+      get_products(db, nodes)
     end
 
     def config_value(prod, key)
-      begin
-        xml = IO.read(@media.product_definitions)
-        doc = Nokogiri::XML(xml)
-      rescue
-        log.error("Can not read #{@media.product_definitions}")
-        return ""
-      end
-      doc.xpath("//listentry").each do |node|
+      @product_definitions_reader.xpath("//listentry").each do |node|
         p  = {}
         ok = false
         node.children.each do |child|
@@ -53,7 +51,7 @@ module Y2Sap
           ok = true if child.name == "id"   && child.text == prod
           p[child.name] = child.text
         end
-        return p.has?(key) ? p[key] : "" if ok
+        return p[key] || "" if ok
       end
       return ""
     end
@@ -61,15 +59,8 @@ module Y2Sap
   private
 
     def get_filters(type)
-      begin
-        xml     = IO.read(@media.product_definitions)
-        doc     = Nokogiri::XML(xml)
-      rescue
-        log.error("Can not read #{@media.product_definitions}")
-        return ""
-      end
       filters = []
-      doc.xpath("//listentry").each do |node|
+      @product_definitions_reader.xpath("//listentry").each do |node|
         f  = []
         n  = ""
         a  = ""
@@ -107,17 +98,14 @@ module Y2Sap
     end
 
     # searches the nodes from the product catalog file
-    def get_nodes(filters, inst_env, db, product_dir)
-      xml     = IO.read(inst_env + "/Instmaster/product.catalog")
-      doc     = Nokogiri::XML(xml)
+    def get_nodes(filters, db, product_dir)
       nodes   = []
       found   = {}
       filters.each do |tmp|
         xmlpath = tmp[1]
         if xmlpath !~ /##PD##/
-          doc.xpath(xmlfilter).each do |node|
-            atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
-            nodes << atmp
+          @product_catalog_reader.xpath(xmlfilter).each do |node|
+            nodes << [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
           end
         else
           xmlpath.sub!(/##DB##/, db)
@@ -126,10 +114,9 @@ module Y2Sap
             next if found.has?(pdpath)
             found[pdpath] = 1
             # puts pdpath
-            doc.xpath(pdpath).each do |node|
+            @product_catalog_reader.xpath(pdpath).each do |node|
               # puts pdpath
-              atmp = [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
-              nodes << atmp
+              nodes << [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
             end
           end
         end
@@ -137,9 +124,7 @@ module Y2Sap
       return nodes
     end
 
-    def get_products(inst_env, db, nodes)
-      xml     = IO.read(inst_env + "/Instmaster/product.catalog")
-      doc     = Nokogiri::XML(xml)
+    def get_products(db, nodes)
       make_hash = proc do |hash, key|
         hash[key] = Hash.new(&make_hash)
       end
@@ -157,7 +142,7 @@ module Y2Sap
         # puts id
         match = /.*:(.*)\.#{db}\./.match(id)
         if !match[1].nil?
-          doc.xpath("//components[@output-dir=\"" + match[1] + "\"]/display-name").each do |n1|
+          @product_catalog_reader.xpath("//components[@output-dir=\"" + match[1] + "\"]/display-name").each do |n1|
             gname = n1.text
           end
         end

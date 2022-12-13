@@ -75,7 +75,7 @@ module Yast
         GetInstArgs.enable_next
       )
       ret = nil
-      begin
+      loop do
         ret = Wizard.UserInput
         log.info("ret %1", ret)
         case ret
@@ -88,8 +88,11 @@ module Yast
             Convert.to_boolean(UI.QueryWidget(Id("wizard"), :Value)),
             Convert.to_boolean(UI.QueryWidget(Id("rdp"), :Value))
           )
+          break
+        when :back
+          break
         end
-      end until ret == :next || ret == :back
+      end
       ret
     end
 
