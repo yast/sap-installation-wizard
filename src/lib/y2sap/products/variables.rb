@@ -30,7 +30,12 @@ module Y2Sap
   module ProductsVariables
     # Initialize the global variables
     def init_variables
-      @product_definitions_reader = Nokogiri::XML(IO.read(@media.product_definitions))
+      begin
+        @product_definitions_reader = Nokogiri::XML(IO.read(@media.product_definitions))
+        @product_list  = init_product_list
+      rescue
+        log.error("Can not read #{@media.product_definitions}")
+      end
       @dialog_text = {
         nw_inst_type: {
           help:  _("<p>Choose SAP product installation and back-end database.</p>") +
@@ -52,7 +57,6 @@ module Y2Sap
         }
       }
 
-      @product_list  = init_product_list
       @db            = ""
       @inst_type     = ""
       @product_id    = ""

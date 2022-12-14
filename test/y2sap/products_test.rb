@@ -63,7 +63,7 @@ describe Y2Sap::Products do
     around do |example|
       # change the SCR root to a testing directory
       change_scr_root(File.join(DATA_PATH, "system"))
-      subject.media.product_definitions = DATA_PATH + "/system/etc/sap-installation-wizard.xml"
+      subject.media.product_definitions = File.join(DATA_PATH,"/system/etc/sap-installation-wizard.xml")
       example.run
       # restore it back
       reset_scr_root
