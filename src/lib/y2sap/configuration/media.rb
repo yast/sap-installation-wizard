@@ -67,7 +67,7 @@ module Y2Sap
       # @return [Hash<String,String>] Hash for mapping the database name and token.
       attr_accessor :dbmap
 
-      def initializeinitialize(product_definitions = nil)
+      def initialize(product_definitions = nil)
         super(product_definitions)
         @location_cache = "nfs.server.com/directory/"
         @need_umount    = true
