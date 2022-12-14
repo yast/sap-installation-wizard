@@ -51,9 +51,9 @@ module Y2Sap
     # * Creates the @scheme_list containing the available schemes for the access
     #   to the SAP media
     # * Initialize the global variable @location_cache
-    def initialize
+    def initialize(product_definitions = nil)
       textdomain "sap-installation-wizard"
-      super
+      super(product_definitions)
       log.info("Start Y2Sap::Media.new")
       @scheme_list = [
         Item(Id("local"), "dir://", true),

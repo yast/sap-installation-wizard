@@ -67,7 +67,7 @@ module Y2Sap
       # @return [Hash] the autoinstallation settings
       attr_accessor :sap_media_todo
 
-      def initialize
+      def initialize(product_definitions = nil)
         @platform = "LINUX"
         @arch = Yast::Arch.architecture
         @mount_point           = config_read("SOURCEMOUNT", "/mnt")
@@ -83,6 +83,9 @@ module Y2Sap
         @inst_mode             = config_read("SAP_AUTO_INSTALL", "no") == "yes" ? "auto" : "manual"
         @sap_cds_url           = config_read("SAP_CDS_URL", "")
         @sap_media_todo = {}
+        if !product_definitions.nil?
+          @product_definitions = product_definitions
+        end
       end
 
     private
