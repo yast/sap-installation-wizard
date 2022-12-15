@@ -3,7 +3,7 @@
 # hana_inst.sh - is a script used to install SAP HANA
 #
 # Copyright (c) 2013 SAP AG
-# Copyright (c) [2013-2021] SUSE LLC
+# Copyright (c) [2013-2022] SUSE LLC
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,65 +18,65 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 usage () {
-	cat <<-EOF
+  cat <<-EOF
 
-		#######################################################################
-		# `basename $0` -i -m -s -n -p -t -y -h -g
-		#
-		#  i ) SAPINST_PRODUCT_ID - SAPINST Product ID
-		#  m ) SAPCD_INSTMASTER - Path to the SAP Installation Master Medium
-		#  d ) SAPINST_DIR - The directory where the installation will be prepared
-		#  s ) SID - SAP System ID
-		#  n ) SAPINSTNR - SAP Instance Number (two digits)
-		#  p ) MASTERPASS - SAP Masterpassword to use
-		#  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
-		#  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
-		#  g ) Do not use gui. All message should be put into STDOUT
-		#
-		#######################################################################
+    #######################################################################
+    # $(basename $0) -i -m -s -n -p -t -y -h -g
+    #
+    #  i ) SAPINST_PRODUCT_ID - SAPINST Product ID
+    #  m ) SAPCD_INSTMASTER - Path to the SAP Installation Master Medium
+    #  d ) SAPINST_DIR - The directory where the installation will be prepared
+    #  s ) SID - SAP System ID
+    #  n ) SAPINSTNR - SAP Instance Number (two digits)
+    #  p ) MASTERPASS - SAP Masterpassword to use
+    #  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
+    #  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
+    #  g ) Do not use gui. All message should be put into STDOUT
+    #
+    #######################################################################
 EOF
-	echo
+  echo
 }
 
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
-ARCH=$( uname -m | tr [:lower:] [:upper:] )
+ARCH=$(uname -m | tr [:lower:] [:upper:])
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:hg\?" options; do
-	case $options in
-		i ) SAPINST_PRODUCT_ID=$OPTARG;;  # SAPINST Product ID
-		m ) SAPCD_INSTMASTER=${OPTARG};; # Path to the SAP Installation Master Medium (has to be full-qualified)
-		d ) SAPINST_DIR=${OPTARG};; # The directory where the installation will be prepared
-		s ) SID=$OPTARG;;  # SAP System ID
-		n ) SAPINSTNR=$OPTARG;;  # SAP Instance Number
-		p ) MASTERPASS=$OPTARG;;  # Masterpassword
-		t ) DBTYPE=${OPTARG};; # Database type, e.g. ADA, DB6, ORA, SYB or HDB
-		y ) PRODUCT_TYPE=${OPTARG};; # Product Type, eg. HANA, B1
-		g ) NOGUI="yes";;
-		h | \? ) usage
-		        exit $ERR_invalid_args;;
-		* ) usage
-		        exit $ERR_invalid_args;;
-	esac
+  case $options in
+    i ) SAPINST_PRODUCT_ID=$OPTARG;;  # SAPINST Product ID
+    m ) SAPCD_INSTMASTER=${OPTARG};; # Path to the SAP Installation Master Medium (has to be full-qualified)
+    d ) SAPINST_DIR=${OPTARG};; # The directory where the installation will be prepared
+    s ) SID=$OPTARG;;  # SAP System ID
+    n ) SAPINSTNR=$OPTARG;;  # SAP Instance Number
+    p ) MASTERPASS=$OPTARG;;  # Masterpassword
+    t ) DBTYPE=${OPTARG};; # Database type, e.g. ADA, DB6, ORA, SYB or HDB
+    y ) PRODUCT_TYPE=${OPTARG};; # Product Type, eg. HANA, B1
+    g ) NOGUI="yes";;
+    h | \? ) usage
+            exit $ERR_invalid_args;;
+    * ) usage
+            exit $ERR_invalid_args;;
+  esac
 done
 
 ###########################################
 # globals
 ###########################################
 # TMPDIR="/tmp"
-TMPDIR=`mktemp -t -d sap_install_XXXXX`
+TMPDIR=$(mktemp -t -d sap_install_XXXXX)
 chmod 755 $TMPDIR
-MEDIA_TARGET=$( dirname $SAPCD_INSTMASTER)
+MEDIA_TARGET=$(dirname $SAPCD_INSTMASTER)
 
 if [ "${ARCH}" = "PPC64LE" ]; then
-	if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
-		ARCH="PPC64"
-	fi
+  if [ ! -d ${SAPCD_INSTMASTER}/DATA_UNITS/HDB_SERVER_LINUX_${ARCH} ]; then
+    ARCH="PPC64"
+  fi
 fi
 
 # <n>th installation on this host. Specified by installation sub-directory. For multiple installations on a single host
-INSTALL_COUNT=$( echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}' )
+INSTALL_COUNT=$(echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}')
 
 # YaST Uebergabeparameterdateien
 A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterPwd"
@@ -84,7 +84,7 @@ A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
 A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
 if [ -e ${MEDIA_TARGET}/ay_q_sapmdc ]; then
-	A_SAPMDC=`< ${MEDIA_TARGET}/ay_q_sapmdc`
+  A_SAPMDC=$(cat ${MEDIA_TARGET}/ay_q_sapmdc)
 fi
 
 ###########################################
@@ -141,7 +141,7 @@ hana_check_components()
 
 hana_volumes()
 {
-   [ -f ${A_SID} ] && SID=`< ${A_SID}`
+   [ -f ${A_SID} ] && SID=$(cat ${A_SID})
    SID=${SID:="NDB"}
    hanamount=/hana/shared
    hanadatadir=/hana/data
@@ -155,15 +155,15 @@ hana_volumes()
 hana_get_input()
 {
    # SAP System ID
-   [ -f ${A_SID} ] && SID=`< ${A_SID}`
+   [ -f ${A_SID} ] && SID=$(cat ${A_SID})
    SID=${SID:="NDB"}
 
    # SAP Instance Number to use
-   [ -f ${A_SAPINSTNR} ] && SAPINSTNR=`< ${A_SAPINSTNR}`
+   [ -f ${A_SAPINSTNR} ] && SAPINSTNR=$(cat ${A_SAPINSTNR})
    SAPINSTNR=${SAPINSTNR:="00"}
 
    # Masterpassword for installation
-   [ -f ${A_MASTERPASS} ] && MASTERPASS=`< ${A_MASTERPASS}`
+   [ -f ${A_MASTERPASS} ] && MASTERPASS=$(cat ${A_MASTERPASS})
    if [ -z "${MASTERPASS}" ]; then
        echo "Warning: MASTERPASS not set!"
    fi
@@ -220,7 +220,7 @@ hana_setenv_unified_installer()
     sed -i "s@${oldstring}@${newstring}@" ${FILE}
 
     oldstring="<hdbHost></hdbHost>"
-    newstring="<hdbHost>`hostname -f`</hdbHost>"
+    newstring="<hdbHost>$(hostname -f)</hdbHost>"
     sed -i "s@${oldstring}@${newstring}@" ${FILE}
   else
     FILE=${oldfile}
@@ -246,19 +246,19 @@ hana_setenv_unified_installer()
     sed -i "s@${oldstring}@${newstring}@" ${FILE}
 
     oldstring='${HDBHOST}'
-    newstring=`hostname -f`
+    newstring=$(hostname -f)
     sed -i "s@${oldstring}@${newstring}@" ${FILE}
   fi
 }
 
 cleanup() {
   if [ ! -e /root/hana-install-do-not-rm ]; then
-	  # Cleanup
-	  rm -f  ${MEDIA_TARGET}/ay_*
-	  # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
-	  rm -rf ${SAPCD_INSTMASTER}
-	  # delete since created via mktemp
-	  rm -rf ${TMPDIR}
+    # Cleanup
+    rm -f  ${MEDIA_TARGET}/ay_*
+    # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
+    rm -rf ${SAPCD_INSTMASTER}
+    # delete since created via mktemp
+    rm -rf ${TMPDIR}
   fi
 }
 
@@ -270,32 +270,32 @@ hana_installation_summary ()
   local summary_file
 
   summary_file="/root/installation${INSTALL_COUNT}_summary_${SID}.txt"
-  phys_ip=`host \`hostname\` | awk {'print $4'}`
-	phys_ip=$( ip address show  | grep $phys_ip | gawk '{ print $2 }' )
-	nameserver=$( grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' ' )
+  phys_ip=$(host $(hostname) | awk {'print $4'})
+  phys_ip=$(ip address show  | grep $phys_ip | gawk '{ print $2 }')
+  nameserver=$(grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' ')
 
   cat > ${summary_file} <<-EOF
   #########################################################################
   # The system ${SID} is installed with the following parameters
   # ( File can be found here: ${summary_file} )
   #########################################################################
-  # Hostname:	`hostname`
-  # Domain Name:	`dnsdomainname`
-  # IP Address:	${phys_ip}
-  # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
-  # IP for Nameserver:	${nameserver}
-  # Default Gateway:     $( ip route list | gawk '/default/ { print $3}' )
+  # Hostname:  $(hostname)
+  # Domain Name:  $(dnsdomainname)
+  # IP Address:  ${phys_ip}
+  # Domain Searchlist:  $(grep ^search /etc/resolv.conf | sed 's/search //')
+  # IP for Nameserver:  ${nameserver}
+  # Default Gateway:     $(ip route list | gawk '/default/ { print $3}')
   #
-  # SAP HANA System ID:	${SID}
-  # SAP HANA Instance:	${SAPINSTNR}
-  # Data Volume:	${hanadatadir}
-  # Log Volume:	${hanalogdir}
+  # SAP HANA System ID:  ${SID}
+  # SAP HANA Instance:  ${SAPINSTNR}
+  # Data Volume:  ${hanadatadir}
+  # Log Volume:  ${hanalogdir}
   #########################################################################
-  # `basename $0` ended at `date +"%Y/%m/%d, %T (%Z)"`
+  # $(basename $0) ended at $(date +"%Y/%m/%d, %T (%Z)")
   #########################################################################
 EOF
 
-	cp  ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
+  cp  ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
   cat ${summary_file}
 
 }
@@ -309,30 +309,30 @@ hana_lcm_workflow()
    hana_setenv_lcm
 
    #Detect if it is a B1 installation
-   B1=$( grep "FOR.B1" ${SAPCD_INSTMASTER}/* )
+   B1=$(grep "FOR.B1" ${SAPCD_INSTMASTER}/*)
    if [ -n "$B1" -a ! -d ${SAPCD_INSTMASTER}/SAP_HANA_DATABASE ]; then
-	find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
+     find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
    fi
    case $A_SAPMDC in
-     no )
+     no)
        echo -e "db_mode=\n"  > ${MEDIA_TARGET}/hana_mdc.conf
      ;;
-     low )
+     low)
        echo -e "db_mode=multidb\ndb_isolation=low\n"  > ${MEDIA_TARGET}/hana_mdc.conf
      ;;
-     high )
+     high)
        echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
      ;;
    esac
    cd "${HDBLCMDIR}"
    TOIGNORE="check_signature_file"
    if [ -e /root/hana-install-ignore ]; then
-      TOIGNORE=$( cat /root/hana-install-ignore )
+     TOIGNORE=$(cat /root/hana-install-ignore)
    fi
    if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
-	          --ignore=$TOIGNORE \
-	          --lss_trust_unsigned_server \
+            --ignore=$TOIGNORE \
+            --lss_trust_unsigned_server \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
@@ -341,8 +341,8 @@ hana_lcm_workflow()
             --configfile=${MEDIA_TARGET}/hana_mdc.conf
    else
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
-	          --ignore=$TOIGNORE \
-	          --lss_trust_unsigned_server \
+            --ignore=$TOIGNORE \
+            --lss_trust_unsigned_server \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
@@ -373,12 +373,12 @@ hana_unified_installer_workflow()
    fi
 
    LINUX26_SUPPORT=/usr/bin/uname26  # workaround for saposcol bug (does not detect Linux kernel 3.x which is shipped with SLES11 SP2)
-   echo -e "`cat ${MEDIA_TARGET}/ay_q_masterPwd`\n`cat ${MEDIA_TARGET}/ay_q_masterPwd`" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
+   echo -e "$(cat ${MEDIA_TARGET}/ay_q_masterPwd)\n$(cat ${MEDIA_TARGET}/ay_q_masterPwd)" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
    # Unified Installer always returns rc 0, regardless of success :-(
    # workaround: test connection to HANA to determine success
-   [ -f ${A_SID} ] && SID=`< ${A_SID}`
+   [ -f ${A_SID} ] && SID=$(cat ${A_SID})
    SID=${SID:="NDB"}
-   sid=`echo $SID | tr '[:upper:]' '[:lower:]'`
+   sid=${SID,,}
    su - ${sid}adm -c "hdbsql -i ${SAPINSTNR} -u ${DB_USER} -p ${MASTERPASS} -jC 'select * from sys.dummy'" > /dev/null >&2
    rc=$?
 
@@ -388,7 +388,7 @@ hana_unified_installer_workflow()
       ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/SAPCAR -xvf ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR
       if [ $? -eq 0 ]; then
           cd SAP_HANA_AFL
-          ./hdbinst -b -p `cat ${MEDIA_TARGET}/ay_q_masterPwd` -s ${SID}
+          ./hdbinst -b -p $(cat ${MEDIA_TARGET}/ay_q_masterPwd) -s ${SID}
           rc=$?
           if [ $rc -ne 0 ]; then
              echo "could not install AFL, error=$rc"
@@ -406,7 +406,7 @@ hana_unified_installer_workflow()
 extract_media_archives()
 {
    # try to extract all SAR archives on SAP media in the respective directories, if possible
-   SAPCAR=`find ${MEDIA_TARGET}/Instmaster -name SAPCAR`
+   SAPCAR=$(find ${MEDIA_TARGET}/Instmaster -name SAPCAR)
    if [ -n "${SAPCAR}" ]; then
       if [ ! -x ${SAPCAR} ]; then
          chmod +x ${SAPCAR}
@@ -419,33 +419,33 @@ extract_media_archives()
 # Main
 ###########################################
 
-   rc=0
-   missing=''
-   # determine proper installation tool:
-   # HANA 1.0 <= SP6: Unified Installer
-   # HANA 1.0 => SP7: Life Cycle Manager (hdblcm)
-   extract_media_archives
-   HDBLCM=`find ${SAPCD_INSTMASTER} -name hdblcm | grep -m 1 -P 'DATABASE|SERVER'`
-   if [ -n "${HDBLCM}" ]; then
-      export HDBLCMDIR=$( dirname ${HDBLCM} )
-      hana_lcm_workflow
+rc=0
+missing=''
+# determine proper installation tool:
+# HANA 1.0 <= SP6: Unified Installer
+# HANA 1.0 => SP7: Life Cycle Manager (hdblcm)
+extract_media_archives
+HDBLCM=$(find ${SAPCD_INSTMASTER} -name hdblcm | grep -m 1 -P 'DATABASE|SERVER')
+if [ -n "${HDBLCM}" ]; then
+   export HDBLCMDIR=$(dirname ${HDBLCM})
+   hana_lcm_workflow
+else
+   COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
+   missing=$(hana_check_components)
+   if [ -n "${missing}" ]; then
+      echo "Cannot install, HANA component folders missing on media: ${missing}" > ${MEDIA_TARGET}/installation_failed
+      rc=1
    else
-      COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
-      missing=$(hana_check_components)
-      if [ -n "${missing}" ]; then
-         echo "Cannot install, HANA component folders missing on media: ${missing}" > ${MEDIA_TARGET}/installation_failed
-         rc=1
-      else
-         hana_unified_installer_workflow
-         rc=$?
-      fi
+      hana_unified_installer_workflow
+      rc=$?
    fi
-   if [ $rc -eq 0 ]; then
-      hana_installation_summary
-   fi
+fi
+if [ $rc -eq 0 ]; then
+   hana_installation_summary
+fi
 
-   cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
-   cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
-   cleanup
+cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
+cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
+cleanup
 
 exit $rc
