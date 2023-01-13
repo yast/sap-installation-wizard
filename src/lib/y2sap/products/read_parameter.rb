@@ -43,8 +43,8 @@ module Y2Sap
       eval_product_ay
       setup_installation_enviroment
       if Yast::Popup.YesNo(
-        _("Installation profile is ready.\n" +
-        "Are there more SAP products to be prepared for installation?")
+        _("Installation profile is ready.\n \
+          Are there more SAP products to be prepared for installation?")
       )
         @media.product_count = @media.product_count.next
         @media.inst_dir = format("%s/%d", @media.inst_dir_base, @media.product_count)
@@ -102,7 +102,7 @@ module Y2Sap
       )
       Wizard.RestoreAbortButton()
       # First we execute the autoyast xml file of the product if this exeists
-      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" + get_product_parameter("ay_xml")
+      xml_path = prod_par("ay_xml") == "" ? "" : @media.ay_dir_base + "/" + prod_par("ay_xml")
       SCR.Execute(
         path(".target.bash"),
         @media.sapinst_path + "/b1_hana_list.sh " + @media.inst_dir + " " + @media.ay_dir_base
@@ -124,14 +124,51 @@ module Y2Sap
     # Furthermore doc.dtd and keydb.dtd files will be copied into @media.inst_dir
     # For all SAP products the @media.inst_dir/product.data hash will be written
     def setup_installation_enviroment
-      inifile_params = get_product_parameter("inifile_params") == "" ? "" : @media.ay_dir_base + "/" + get_product_parameter("inifile_params")
+      adapt_inifile_params
+
+      if @media.inst_master_type == "SAPINST"
+        SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/doc.dtd " + @media.inst_dir)
+        SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/keydb.dtd " + @media.inst_dir)
+      end
+
+      # Write the product.data file
+      script_name    = @media.sapinst_path + "/" + prod_par("script_name")
+      partitioning   = prod_par("partitioning") == "" ? "NO" : prod_par("partitioning")
+      SCR.Write(
+        path(".target.ycp"),
+        @media.inst_dir + "/product.data",
+        "inst_dir"     => @media.inst_dir,
+        "inst_master"  => @media.inst_dir + "/Instmaster",
+        "type"         => @media.inst_master_type,
+        "db"           => @db,
+        "product_name" => @product_name,
+        "product_id"   => @product_id,
+        "partitioning" => partitioning,
+        "sid"          => @sid,
+        "instnumber"   => @inst_number,
+        "script_name"  => script_name
+      )
+      @products_to_install << @media.inst_dir
+
+      # Adapt the rights of the installation directory
+      inst_dir_mode = @media.inst_master_type == "SAPINST" ? "770" : "775"
+      cmd = "groupadd sapinst; "
+      cmd += "usermod --groups sapinst root; "
+      cmd += "chgrp sapinst " + @media.inst_dir + ";"
+      cmd += "chmod " + inst_dir_mode + " " + @media.inst_dir + ";"
+      log.info("-- Prepare sapinst #{cmd}")
+      SCR.Execute(path(".target.bash"), cmd)
+    end
+
+    def adapt_inifile_params
+      ini_pars = prod_par("inifile_params") == "" ? "" : @media.ay_dir_base + "/" + prod_par("inifile_params")
 
       # inifile_params can be contains db-name
-      inifile_params = inifile_params.gsub("##DB##", @db)
+      ini_pars = ini_pars.gsub("##DB##", @db)
 
       # Create the parameter.ini file
-      if File.exist?(inifile_params)
-        inifile = File.read(inifile_params)
+      if File.exist?(ini_pars)
+        inifile = File.read(ini_pars)
         Dir.glob(@media.inst_dir + "/ay_q_*").each do |param|
           par = param.gsub(/^.*\/ay_q_/, "")
           val = IO.read(param).chomp
@@ -149,47 +186,14 @@ module Y2Sap
         end
         File.write(@media.inst_dir + "/inifile.params", inifile)
       end
-      if @media.inst_master_type == "SAPINST"
-        SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/doc.dtd " + @media.inst_dir)
-        SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/keydb.dtd " + @media.inst_dir)
-      end
-
-      # Write the product.data file
-      script_name    = @media.sapinst_path + "/" + get_product_parameter("script_name")
-      partitioning   = get_product_parameter("partitioning") == "" ? "NO" : get_product_parameter("partitioning")
-      SCR.Write(
-        path(".target.ycp"),
-        @media.inst_dir + "/product.data",
-        {
-          "inst_dir"     => @media.inst_dir,
-          "inst_master"  => @media.inst_dir + "/Instmaster",
-          "type"         => @media.inst_master_type,
-          "db"           => @db,
-          "product_name" => @product_name,
-          "product_id"   => @product_id,
-          "partitioning" => partitioning,
-          "sid"          => @sid,
-          "instnumber"   => @inst_number,
-          "script_name"  => script_name
-        }
-      )
-      @products_to_install << @media.inst_dir
-      # Adapt the rights of the installation directory
-      inst_dir_mode = @media.inst_master_type == "SAPINST" ? "770" : "775"
-      cmd = "groupadd sapinst; " +
-        "usermod --groups sapinst root; " +
-        "chgrp sapinst " + @media.inst_dir + ";" +
-        "chmod " + inst_dir_mode + " " + @media.inst_dir + ";"
-      log.info("-- Prepare sapinst #{cmd}")
-      SCR.Execute(path(".target.bash"), cmd)
     end
 
     # @return [String] read a value from the product list
-    def get_product_parameter(product_parameter)
-      log.info("get_product_parameter #{product_parameter} #{@product_id}")
+    def prod_par(product_parameter)
+      log.info("prod_par #{product_parameter} #{@product_id}")
       @product_list.each do |p|
         if p["id"] == @product_id
-          log.info("get_product_parameter foud parameter #{p[product_parameter]}")
+          log.info("prod_par foud parameter #{p[product_parameter]}")
           return p.key?(product_parameter) ? p[product_parameter] : ""
         end
       end

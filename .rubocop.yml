@@ -10,9 +10,12 @@ Style/RedundantReturn:
 SingleLineBlockParams:
   Enabled: false
 
-# The general YaST agreement is 100 characters, so it fits into standard
-# resolutions and Github's pull request view. But let's open the threshold a
-# little bit
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
 Metrics/LineLength:
   Max: 115
 
@@ -23,10 +26,7 @@ Metrics/MethodLength:
   Max: 50
 
 Metrics/PerceivedComplexity:
-  Max: 10
-
-Metrics/CyclomaticComplexity:
-  Max: 10
+  Max: 15
 
 # Enforce if/unless at the end only for really short lines
 Style/IfUnlessModifier:

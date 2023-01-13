@@ -36,29 +36,7 @@ module Y2Sap
     def inst_master_dialog
       @has_back = false
       instmaster_media = local_media.select { |name| name =~ /Instmaster-/ }
-      if !instmaster_media.empty?
-        if !@sap_cds_url.empty?
-          # If SAP_CD is mounted from network location, do not allow empty selection
-          @content_before_input = VBox(
-            Frame(
-              format(_("Ready for use from: %s"),  @sap_cds_url),
-              Label(Id(:mediums), Opt(:hstretch), media.join("\n"))
-            ),
-            Frame(
-              _("Choose an installation master"),
-              Left(
-                ComboBox(Id(:local_im), Opt(:notify), "", instmaster_media)
-              )
-            )
-          )
-        else
-          # Otherwise, allow user to enter new installation master
-          @content_before_input = Frame(
-            _("Choose an installation master"),
-            ComboBox(Id(:local_im), Opt(:notify), "", ["---"] + instmaster_media)
-          )
-        end
-      end
+      create_im_befor if !instmaster_media.empty?
       @content_input = HBox(
         ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
         InputField(
@@ -96,15 +74,41 @@ module Y2Sap
       @advanced_ops_left = HSpacing(6.0)
     end
 
+    def create_im_befor
+      if !@sap_cds_url.empty?
+        # If SAP_CD is mounted from network location, do not allow empty selection
+        @content_before_input = VBox(
+          Frame(
+            format(_("Ready for use from: %s"), @sap_cds_url),
+            Label(Id(:mediums), Opt(:hstretch), media.join("\n"))
+          ),
+          Frame(
+            _("Choose an installation master"),
+            Left(
+              ComboBox(Id(:local_im), Opt(:notify), "", instmaster_media)
+            )
+          )
+        )
+      else
+        # Otherwise, allow user to enter new installation master
+        @content_before_input = Frame(
+          _("Choose an installation master"),
+          ComboBox(Id(:local_im), Opt(:notify), "", ["---"] + instmaster_media)
+        )
+      end
+    end
+
     # Function to build a dialog to copy a sap media
     def sapmedium_dialog
       product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
       if !product_media.empty?
         media_items = []
-        product_media.each { |medium|
+        product_media.each do |medium|
           media_items << Item(Id(medium), medium, @selected_media.key?(medium) ? @selected_media[medium] : true)
-        }
-        @content_before_input = VBox(MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), media_items))
+        end
+        @content_before_input = VBox(
+          MultiSelectionBox(Id("media"), Opt(:notify), _("Ready for use:"), media_items)
+        )
       end
       @content_input = VBox(
         Left(RadioButton(Id(:do_copy_medium), Opt(:notify), _("Copy a medium"), true)),
@@ -112,9 +116,11 @@ module Y2Sap
           HBox(
             HSpacing(6.0),
             ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
-            InputField(Id(:location),Opt(:hstretch),
+            InputField(
+              Id(:location), Opt(:hstretch),
               _("Prepare SAP installation medium (such as SAP kernel, database and exports)"),
-              @location_cache),
+              @location_cache
+            ),
             HSpacing(6.0)
           )
         )
@@ -129,7 +135,9 @@ module Y2Sap
     def supplement_dialog
       product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
       if !product_media.empty?
-        @content_before_input = Frame(_("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n")))
+        @content_before_input = Frame(
+          _("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n"))
+        )
       end
       @content_input = HBox(
         ComboBox(
@@ -148,4 +156,3 @@ module Y2Sap
     end
   end
 end
-

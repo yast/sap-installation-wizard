@@ -34,6 +34,9 @@ module Y2Sap
       # @return [String] The platform
       attr_reader :platform
 
+      # @return [String] The platform architecture in uppercase
+      attr_reader :platform_arch
+
       # @return [String] The directory where the media will be mounted temporary
       attr_reader :mount_point
 
@@ -70,6 +73,9 @@ module Y2Sap
       def initialize(product_definitions = nil)
         @platform = "LINUX"
         @arch = Yast::Arch.architecture
+        @platform_arch = @platform + "_" + @arch
+        @platform_arch.upcase!
+
         @mount_point           = config_read("SOURCEMOUNT", "/mnt")
         @media_dir             = config_read("MEDIADIR", "/data/SAP_CDs")
         @inst_dir_base         = config_read("INSTDIR", "/data/SAP_INST")
@@ -83,9 +89,7 @@ module Y2Sap
         @inst_mode             = config_read("SAP_AUTO_INSTALL", "no") == "yes" ? "auto" : "manual"
         @sap_cds_url           = config_read("SAP_CDS_URL", "")
         @sap_media_todo = {}
-        if !product_definitions.nil?
-          @product_definitions = product_definitions
-        end
+        @product_definitions = product_definitions if !product_definitions.nil?
       end
 
     private

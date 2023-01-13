@@ -54,7 +54,8 @@ module Y2Sap
         if part_xml == part_base + ".xml" && product_list.include?("B1")
           if !Popup.YesNoHeadline(
             _("Your System is not certified for SAP Business One on HANA."),
-            _("It is not guaranteed that your system will work properly. Do you want to continue the installation?")
+            _("It is not guaranteed that your system will work properly. \
+               Do you want to continue the installation?")
           )
             return :abort
           end
@@ -69,7 +70,7 @@ module Y2Sap
 
     def hana_partitioning
       ret = create_partitions(["hana_partitioning"], ["HANA"])
-      show_partitions("SAP file system creation successfully done:") if ret != :abort
+      show_partitions(_("SAP file system creation successfully done:")) if ret != :abort
     end
 
     def show_partitions(info)

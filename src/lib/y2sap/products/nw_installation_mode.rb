@@ -38,8 +38,6 @@ module Y2Sap
       do_loop_nw_installation_mode
     end
 
-  private
-
     # Creates the gui
     def create_content_nw_installation_mode
       log.info("-- Start SelectNWInstallationMode --- for instDir #{@media.inst_dir}")
@@ -116,7 +114,7 @@ module Y2Sap
         RadioButton(Id("ADA"), Opt(:notify, :hstretch), _("SAP MaxDB"), false),
         RadioButton(Id("HDB"), Opt(:notify, :hstretch), _("SAP HANA"), false),
         RadioButton(Id("SYB"), Opt(:notify, :hstretch), _("SAP ASE"), false),
-        RadioButton(Id("DB6"), Opt(:notify, :hstretch), _("IBM DB2"), false),
+        RadioButton(Id("DB6"), Opt(:notify, :hstretch), _("IBM DB2"), false)
       )
     end
 

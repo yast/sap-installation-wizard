@@ -46,15 +46,7 @@ module Y2Sap
 
   private
 
-    def create_dialog
-      if !Wizard.IsWizardDialog
-        Wizard.CreateDialog
-        @close_me = true
-      end
-
-      # Create uefi boot entry if necessary
-      SCR.Execute(path(".target.bash_output"), "/usr/lib/YaST2/bin/create_uefi_boot_entry.sh")
-
+    def check_hostname
       # Check if hostname -f is set
       @out = Convert.to_map(
         SCR.Execute(path(".target.bash_output"), "hostname -f")
@@ -73,6 +65,20 @@ module Y2Sap
           return :next
         end
       end
+      return ""
+    end
+
+    def create_dialog
+      if !Wizard.IsWizardDialog
+        Wizard.CreateDialog
+        @close_me = true
+      end
+      # Create uefi boot entry if necessary
+      SCR.Execute(path(".target.bash_output"), "/usr/lib/YaST2/bin/create_uefi_boot_entry.sh")
+
+      ret = check_hostname
+      return ret if ret != ""
+
       @caption = _("Product Installation Mode")
       @help    = _("The standard installation of the Operating System has settled.") + "<br>" +
         _("Now you can start the SAP Product Installation")

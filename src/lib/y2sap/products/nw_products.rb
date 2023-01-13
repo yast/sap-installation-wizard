@@ -61,8 +61,8 @@ module Y2Sap
         VBox(
           SelectionBox(
             Id(:products),
-            _("Your SAP installation master supports the following products.\n" +
-              "Please choose the product you wish to install:"),
+            _("Your SAP installation master supports the following products.\n \
+              Please choose the product you wish to install:"),
             product_item_table
           )
         ),
@@ -82,10 +82,8 @@ module Y2Sap
             run = true
             Yast::Popup.Message(_("Select a product!"))
           else
+            @product_name = product_name
             run = false
-            @product_list.each do |map| 
-              @product_name = map["name"] if @product_id == map["id"]
-            end
           end
         when :back
           return :back
@@ -97,6 +95,12 @@ module Y2Sap
         end
       end
       :next
+    end
+
+    def product_name
+      @product_list.each do |map|
+        return map["name"] if @product_id == map["id"]
+      end
     end
   end
 end

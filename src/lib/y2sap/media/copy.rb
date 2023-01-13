@@ -40,23 +40,7 @@ module Y2Sap
         ""
       )
       Progress.NextStep
-      while SCR.Read(path(".process.running"), pid) == true
-        sleep(1)
-        techsize = tech_size(target_dir + "/" + sub_dir)
-        Progress.Step(techsize)
-        humansize = human_size(target_dir + "/" + sub_dir)
-        Progress.Title("Copying Media " + sub_dir + " ( " + humansize + " of " + source_size + " )")
-
-        # Checking the exit code (0 = OK, nil = still running, 'else' = error)
-        exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
-        stderr   = SCR.Read(path(".process.read_stderr"), pid)
-        next if exitcode.nil? || exitcode == 0
-        log.info("Copy has failed, exit code was: #{exitcode} stderr: " + stderr)
-        Popup.Error(
-          format("Copy has failed, exit code was: %i, stderr: %s", exitcode, stderr)
-        )
-        return ask_me_to_retry(source_dir, target_dir, sub_dir)
-      end
+      show_progress(pid, source_dir, target_dir, sub_dir)
       # release the process from the agent
       SCR.Execute(path(".process.release"), pid)
       Progress.Finish
@@ -98,6 +82,26 @@ module Y2Sap
       else
         UI.CloseDialog
         return :abort
+      end
+    end
+
+    def show_progress(pid, source_dir, target_dir, sub_dir)
+      while SCR.Read(path(".process.running"), pid) == true
+        sleep(2)
+        techsize = tech_size(target_dir + "/" + sub_dir)
+        Progress.Step(techsize)
+        humansize = human_size(target_dir + "/" + sub_dir)
+        Progress.Title("Copying Media " + sub_dir + " ( " + humansize + " of " + source_size + " )")
+
+        # Checking the exit code (0 = OK, nil = still running, 'else' = error)
+        exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
+        stderr   = SCR.Read(path(".process.read_stderr"), pid)
+        next if exitcode.nil? || exitcode == 0
+        log.info("Copy has failed, exit code was: #{exitcode} stderr: " + stderr)
+        Popup.Error(
+          format("Copy has failed, exit code was: %i, stderr: %s", exitcode, stderr)
+        )
+        return ask_me_to_retry(source_dir, target_dir, sub_dir)
       end
     end
   end

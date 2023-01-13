@@ -52,8 +52,7 @@ module Y2Sap
       @products_to_install.each do |inst_dir|
         product_data = Convert.convert(
           SCR.Read(path(".target.ycp"), inst_dir + "/product.data"),
-          :from => "any",
-          :to   => "map <string, any>"
+          from: "any", to: "map <string, any>"
         )
         params = Builtins.sformat(
           " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
@@ -61,7 +60,7 @@ module Y2Sap
           Ops.get_string(product_data, "product_id", ""),
           Ops.get_string(product_data, "db", ""),
           Ops.get_string(product_data, "type", ""),
-          Ops.get_string(product_data, "inst_dir", ""),
+          Ops.get_string(product_data, "inst_dir", "")
         )
         log.info("product_data: #{product_data}")
         # Add script
@@ -131,6 +130,5 @@ module Y2Sap
         )
       end
     end
-
   end
 end

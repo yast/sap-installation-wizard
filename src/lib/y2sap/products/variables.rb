@@ -32,7 +32,7 @@ module Y2Sap
     def init_variables
       begin
         @product_definitions_reader = Nokogiri::XML(IO.read(@media.product_definitions))
-        @product_list  = init_product_list
+        @product_list = init_product_list
       rescue
         log.error("Can not read #{@media.product_definitions}")
       end

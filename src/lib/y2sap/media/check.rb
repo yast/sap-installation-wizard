@@ -31,9 +31,6 @@ module Y2Sap
         instmaster[2] = ""
         return instmaster
       end
-      log.info("platform arch #{@platform} #{@arch}")
-      platform_arch = @platform + "_" + @arch
-      platform_arch.upcase!
       search_labelfiles(prod_path).each do |label_file|
         filepath = label_file.split("/")
         IO.readlines(label_file).each do |line|
@@ -41,48 +38,54 @@ module Y2Sap
           fields = line.split(" ") if filepath[-1] == "info.txt"
           log.info("is_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
           next if fields.size == 0
-          # Start checking the label
-          if fields[1] =~ /^HANA/
-            instmaster[0] = "HANA"
-            instmaster[1] = File.dirname(label_file)
-            instmaster[2] = fields[2]
-            return instmaster
-          end
-          if fields[0] =~ /^B1/
-            instmaster[0] = fields[0]
-            instmaster[1] = File.dirname(label_file)
-            instmaster[2] = fields[1]
-            return instmaster
-          end
-          if fields[1] == "SLTOOLSET" && (fields[5] == platform_arch || fields[5] == "*")
-            instmaster[0] = "SAPINST"
-            instmaster[1] = File.dirname(label_file)
-            cmd = instmaster[1] + "/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'"
-            IO.popen(cmd) { |f| instmaster[2] = f.gets }
-            instmaster[2].chomp!
-            return instmaster
-          end
-          if fields[3] == "SAPINST" && (fields[5] == platform_arch || fields[5] == "*")
-            instmaster[0] = "SAPINST"
-            instmaster[1] = File.dirname(label_file)
-            instmaster[2] = "NW70"
-            return instmaster
-          end
-          if fields[1] == "BusinessObjects"
-            instmaster[0] = "BOBJ"
-            instmaster[1] = File.dirname(label_file)
-            instmaster[2] = ""
-            return instmaster
-          end
-          if fields[1] == "TREX"
-            instmaster[0] = ".BOBJ"
-            instmaster[1] = File.dirname(label_file)
-            instmaster[2] = ""
-            return instmaster
-          end
+          instmaster = check_label(fields)
+          return instmaster if !instmaster.nil?
         end
       end
       return instmaster
+    end
+
+    def check_label(fields)
+      instmaster = []
+      if fields[1] =~ /^HANA/
+        instmaster[0] = "HANA"
+        instmaster[1] = File.dirname(label_file)
+        instmaster[2] = fields[2]
+        return instmaster
+      end
+      if fields[0] =~ /^B1/
+        instmaster[0] = fields[0]
+        instmaster[1] = File.dirname(label_file)
+        instmaster[2] = fields[1]
+        return instmaster
+      end
+      if fields[1] == "SLTOOLSET" && (fields[5] == @platform_arch || fields[5] == "*")
+        instmaster[0] = "SAPINST"
+        instmaster[1] = File.dirname(label_file)
+        cmd = instmaster[1] + "/sapinst --version 2> /dev/null | grep Version: | gawk '{ print \$2 }'"
+        IO.popen(cmd) { |f| instmaster[2] = f.gets }
+        instmaster[2].chomp!
+        return instmaster
+      end
+      if fields[3] == "SAPINST" && (fields[5] == @platform_arch || fields[5] == "*")
+        instmaster[0] = "SAPINST"
+        instmaster[1] = File.dirname(label_file)
+        instmaster[2] = "NW70"
+        return instmaster
+      end
+      if fields[1] == "BusinessObjects"
+        instmaster[0] = "BOBJ"
+        instmaster[1] = File.dirname(label_file)
+        instmaster[2] = ""
+        return instmaster
+      end
+      if fields[1] == "TREX"
+        instmaster[0] = ".BOBJ"
+        instmaster[1] = File.dirname(label_file)
+        instmaster[2] = ""
+        return instmaster
+      end
+      return nil
     end
 
     def get_products_for_media(path)
@@ -105,11 +108,10 @@ module Y2Sap
           label_1     = label.sub(":749:", ":74:")
           doc.xpath("/packages/package").each do |node|
             pattern = node.get_attribute("label")
-            pattern.gsub!('/', '\/')
-            pattern.gsub!('(', '\(')
-            pattern.gsub!(')', '\)')
-            pattern.gsub!('*', '.*')
-            log.debug("pattern #{pattern}  #{label} #{label_1}")
+            pattern.gsub!("/", '\/')
+            pattern.gsub!("(", '\(')
+            pattern.gsub!(")", '\)')
+            pattern.gsub!("*", ".*")
             if label =~ /#{pattern}/ || label_1 =~ /#{pattern}/
               found_label = true
               break
@@ -121,16 +123,15 @@ module Y2Sap
           end
           # check if it is a database media
           @databases.each do |db|
-            if !label.index(db).nil?
-              log.debug("db #{db} ##  #{label} ##  #{@dbmap[db]}")
-              dbm = @dbmap[db]
-              break
-            end
+            next if label.index(db).nil?
+            log.debug("db #{db} ##  #{label} ##  #{@dbmap[db]}")
+            dbm = @dbmap[db]
+            break
           end
         end
         if found
           tmp = xml_file.sub(/^.*Instmaster./, "")
-          valid << tmp.sub("/packages.xml","")
+          valid << tmp.sub("/packages.xml", "")
         end
       end
       return {

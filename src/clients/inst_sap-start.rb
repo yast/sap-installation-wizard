@@ -37,35 +37,7 @@ module Yast
       Yast.import "ProductControl"
       Yast.import "GetInstArgs"
 
-      @caption = _("Choose Operating System Edition")
-      @help    = _("<p><b>Select operating system edition</b></p>" +
-         "<p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick the checkbox \"Launch SAP product installation wizard right after operating system is installed\".</p>")
-      @contents = VBox(
-        RadioButtonGroup(
-          Id(:rb),
-          VBox(
-            Frame(
-              "",
-              VBox(
-                Left(
-                  CheckBox(
-                    Id("wizard"),
-                    _("Launch SAP product installation wizard right after operating system is installed"),
-                    true
-                  )
-                ),
-                Left(
-                  CheckBox(
-                    Id("rdp"),
-                    _("Enable Remote Desktop Protocol (RDP) Service and open port in Firewall"),
-                    true
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+      set_variable
       Wizard.SetDesktopIcon("sap-installation-wizard")
       Wizard.SetContents(
         @caption,
@@ -117,9 +89,40 @@ module Yast
         ::Installation::Services.enabled.delete("xrdp")
       end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
-      if to_remove.size > 0
-        PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove)
-      end
+      PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if to_remove.size
+    end
+
+    def set_variable
+      @caption = _("Choose Operating System Edition")
+      @help    = _("<p><b>Select operating system edition</b></p> \
+         <p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick\
+         the checkbox \"Launch SAP product installation wizard right after operating system is installed\".</p>")
+      @contents = VBox(
+        RadioButtonGroup(
+          Id(:rb),
+          VBox(
+            Frame(
+              "",
+              VBox(
+                Left(
+                  CheckBox(
+                    Id("wizard"),
+                    _("Launch SAP product installation wizard right after operating system is installed"),
+                    true
+                  )
+                ),
+                Left(
+                  CheckBox(
+                    Id("rdp"),
+                    _("Enable Remote Desktop Protocol (RDP) Service and open port in Firewall"),
+                    true
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
     end
   end
 end
