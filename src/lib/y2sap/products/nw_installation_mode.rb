@@ -98,7 +98,6 @@ module Y2Sap
         UI.ChangeWidget(Id("HDB"), :Enabled, false)
         UI.ChangeWidget(Id("SYB"), :Enabled, false)
         UI.ChangeWidget(Id("DB6"), :Enabled, false)
-        UI.ChangeWidget(Id("ORA"), :Enabled, false)
       end
     end
 
@@ -118,7 +117,6 @@ module Y2Sap
         RadioButton(Id("HDB"), Opt(:notify, :hstretch), _("SAP HANA"), false),
         RadioButton(Id("SYB"), Opt(:notify, :hstretch), _("SAP ASE"), false),
         RadioButton(Id("DB6"), Opt(:notify, :hstretch), _("IBM DB2"), false),
-        RadioButton(Id("ORA"), Opt(:notify, :hstretch), _("Oracle"), false)
       )
     end
 
@@ -134,7 +132,7 @@ module Y2Sap
         when /STANDALONE|SBC/
           UI.ChangeWidget(Id(:db), :Enabled, false)
           @inst_type = Convert.to_string(UI.QueryWidget(Id(:type), :CurrentButton))
-        when /DB6|ADA|ORA|HDB|SYB/
+        when /DB6|ADA|HDB|SYB/
           @db = Convert.to_string(UI.QueryWidget(Id(:db), :CurrentButton))
         when :next
           run = false
@@ -166,40 +164,31 @@ module Y2Sap
       if data_base == ""
         UI.ChangeWidget(Id("STANDARD"), :Enabled, false)
       else
-        UI.ChangeWidget(Id("ORA"), :Enabled, false)
         case data_base
         when "ADA"
           UI.ChangeWidget(Id("ADA"), :Value, true)
           UI.ChangeWidget(Id("HDB"), :Enabled, false)
           UI.ChangeWidget(Id("SYB"), :Enabled, false)
           UI.ChangeWidget(Id("DB6"), :Enabled, false)
-          UI.ChangeWidget(Id("ORA"), :Enabled, false)
           @db = data_base
         when "HDB"
           UI.ChangeWidget(Id("HDB"), :Value, true)
           UI.ChangeWidget(Id("ADA"), :Enabled, false)
           UI.ChangeWidget(Id("SYB"), :Enabled, false)
           UI.ChangeWidget(Id("DB6"), :Enabled, false)
-          UI.ChangeWidget(Id("ORA"), :Enabled, false)
           @db = data_base
         when "SYB"
           UI.ChangeWidget(Id("SYB"), :Value, true)
           UI.ChangeWidget(Id("ADA"), :Enabled, false)
           UI.ChangeWidget(Id("HDB"), :Enabled, false)
           UI.ChangeWidget(Id("DB6"), :Enabled, false)
-          UI.ChangeWidget(Id("ORA"), :Enabled, false)
           @db = data_base
         when "DB6"
           UI.ChangeWidget(Id("DB6"), :Value, true)
           UI.ChangeWidget(Id("ADA"), :Enabled, false)
           UI.ChangeWidget(Id("HDB"), :Enabled, false)
           UI.ChangeWidget(Id("SYB"), :Enabled, false)
-          UI.ChangeWidget(Id("ORA"), :Enabled, false)
           @db = data_base
-        when "ORA"
-          # FATE
-          Yast::Popup.Error(_("The Installation of Oracle Databas with SAP Installation Wizard is not supported."))
-          return :abort
         end
       end
     end
