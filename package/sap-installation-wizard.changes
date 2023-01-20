@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Fri Jan 20 09:40:32 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Initial version. Impl: Automatic Setup for SAP BusinessOne
+  (jsc#PED-3111)
+- Code clean up. Make code more readable. Splitting some modules
+  and functions in smaller parts. 
+- 4.5.1 
+
+-------------------------------------------------------------------
 Wed Nov  9 13:44:08 UTC 2022 - Peter Varkoly <varkoly@suse.com>
 
 - Impl: Drop yast2 saptune module (jsc#PED-399)
