@@ -19,7 +19,6 @@
 # Summary: SUSE SAP Products Installation Module: Base configuration class
 
 require "yast"
-require "fileutils"
 
 module Y2Sap
   module Configuration
@@ -29,7 +28,7 @@ module Y2Sap
       Yast.import "Misc"
       Yast.import "Arch"
 
-      TMP_PATH = "/var/run/sap-wizard/sap-wizard"
+      TMP_PATH = "/var/run/sap-wizard/"
 
       # @return [String] The architectur
       attr_reader :arch
@@ -92,7 +91,11 @@ module Y2Sap
         @sap_cds_url           = config_read("SAP_CDS_URL", "")
         @sap_media_todo = {}
         @product_definitions = product_definitions if !product_definitions.nil?
-        FileUtils.mkdir_p TMP_PATH
+        #Avoid error on unit test.
+        begin
+          Dir.mkdir TMP_PATH
+        rescue
+        end
       end
 
     private
