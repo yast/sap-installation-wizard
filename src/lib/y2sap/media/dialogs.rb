@@ -36,7 +36,7 @@ module Y2Sap
     def inst_master_dialog
       @has_back = false
       instmaster_media = local_media.select { |name| name =~ /Instmaster-/ }
-      create_im_befor if !instmaster_media.empty?
+      create_im_before if !instmaster_media.empty?
       @content_input = HBox(
         ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
         InputField(
@@ -74,7 +74,7 @@ module Y2Sap
       @advanced_ops_left = HSpacing(6.0)
     end
 
-    def create_im_befor
+    def create_im_before
       if !@sap_cds_url.empty?
         # If SAP_CD is mounted from network location, do not allow empty selection
         @content_before_input = VBox(

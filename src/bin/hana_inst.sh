@@ -255,9 +255,7 @@ cleanup() {
   if [ ! -e /root/hana-install-do-not-rm ]; then
     # Cleanup
     rm -f  ${MEDIA_TARGET}/ay_*
-    # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
     rm -rf ${SAPCD_INSTMASTER}
-    # delete since created via mktemp
     rm -rf ${TMPDIR}
   fi
 }

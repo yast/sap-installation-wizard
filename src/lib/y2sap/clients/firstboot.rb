@@ -150,9 +150,7 @@ module Y2Sap
 
     # Remove askfiles and some other temporal files
     def clean_up
-      SCR.Execute(path(".target.bash"), "rm -rf /var/run/may_*")
-      SCR.Execute(path(".target.bash"), "rm -rf /var/run/ay_*")
-      SCR.Execute(path(".target.bash"), "rm -rf /var/run/mnt1")
+      SCR.Execute(path(".target.bash"), "rm -rf /var/run/sap-wizard/")
       SCR.Execute(path(".target.bash"), "rm -rf /dev/shm/InstMaster_SWPM/")
       SCR.Execute(path(".target.bash"), "rm -rf /var/lib/YaST2/reconfig_system")
       Package.DoRemove(["sap-installation-start"])

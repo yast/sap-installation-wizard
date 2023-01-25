@@ -8,7 +8,7 @@
              <p><b>Setup virtual IP and hostname for the SAP system</b><br>Select this checkbox if you want to setup virtual IP and hostname for the SAP system.</p>
 ]]>
             </help>
-            <file>/var/run/ay_q_virt_network</file>
+            <file>/var/run/sap-wizard/ay_q_virt_network</file>
 	    <type>boolean</type>
             <question>Setup virtual IP and hostname for the SAP system</question>
             <stage>cont</stage>
@@ -21,7 +21,7 @@
              <p><b>Virtual Hostname</b><br>Enter the virtual hostname the SAP system should use internally.</p>
 ]]>
 </help>
-             <file>/var/run/ay_q_virt_hostname</file>
+             <file>/var/run/sap-wizard/ay_q_virt_hostname</file>
              <question>Virt. Hostname</question>
              <stage>cont</stage>
              <default>aiohost</default>
@@ -41,7 +41,7 @@ function check_hostname() {
 
         return 0
 }
-CHECK=$( cat /var/run/ay_q_virt_network )
+CHECK=$( cat /var/run/sap-wizard/ay_q_virt_network )
 if [ "$CHECK" = "false" ]; then
 	exit 0
 	
@@ -60,7 +60,7 @@ check_hostname "$VAL"
               <p><b>Virtual IP address</b><br>Enter the IP address matching the Virtual Hostname for your SAP system.</p>
 ]]>
              </help>
-             <file>/var/run/ay_q_virt_ip_addr</file>
+             <file>/var/run/sap-wizard/ay_q_virt_ip_addr</file>
              <question>Enter (virt.) IP-Addr</question>
              <stage>cont</stage>
              <default>10.20.90.90</default>
@@ -72,9 +72,9 @@ check_hostname "$VAL"
 function check_ip() {
         local ip=$1 tmp phys_ip
 
-	if [ -e /var/run/may_q_ip_addr ]
+	if [ -e /var/run/sap-wizard/may_q_ip_addr ]
 	then
-		phys_ip=`< /var/run/may_q_ip_addr`
+		phys_ip=`< /var/run/sap-wizard/may_q_ip_addr`
 	else
 		phys_ip=$( host $( hostname ) | gawk '{ print $4 }' )
 	fi
@@ -88,7 +88,7 @@ function check_ip() {
 
         return 0
 }
-CHECK=$( cat /var/run/ay_q_virt_network )
+CHECK=$( cat /var/run/sap-wizard/ay_q_virt_network )
 if [ "$CHECK" = "false" ]; then
 	exit 0
 	
@@ -108,7 +108,7 @@ check_ip "$VAL"
              <p><b>Virtual IP netmask</b><br>Enter the netmask matching the IP address for your Virtual Hostname.</p>
 ]]>
             </help>
-            <file>/var/run/ay_q_virt_ip_netmask</file>
+            <file>/var/run/sap-wizard/ay_q_virt_ip_netmask</file>
             <question>Enter (virt.) netmask</question>
             <stage>cont</stage>
             <default>255.255.255.0</default>
@@ -128,11 +128,11 @@ function check_ip() {
 
        return 0
 }
-CHECK=$( cat /var/run/ay_q_virt_network )
+CHECK=$( cat /var/run/sap-wizard/ay_q_virt_network )
 if [ "$CHECK" = "false" ]; then
-	rm -f /var/run/ay_q_virt_ip_addr
-	rm -f /var/run/ay_q_virt_hostname
-	rm -f /var/run/ay_q_virt_ip_netmask
+	rm -f /var/run/sap-wizard/ay_q_virt_ip_addr
+	rm -f /var/run/sap-wizard/ay_q_virt_hostname
+	rm -f /var/run/sap-wizard/ay_q_virt_ip_netmask
 	exit 0
 	
 fi

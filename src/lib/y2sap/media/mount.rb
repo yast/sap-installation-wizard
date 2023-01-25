@@ -118,7 +118,7 @@ module Y2Sap
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "mount -o nolock " + url["host"] + ":" + url["path"].shellescape + " '" + @mount_point + "'"
+          "mount -o nolock " + url["host"] + ":" + url["path"].shellescape + " " + @mount_point.shellescape
         )
       )
       log.info("MountSource url #{url}")
@@ -148,11 +148,11 @@ module Y2Sap
         ",guest"
       end
 
-      log.info("smbMount: /sbin/mount.cifs //" + url["host"] + mpath + "' '" + @mount_point + "' " + mopts)
+      log.info("smbMount: /sbin/mount.cifs //" + url["host"] + mpath + "' " + @mount_point.shellescape + " " + mopts)
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "/sbin/mount.cifs '//" + url["host"] + mpath + "' '" + @mount_point + "' " + mopts
+          "/sbin/mount.cifs '//" + url["host"] + mpath + "' " + @mount_point.shellescape + " " + mopts
         )
       )
       log.info("MountSource url #{url}")

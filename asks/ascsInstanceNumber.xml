@@ -8,7 +8,7 @@
              <p><b>SAP ASCS Instance Number</b><br>Enter the SAP system's instance number.</p>
 ]]>
 </help>
-             <file>/var/run/ay_q_ascsInstanceNumber</file>
+             <file>/var/run/sap-wizard/ay_q_ascsInstanceNumber</file>
              <question>SAP ASCS Instance Number</question>
              <stage>cont</stage>
              <script>
@@ -18,7 +18,7 @@
 	      <source><![CDATA[
 function check_scs_instance_no() {
 	local scsino=$1
-	local ino=`< /var/run/ay_q_sapinstnr`
+	local ino=`< /var/run/sap-wizard/ay_q_sapinstnr`
 
 	LC_ALL=POSIX
 

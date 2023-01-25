@@ -146,6 +146,7 @@ module Y2Sap
             gname = n1.text
           end
         end
+        # name contains a regexp.
         gname = name + " " + gname if gname !~ /#{name}/
         products[gname]["name"]           = gname
         products[gname]["id"]             = id

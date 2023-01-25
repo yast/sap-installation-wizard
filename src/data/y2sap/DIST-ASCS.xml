@@ -27,7 +27,7 @@
 	     </p>
 	     ]]>
 	     </help>
-             <file>/var/run/ay_q_masterPwd</file>
+             <file>/var/run/sap-wizard/ay_q_masterPwd</file>
              <path>users,0,user_password</path>
              <question>SAP Master Password</question>
              <password config:type="boolean">true</password>
@@ -39,7 +39,7 @@
                 <environment config:type="boolean">true</environment>
                 <source><![CDATA[
 function check_masterpwd() {
-	local pwd=$( cat /var/run/ay_q_masterPwd )
+	local pwd=$( cat /var/run/sap-wizard/ay_q_masterPwd )
 
         if [ -z "$pwd" ]; then
 		echo "You must provide a master password for your installation!"
@@ -92,7 +92,7 @@ check_masterpwd "$VAL"
              <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
 ]]>
 </help>
-             <file>/var/run/ay_q_sid</file>
+             <file>/var/run/sap-wizard/ay_q_sid</file>
              <question>SID (SAP System ID)</question>
              <stage>cont</stage>
              <default>MY_DEFAULT_SID</default>
@@ -138,7 +138,7 @@ check_sid "$VAL"
              <p><b>Virtual Hostname of the ASCS</b><br>Enter the virtual hostname the SAP system should use internally.</p>
 ]]>
 </help>
-             <file>/var/run/ay_q_ascsVirtualHostname</file>
+             <file>/var/run/sap-wizard/ay_q_ascsVirtualHostname</file>
              <question>ASCS Virtual Hostname</question>
              <stage>cont</stage>
              <default>##VirtualHostname##</default>
@@ -157,7 +157,7 @@ function check_hostname() {
 
         return 0
 }
-#CHECK=$( cat /var/run/ay_q_virt_network )
+#CHECK=$( cat /var/run/sap-wizard/ay_q_virt_network )
 #if [ "$CHECK" = "false" ]; then
 #        exit 0
 #        
@@ -180,7 +180,7 @@ check_hostname "$VAL"
              <p><b>SAP Instance Number</b><br>Enter the SAP system's instance number.</p>
 ]]>
 </help>
-             <file>/var/run/ay_q_sapinstnr</file>
+             <file>/var/run/sap-wizard/ay_q_sapinstnr</file>
              <question>SAP Instance Number</question>
              <stage>cont</stage>
              <script>
@@ -214,7 +214,7 @@ check_instance_no "$VAL"
              <p><b>Virtual Hostname of the SCS</b><br>Enter the virtual hostname the SAP system should use internally.</p>
 ]]>
 </help>
-             <file>/var/run/ay_q_scsVirtualHostname</file>
+             <file>/var/run/sap-wizard/ay_q_scsVirtualHostname</file>
              <question>SCS Virtual Hostname</question>
              <stage>cont</stage>
              <default>##VirtualHostname##</default>
@@ -233,7 +233,7 @@ function check_hostname() {
 
         return 0
 }
-#CHECK=$( cat /var/run/ay_q_virt_network )
+#CHECK=$( cat /var/run/sap-wizard/ay_q_virt_network )
 #if [ "$CHECK" = "false" ]; then
 #	exit 0
 #	

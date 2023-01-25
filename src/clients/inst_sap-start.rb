@@ -89,7 +89,7 @@ module Yast
         ::Installation::Services.enabled.delete("xrdp")
       end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
-      PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if to_remove.size
+      PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
     end
 
     def set_variable
