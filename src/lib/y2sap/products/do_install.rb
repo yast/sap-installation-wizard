@@ -24,10 +24,6 @@ require "open3"
 require "y2sap/partitioning/product_partitioning"
 Yast.import "UI"
 
-=begin
-textdomain "sap-installation-wizard"
-=end
-
 module Y2Sap
   # Install the selected products.
   module DoInstall

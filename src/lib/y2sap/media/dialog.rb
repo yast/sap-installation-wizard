@@ -22,10 +22,6 @@ require "yast"
 require "y2sap/media/dialogs"
 Yast.import "UI"
 
-=begin
-textdomain "sap-installation-wizard"
-=end
-
 module Y2Sap
   # Module containing the main part of dialogs for the wizard
   module MediaDialog

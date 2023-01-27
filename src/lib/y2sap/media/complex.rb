@@ -21,10 +21,6 @@
 
 require "autoinstall/clients/ayast_setup"
 
-=begin
-textdomain "sap-installation-wizard"
-=end
-
 module Y2Sap
   # Media handling
   module MediaComplex
