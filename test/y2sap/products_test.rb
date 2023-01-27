@@ -27,6 +27,9 @@ require "y2sap/products"
 require "yast"
 
 describe Y2Sap::Products do
+  before do
+    allow(FileUtils).to receive(:mkdir_p)
+  end
 
   subject { described_class.new(media) }
 

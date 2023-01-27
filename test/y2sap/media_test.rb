@@ -26,6 +26,10 @@ require "y2sap/media"
 require "yast"
 
 describe Y2Sap::Media do
+  before do
+    allow(FileUtils).to receive(:mkdir_p)
+  end
+
   context "no sysconfig file exist" do
     subject { described_class.new(DATA_PATH + "/system/etc/sap-installation-wizard.xml") }
     it "reads the default base configuration" do

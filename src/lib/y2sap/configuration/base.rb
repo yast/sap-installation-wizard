@@ -19,6 +19,7 @@
 # Summary: SUSE SAP Products Installation Module: Base configuration class
 
 require "yast"
+require "fileutils"
 
 module Y2Sap
   module Configuration
@@ -91,11 +92,7 @@ module Y2Sap
         @sap_cds_url           = config_read("SAP_CDS_URL", "")
         @sap_media_todo = {}
         @product_definitions = product_definitions if !product_definitions.nil?
-        #Avoid error on unit test.
-        begin
-          Dir.mkdir TMP_PATH
-        rescue
-        end
+        ::FileUtils.mkdir_p TMP_PATH
       end
 
     private
