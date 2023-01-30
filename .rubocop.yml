@@ -46,3 +46,6 @@ Style/AlignHash:
 
 Style/FileName:
   Enabled: false
+
+Style/BlockComments:
+  Enabled: false
