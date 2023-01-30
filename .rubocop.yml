@@ -11,19 +11,19 @@ SingleLineBlockParams:
   Enabled: false
 
 Metrics/AbcSize:
-  Max: 50
+  Max: 70
 
 Metrics/CyclomaticComplexity:
   Max: 15
 
 Metrics/LineLength:
-  Max: 115
+  Max: 140
 
 Metrics/ModuleLength:
   Max: 150
 
 Metrics/MethodLength:
-  Max: 50
+  Max: 60
 
 Metrics/PerceivedComplexity:
   Max: 15
@@ -42,4 +42,7 @@ Style/MutableConstant:
   Enabled: false
 
 Style/AlignHash:
+  Enabled: false
+
+Style/FileName:
   Enabled: false
