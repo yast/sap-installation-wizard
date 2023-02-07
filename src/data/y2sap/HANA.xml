@@ -15,7 +15,7 @@
         <help><![CDATA[
              <p><b>SID (SAP HANA System ID)</b><br>Enter the three letter SAP HANA System ID.</p>
 ]]></help>
-        <file>/tmp/ay_q_sid</file>
+        <file>/var/run/sap-wizard/ay_q_sid</file>
         <question>SID (SAP HANA System ID)</question>
         <stage>cont</stage>
         <default>NDB</default>
@@ -60,7 +60,7 @@ check_sid "$VAL"
         <help><![CDATA[
              <p><b>SAP HANA Instance Number</b><br>Enter the SAP HANA system's instance number.</p>
 ]]></help>
-        <file>/tmp/ay_q_sapinstnr</file>
+        <file>/var/run/sap-wizard/ay_q_sapinstnr</file>
         <question>SAP HANA Instance Number</question>
         <stage>cont</stage>
         <script>
@@ -102,7 +102,7 @@ check_instance_no "$VAL"
 		- It can contain only these 3 special characters: $ _ #<br>
 	     </p>
 	     ]]></help>
-        <file>/tmp/ay_q_masterPwd</file>
+        <file>/var/run/sap-wizard/ay_q_masterPwd</file>
         <path>users,0,user_password</path>
         <question>SAP HANA Master Password</question>
         <password config:type="boolean">true</password>
@@ -114,7 +114,7 @@ check_instance_no "$VAL"
           <environment config:type="boolean">true</environment>
           <source><![CDATA[
 function check_masterpwd() {
-	local pwd=$( cat /tmp/ay_q_masterPwd )
+	local pwd=$( cat /var/run/sap-wizard/ay_q_masterPwd )
 
         if [ -z "$pwd" ]; then
 		echo "You must provide a master password for your installation!"

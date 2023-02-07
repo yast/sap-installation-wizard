@@ -111,6 +111,8 @@ module Y2Sap
     def adjust_partition_size(partition)
       size_min = parse_size(partition["size_min"])
       size_max = parse_size(partition["size_max"])
+      size     = parse_size(partition["size"])
+      size_min = [size_min, size].compact.max
       size = [size_min, size_max].compact.min
       partition["size"] = size.to_i.to_s if size
     end

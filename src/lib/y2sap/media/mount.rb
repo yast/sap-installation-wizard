@@ -18,8 +18,9 @@
 #
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
-
+require "shellwords"
 module Y2Sap
+  # Module containing to mount the source medias
   module MediaMount
     include Yast
     Yast.import "URL"
@@ -61,23 +62,23 @@ module Y2Sap
       command = ""
       case url["scheme"]
       when "nfs"
-        command = "mount -o nolock " + url["host"] + ":" + url["path"] + " " + @media_dir
+        command = "mount -o nolock " + url["host"] + ":" + url["path"].shellescape + " " + @media_dir
       when "smb"
         mopts = "-o ro"
-        if url["workgroup"] != ""
-          mopts = mopts + ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"]
+        mopts += if url["workgroup"] != ""
+          ",username=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"].shellescape
         elsif url["user"] != ""
-           mopts = mopts + ",username=" + url["user"] + ",password=" + url["pass"]
+          ",username=" + url["user"] + ",password=" + url["pass"].shellescape
         else
-           mopts = mopts + ",guest"
+          ",guest"
         end
-	mopts = mopts + ",dir_mode=0777,file_mode=0777"
-	if url["host"] =~ /windows.net$/
-	  mopts = mopts + ",sec=ntlmssp,vers=3.0"
-	end
-        command = "/sbin/mount.cifs //" + url["host"] + url["path"] + " " + @media_dir + " " + mopts
+        mopts += ",dir_mode=0777,file_mode=0777"
+        if url["host"] =~ /windows.net$/
+          mopts += ",sec=ntlmssp,vers=3.0"
+        end
+        command = "/sbin/mount.cifs //" + url["host"] + url["path"].shellescape + " " + @media_dir + " " + mopts
       end
-      out = Convert.to_map( SCR.Execute( path(".target.bash_output"), command ))
+      out = Convert.to_map(SCR.Execute(path(".target.bash_output"), command))
       return Ops.get_string(out, "stderr", "") == ""
     end
 
@@ -89,88 +90,78 @@ module Y2Sap
     end
 
     def mount_device(location)
-      parsedURL = URL.Parse("device://" + location)
-      log.info("parsed URL: #{parsedURL}")
-
-      Ops.set(
-        parsedURL,
-        "host",
-        "/dev/" + Ops.get_string(parsedURL, "host", "/cdrom")
-      )
-
+      url = URL.Parse("device://" + location)
+      log.info("parsed URL: #{url}")
+      url["host"] = "/dev/" + url["host"]
       if !Convert.to_boolean(
-          SCR.Execute(
-            path(".target.mount"),
-            [Ops.get_string(parsedURL, "host", "/dev/cdrom"), @mount_point],
-            "-o shortname=mixed"
-          )
-        ) &&
+        SCR.Execute(
+          path(".target.mount"),
+          [url["host"], @mount_point],
+          "-o shortname=mixed"
+        )
+      ) &&
           !Convert.to_boolean(
             SCR.Execute(
               path(".local.mount"),
-              [Ops.get_string(parsedURL, "host", "/dev/cdrom"), @mount_point]
+              [url["host"], @mount_point]
             )
           )
         return "ERROR:Can not mount required device."
       end
       @need_umount = true
-      @source_dir  = @mount_point +  "/" + Ops.get_string(parsedURL, "path", "")
-      log.info("MountSource parsedURL #{parsedURL}")
-    end 
+      @source_dir  = @mount_point + "/" + url["path"].shellescape
+      log.info("MountSource url #{url}")
+    end
 
     def mount_nfs(location)
-      parsedURL = URL.Parse("nfs://" + location)
-      mpath     = Ops.get_string(parsedURL, "path", "")
-
+      url = URL.Parse("nfs://" + location)
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "mount -o nolock " + Ops.get_string(parsedURL, "host", "") + ":" + mpath + " " + @mount_point
+          "mount -o nolock " + url["host"] + ":" + url["path"].shellescape + " " + @mount_point.shellescape
         )
       )
-      log.info("MountSource parsedURL #{parsedURL}")
+      log.info("MountSource url #{url}")
       if Ops.get_string(out, "stderr", "") != ""
         return "ERROR:" + Ops.get_string(out, "stderr", "")
       end
       @source_dir = @mount_point
       return ""
-    end 
+    end
 
     def mount_smb(location)
       at = location.rindex("@")
       if !at.nil?
-        userinfo=location[0,at].split(":",2)
-        location=URL.EscapeString(userinfo[0],URL.transform_map_passwd ) +
-	       	":" + URL.EscapeString(userinfo[1],URL.transform_map_passwd ) +
-	       	"@" + location[at+1..-1]
+        userinfo = location[0, at].split(":", 2)
+        location = URL.EscapeString(userinfo[0], URL.transform_map_passwd) +
+          ":" + URL.EscapeString(userinfo[1], URL.transform_map_passwd) +
+          "@" + location[at + 1..-1]
       end
-      parsedURL = URL.Parse("smb://" + location)
-      mpath = Ops.get_string(parsedURL, "path", "")
+      url = URL.Parse("smb://" + location)
+      mpath = url["path"].shellescape
       mopts = "-o ro"
-      if parsedURL.has_key("workgroup") &&
-        Ops.get_string(parsedURL, "workgroup", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "workgroup", "") + "/" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
-      elsif parsedURL.has_key("user") &&
-        Ops.get_string(parsedURL, "user", "") != ""
-        mopts = mopts + ",user=" + Ops.get_string(parsedURL, "user", "") + ",password=" + Ops.get_string(parsedURL, "pass", "")
+      mopts += if url.key?("workgroup") && url["workgroup"] != ""
+        ",user=" + url["workgroup"] + "/" + url["user"] + ",password=" + url["pass"].shellescape
+      elsif url.key?("user") && url["user"] != ""
+        ",user=" + url["user"] + ",password=" + url["pass"].shellescape
       else
-        mopts = mopts + ",guest"
+        ",guest"
       end
 
-      log.info( "smbMount: /sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mount_point + " " + mopts)
+      log.info("smbMount: /sbin/mount.cifs //" + url["host"] + mpath + "' " + @mount_point.shellescape + " " + mopts)
       out = Convert.to_map(
         SCR.Execute(
           path(".target.bash_output"),
-          "/sbin/mount.cifs //" + Ops.get_string(parsedURL, "host", "") + mpath + " " + @mount_point + " " + mopts
+          "/sbin/mount.cifs '//" + url["host"] + mpath + "' " + @mount_point.shellescape + " " + mopts
         )
       )
-      log.info("MountSource parsedURL #{parsedURL}")
+      log.info("MountSource url #{url}")
       if Ops.get_string(out, "stderr", "") != ""
         return "ERROR:" + Ops.get_string(out, "stderr", "")
       end
       @source_dir = @mount_point
       return ""
-    end 
+    end
 
     def mount_local(location)
       if SCR.Read(path(".target.lstat"), location) == {}

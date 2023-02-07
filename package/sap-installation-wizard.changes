@@ -1,4 +1,34 @@
 -------------------------------------------------------------------
+Fri Jan 20 09:40:32 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Implementing: Automatic Setup for SAP BusinessOne
+  (jsc#PED-3111)
+- Code clean up. Make code more readable. Splitting some modules
+  and functions in smaller parts. 
+- 4.5.1 
+
+-------------------------------------------------------------------
+Wed Nov  9 13:44:08 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- Impl: Drop yast2 saptune module (jsc#PED-399)
+- 4.5.0
+
+-------------------------------------------------------------------
+Wed Aug 10 09:05:39 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- yast2 sap-installation-wizard fails on # in NFS mount
+  (bsc#1197430)
+- 4.4.3 
+
+-------------------------------------------------------------------
+Mon Feb 28 20:33:01 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- Install the packages for hana if hana partitionig was made.
+- Use the first found hdblcm command.
+- Make code more readable.
+- 4.4.2
+
+-------------------------------------------------------------------
 Wed Jan 19 13:50:46 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
 
 - Unit tests:

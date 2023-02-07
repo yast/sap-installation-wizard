@@ -203,6 +203,5 @@ module Y2Sap
       prepare_hana(prod)
       @script = @sapinst_path + "/trex_inst.sh"
     end
-
   end
 end

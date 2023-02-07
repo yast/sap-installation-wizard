@@ -27,6 +27,7 @@
 
 require "installation/services"
 module Yast
+  # Select basic installation profile
   class InstSapStart < Client
     def main
       textdomain "sap-installation-wizard"
@@ -35,40 +36,8 @@ module Yast
       Yast.import "PackagesProposal"
       Yast.import "ProductControl"
       Yast.import "GetInstArgs"
-      #MAY BE TODO set the default value
-      sles   = false
-      sap    = false
-      wizard = false
-      rdp    = true
 
-      @caption = _("Choose Operating System Edition")
-      @help    = _("<p><b>Select operating system edition</b></p>" +
-                   "<p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick the checkbox \"Launch SAP product installation wizard right after operating system is installed\".</p>")
-      @contents = VBox(
-            RadioButtonGroup(
-              Id(:rb),
-              VBox(
-                Frame("",
-		  VBox(
-                    Left(
-                      CheckBox(
-                        Id("wizard"),
-                        _("Launch SAP product installation wizard right after operating system is installed"),
-                        true
-                      )
-                    ),
-                    Left(
-                      CheckBox(
-                        Id("rdp"),
-                        _("Enable Remote Desktop Protocol (RDP) Service and open port in Firewall"),
-                        true
-                      )
-                    )
-		 )
-               )
-            )
-          )
-       )
+      set_variable
       Wizard.SetDesktopIcon("sap-installation-wizard")
       Wizard.SetContents(
         @caption,
@@ -78,52 +47,84 @@ module Yast
         GetInstArgs.enable_next
       )
       ret = nil
-      begin
+      loop do
         ret = Wizard.UserInput
-        Builtins.y2milestone("ret %1",ret)
+        log.info("ret %1", ret)
         case ret
         when :abort
           break if Popup.ConfirmAbort(:incomplete)
         when :help
           Wizard.ShowHelp(@help)
         when :next
-	   constumize_sap_installation(
-                Convert.to_boolean( UI.QueryWidget(Id("wizard"), :Value)),
-		Convert.to_boolean( UI.QueryWidget(Id("rdp"), :Value))
-	   )
+          constumize_sap_installation(
+            Convert.to_boolean(UI.QueryWidget(Id("wizard"), :Value)),
+            Convert.to_boolean(UI.QueryWidget(Id("rdp"), :Value))
+          )
+          break
+        when :back
+          break
         end
-      end until ret == :next || ret == :back
+      end
       ret
     end
 
-    def constumize_sap_installation(start_wizard,start_rdp)
-        to_install = []
-        to_remove  = []
-	ProductControl.DisableModule("user_first")
-        if(start_wizard)
-           to_install << 'yast2-firstboot'
-	   to_install << 'sap-installation-wizard'
-	   to_install << 'sap-installation-start'
-	else
-	   to_install << 'sap-installation-wizard'
-	   to_remove  << 'sap-installation-start'
-	   to_remove  << 'yast2-firstboot'
-	end
-        if(start_rdp)
-	   to_install << 'xrdp'
-           ::Installation::Services.enabled << "xrdp"
-	else
-	   to_remove  << 'xrdp'
-           ::Installation::Services.enabled.delete("xrdp")
-	end
-        PackagesProposal.AddResolvables('sap-wizard',   :package, to_install)
-        if to_remove.size > 0
-	   PackagesProposal.RemoveResolvables('sap-wizard',:package, to_remove)
-	end
+    def constumize_sap_installation(start_wizard, start_rdp)
+      to_install = []
+      to_remove  = []
+      ProductControl.DisableModule("user_first")
+      if start_wizard
+        to_install << "yast2-firstboot"
+        to_install << "sap-installation-wizard"
+        to_install << "sap-installation-start"
+      else
+        to_install << "sap-installation-wizard"
+        to_remove  << "sap-installation-start"
+        to_remove  << "yast2-firstboot"
+      end
+      if start_rdp
+        to_install << "xrdp"
+        ::Installation::Services.enabled << "xrdp"
+      else
+        to_remove << "xrdp"
+        ::Installation::Services.enabled.delete("xrdp")
+      end
+      PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
+      PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
     end
 
+    def set_variable
+      @caption = _("Choose Operating System Edition")
+      @help    = _("<p><b>Select operating system edition</b></p> \
+         <p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick\
+         the checkbox \"Launch SAP product installation wizard right after operating system is installed\".</p>")
+      @contents = VBox(
+        RadioButtonGroup(
+          Id(:rb),
+          VBox(
+            Frame(
+              "",
+              VBox(
+                Left(
+                  CheckBox(
+                    Id("wizard"),
+                    _("Launch SAP product installation wizard right after operating system is installed"),
+                    true
+                  )
+                ),
+                Left(
+                  CheckBox(
+                    Id("rdp"),
+                    _("Enable Remote Desktop Protocol (RDP) Service and open port in Firewall"),
+                    true
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    end
   end
 end
 
 Yast::InstSapStart.new.main
-

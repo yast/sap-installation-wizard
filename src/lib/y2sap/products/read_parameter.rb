@@ -18,7 +18,6 @@
 #
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
-
 =begin
 textdomain "sap-installation-wizard"
 =end
@@ -42,11 +41,13 @@ module Y2Sap
       log.info("@db #{@db} @product_name #{@product_name} @product_id #{@product_id}")
       eval_product_ay
       setup_installation_enviroment
-      if Yast::Popup.YesNo(_("Installation profile is ready.\n" +
-          "Are there more SAP products to be prepared for installation?"))
+      if Yast::Popup.YesNo(
+        _("Installation profile is ready.\n" \
+          "Are there more SAP products to be prepared for installation?")
+      )
         @media.product_count = @media.product_count.next
-        @media.inst_dir = "%s/%d" % [ @media.inst_dir_base, @media.product_count ]
-        SCR.Execute(path(".target.bash"), "mkdir -p " + @media.inst_dir )
+        @media.inst_dir = format("%s/%d", @media.inst_dir_base, @media.product_count)
+        SCR.Execute(path(".target.bash"), "mkdir -p " + @media.inst_dir)
         log.info("read_product_parameter returned :read_im")
         return :read_im
       end
@@ -55,26 +56,26 @@ module Y2Sap
 
     # initialize some variables
     def init_envinroment
-       @sid          =""
-       @inst_number  =""
-       hostname_out = Convert.to_map( SCR.Execute(path(".target.bash_output"), "hostname"))
-       @my_hostname = Ops.get_string(hostname_out, "stdout", "")
-       @my_hostname.strip!
+      @sid          = ""
+      @inst_number  = ""
+      hostname_out = Convert.to_map(SCR.Execute(path(".target.bash_output"), "hostname"))
+      @my_hostname = Ops.get_string(hostname_out, "stdout", "")
+      @my_hostname.strip!
 
       # For HANA B1 and  TREX there is no @db @product_name and @product_id set at this time
       case @media.inst_master_type
-        when /^HANA/
-           @db           = "HDB"
-           @product_name = "HANA"
-	   @product_id   = @media.inst_master_version == "1.0" ? "HANA1.0" : "HANA"
-        when /^B1/
-           @db           = ""
-           @product_name = "B1"
-           @product_id   = "B1"
-        when "TREX"
-           @db           = ""
-           @product_name = "TREX"
-           @product_id   = "TREX"
+      when /^HANA/
+        @db           = "HDB"
+        @product_name = "HANA"
+        @product_id   = @media.inst_master_version == "1.0" ? "HANA1.0" : "HANA"
+      when /^B1/
+        @db           = ""
+        @product_name = "B1"
+        @product_id   = "B1"
+      when "TREX"
+        @db           = ""
+        @product_name = "TREX"
+        @product_id   = "TREX"
       end
     end
 
@@ -86,7 +87,13 @@ module Y2Sap
       Wizard.SetContents(
         _("Collecting installation profile for SAP product"),
         VBox(
-            Top(Left(Label(_("Please follow the on-screen instructions of SAP installer (external program)."))))
+          Top(
+            Left(
+              Label(
+                _("Please follow the on-screen instructions of SAP installer (external program).")
+              )
+            )
+          )
         ),
         "",
         true,
@@ -94,22 +101,19 @@ module Y2Sap
       )
       Wizard.RestoreAbortButton()
       # First we execute the autoyast xml file of the product if this exeists
-      xml_path = get_product_parameter("ay_xml") == "" ? "" : @media.ay_dir_base + "/" +  get_product_parameter("ay_xml")
-      if @product_name == "B1"
-              SCR.Execute(path(".target.bash"), @media.sapinst_path + "/b1_hana_list.sh " + @media.inst_dir + " " + @media.ay_dir_base )
-      end
-      if File.exist?( xml_path )
-        SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path )
-	#WFM.CallFunction("ayast_setup", ["setup","filename="+xml_path, "dopackages=yes" ] )
-        ret = openFile({ "filename" => xml_path, "dopackages" => "yes" })
-        log.info("ayast_setup returned for: " + xml_path)
-        if File.exist?("/tmp/ay_q_sid")
-           @sid = IO.read("/tmp/ay_q_sid").chomp
-        end
-        if File.exist?("/tmp/ay_q_sapinstnr")
-           @inst_number = IO.read("/tmp/ay_q_sapinstnr").chomp
-        end
-        SCR.Execute(path(".target.bash"), "mv /tmp/ay_* " + @media.inst_dir )
+      xml_path = prod_par("ay_xml") == "" ? "" : @media.ay_dir_base + "/" + prod_par("ay_xml")
+      SCR.Execute(
+        path(".target.bash"),
+        @media.sapinst_path + "/b1_hana_list.sh " + @media.inst_dir + " " + @media.ay_dir_base
+      ) if @product_name == "B1"
+      if File.exist?(xml_path)
+        SCR.Execute(path(".target.bash"), "sed -i s/##VirtualHostname##/" + @my_hostname + "/g " + xml_path)
+        # WFM.CallFunction("ayast_setup", ["setup", "filename="+xml_path, "dopackages=yes"])
+        ret = openFile("filename" => xml_path, "dopackages" => "yes")
+        log.info("ayast_setup returned '#{ret}' for '#{xml_path}'")
+        @sid = IO.read("/var/run/sap-wizard/ay_q_sid").chomp if File.exist?("/var/run/sap-wizard/ay_q_sid")
+        @inst_number = IO.read("/var/run/sap-wizard/ay_q_sapinstnr").chomp if File.exist?("/var/run/sap-wizard/ay_q_sapinstnr")
+        SCR.Execute(path(".target.bash"), "mv /var/run/sap-wizard/* " + @media.inst_dir)
       end
     end
 
@@ -119,40 +123,19 @@ module Y2Sap
     # Furthermore doc.dtd and keydb.dtd files will be copied into @media.inst_dir
     # For all SAP products the @media.inst_dir/product.data hash will be written
     def setup_installation_enviroment
-      inifile_params = get_product_parameter("inifile_params") == "" ? ""   : @media.ay_dir_base + "/" +  get_product_parameter("inifile_params")
+      adapt_inifile_params
 
-      # inifile_params can be contains db-name
-      inifile_params = inifile_params.gsub("##DB##",@db)
-
-      # Create the parameter.ini file
-      if File.exist?(inifile_params)
-        inifile = File.read(inifile_params)
-        Dir.glob(@media.inst_dir + "/ay_q_*").each do |param|
-           par = param.gsub(/^.*\/ay_q_/,"")
-           val = IO.read(param).chomp
-           pattern = "##" + par + "##"
-           inifile.gsub!(/#{pattern}/,val)
-        end
-        # Replace ##VirtualHostname## by the real hostname.
-        inifile.gsub!(/##VirtualHostname##/,my_hostname)
-        # Replace kernel base
-        File.readlines(@media.inst_dir + "/start_dir.cd").each do |path|
-          if path.include?("KERNEL")
-            inifile.gsub!(/##kernel##/,path.chomp)
-            break
-          end
-        end
-        File.write(@media.inst_dir + "/inifile.params",inifile)
-      end
       if @media.inst_master_type == "SAPINST"
-        SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/doc.dtd "   + @media.inst_dir)
+        SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/doc.dtd " + @media.inst_dir)
         SCR.Execute(path(".target.bash"), "cp " + @media.ay_dir_base + "/keydb.dtd " + @media.inst_dir)
       end
 
-      #Write the product.data file
-      script_name    = @media.sapinst_path + "/" +  get_product_parameter("script_name")
-      partitioning   = get_product_parameter("partitioning")   == "" ? "NO" : get_product_parameter("partitioning")
-      SCR.Write( path(".target.ycp"), @media.inst_dir + "/product.data",  {
+      # Write the product.data file
+      script_name    = @media.sapinst_path + "/" + prod_par("script_name")
+      partitioning   = prod_par("partitioning") == "" ? "NO" : prod_par("partitioning")
+      SCR.Write(
+        path(".target.ycp"),
+        @media.inst_dir + "/product.data",
         "inst_dir"     => @media.inst_dir,
         "inst_master"  => @media.inst_dir + "/Instmaster",
         "type"         => @media.inst_master_type,
@@ -163,25 +146,53 @@ module Y2Sap
         "sid"          => @sid,
         "instnumber"   => @inst_number,
         "script_name"  => script_name
-      })
-
+      )
       @products_to_install << @media.inst_dir
+
       # Adapt the rights of the installation directory
       inst_dir_mode = @media.inst_master_type == "SAPINST" ? "770" : "775"
-      cmd = "groupadd sapinst; " +
-            "usermod --groups sapinst root; " +
-            "chgrp sapinst " + @media.inst_dir + ";" +
-            "chmod " + inst_dir_mode + " " + @media.inst_dir + ";"
-      log.info("-- Prepare sapinst #{cmd}" )
+      cmd = "groupadd sapinst; "
+      cmd += "usermod --groups sapinst root; "
+      cmd += "chgrp sapinst " + @media.inst_dir + ";"
+      cmd += "chmod " + inst_dir_mode + " " + @media.inst_dir + ";"
+      log.info("-- Prepare sapinst #{cmd}")
       SCR.Execute(path(".target.bash"), cmd)
     end
 
+    def adapt_inifile_params
+      ini_pars = prod_par("inifile_params") == "" ? "" : @media.ay_dir_base + "/" + prod_par("inifile_params")
+
+      # inifile_params can be contains db-name
+      ini_pars = ini_pars.gsub("##DB##", @db)
+
+      # Create the parameter.ini file
+      if File.exist?(ini_pars)
+        inifile = File.read(ini_pars)
+        Dir.glob(@media.inst_dir + "/ay_q_*").each do |param|
+          par = param.gsub(/^.*\/ay_q_/, "")
+          val = IO.read(param).chomp
+          pattern = "##" + par + "##"
+          inifile.gsub!(/#{pattern}/, val)
+        end
+        # Replace ##VirtualHostname## by the real hostname.
+        inifile.gsub!(/##VirtualHostname##/, my_hostname)
+        # Replace kernel base
+        File.readlines(@media.inst_dir + "/start_dir.cd").each do |path|
+          if path.include?("KERNEL")
+            inifile.gsub!(/##kernel##/, path.chomp)
+            break
+          end
+        end
+        File.write(@media.inst_dir + "/inifile.params", inifile)
+      end
+    end
+
     # @return [String] read a value from the product list
-    def get_product_parameter(product_parameter)
-      log.info("get_product_parameter #{product_parameter} #{@product_id}")
+    def prod_par(product_parameter)
+      log.info("prod_par #{product_parameter} #{@product_id}")
       @product_list.each do |p|
         if p["id"] == @product_id
-          log.info("get_product_parameter foud parameter #{p[product_parameter]}")
+          log.info("prod_par foud parameter #{p[product_parameter]}")
           return p.key?(product_parameter) ? p[product_parameter] : ""
         end
       end

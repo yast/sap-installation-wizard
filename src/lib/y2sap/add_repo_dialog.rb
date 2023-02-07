@@ -62,14 +62,14 @@ module SAPInstaller
       loop do
         case Yast::UI.UserInput
         when :add_repo
-          begin
+          loop do
             begin
               Yast::AddRepoInvoker.show
             rescue
               log.error("ui_event_loop can not show ddRepoInvoker")
             end
-          end while Yast::Popup.YesNo(_("Do you have more software repositories to add?"))
-          return :next
+            return :next if !Yast::Popup.YesNo(_("Do you have more software repositories to add?"))
+          end
         when :back
           return :back
         when :abort, :cancel
@@ -98,9 +98,9 @@ module SAPInstaller
                 )
               ),
               Left(
-               Label(
-                 _("Feel free to add them now. Otherwise, click \"Next\" to continue.")
-               )
+                Label(
+                  _("Feel free to add them now. Otherwise, click \"Next\" to continue.")
+                )
               ),
               PushButton(Id(:add_repo), _("Add new software repositories"))
             )

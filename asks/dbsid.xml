@@ -8,7 +8,7 @@
              <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_dbsid</file>
+             <file>/var/run/sap-wizard/ay_q_dbsid</file>
              <question>DB SID (Database System ID)</question>
              <stage>cont</stage>
              <default>MY_DEFAULT_SID</default>

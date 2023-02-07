@@ -19,7 +19,7 @@
 	     </p>
 	     ]]>
 	     </help>
-             <file>/tmp/ay_q_masterPwd</file>
+             <file>/var/run/sap-wizard/ay_q_masterPwd</file>
              <path>users,0,user_password</path>
              <question>SAP HANA Master Password</question>
              <password config:type="boolean">true</password>
@@ -33,7 +33,7 @@
              <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_sid</file>
+             <file>/var/run/sap-wizard/ay_q_sid</file>
              <question>SID (SAP HANA System ID)</question>
              <stage>cont</stage>
 	     <default>___SAPSID___</default>
@@ -94,7 +94,6 @@
 	<package>yast2-sap-ha</package>
 	<package>yast2-sap-scp</package>
 	<package>yast2-sap-scp-prodlist</package>
-	<package>yast2-saptune</package>
 	<package>zip</package>
 	<package>zlib</package>
   </post-packages>
