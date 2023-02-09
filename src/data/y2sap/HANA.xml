@@ -154,9 +154,6 @@ check_masterpwd "$VAL"
     </ask-list>
   </general>
   <software>
-    <!-- post-patterns config:type="list">
-    <pattern>sap-hana</pattern>
-  </post-patterns -->
     <post-packages config:type="list">
       <package>patterns-sap-hana</package>
     </post-packages>
