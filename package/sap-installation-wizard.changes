@@ -4,6 +4,7 @@ Thu Feb  9 09:54:40 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 - Do not require packages from HA and SLES4SAP. This packages are
   only suggested.
 - Fix unset local variable
+- Fix B1.xml
 - 4.5.2
 
 -------------------------------------------------------------------
