@@ -22,7 +22,7 @@ License:        GPL-2.0+
 Group:          System/YaST
 Version:        4.5.2
 Release:        0
-PreReq:         /bin/mkdir %insserv_prereq %fillup_prereq yast2
+PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
 Requires:       autoyast2
 Requires:       autoyast2-installation
