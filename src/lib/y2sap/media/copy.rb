@@ -40,7 +40,7 @@ module Y2Sap
         ""
       )
       Progress.NextStep
-      show_progress(pid, source_dir, target_dir, sub_dir)
+      show_progress(pid, source_dir, target_dir, sub_dir, source_size)
       # release the process from the agent
       SCR.Execute(path(".process.release"), pid)
       Progress.Finish
@@ -85,7 +85,7 @@ module Y2Sap
       end
     end
 
-    def show_progress(pid, source_dir, target_dir, sub_dir)
+    def show_progress(pid, source_dir, target_dir, sub_dir, source_size)
       while SCR.Read(path(".process.running"), pid) == true
         sleep(2)
         techsize = tech_size(target_dir + "/" + sub_dir)

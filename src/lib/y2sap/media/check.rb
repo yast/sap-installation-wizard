@@ -38,14 +38,14 @@ module Y2Sap
           fields = line.split(" ") if filepath[-1] == "info.txt"
           log.info("is_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
           next if fields.size == 0
-          instmaster = check_label(fields)
+          instmaster = check_label(fields,label_file)
           return instmaster if !instmaster.nil?
         end
       end
       return instmaster
     end
 
-    def check_label(fields)
+    def check_label(fields,label_file)
       instmaster = []
       if fields[1] =~ /^HANA/
         instmaster[0] = "HANA"
