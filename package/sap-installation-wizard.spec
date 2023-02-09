@@ -28,13 +28,13 @@ Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
-Suggests:       HANA-Firewall
+Recommends:     HANA-Firewall
+Recommends:     saptune
 Suggests:       sap-netscape-link
 Suggests:       saprouter-systemd
 Suggests:       yast2-hana-firewall
 Suggests:       yast2-sap-scp
 Suggests:       yast2-sap-scp-prodlist
-Suggests:       saptune
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
