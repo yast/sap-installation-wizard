@@ -35,6 +35,7 @@ module Y2Sap
     include Yast::UIShortcuts
     def create_partitions(product_partitioning_list, product_list)
       log.info("********Starting partitioning with #{product_partitioning_list} #{product_list}")
+      ret=""
 
       hwinfo = hw_info
       manufacturer = Ops.get(hwinfo, 0, "") # "FUJITSU", "IBM", "HP", "Dell Inc."
