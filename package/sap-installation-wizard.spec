@@ -37,8 +37,7 @@ Suggests:       yast2-sap-scp-prodlist
 Suggests:       saptune
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  ruby2.5-stdlib
-BuildRequires:	ruby2.5-rubygem-nokogiri
+BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
 BuildRequires:  autoyast2-installation
 BuildRequires:  yast2-network
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
