@@ -20,27 +20,24 @@ Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.5.1
+Version:        4.5.2
 Release:        0
-PreReq:         /bin/mkdir %insserv_prereq %fillup_prereq yast2
+PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
-Requires:       HANA-Firewall
 Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
-%if ! %{defined _SAPBOne}
-Requires:       sap-netscape-link
-Requires:       saprouter-systemd
-Requires:       yast2-hana-firewall
-Requires:       yast2-sap-scp
-Requires:       yast2-sap-scp-prodlist
-Requires:       saptune
-%endif
+Recommends:     HANA-Firewall
+Recommends:     saptune
+Suggests:       sap-netscape-link
+Suggests:       saprouter-systemd
+Suggests:       yast2-hana-firewall
+Suggests:       yast2-sap-scp
+Suggests:       yast2-sap-scp-prodlist
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:  ruby2.5-stdlib
-BuildRequires:	ruby2.5-rubygem-nokogiri
+BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
 BuildRequires:  autoyast2-installation
 BuildRequires:  yast2-network
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
