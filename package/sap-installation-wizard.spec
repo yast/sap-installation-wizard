@@ -30,11 +30,11 @@ Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
 Recommends:     HANA-Firewall
 Recommends:     saptune
-Suggests:       sap-netscape-link
-Suggests:       saprouter-systemd
-Suggests:       yast2-hana-firewall
-Suggests:       yast2-sap-scp
-Suggests:       yast2-sap-scp-prodlist
+Recommends:     sap-netscape-link
+Recommends:     saprouter-systemd
+Recommends:     yast2-hana-firewall
+Recommends:     yast2-sap-scp
+Recommends:     yast2-sap-scp-prodlist
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
