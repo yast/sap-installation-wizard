@@ -49,7 +49,6 @@ module Yast
       ret = nil
       loop do
         ret = Wizard.UserInput
-        log.info("ret %1", ret)
         case ret
         when :abort
           break if Popup.ConfirmAbort(:incomplete)

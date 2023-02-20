@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Feb 20 09:22:44 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- openQA sle-15-SP5-Online-S-Staging-x86_64-BuildS.39.1-sles4sap_default_install@64bit failed
+  (bsc#1208484)
+- 4.5.3
+
+-------------------------------------------------------------------
 Thu Feb  9 09:54:40 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - Do not require packages from HA and SLES4SAP. This packages are
