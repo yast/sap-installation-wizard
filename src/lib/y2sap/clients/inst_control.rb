@@ -19,6 +19,7 @@
 # To contact SUSE LLC about this file by physical or electronic mail, you may
 # find current contact information at www.suse.com.
 require "yast"
+require "y2firewall/firewalld"
 
 module Y2Sap
   module Clients
@@ -27,7 +28,6 @@ module Y2Sap
       def main
         include Yast::Logger
         Yast.import "Service"
-        Yast.import "SuSEFirewall"
         # MAIN
         textdomain "sap-installation-wizard"
         if File.exist?("/root/inst-sys/start_rdp_service")
@@ -36,6 +36,10 @@ module Y2Sap
           if rdp != "false"
             Service.Enable("xrdp")
             Service.Start("xrdp")
+            f = Y2Firewall::Firewalld.instance
+            f.read
+            f.api.add_service(f.default_zone, "rdp")
+            f.write
             SuSEFirewall.ReadCurrentConfiguration
             SuSEFirewall.SetServicesForZones(["service:xrdp"], ["INT", "EXT", "DMZ"], true)
             SuSEFirewall.WriteConfiguration
