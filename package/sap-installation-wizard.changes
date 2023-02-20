@@ -3,6 +3,7 @@ Mon Feb 20 09:22:44 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - openQA sle-15-SP5-Online-S-Staging-x86_64-BuildS.39.1-sles4sap_default_install@64bit failed
   (bsc#1208484)
+- Do not use deprecated SuSEFirewall2
 - 4.5.3
 
 -------------------------------------------------------------------
