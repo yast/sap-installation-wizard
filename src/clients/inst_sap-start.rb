@@ -31,7 +31,7 @@ module Yast
   class InstSapStart < Client
     def main
       textdomain "sap-installation-wizard"
-      Yast.import "Pkg"
+      Yast.import "Package"
       Yast.import "Popup"
       Yast.import "PackagesProposal"
       Yast.import "ProductControl"
@@ -73,10 +73,10 @@ module Yast
       ProductControl.DisableModule("user_first")
       if start_wizard
         to_install << "yast2-firstboot"
-        to_install << "sap-installation-wizard"
+        to_install << @wizard
         to_install << "sap-installation-start"
       else
-        to_install << "sap-installation-wizard"
+        to_install << @wizard
         to_remove  << "sap-installation-start"
         to_remove  << "yast2-firstboot"
       end
@@ -92,6 +92,7 @@ module Yast
     end
 
     def set_variable
+      @wizard  = Package.Available("sap-installation-wizard") ? "sap-installation-wizard" : "bone-installation-wizard"
       @caption = _("Choose Operating System Edition")
       @help    = _("<p><b>Select operating system edition</b></p> \
          <p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick\
