@@ -1,11 +1,12 @@
 -------------------------------------------------------------------
-Mon Feb 20 09:22:44 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+Tue Feb 21 10:59:08 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - openQA sle-15-SP5-Online-S-Staging-x86_64-BuildS.39.1-sles4sap_default_install@64bit failed
   (bsc#1208484)
 - Clean up code. Remove not used deprecated modules
-- Fix spec file: use Recommends instead of Suggests for packages
-  which are only available on SLES4SAP.
+- Create a new package bone-installation-wizard with reduced
+  requirements wich can be installed on SLES.
+  Do not change the requirements for sap-installation-wizard
 - 4.5.3
 
 -------------------------------------------------------------------
