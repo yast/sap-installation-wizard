@@ -60,6 +60,23 @@ Authors:
 --------
     varkoly@suse.com
 
+%package -n bone-installation-wizard
+Summary:        Installation wizard for SAP applications
+License:        GPL-2.0+
+Group:          System/YaST
+Version:        4.5.3
+Release:        0
+PreReq:         /bin/mkdir %fillup_prereq yast2
+BuildRequires:  yast2
+Requires:       autoyast2
+Requires:       autoyast2-installation
+Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
+Requires:     	xfsprogs
+Conflicts:      sap-installation-wizard
+
+%description -n bone-installation-wizard
+A YaST module providing an installation wizard for SAP BusinessOne
+
 %prep
 %setup -q
 
@@ -88,6 +105,23 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 rm -rf  %{buildroot}
 
 %files
+%defattr(-,root,root)
+%{yast_clientdir}
+%{yast_libdir}
+%{yast_desktopdir}
+%{yast_fillupdir}
+%{yast_ybindir}
+%{yast_scrconfdir}
+%{yast_icondir}
+/usr/share/YaST2/data/y2sap/
+%if ! %{defined _SAPBOne}
+%doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
+%else
+%doc README README.md
+%endif
+%license COPYING
+
+%files -n bone-installation-wizard
 %defattr(-,root,root)
 %{yast_clientdir}
 %{yast_libdir}
