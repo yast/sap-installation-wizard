@@ -1,0 +1,1946 @@
+-------------------------------------------------------------------
+Mon Feb 20 09:22:44 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- openQA sle-15-SP5-Online-S-Staging-x86_64-BuildS.39.1-sles4sap_default_install@64bit failed
+  (bsc#1208484)
+- Clean up code. Remove not used deprecated modules
+- Fix spec file: use Recommends instead of Suggests for packages
+  which are only available on SLES4SAP.
+- 4.5.3
+
+-------------------------------------------------------------------
+Thu Feb  9 09:54:40 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Do not require packages from HA and SLES4SAP. These packages are
+  only recommended. (bsc#1208112)
+- Fix unset local variable
+- Fix B1.xml
+- 4.5.2
+
+-------------------------------------------------------------------
+Fri Jan 20 09:40:32 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Implementing: Automatic Setup for SAP BusinessOne
+  (jsc#PED-3111)
+- Code clean up. Make code more readable. Splitting some modules
+  and functions in smaller parts.
+- 4.5.1
+
+-------------------------------------------------------------------
+Wed Nov  9 13:44:08 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- Impl: Drop yast2 saptune module (jsc#PED-399)
+- 4.5.0
+
+-------------------------------------------------------------------
+Wed Aug 10 09:05:39 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- yast2 sap-installation-wizard fails on # in NFS mount
+  (bsc#1197430)
+- 4.4.3
+
+-------------------------------------------------------------------
+Mon Feb 28 20:33:01 UTC 2022 - Peter Varkoly <varkoly@suse.com>
+
+- Install the packages for hana if hana partitionig was made.
+- Use the first found hdblcm command.
+- Make code more readable.
+- 4.4.2
+
+-------------------------------------------------------------------
+Wed Jan 19 13:50:46 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
+
+- Unit tests:
+  - Enable RSpec verifying doubles to ensue that the mocked
+    methods really exist (bsc#1194784)
+  - Fixed to actually pass
+  - Run them during RPM build
+- Do not crash if the partitioning XML is not valid
+- 4.4.1
+
+-------------------------------------------------------------------
+Tue Jan 18 14:42:07 UTC 2022 - Ladislav Slezák <lslezak@suse.cz>
+
+- Added missing "textdomain" statements (bsc#1194801)
+- 4.4.0
+
+-------------------------------------------------------------------
+Thu Feb  4 10:40:28 UTC 2021 - Peter Varkoly <varkoly@suse.com>
+
+- Adapt API change in IssuesPresenter
+- 4.3.6
+
+-------------------------------------------------------------------
+Wed Feb  3 15:36:10 UTC 2021 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1181139 - [Build 209.2] openQA test fails in installation
+  Fixing name space probelm for UI shortcut
+- 4.3.5
+
+-------------------------------------------------------------------
+Mon Feb  1 20:35:15 UTC 2021 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1181139 - [Build 209.2] openQA test fails in installation
+  Fix typo
+- 4.3.4
+
+-------------------------------------------------------------------
+Mon Jan 18 19:27:43 UTC 2021 - Peter Varkoly <varkoly@localhost>
+
+- bsc#1178715) - [Build 78.1] openQA test fails in wizard_hana_install
+  Fix autoinstallation workflow. Rename autoyast module
+- 4.3.3
+
+-------------------------------------------------------------------
+Fri Jan 15 10:21:05 UTC 2021 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178715) - [Build 78.1] openQA test fails in wizard_hana_install
+  Fix autoinstallation workflow. Rename autoyast module
+-  Add symlink for compatibility
+- 4.3.2
+
+-------------------------------------------------------------------
+Sat Dec  5 08:05:59 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178715) - [Build 78.1] openQA test fails in wizard_hana_install
+  Fix autoinstallation workflow.
+- 4.3.1
+
+-------------------------------------------------------------------
+Fri Nov 13 14:02:02 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178731) L3-Question: sap-installation-wizard broken
+- (bsc#1177392) [Build 51.1] Internal error in yast sap_create_storage_ng
+  /usr/share/YaST2/include/sap-installation-wizard/hana_partitioning.xml
+- 4.3.0
+
+-------------------------------------------------------------------
+Thu Nov 12 18:19:03 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178722) [Build S.45.2] openQA test fails in
+  sles4sap_product_installation_mode
+- 4.2.13
+
+-------------------------------------------------------------------
+Mon Nov  9 15:22:56 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1178440) - [Build S.38.1] openQA test fails in
+  sles4sap_product_installation_mode: Can't find YCP client
+  component inst_sap-start
+- 4.2.12
+
+-------------------------------------------------------------------
+Tue Oct 13 12:06:21 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- (bsc#1177392) Internal error in yast sap_create_storage_ng
+  /usr/share/YaST2/include/sap-installation-wizard/hana_partitioning.xml
+
+-------------------------------------------------------------------
+Thu Sep 10 12:58:43 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- HANA B1 Partionioner can't be interrupted (bsc#1176266)
+- 4.2.11
+
+-------------------------------------------------------------------
+Fri Aug 28 17:50:00 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- UEFI Boot Entry is not created (bsc#1174778)
+- Remove unnecessary network restart
+- 4.2.10
+
+-------------------------------------------------------------------
+Mon Aug 24 08:26:18 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One image available: 15.2 Build14.2:
+  "required partitioning was already created" (bsc#1175608 )
+- 4.2.9
+
+-------------------------------------------------------------------
+Mon Aug 17 11:23:17 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP B1 Image - sap_installation_wizard does not work based on
+  with firstboot_inst_sap (bsc#1175162)
+- 4.2.8
+
+-------------------------------------------------------------------
+Mon Aug  3 14:11:41 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- HANA B1 Partitioner could not be started
+  (bsc#1173904)
+- 4.2.7
+
+-------------------------------------------------------------------
+Wed Jul 22 08:55:04 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP B1 Image - SAP Installation wizard does not accept local folders
+  (bsc#1173680)
+- 15.2 Build 9.1] Wizard reports No Suitable Disks Found on system installed with HANA partitions
+  (bsc#1173960)
+- SAP B1 Image - SAP HANA is installed into the root filesystem
+  (bsc#1173931)
+- 4.2.6
+
+-------------------------------------------------------------------
+Tue Jul 14 15:15:33 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- Wizard reports No Suitable Disks Found on system installed with HANA partitions
+  (bsc#1173960)
+- error : No such client module sap-partitioning-wizard
+  (bsc#1173702)
+- SLES15-SP2-Installer-for-SAP-Business-One.x86_64-15.2-Build8.2
+  automatic partitioning errors out when cumulative disk is over 1TB
+  (bsc#1173927)
+- 4.2.5
+
+-------------------------------------------------------------------
+Wed Jul  8 05:42:57 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- SAP B1 Image - remove obsolete HANA partitioning files
+  (bsc#1173848)
+- 4.2.4
+
+-------------------------------------------------------------------
+Tue Jul  7 07:51:34 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- Autoyast removes network configuration if no networks section exist
+  (bsc#1173793)
+- SAP B1 Image - Installer fails to create HANA specific partitions
+  (bsc#1173744)
+- 4.2.3
+
+-------------------------------------------------------------------
+Fri Jul  3 08:38:50 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- Adapt b1 and hana installer for HANA2.0 and B1 V10
+- Adapt b1 property files
+- 4.2.2
+
+-------------------------------------------------------------------
+Wed Jul  1 07:55:06 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- First version after rewriting the whole module
+- Do not install SLES4SAP-only packages on BOne
+- Include Supermicro as new partner for Business One image
+- Now we can detect if the ask dialog is neccessary for B1.
+- This is not the case if HANA was installed inmediately befor.
+- Now we provides 3 HANA/B1 screnarios:
+    1. Installing HANA + B1 directly one after the other.
+    2. Installing only HANA
+    3. Installing B1 if already a HANA server is installed.
+- Take care removing the reconfig file.
+- Avoid copying B1 image twice.
+- Ignore media check files.
+- Reactivate warning if hardware is not certified.
+- 4.2.1
+
+-------------------------------------------------------------------
+Mon May  4 14:49:49 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1170821 - yast2 lan crashes when calling via autoyast in
+  running system
+- 4.1.21
+
+-------------------------------------------------------------------
+Wed Apr 29 14:39:23 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1170820 - sap-installation-wizard doesn't work anymore since version 4.1.19-1.2
+- bsc#1083546 [doc] mdc is now default for hana 2.0 sps1
+- 4.1.20
+
+-------------------------------------------------------------------
+Thu Apr 23 15:25:04 UTC 2020 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1158522 [Build 101.1] openQA test fails in windows_client_remotelogin
+- bsc#1154855 - During firstboot ayast_setup will not be executed.
+- Include Nutanix as new partner for Business One image
+- 4.1.19
+
+-------------------------------------------------------------------
+Thu Jul  4 11:14:04 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1116880 - SAP Installation Wizard fails to install NetWeaver
+  on SLES4SAP 15SP1
+- 4.1.16
+
+-------------------------------------------------------------------
+Tue May 14 19:45:00 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1135074 [Build 225.1] openQA test fails in wizard_hana_install
+- bsc#1132835 SAP Installation Wizard incorrectly handles some characters
+  Fix parsing of samba url if password contains special characters.
+- bsc#1132525 SAP Installation Wizard fails to install HANA SPS04 on
+  SLES4SAP 15SP1 RC2 Build213.1
+  Do not install packages, install pattens instead of.
+- 4.1.15
+
+-------------------------------------------------------------------
+Tue Apr 16 11:50:47 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1132360 [Build 211.2] yast error after partitioning in
+  sap-installation-wizard.
+  - Remove not dropped yast functions.
+  - Disabling virt interface creation. This is not used and
+    can make trouble in test envinroments.
+- 4.1.14
+
+-------------------------------------------------------------------
+Thu Mar 28 14:07:29 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1111828 sap-installation-wizard fails to install from SMB
+  Fix the name of the password attribute by evaluating the result of
+  URL.Parse
+- Fix typo: File.exists( ->  File.exist?
+- Take care of uniform using of exists? exist? function
+- 4.1.13
+
+-------------------------------------------------------------------
+Wed Mar  6 16:18:16 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1111828 [0.9.1 Build 2.22] sap-installation-wizard fails to install from SMB
+  - Fix smb mount add required parameter for windows.net
+- 4.1.12
+
+-------------------------------------------------------------------
+Thu Feb 28 11:25:49 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1125529 Enable Remote Desktop Protocol (RDP) Service and
+  open port in Firewall does not work.
+
+-------------------------------------------------------------------
+Wed Feb 20 16:02:10 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1125865 ayast_setup restarts all services and kills the GU
+
+-------------------------------------------------------------------
+Wed Jan 23 15:57:03 UTC 2019 - Peter Varkoly <varkoly@suse.com>
+
+- bsc#1122660 IPv6 reactivated during 'yast2 sap-installation-wizard'
+- bsc#1122658 'yast2 sap-installation-wizard' zeroing /etc/hosts during execution
+  - Code rewritten to use ayast_setup instead of own ayast magic.
+
+-------------------------------------------------------------------
+Fri May 11 12:58:24 UTC 2018 - varkoly@suse.com
+
+- bsc#1091912: Including the new HPE partitioning template
+- bsc#1089685: SLEx_15_LOC : INSTALL: ALL_LANGS:Untranslated
+  'Choose Operating System Edition' screen in 'SLES for SAP Applications'
+  install
+- bsc#1077799 - [Build 423.2] sap-installation-wizard crashes in
+  distribute_space on HANA2 installation
+- 4.1.8
+
+-------------------------------------------------------------------
+Fri Mar 23 15:11:51 UTC 2018 - varkoly@suse.com
+
+- bsc#1086512 Build530.1 | ifconfig/route as part of HANA installer
+- 4.1.7
+
+-------------------------------------------------------------------
+Fri Feb 23 15:18:39 UTC 2018 - dakechi@suse.com
+
+- bsc#1082534 [Build 473.4] saptune is not installed by default on ppc64le
+  Removed the %ifarch from the package requirements that was not
+  removed on the last submission.
+
+-------------------------------------------------------------------
+Fri Feb 23 13:20:14 UTC 2018 - varkoly@suse.com
+
+- bsc#1082534 [Build 473.4] saptune is not installed by default on ppc64le
+  Remove %ifarch in requirements and befor the call saptune in
+  the installation wizard
+- 4.1.6
+
+-------------------------------------------------------------------
+Thu Feb 22 17:06:41 UTC 2018 - varkoly@suse.com
+
+- bsc#1066951 sap-installation-wizard is not started after the
+  installation with the option to start it enabled
+  - Fix opening port for xrdp (ms-wbt).
+- 4.1.5
+
+-------------------------------------------------------------------
+Wed Feb 14 13:58:15 UTC 2018 - varkoly@suse.com
+
+- bsc#1080558 L3: sap-installation-wizard-3.1.76 does not honour
+  settings in /etc/sysconfig/sap-installation-wizard
+- 4.1.4
+
+-------------------------------------------------------------------
+Mon Feb 12 06:16:38 UTC 2018 - varkoly@suse.com
+
+- Changed to build only for the SLES4SAP supported Archs
+  related to bsc#1079235, bsc#1079234
+- bsc#1077795 sap-installation-wizard warns of uninitialized values in Perl module
+  o The variables will be checked befor using. Patch was not applied
+    by last check in.
+- 4.1.3
+
+-------------------------------------------------------------------
+Thu Feb  1 12:10:35 UTC 2018 - varkoly@suse.com
+
+- FATE#324384 - "Use GNOME Shell "upstream" mode as default"
+- 4.1.2
+
+-------------------------------------------------------------------
+Sat Jan 27 11:56:14 UTC 2018 - varkoly@suse.com
+
+- bsc#1077795 sap-installation-wizard warns of uninitialized values in Perl module
+  o The variables will be checked befor using.
+- bsc#1071696 Clicking the sap-windows-cheat-sheet on YaST opens the
+    SAP Installation Wizard.
+  o The desktop icon was moved from the yast icons directory
+- bsc#1077846 Installation wizard can not read product.xml
+  o A product.dtd will be searched and copied to the other product.xml files.
+- bsc#077847 The sap_create_storage-ng can not format the created LVs
+- 4.1.1
+
+-------------------------------------------------------------------
+Thu Jan 18 09:58:57 UTC 2018 - varkoly@suse.com
+
+- bsc#1069572 - Build348.1 | SAP Desktop icons are not shown properly
+  o Allow showing icons by executing
+    gsettings set org.gnome.desktop.background show-desktop-icons true
+    Important: this is a difference to default SLES behaviour
+- bsc#1076338 SLES for SAP installation screen description
+- bsc#1069586 sap-installation-wizard crashes during HANA2 installation
+  The sap partitioner was refactored using libstorage-ng
+- bsc#1072175 AutoYast Warning during manual HANA2 installation
+  o add Requires: autoyast2 to the spec
+- 4.1.0
+
+-------------------------------------------------------------------
+Tue Dec  5 17:04:53 UTC 2017 - varkoly@suse.com
+
+- bsc#1071052 B1 9.2 for HANA is unable to install with Installation Wizard
+  o The b1 installer was adapted for the newer versions.
+- Remove sap-installation-start after installation in the yast2-firstboot
+- Adapting text review of docu team.
+
+-------------------------------------------------------------------
+Fri Dec  1 14:28:11 UTC 2017 - varkoly@suse.com
+
+- [Bug 1066951] sap-installation-wizard is not started after the
+  installation with the option to start it enabled
+  - Fix enabling xrdp.
+- 4.0.4
+
+-------------------------------------------------------------------
+Mon Nov 20 20:35:58 UTC 2017 - varkoly@suse.com
+
+- [Bug 1066951] sap-installation-wizard is not started after the
+  installation with the option to start it enabled
+  A new package sap-installation-start will be installed to trigger
+  yast2-firstboot.
+- B1 earns the SID and instance number parameters from HANA.
+  Either it was saved into the product installations directory or
+  the b1_hana_list.sh script evaluates the available HANA databases.
+
+-------------------------------------------------------------------
+Tue Nov  7 17:30:39 UTC 2017 - varkoly@suse.com
+
+- bnc#1066951 sap-installation-wizard is not started after the installation
+  with the option to start it enabled
+
+-------------------------------------------------------------------
+Wed Oct 25 18:35:49 UTC 2017 - varkoly@suse.com
+
+- bnc#1060508 sap-installation-wizard fails with missing perl dependencies
+- FATE#323792: [MODULE] Create SAP Applications Module
+- Remove product type selection staff
+- 4.0.1
+
+-------------------------------------------------------------------
+Fri Oct  6 17:53:08 UTC 2017 - varkoly@suse.com
+
+- bnc#1060508 sap-installation-wizard fails with missing perl dependencies
+- 4.0.0
+
+-------------------------------------------------------------------
+Fri Jul  7 12:07:35 UTC 2017 - varkoly@suse.com
+
+- bsc#1047259 SAP Install Wizard AutoYaST profile does not succeed installing HANA
+  Add missed sample xml for the hana installation.
+  Update windows_cheat_sheet.pdf
+- 3.1.80
+
+-------------------------------------------------------------------
+Thu Jul  6 14:45:14 UTC 2017 - varkoly@suse.com
+
+- bsc#1047259 SAP Install Wizard AutoYaST profile does not succeed installing HANA
+- 3.1.79
+
+-------------------------------------------------------------------
+Wed Jul  5 15:45:43 UTC 2017 - varkoly@suse.com
+
+- bsc#1047292 - RC2 | ppc64le | dependency error after choosing SAP HANA Server Base pattern
+  The simpliest way is to remove it for ppc64le from the pattern.
+- bsc#1047259 SAP Install Wizard AutoYaST profile does not succeed installing HANA
+- 3.1.78
+
+-------------------------------------------------------------------
+Thu Jun 22 12:13:54 UTC 2017 - varkoly@suse.com
+
+- BNC#1045516 Add packages to the installation pattern
+- 3.1.77
+
+-------------------------------------------------------------------
+Wed Jun 21 09:25:04 UTC 2017 - varkoly@suse.com
+
+- bnc#1045167 SP1 + Backports from SUSE:Maintenance:3802.repo | wizard partitioning error
+- 3.1.76
+
+-------------------------------------------------------------------
+Wed May 24 07:36:20 UTC 2017 - varkoly@suse.com
+
+- bnc#1040398 - trex_inst.sh uses undefined shell variable
+- 3.1.75
+
+-------------------------------------------------------------------
+Wed May 17 15:46:53 UTC 2017 - varkoly@suse.com
+
+- BNC#1038503 BETA2 | sap-installation-wizard internal error Yast::SapCreateStorageClient__LVG
+- 3.1.74
+
+-------------------------------------------------------------------
+Sun May  7 08:20:25 UTC 2017 - varkoly@suse.com
+
+- FATE#320406 Provide SLES for SAP Applications container
+  Do not start tuning on docker.
+- 3.1.73
+
+-------------------------------------------------------------------
+Sun Apr 30 16:31:10 UTC 2017 - varkoly@suse.com
+
+- FATE#320408 Enhance the installation wizard to be used in HANA TDI environments
+  Applying https://www.sap.com/documents/2015/03/74cdb554-5a7c-0010-82c7-eda71af511fa.html
+- 3.1.72
+
+-------------------------------------------------------------------
+Mon Apr 24 13:07:44 UTC 2017 - varkoly@suse.com
+
+- bnc#1034878 - SP1 + Backports from SUSE:Maintenance:3802.repo |
+  HANA Installer fails due error ( HDD Partitioning)
+-3.1.71
+
+-------------------------------------------------------------------
+Wed Mar 29 11:38:25 UTC 2017 - varkoly@suse.com
+
+- bnc#1031115 - SLE-12-SP2-SAP-ppc64le-GM-DVD1-rebuild.iso |
+   Package sap-installation-wizard is broken
+- 3.1.70
+
+-------------------------------------------------------------------
+Tue Mar 28 11:07:58 UTC 2017 - varkoly@suse.com
+
+- bnc#1031106 - SLE-12-SP2-SAP-ppc64le-GM-DVD1-rebuild.iso
+  bash: xdg-desktop-icon: command not found error before starting yast.ssh to install
+- bnc#1030463 SLE12-SP2 | ppc64le | SAP | sap-installation-wizard fails to install HANA
+- Fix the HANA.xml
+- 3.1.69
+
+-------------------------------------------------------------------
+Wed Mar  8 14:05:32 UTC 2017 - varkoly@suse.com
+
+- bnc#997843 - Build0664 | RC2 | Installation wizard can not find TREX installer
+- 3.1.68
+
+-------------------------------------------------------------------
+Fri Feb 17 07:52:19 UTC 2017 - varkoly@suse.com
+
+- bnc#1016602 Missing packages after porting sap-installation-wizard from SLE12-SP2 on ppc64le
+- 3.1.67
+
+-------------------------------------------------------------------
+Thu Jan 26 14:44:06 UTC 2017 - varkoly@suse.com
+
+- bnc#997843 - Build0664 | RC2 | Installation wizard can not find TREX installer
+- Start saptune only on intel architecture
+- Add functions for TREX installation.
+- Add TREX installation script.
+- 3.1.66
+
+-------------------------------------------------------------------
+Wed Oct 19 12:19:48 UTC 2016 - varkoly@suse.com
+
+- BNC##962757 SAP Installer First-Boot: On Unsupported Hardware, Message Box About HANA Is Misleading
+
+-------------------------------------------------------------------
+Thu Oct 13 09:17:52 UTC 2016 - varkoly@suse.com
+
+- BNC#1004303 Build 738| Error displayed after regular TREX installation
+- 3.1.64
+
+-------------------------------------------------------------------
+Fri Oct  7 11:02:48 UTC 2016 - varkoly@suse.com
+
+- bnc#999617 - SAP-specific additional desktop icons are not aligned right after installation
+  Fixing some typos in sap-profile.sh script.
+  Take care thtat this script will be executed only once.
+- 3.1.63
+
+-------------------------------------------------------------------
+Wed Oct  5 14:43:20 UTC 2016 - varkoly@suse.com
+
+- bnc#999617 - SAP-specific additional desktop icons are not aligned right after installation
+- 3.1.62
+
+-------------------------------------------------------------------
+Mon Oct  3 13:03:51 UTC 2016 - varkoly@suse.com
+
+- bnc#1002571 - No output during SAP product installation
+- 3.1.61
+
+-------------------------------------------------------------------
+Fri Sep 23 12:16:44 UTC 2016 - varkoly@suse.com
+
+- bnc#992754 - sap-installation-wizard does not export the list of installed products
+- 3.1.60
+
+-------------------------------------------------------------------
+Thu Sep 15 18:18:31 UTC 2016 - varkoly@suse.com
+
+- bnc#996501 [sles4sap build 0655]"Clone this system for AutoYast"
+  in sap-installation-wizard creates incomplete autoyast profile
+- bnc#99025  inifile.param is empty
+- The sapinst java wizard will not be started any more.
+- 3.1.59
+
+-------------------------------------------------------------------
+Tue Sep  6 07:49:23 UTC 2016 - varkoly@suse.com
+
+- bnc#997177 SAP HANA autoinstallation does not work
+- bnc#991238 - error in yast when clicking remote administration
+- 3.1.58
+
+-------------------------------------------------------------------
+Fri Aug 19 20:28:55 UTC 2016 - varkoly@suse.com
+
+- FATE#321142 Add SUSE Connect icon on desktop
+- bnc#992197 - [sles4sap beta5]'Use of uninitialized value [1] in string eq' during HANA installation
+- 3.1.57
+
+-------------------------------------------------------------------
+Wed Aug 17 07:54:24 UTC 2016 - varkoly@suse.com
+
+- support B1 9.2 PL03
+- bnc#993727 SAP Installation Wizzard crashes after media search by NFS
+- bnc#992754 sap-installation-wizard does not export the list of installed products
+- 3.1.56
+
+-------------------------------------------------------------------
+Mon Aug  8 10:35:23 UTC 2016 - varkoly@suse.com
+
+- experimental HANA on Power installation support
+- support new B1 HANA media structure at https://support.sap.com/b1software
+- Lenovo partition size adjustments
+- Make captions in the product installation mode screen easy to understand and consistent (bsc#992365)
+- Install yast2-sap-scn by default (bsc#989314)
+- Tweak desktop file and icon caption for bsc#966751
+- do not install sap hana sr scale out by default
+- bsc#988750 install new feature packages
+- 3.1.55
+
+-------------------------------------------------------------------
+Thu Jul 14 14:59:53 UTC 2016 - varkoly@suse.com
+
+- FATE#Create "Cheat Sheet" explaining how to perform commonly used Windows tasks with Linux
+  Place the icons on the desktop of root.
+- BNC#988750  Introduce new packages to software patterns
+  Require only the packages which are necessary to work.
+- 3.1.54
+
+-------------------------------------------------------------------
+Wed Jul 13 16:44:31 UTC 2016 - varkoly@suse.com
+
+- FATE#Create "Cheat Sheet" explaining how to perform commonly used Windows tasks with Linux
+- FATE#320405 Enhance the SAP installation wizard that it could be used from SUSEManager
+- BNC#988750  Introduce new packages to software patterns
+- 3.1.53
+
+-------------------------------------------------------------------
+Fri Jul  8 11:43:42 UTC 2016 - varkoly@suse.com
+
+- BNC#988044 [build 0249]sap-installation-wizard fails with "cannot load such file -- saptune/saptune"
+- Do not provide installation mode which is not possible.
+- 3.1.52
+
+-------------------------------------------------------------------
+Thu Jul  7 15:28:51 UTC 2016 - varkoly@suse.com
+
+- BNC#988044 [build 0249]sap-installation-wizard fails with "cannot load such file -- saptune/saptune"
+- 3.1.51
+
+-------------------------------------------------------------------
+Mon Jul  4 09:30:19 UTC 2016 - varkoly@suse.com
+
+- BNC#987525 Installation wizard uses bad interfaces
+- 3.1.50
+
+-------------------------------------------------------------------
+Mon Jun 13 13:44:30 UTC 2016 - varkoly@suse.com
+
+- FATE#320405: Enhance the SAP installation wizard that it could be used from SUSEManager
+- 3.1.48
+
+-------------------------------------------------------------------
+Thu Mar 31 13:16:57 UTC 2016 - varkoly@suse.com
+
+-- add B1H 9.2 support
+-- generic HANA partitioning for new Dell servers
+-- adjustments in Huawei server detection
+-- 3.1.47
+
+-------------------------------------------------------------------
+Thu Feb 25 13:57:02 UTC 2016 - varkoly@suse.com
+
+- Remove java pre check from hana_inst.sh
+- 3.1.46
+
+-------------------------------------------------------------------
+Wed Jan 27 16:20:26 UTC 2016 - varkoly@suse.com
+
+- bnc#962298 Unable to mount SAP installation source shared via NFS
+- fix configuration of nfs and firewall during firstboot
+- fix incorrect label on the network inst server
+- 3.1.45
+
+-------------------------------------------------------------------
+Fri Jan 22 18:50:19 UTC 2016 - varkoly@suse.com
+
+- bnc#963212 Enable multi-node deployments: Remote Installer fails because of unsufficient NFS permissions
+- 3.1.44
+
+-------------------------------------------------------------------
+Wed Jan 20 14:13:59 UTC 2016 - varkoly@suse.com
+
+- Fix bad firewall configuration & non-responsive NFS server (bsc#962298)
+- 3.1.43
+
+-------------------------------------------------------------------
+Thu Jan 14 13:25:48 UTC 2016 - varkoly@suse.com
+
+- bnc#958956 Uninitialized constant Yast::FirstbootInstSapClient::PopUp during HANA installation
+- 3.1.42
+
+-------------------------------------------------------------------
+Thu Jan 14 07:22:35 UTC 2016 - varkoly@suse.com
+
+- bnc#958956 Uninitialized constant Yast::FirstbootInstSapClient::PopUp during HANA installation
+- 3.1.41
+
+-------------------------------------------------------------------
+Thu Jan  7 13:16:38 UTC 2016 - varkoly@suse.com
+
+- bnc#959739 - tuned package is not included into all of the SAP patterns
+- 3.1.40
+
+-------------------------------------------------------------------
+Fri Dec 18 13:36:43 UTC 2015 - varkoly@suse.com
+
+- bnc#959559 Installation: "What would you like to install?" screen - labels lack a period at the end
+- bnc#958974 "Back" button on "SAP Installation Wizard" step doesn't work
+- bnc#958956 First boot installation popup fix
+- 3.1.39
+
+-------------------------------------------------------------------
+Thu Dec 10 14:35:01 UTC 2015 - varkoly@suse.com
+
+- Use the right function to initialize the firewall configuration.
+- Fixing skipping media.
+- Apply patches from SAP for LENOVO
+- Do not provide own server as repository.
+- 3.1.38
+
+-------------------------------------------------------------------
+Tue Dec  8 17:27:13 UTC 2015 - varkoly@suse.com
+
+- Resize swap if this already exist.
+- Introduce checkbox for skipping copying media.
+
+-------------------------------------------------------------------
+Tue Dec  1 11:33:21 UTC 2015 - varkoly@suse.com
+
+- bnc#956998 If user does not make a choice on "Product Installation Mode" screen,i
+  the installer will proceed and eventually fail.
+- bnc#955817 sap-installation-wizard doesn't install libstdc++33
+- bnc#956996 Unable to install HANA: No Java runtime found
+- 3.1.36
+
+-------------------------------------------------------------------
+Wed Nov 25 15:00:08 UTC 2015 - varkoly@suse.com
+
+- bnc#956175 System stops by aborting the SAP installation in yast2-firstboot
+- 3.1.35
+
+-------------------------------------------------------------------
+Wed Nov 18 15:20:00 UTC 2015 - varkoly@suse.com
+
+- The sles control xml file have to contains sap as module in stage
+  continue too. On these grounds module sap must be disabled by normal
+  sles installation.
+
+-------------------------------------------------------------------
+Wed Nov 18 13:15:44 UTC 2015 - varkoly@suse.com
+
+- Use Pkg.SourceProvideOptionalFile to reload sap-control.xml from the installation media.
+- BNC#950140 Low space warning message doesn't allow to change the partition for vg_hana
+- 3.1.33
+
+-------------------------------------------------------------------
+Tue Nov 17 10:34:08 UTC 2015 - varkoly@suse.com
+
+- FATE#316401: Enable multi-node deployments:
+  Do not install yast2-firstboot if the sap-installation-wizard need not be started after installation.
+- 3.1.32
+
+-------------------------------------------------------------------
+Thu Nov 12 18:20:12 UTC 2015 - varkoly@suse.com
+
+- Three choices, when it comes to resume installation
+- Chenged help text and description of installation profiles
+- Fix several issues with network installation server
+- bnc#952166 Aborting the Installation Wizard leads to errors
+- Adapt xml files to be able to create swap partition.
+- General wizard workflow improvements; fix HANA firewall dialog crash
+
+-------------------------------------------------------------------
+Fri Oct 23 14:25:25 UTC 2015 - varkoly@suse.com
+
+- FATE#316401 Enable multi-node deployments:
+  Export present media via NFS and provide it via SLP
+- Configure hana fw before installing hana
+- Avoid reinstalling sapconf/tuned in tuning dialo
+- Integrate HANAFirewall with SUSEfirewall2
+- 3.1.30
+
+-------------------------------------------------------------------
+Tue Oct 20 16:49:59 UTC 2015 - varkoly@suse.com
+
+- FATE#316401 Enable multi-node deployments
+  By starting sap-installation-wizard searches via SLP for SAP media
+  repositories provided by other sap-installation-wizard.
+- bnc#949720 SAP installation wizard looks ugly
+- bnc#949742 SAP installation wizard cannot be aborted if SAP installation is failed
+- bnc#950139 Unable to install HANA using sap-installation-wizard
+- 3.1.29
+
+-------------------------------------------------------------------
+Fri Oct 16 15:11:20 UTC 2015 - varkoly@suse.com
+
+- bnc#949727 - Wrong password policy for 'SAP Master Password' in sap-installation-wizard.
+- Enhance importing SAP installation media.
+
+-------------------------------------------------------------------
+Wed Oct  7 18:03:07 UTC 2015 - varkoly@suse.com
+
+- FATE#318932 Allow SLES and SAP installation with multiple DVD-drives
+- Create product xml for TREX GATEWAY and Webdispatcher
+- 3.1.28
+
+-------------------------------------------------------------------
+Wed Oct  7 13:19:47 UTC 2015 - hguo@suse.com
+
+- HANA-Firewall integration.
+
+-------------------------------------------------------------------
+Thu Oct  1 09:35:33 UTC 2015 - varkoly@suse.com
+
+- fate#318072 New Bootmenu for SLES4SAP
+  For compatibilty reason we provide inst_sap-auto.rb
+- Do not use package lists but patterns.
+
+-------------------------------------------------------------------
+Mon Sep 28 10:04:48 UTC 2015 - hguo@suse.com
+
+- Minor revision change to bring back sapconf.
+
+-------------------------------------------------------------------
+Tue Sep 22 14:55:05 UTC 2015 - varkoly@suse.com
+
+- fate#318072 New Bootmenu for SLES4SAP
+  now we try it by yast2-firstboot
+- Add tuning dialogues
+- 3.1.25
+
+-------------------------------------------------------------------
+Thu Sep 17 13:50:28 UTC 2015 - varkoly@suse.com
+
+- fate#318072 New Bootmenu for SLES4SAP
+  now we try it by the autologin and autostart
+- 3.1.24
+
+-------------------------------------------------------------------
+Fri Sep 11 11:07:12 UTC 2015 - hguo@suse.com
+
+- New wizard workflow:
+  * select system tuning profile (fate#318969)
+  * add third party software repositories (fate#319061)
+- General improvements:
+  * Remove calls to deprecated Yast.include
+  * Correct invocation parameter in several client.rb files
+
+-------------------------------------------------------------------
+Wed Aug  5 14:05:19 UTC 2015 - varkoly@suse.com
+
+- fate#318072 New Bootmenu for SLES4SAP
+  Create a sap proposal to ask if the sap installation wizard
+  must be started at the end of the installation.
+- 3.1.22
+
+-------------------------------------------------------------------
+Tue Apr 28 08:17:31 UTC 2015 - varkoly@suse.com
+
+- bnc#928807 - [Test Case 1438299] Wizard Installation, use SAP HANA Media, install SAP HANA.
+  Applying patch for b1_inst.sh.patch from Henning Sackewitz (23.04.2015).
+- 3.1.21
+
+-------------------------------------------------------------------
+Mon Apr 27 14:03:36 UTC 2015 - varkoly@suse.com
+
+- Additional fix for : bnc#928118
+- 3.1.20
+
+-------------------------------------------------------------------
+Wed Apr 22 14:23:50 UTC 2015 - varkoly@suse.com
+
+- Additional fix for : bnc#928118
+
+-------------------------------------------------------------------
+Wed Apr 22 09:37:39 UTC 2015 - varkoly@suse.com
+
+- bnc#928118 Option 2 to only create partitions and to not actually install a product is not working as expected
+- bnc#928123 No progress is shown of the SAP - HANA installation at the Installation Wizard
+- bnc#928126 lost distinction between installation of different Business One installation types
+- Set checkbox false when disabling it.
+- Appying patches of Henning Sackewitz.
+- 3.1.9
+
+-------------------------------------------------------------------
+Fri Apr 17 11:33:57 UTC 2015 - varkoly@suse.com
+
+- Fix typos 'an SAP' -> 'a SAP'
+- Add autoinstallation feature to HANA installation.
+- 3.1.18
+
+-------------------------------------------------------------------
+Tue Apr 14 15:45:19 UTC 2015 - varkoly@suse.com
+
+- bnc#926758 sap-installation-wizard can not install SAP Business One
+
+-------------------------------------------------------------------
+Mon Apr 13 09:44:43 UTC 2015 - varkoly@suse.com
+
+- bnc#925489 - Built-in help in sap-installation-wizard is outdated
+
+-------------------------------------------------------------------
+Fri Apr 10 14:53:21 UTC 2015 - varkoly@suse.com
+
+- bnc#926758 sap-installation-wizard can not install SAP Business One
+- bnc#926424 Graphical mode of yast2 sometime segfaults on close
+- bnc#923992 - SAP installation wizard restarts X and dies
+- bnc#926559 SAP High-Availability System installation doesn't work
+
+-------------------------------------------------------------------
+Thu Apr  2 14:20:51 UTC 2015 - varkoly@suse.com
+
+- bnc#925145 ext3 default filesystem for installation with wizard.
+- 3.1.14
+
+-------------------------------------------------------------------
+Wed Apr  1 21:48:24 UTC 2015 - varkoly@suse.com
+
+- bnc#925491 SAP installation wizard with "Preparation for autoinstallation" checkbox says "Internal error.
+- bnc#925489 Built-in help in sap-installation-wizard is outdated
+- bnc#925447 After installation of Netweaver using the SAP installation wizard
+    I got "Calling the YaST module `inst_sap has failed.
+- bnc#925486 typo in sap-installation-wizard description and summary
+- Avoid crashing the module if the media does not contains product.catalog.
+- 3.1.13
+
+-------------------------------------------------------------------
+Sat Mar 28 21:02:25 UTC 2015 - varkoly@suse.com
+
+- Ask if not succesfully installation schould be start again.
+- Do not start the partitioner if the partitioner name is NO.
+  If no database was installed the symlinks must not be created.
+  This is needed for distributed and standalone installations.
+- Fix searching the database SID.
+- Enhance message by bad passwort.
+- 3.1.12
+
+-------------------------------------------------------------------
+Thu Mar 26 21:04:35 UTC 2015 - varkoly@suse.com
+
+- BNC#923992 SAP installation wizard restarts X and dies (temporary fix)
+- 3.1.11
+
+-------------------------------------------------------------------
+Tue Mar 24 14:38:41 UTC 2015 - varkoly@suse.com
+
+- BNC#923858 Wizard installation doesn't work. Check if the product list is empty.
+- emove not used webyast desktop file and packages.
+- Set the ask dialogs size to 70x20
+- Read the label for unknown medias better.
+- Set the default values for the shemas.
+- 3.1.10
+
+-------------------------------------------------------------------
+Fri Mar 20 16:57:33 UTC 2015 - varkoly@suse.com
+
+- Fix the path of ay_xml, script and partitioning path.
+- Start sapinst with virtual hostname if defined.
+- 3.1.9
+
+-------------------------------------------------------------------
+Fri Mar 20 11:42:04 UTC 2015 - varkoly@suse.com
+
+- bnc#922999 Help text improvement
+- 3.1.8
+
+-------------------------------------------------------------------
+Tue Mar 17 20:01:39 UTC 2015 - varkoly@suse.com
+
+- Do list only existing directories.
+- Fix the partitioning path.
+- 3.1.7
+
+-------------------------------------------------------------------
+Mon Mar 16 20:36:16 UTC 2015 - varkoly@suse.com
+
+- Fix typo.
+- 3.1.6
+
+-------------------------------------------------------------------
+Sun Mar 15 15:15:10 UTC 2015 - varkoly@suse.com
+
+- BNC#918403 atterns-sles-sap_server doesn't require libstdc++.so.5 and SAP products fail to start
+- Check if media dir exists to avoid crashing the module.
+- 3.1.5
+
+-------------------------------------------------------------------
+Thu Mar 12 11:25:19 UTC 2015 - varkoly@suse.com
+
+- Fix crashing when /data/SAP_CDs does not exist.
+- Text clean up.
+- Return the right values from the dialogues.
+- If all media are present we do not need to copy anything.
+- 3.1.4
+
+-------------------------------------------------------------------
+Fri Mar  6 18:38:09 UTC 2015 - varkoly@suse.com
+
+- Autoinstallation of SAP products is now available
+- 3.1.3
+
+-------------------------------------------------------------------
+Tue Mar  3 15:03:56 UTC 2015 - varkoly@suse.com
+
+- We have split the only yast client in separaed modules
+- 3.1.2
+
+-------------------------------------------------------------------
+Wed Feb 11 16:07:18 UTC 2015 - varkoly@suse.com
+
+- Adapt the api changes in yast2-storage module.
+- 3.1.1
+
+-------------------------------------------------------------------
+Sat Sep 20 12:27:18 UTC 2014 - varkoly@suse.com
+
+- Convert modul into ruby
+- 3.1.0
+
+-------------------------------------------------------------------
+Mon Apr 14 16:14:09 UTC 2014 - varkoly@suse.com
+
+- added SAP partitioning dialog separate from SAP SW installation
+- resized SAP HANA partitions for B1 use case
+- support for new HANA lifecycle mgmt tool (hdblcm)
+- removed SAP installation progress bar
+- Huawei partitioning support
+- 2.18
+
+-------------------------------------------------------------------
+Thu Sep 26 09:39:20 UTC 2013 - varkoly@suse.com
+
+- Remove bad file
+- BNC#838184 - SAP-BusinesOne-applicationServer-Basis
+
+-------------------------------------------------------------------
+Wed Sep 25 14:13:03 UTC 2013 - varkoly@suse.com
+
+- Add missed patches for DELL
+- BNC#841540 - SAP installation wizard does not mount embedded iso images correctly
+- BNC#841307 - SAP installation wizard does not setup uname26 environment correctly
+
+-------------------------------------------------------------------
+Mon Sep 23 09:49:17 UTC 2013 - varkoly@suse.com
+
+- Fix mount of local iso images.
+- Fix ORA DB installation.
+- BNC#837288 - Wizard configures the virtual network netmask wrong
+
+-------------------------------------------------------------------
+Fri Sep 20 09:43:18 UTC 2013 - varkoly@suse.com
+
+- uname26 usernames must be lower case
+
+-------------------------------------------------------------------
+Thu Sep 19 18:56:21 UTC 2013 - varkoly@suse.com
+
+- BNC#836978 sap-installation-wizzard not able to install products with oracle 112
+- Fix sap_init.sh for B1
+
+-------------------------------------------------------------------
+Thu Sep 19 06:48:49 UTC 2013 - varkoly@suse.com
+
+- Fix partitioning xml files. Do not use fix values.
+- Fix entry in /etc/security/uname26.conf. Use the right path.
+- Fix changing /etc/init.d/sapinit start line in case of uname26
+
+-------------------------------------------------------------------
+Fri Sep 13 07:18:22 UTC 2013 - varkoly@suse.com
+
+- Fix copying B1 installation master
+
+-------------------------------------------------------------------
+Wed Sep 11 12:33:26 UTC 2013 - varkoly@suse.com
+
+- BNC#836999 - uname26 does not work when multiple sapcar executables are found
+- BNC#837342 - Improvement of the 'virtual network' option in the installation wizard
+
+-------------------------------------------------------------------
+Wed Sep 11 09:16:07 UTC 2013 - varkoly@suse.com
+
+- Fix copying B1 installation master
+
+-------------------------------------------------------------------
+Tue Aug 27 20:35:13 UTC 2013 - varkoly@suse.com
+
+- Fix partitioning plan.
+- Adapt sap_inst.sh to B1 9.0
+
+-------------------------------------------------------------------
+Wed Aug 21 14:07:18 UTC 2013 - varkoly@suse.com
+
+- Fix for directory or file names containing spaces on the media
+- Fix HANA.xml
+
+-------------------------------------------------------------------
+Thu Aug 15 14:39:24 UTC 2013 - varkoly@suse.de
+
+- Install glibc-devel for B1
+
+-------------------------------------------------------------------
+Wed Aug 14 13:21:18 UTC 2013 - varkoly@suse.com
+
+- Create webyast icon for Desktop only for NW Products
+- Fixing USB-Device handling if no device found
+
+-------------------------------------------------------------------
+Wed Aug  7 11:08:54 UTC 2013 - varkoly@suse.com
+
+- Install sapconf on demand only for NW produckts
+- HANA adn B1 do not requiers ulimit
+- Remove by starting and stopping /dev/shm/InstMaster_SWPM/
+- sap_create_storage: Show feedback when partitioning the
+  devices. This may take some times and nothing happends.
+  IWhen no partitioning was found take the default
+
+-------------------------------------------------------------------
+Thu Aug  1 15:20:13 UTC 2013 - varkoly@suse.com
+
+- Do not modify existing sysctl.conf settings.
+- Set shmmni in sysctl.conf instead of boot.local
+- Do not apply unused zypper setting
+
+-------------------------------------------------------------------
+Wed Jul 31 15:20:17 UTC 2013 - varkoly@suse.com
+
+- Added changes from Henning at 26.Juli, plus small rewrite
+- Code clean up.
+
+-------------------------------------------------------------------
+Wed Jul 24 10:26:26 UTC 2013 - varkoly@suse.com
+
+- USB Device will be handled as Device.
+- Several fixes for HANA
+- Reinsert B1_partitionig.xml
+- Add post-scripts for BA and HANA ask files to adapt
+  SAP system requirements
+- Enhance post-install package list for BA and HANA
+- Move package installation from autoyast2 into the installations wizard
+
+-------------------------------------------------------------------
+Thu Jul 18 13:51:05 UTC 2013 - varkoly@suse.com
+
+- Remove not needed partitioning xml files
+
+-------------------------------------------------------------------
+Wed Jul 10 17:15:01 UTC 2013 - varkoly@suse.com
+
+- Adapt SAP changes for DELL Server
+
+-------------------------------------------------------------------
+Wed Jun 26 11:06:45 UTC 2013 - varkoly@suse.com
+
+- Added firstboot section for B1AH image
+
+-------------------------------------------------------------------
+Fri Jun  7 22:06:15 UTC 2013 - varkoly@suse.com
+
+- New sap_inst.sh from SAP
+
+-------------------------------------------------------------------
+Fri May 10 12:48:41 UTC 2013 - varkoly@suse.com
+
+- Remove not realy required packages
+
+-------------------------------------------------------------------
+Fri Mar 22 11:06:27 UTC 2013 - varkoly@suse.com
+
+- New sap_inst.sh from SAP
+
+-------------------------------------------------------------------
+Thu Mar  7 13:06:23 UTC 2013 - varkoly@suse.com
+
+- Search products based on packages.xml on SWPM medias too.
+- Some changes for HANA installations
+- Merge SAP's changes for HANA B1 and partitioning for HP and IBM
+
+-------------------------------------------------------------------
+Tue Jan 29 11:08:19 UTC 2013 - varkoly@suse.com
+
+- bnc#772826 - Oracle database installation fails
+- Support for B1 version of SAP HANA (B1AH)
+- Support for SWPM (>= NW 7.31) and 70SWPM (>= NW 7.03)
+- Adapting sap_inst.sh to SWPM
+- Minimal support for dialog instants
+- Support for different HDB-scenarios.
+- SAP Business One, analytics powered by SAP HANA (B1A)
+- Support for different HANA partitionings: (Fujitsu, IBM , HP)
+- Create the new dialogues for SAP system profile directory
+- Support for local .iso files
+
+-------------------------------------------------------------------
+Fri Jun  1 09:21:26 UTC 2012 - varkoly@suse.com
+
+- 2.6 workaround will activated even if Linux 3.x kernel will be provided
+
+-------------------------------------------------------------------
+Thu May 31 11:19:45 UTC 2012 - varkoly@suse.com
+
+- Linux 2.6 will be found even if Linux 3.x kernel will be provided
+- Avoid error messages
+
+-------------------------------------------------------------------
+Tue May 29 09:42:54 UTC 2012 - varkoly@suse.com
+
+- Product asc files:
+   Remove virtual network files if no virtual network needed
+   Default is no virtual network is needed
+- sap-installation-wizard.ycp
+   Fixing typo
+- sap_inst.sh
+   Some changes for tmp directory
+
+-------------------------------------------------------------------
+Thu May 24 07:41:19 UTC 2012 - varkoly@suse.com
+
+- Fixing typo
+
+-------------------------------------------------------------------
+Wed May 23 11:28:10 UTC 2012 - varkoly@suse.com
+
+- inst_sap.ycp
+   bnc#763597 - VUL-0: SLES11-SP2 SAP: sap-media-changer
+- sap_inst.sh sap-installation-wizard.ycp
+   Include Oracle 11
+
+-------------------------------------------------------------------
+Tue May 22 21:44:59 UTC 2012 - varkoly@suse.com
+
+- sap_inst.sh
+   The tmp directory must have 755
+
+-------------------------------------------------------------------
+Tue May 22 09:29:03 UTC 2012 - varkoly@suse.com
+
+- sap_inst.sh
+   Bad product.xml was created because of bad awk script
+- SAPMedia.pm sap-installation-wizard.ycp
+   needSaplup is true only if IBM java is needed
+   Using 2 variables instead of needCrypto: needSAPCrypto & needJCECrypto to be able to require the right medium
+   WebYast link has to use the IP of the host and not localhost
+- boot.sles4sap
+   Turn off splash if the system is not registered
+- sap_create_storage.ycp
+   Create the LVG even if the size is less then required. Give only a warning
+
+-------------------------------------------------------------------
+Mon May 14 14:06:38 UTC 2012 - varkoly@suse.com
+
+- sap_inst.sh:
+    Replacing tmp by ${TMPDIR}. Review of SAP changes
+- SAPMedia.pm:
+    New funktion needIBMJava to determine if the IBM java will be used.
+    This depends on the version of SAP and when indicated on the used database
+- sap-installation-wizard.ycp
+    needSaplup is true only if IBM java is needed
+
+-------------------------------------------------------------------
+Fri May 11 12:20:56 UTC 2012 - varkoly@suse.com
+
+- Fix bad check for needed kernel version.
+- Remove false comment signs from quell code
+- If copy process has failed we can retry
+- bnc#760314 - yast sap inst wizard 1: invisible letters
+- According to the wish of SAP /saplog must be independent from /sapdata
+- Do not setup virtual network if not needed
+- New logic for analizing the crypto problem:
+  If there are all needed cfypto files on the installation media: do not ask do it
+  If we needCrypto we assum we have the need files (fileFound=true), searcht the
+  2 files jce_policy.*\.zip and SAPCRYPTO.SAR, and analyze which we realy need.
+  If a file is missed fileFound=false.
+- Use TMPDIR instead of /tmp/
+
+-------------------------------------------------------------------
+Tue May  8 08:48:51 UTC 2012 - varkoly@suse.com
+
+- Installing the sap-installation-wizard on an existing system
+  some packages have to installed also to be able to start the
+  sap installer
+
+-------------------------------------------------------------------
+Tue Apr 24 15:45:13 UTC 2012 - varkoly@suse.com
+
+- Changes from SAP Henning Sackewitz based on beta2
+
+-------------------------------------------------------------------
+Thu Apr 19 15:05:05 UTC 2012 - varkoly@suse.com
+
+- Bugfix for creating the plugin for WebYast
+- Do not create LVG if the requested LVG allready do exists
+
+-------------------------------------------------------------------
+Thu Apr 12 17:45:25 UTC 2012 - varkoly@suse.com
+
+- Use multipath devices by device mapper not by physical device
+- bnc#756604 - sapinst.sh is not executed because of typo in sap-installation-wizard.ycp
+
+-------------------------------------------------------------------
+Thu Apr  5 06:46:08 UTC 2012 - varkoly@suse.com
+
+- Add -o nolock to nfs mount
+
+-------------------------------------------------------------------
+Wed Apr  4 10:29:42 UTC 2012 - varkoly@suse.com
+
+- Cleanup and new docu section
+- New sap_inst.sh from SAP (2012-04-02)
+- Added "Storagebased Copy" in products case selection
+- HANA do not use virtual networks.
+- Propose a usable name as SID for HANA
+- HANA needs master password and java_1_6_0 too
+- Now we create the needed sap links for the sap products in WebYast
+- Better errorhandling if e.g. mount fails
+- Rename "Universal MediaChanger" to "SAP Installation Wizard"
+- Check if the needed partitions do already exists
+- Check if the size of the aviable devices is enough
+- Do not use <size> to define the minimum size for a LV but <size_min>
+
+-------------------------------------------------------------------
+Mon Apr  2 09:13:59 UTC 2012 - varkoly@suse.com
+
+- Rename the package
+
+-------------------------------------------------------------------
+Thu Mar 29 16:34:55 UTC 2012 - varkoly@suse.com
+
+- Use sid instead of productid for uname26 users
+- New module for partitioning in live system
+- Added copying the file README.SAP-remove-compatibility-mode
+  as soon as the compatibility mode is triggered
+
+-------------------------------------------------------------------
+Tue Mar 13 07:37:33 UTC 2012 - varkoly@suse.com
+
+- sap-media-changer only runs in second stage or in installed system
+- Add HANA
+- boot-script to warn that the product is not registered
+- check_sap_uname.sh script to check if the SAP kernel needs uname26
+
+-------------------------------------------------------------------
+Thu Feb 23 15:27:02 UTC 2012 - varkoly@suse.com
+
+- Fix last checkin trouble
+
+-------------------------------------------------------------------
+Fri Feb 17 15:29:59 UTC 2012 - varkoly@suse.com
+
+- New xml files for SBC
+- New sap_inst.sh from SAP
+
+-------------------------------------------------------------------
+Wed Feb  8 16:13:31 UTC 2012 - varkoly@suse.com
+
+- Link for SAP in webyast's control panel
+
+-------------------------------------------------------------------
+Thu Feb  2 12:07:16 UTC 2012 - varkoly@suse.com
+
+- new XML SBC.xml; modified: sap_inst.sh SAPMedia.pm media-changer.xml sap-media-changer.ycp
+  SAP clone feature
+
+- inst_sap.ycp
+  During the installation ask the user if he wants to continue with
+  SAP Product installation
+
+-------------------------------------------------------------------
+Thu Dec  1 15:47:52 UTC 2011 - varkoly@suse.com
+
+- bnc#732359 - VUL-0: sap-media-changer: insecure usage of /tmp, possibly leaking SAP master password
+
+-------------------------------------------------------------------
+Fri Oct 28 14:36:28 UTC 2011 - varkoly@suse.com
+
+- media-changer.xml sap-media-changer.ycp
+	Patch from SAP resp. AS-JAVA_COPY. Attention pseudocode!!!
+- sap-media-changer.ycp
+	fix JMIG target dir
+	fixed missing brackets
+
+-------------------------------------------------------------------
+Tue Sep  6 05:00:40 UTC 2011 - varkoly@suse.com
+
+- MY_MASTERPASS.xml
+  * removed check for one upper case char in function check_masterpwd
+  * remove not needed feedback text
+- create_products_xml.sh
+  * SolManKey not needed anymore
+- SAPMedia.pm
+  * fix find cmd, not follow hidden directories
+  * in products_on_instmaster() don't follow .directories
+- sap-media-changer.ycp
+  * fix check for ABAP crypto library
+
+-------------------------------------------------------------------
+Tue Jul 12 11:31:14 UTC 2011 - varkoly@novell.com
+
+- sap-media-changer.ycp
+  * add local copy of cryptofile; add switch to enable/disable the sap install call
+- sap_inst.sh
+  * removed dummy virt_host for Sybase
+- ask dialogues
+  * changed check of SID for DAA
+  * removed check for one upper case char in function check_masterpwd
+- media-changer
+  * removed old not used entries; added new entry RUN_SAP_INSTALL=yes
+
+-------------------------------------------------------------------
+Wed Jun 29 15:32:55 UTC 2011 - varkoly@novell.com
+
+- sap-media-changer.ycp
+  * SAP exports should not be copied from local
+  * lookin for local media, progressbar hang, screen hang;
+  * added new function check_local_path; changed copyFile to take care of local path
+- SAPMedia.pm
+  * changed read_labelfile function to be used local and with ycp;
+  * simplyifed find_local_IM to use local functions;
+  * fixed some logging;
+  * fixed some statements in function compare_label
+- New sap_inst.sh from SAP
+
+-------------------------------------------------------------------
+Fri Jun 17 16:06:17 UTC 2011 - varkoly@novell.com
+
+- New reserved sids in ask dialogs DAA
+- sap-media-changer.ycp
+  * Fix for SYBASE; added new fixme
+  * Now we search local befor on the media
+  * Fixes for display cleartext product names
+- SAPMedia.pm
+  * Saplup does not need to check files
+  * New fuction find_local_IM to find allready copied identical product directories
+  * Fixed missing check of packeges.xml
+  * Fix bug if /usr/sap does not exist; added display names for products; fixed searchspeed of labelfiles
+- media-changer.xml
+  * Fixed search of ES (standalone) media
+  * Fix tech-label for Standalon products, because wildcard search found too much
+- sap_inst.sh
+  * new version from alex 2010-06-17: added SAPLUP+SYBASE
+  * New version wich can start DiagnosticsAgent
+  * Set the right begin of the block
+
+-------------------------------------------------------------------
+Sat May 28 10:21:47 UTC 2011 - varkoly@novell.com
+
+- New sap_inst.sh delivered by SAP
+
+-------------------------------------------------------------------
+Wed May 25 13:58:50 UTC 2011 - varkoly@novell.com
+
+- sap_inst.sh
+  NW_DiagnosticsAgent_getJavaHome.jcePolicyArchive
+- inst_sap.ycp
+  Checking hostname and IP-address entered by the user
+
+-------------------------------------------------------------------
+Wed May 25 09:33:47 UTC 2011 - varkoly@novell.com
+
+- Now theres is only one media-changer
+
+- inst_sap.ycp
+  - Checking if hostname is set.
+    If not we read /etc/HOSTNAME and the ip of eth0 and propose these as values.
+    After checking the entered values we append these on /etc/hosts and set hostname
+
+- sap_inst.sh
+  - Stops nscd by starting and starts it by finishing
+  - Calculate NW_DA_SID
+
+- sap-media-changer.ycp SAPMedia.pm
+  - remove "die" exits.
+
+  - SAPLUP
+    After copying the IM if INSTALL != BOBJ we detect if we need SAPLUP
+    We need saplup if
+    1) saplup is not even installed
+    2) and the control.xml on IM contains the package SAPLUP
+    When we need SAPLUP we need crypto media too.
+
+    When STACK == AS-ABAP and we need SAPLUP after copying the kernel we'll copy SAPLUP inmediately becouse this may be on the same media.
+    When STACK == AS-JAVA we ask for SAPLUP media.
+
+    If we can not detect the SAP version, we can not go on. We abrot the installation. This can happend after
+    copying the Kernel or JAVA and SAPLUP media. The reason can be bad access rights.
+  -
+-------------------------------------------------------------------
+Fri Jan 28 09:50:22 UTC 2011 - varkoly@novell.com
+
+- bnc#667701 - sap_inst.sh - prerequisite check for installed JVM is failing
+
+-------------------------------------------------------------------
+Tue Jan 25 10:35:10 UTC 2011 - varkoly@novell.com
+
+- bnc#666141 - sap-media-changer - smb:// not working as installation source
+
+-------------------------------------------------------------------
+Fri Jan 21 11:21:21 UTC 2011 - varkoly@novell.com
+
+- Now we deliver a webyast contor_panel.yml. The customer may modify it.
+
+-------------------------------------------------------------------
+Wed Jan 12 07:07:32 UTC 2011 - varkoly@suse.d
+
+- Hack to force gdm
+
+-------------------------------------------------------------------
+Thu Dec 16 13:29:54 UTC 2010 - varkoly@suse.de
+
+- Fix evaluating list variable
+
+-------------------------------------------------------------------
+Mon Dec  6 22:57:06 UTC 2010 - varkoly@suse.d
+
+- Implementing FATE#310679: sap-media-changer - Add loop-mount option for SAP installation media
+- bnc#637284 - sap-media-changer - AS-JAVA accepts "DW-J2EE-CD" for "J2EE-CD"
+
+-------------------------------------------------------------------
+Thu Dec  2 12:49:56 CET 2010 - varkoly@suse.de
+
+- Create empty /usr/share/autoinstall/dtd/profile.dtd to be able to
+  read old style product.xml
+- Implementing FATE#310678 smb/cifs
+- bnc#633775 - sap-media-changer - remove /tmp/may_* files when
+  installation is cancelled
+
+-------------------------------------------------------------------
+Tue Nov 23 21:32:35 CET 2010 - varkoly@suse.de
+
+- Adapt to sles11
+- bnc#655571 - Network will not be started inmediately (work around)
+- bnc#632807 - sap-media-changer - ignore trailing <blank>s when accessing CryptoAddOn medium
+- bnc#632803 - sap-media-changer - misleading default for cdrom://
+- bnc#589435 - network interface configuration fails via autoyast again
+- fix redefiniton of a variable
+- Make logging more verbose.
+- Make code more readable
+- We need to evaluate ENDUSER_MODE and FACTORY_MODE
+
+-------------------------------------------------------------------
+Wed Sep 22 15:15:06 CEST 2010 - varkoly@suse.de
+
+- added BOBJ script
+- call BOBJ script with help of media-changer.xml
+- Add changes from Alexander Hass
+- Fixed 2nd Export media
+- Fixed crypto handling
+- Fixed Dialog query: DI instead of AS
+- Fixed wrong name of check script call
+- Remove internal cryptolib
+- Fixed filling and useage of the DBTYPE variable
+- Fix find for extracting; limit it do directories and only one level
+- Added GPL header to sap_inst.sh
+- Add changes from Alexander Hass
+  * sap_inst.sh
+  * new ask dialogs for AS-ABAP_COPY AS-JAVA_COPY
+  * new checking of SAP SCS Instance Number this must be differnt from SAP Instance Number
+- fixed all non SAP media checks for existing dir
+- Added debug for JAVA case
+- Added missing usage of schemeCache
+- Fixed wrong mount umount handling of repositories
+- Modified name and handling of cryptofiles
+- Catch access error for crypto and supplementary media
+- Now Master Password ask dialog is avaiable for all products and
+  the root password will be asked during the installation separately
+- Include the fixes of SAP for sap_inst.sh
+- Added new dialog for additional JAVA medias
+- Fix call of finishing scripts
+- Fix handling of BOBJ Scripts - they have none, so don't use sap_inst.sh
+- Fixing product post scripts executaion
+- Fixed workflow for new sap-aio
+- SAP ES works with old media changer
+
+-------------------------------------------------------------------
+Wed Mar 31 14:49:28 CEST 2010 - ug@suse.de
+
+- another fix for keep_install_network (bnc#589435)
+- 2.17
+
+-------------------------------------------------------------------
+Thu Mar 25 09:47:28 CET 2010 - ug@suse.de
+
+- keep_install_network added (bnc#589435)
+- 2.16
+
+-------------------------------------------------------------------
+Thu Feb 11 12:44:32 CET 2010 - ug@suse.de
+
+- post_packages moved from AutoinstSoftware to AutoinstData
+
+-------------------------------------------------------------------
+Mon Dec 14 12:44:24 CET 2009 - ug@suse.de
+
+- fix for ignored chroot scripts injected by a product.xml
+- 2.15
+
+-------------------------------------------------------------------
+Fri Dec  4 16:40:01 CET 2009 - ug@suse.de
+
+- dump a final autoyast XML file
+- 2.14
+
+-------------------------------------------------------------------
+Tue Nov 17 12:01:44 CET 2009 - ug@suse.de
+
+- CHECK_COPIED added to ini-file
+- 2.13
+
+-------------------------------------------------------------------
+Thu Nov 16 12:26:54 CET 2009 - varkoly@suse.de
+
+- Change long text cor. SAP feedback
+- 2.12
+
+-------------------------------------------------------------------
+Thu Nov 12 16:26:54 CET 2009 - ug@suse.de
+
+- location string can be configured via <label> now
+- 2.11
+
+-------------------------------------------------------------------
+Thu Nov 12 09:26:09 CET 2009 - ug@suse.de
+
+- abort button aborts only the media
+  (aabort still aborts the product)
+- 2.10
+
+-------------------------------------------------------------------
+Mon Nov  9 11:31:21 CET 2009 - ug@suse.de
+
+- avoid handling product.xml twice
+- 2.09
+
+-------------------------------------------------------------------
+Tue Nov  3 11:41:47 CET 2009 - ug@suse.de
+
+- don't ask for the first CD/DVD via popup
+
+-------------------------------------------------------------------
+Tue Oct 20 11:38:11 CEST 2009 - ug@suse.de
+
+- 2.08
+
+-------------------------------------------------------------------
+Tue Oct 13 16:03:00 CEST 2009 - ug@suse.de
+
+- MULTIPLE_PRODUCTS added to ini file
+
+-------------------------------------------------------------------
+Tue Oct  6 13:18:47 CEST 2009 - ug@suse.de
+
+- help text above textentry added
+- 2.07
+
+-------------------------------------------------------------------
+Mon Oct  5 15:35:07 CEST 2009 - ug@suse.de
+
+- Popup added to the end of a media-set
+- dummy text added above media-url
+
+-------------------------------------------------------------------
+Mon Oct  5 13:18:02 CEST 2009 - ug@suse.de
+
+- require the inst-master (when there is no media-changer.xml)
+
+-------------------------------------------------------------------
+Thu Aug 27 12:12:51 CEST 2009 - ug@suse.de
+
+- MEDIA_TXT_NEEDED defaults to "yes" now (needed for AiO)
+- ini file documentation updated
+- XML file documentation updated
+- 2.06
+
+-------------------------------------------------------------------
+Thu Aug 20 16:15:59 CEST 2009 - ug@suse.de
+
+- media-changer.xml added
+- 2.05
+
+-------------------------------------------------------------------
+Tue Aug 18 14:18:46 CEST 2009 - ug@suse.de
+
+- ENDUSER_MODE invented
+- fixed a little bug when sysconfig file was missing
+- 2.04
+
+-------------------------------------------------------------------
+Mon Aug 17 16:23:14 CEST 2009 - ug@suse.de
+
+- packaging bug for sysconfig file fixed
+- 2.03
+
+-------------------------------------------------------------------
+Fri Aug 14 15:08:02 CEST 2009 - ug@suse.de
+
+- changed some script execution code
+- 2.02
+
+-------------------------------------------------------------------
+Thu Aug 13 11:30:05 CEST 2009 - ug@suse.de
+
+- FACTORY_MODE added to config
+- 2.01
+
+-------------------------------------------------------------------
+Tue Aug 11 14:20:04 CEST 2009 - ug@suse.de
+
+- copy files in root too
+- missing Media.txt on http(s) source fixed
+
+-------------------------------------------------------------------
+Mon Aug 10 13:01:04 CEST 2009 - ug@suse.de
+
+- submedia directories contain the media name now
+
+-------------------------------------------------------------------
+Thu Aug  6 12:18:35 CEST 2009 - ug@suse.de
+
+- some fixes
+- MEDIA_SETS added to config file
+
+-------------------------------------------------------------------
+Wed Aug  5 15:05:26 CEST 2009 - ug@suse.de
+
+- config file added
+- Media.txt optional now
+- 2.00
+
+-------------------------------------------------------------------
+Mon Apr 20 12:39:43 CEST 2009 - ug@suse.de
+
+- fix for vfat mounting
+- 1.26
+
+-------------------------------------------------------------------
+Thu Apr 16 14:31:08 CEST 2009 - ug@suse.de
+
+- avoid copying files twice
+
+-------------------------------------------------------------------
+Wed Apr 15 11:48:30 CEST 2009 - ug@suse.de
+
+- try to mount with "-o shortname=mixed" first
+- 1.25
+
+-------------------------------------------------------------------
+Tue Apr  7 10:28:18 CEST 2009 - ug@suse.de
+
+- skip_media file was not copied from local sources
+- media check for network sources is better now
+- useless "umount" for network sources removed
+- 1.24
+
+-------------------------------------------------------------------
+Wed Apr  1 14:00:07 CEST 2009 - ug@suse.de
+
+- check media change from SLES DVD to SAP Media after productXML()
+- 1.23
+
+-------------------------------------------------------------------
+Tue Mar 31 14:12:07 CEST 2009 - ug@suse.de
+
+- changed order of inst-master and product media
+- evaluation of product.xml moved to the beginning
+- don't copy directories that contain a Media.txt
+- 1.22
+
+-------------------------------------------------------------------
+Wed Mar 25 15:59:02 CET 2009 - ug@suse.de
+
+- device:// can have directory information too
+- skip_media added
+- desktop file added
+- 1.21
+
+-------------------------------------------------------------------
+Fri Mar 13 15:26:02 CET 2009 - ug@suse.de
+
+- don't repeat 2nd stage config for each XML file
+- abort button fixed (hopefully)
+- supplementary Popup dropped
+
+-------------------------------------------------------------------
+Thu Mar 12 14:00:22 CET 2009 - ug@suse.de
+
+- abort button behaviour changed
+- merging of XML fixed
+- 1.19
+
+-------------------------------------------------------------------
+Wed Mar 11 11:12:01 CET 2009 - ug@suse.de
+
+- merge ask-dialogs correctly in stage1
+
+-------------------------------------------------------------------
+Tue Mar 10 15:13:07 CET 2009 - ug@suse.de
+
+- copy products in subdirectories of /data/SAP_CDs/
+- 1.18
+
+-------------------------------------------------------------------
+Fri Jan 16 12:40:39 CET 2009 - ug@suse.de
+
+- execute scripts from stage1 in stage2
+- XML snippets are merged now into the current profile
+- evaluate "sapfactory" string in linuxrc
+- network protocols removed from first stage
+- 1.17
+
+-------------------------------------------------------------------
+Tue Jan 13 11:35:56 CET 2009 - ug@suse.de
+
+- "please wait" string changed (fate#305389)
+- umount in USB part added
+- ask "do you want to copy?"
+- 1.16
+
+-------------------------------------------------------------------
+Thu Dec 18 13:38:44 CET 2008 - ug@suse.de
+
+- loop for multiple products added
+- reading products.xml autoyast file
+- prepared for the back button in ask-dialogs
+- 1.15
+
+-------------------------------------------------------------------
+Tue Dec 16 13:54:04 CET 2008 - ug@suse.de
+
+- yes/no popups added for failed commands
+- USB support added
+- wrapper ycp client added
+- 1.14
+
+-------------------------------------------------------------------
+Tue Dec  9 17:52:27 CET 2008 - ug@suse.de
+
+- HTTP and FTP installation had too script Media check (bnc#444708)
+- 1.13
+
+-------------------------------------------------------------------
+Wed Sep 24 11:22:53 CEST 2008 - ug@suse.de
+
+- no media number check for NFS installation
+- 1.12
+
+-------------------------------------------------------------------
+Thu Sep 18 12:36:18 CEST 2008 - ug@suse.de
+
+- check for InstMaster fallback script fixed
+- 1.11
+
+-------------------------------------------------------------------
+Tue Sep 16 11:25:56 CEST 2008 - ug@suse.de
+
+- media_string for instMaster is a regex now
+- check for unexpected InstMaster
+
+-------------------------------------------------------------------
+Fri Sep  5 15:18:33 CEST 2008 - ug@suse.de
+
+- lots of fixed for remote installation sources
+- some media sanity checks added
+- version 1.09
+
+-------------------------------------------------------------------
+Thu Aug 21 15:07:57 CEST 2008 - ug@suse.de
+
+- network support added (nfs,http,https,ftp)
+- version 1.08
+
+-------------------------------------------------------------------
+Tue Jul 15 10:21:57 CEST 2008 - ug@suse.de
+
+- supplementary media support added
+- version 1.07
+
+-------------------------------------------------------------------
+Wed May 28 12:25:16 CEST 2008 - ug@suse.de
+
+- label check during media change fixed
+- version 1.06
+
+-------------------------------------------------------------------
+Fri May 16 14:48:00 CEST 2008 - ug@suse.de
+
+- text string fixed
+- check media label on new CD
+
+-------------------------------------------------------------------
+Mon May  5 14:49:14 CEST 2008 - ug@suse.de
+
+- added missing umount in case of wrong CD (bnc#386620)
+- "not found" textstring changed (bnc#386662)
+- broken "Abort" button fixed (bnc#386625)
+
+-------------------------------------------------------------------
+Mon Apr 28 13:39:10 CEST 2008 - ug@suse.de
+
+- changed order of copy commands
+
+-------------------------------------------------------------------
+Mon Apr 28 11:59:42 CEST 2008 - ug@suse.de
+
+- moved the copy of the autoyast-answer files
+
+-------------------------------------------------------------------
+Fri Apr 25 11:51:59 CEST 2008 - ug@suse.de
+
+- GPL license file added
+
+-------------------------------------------------------------------
+Mon Apr 21 17:01:08 CEST 2008 - ug@suse.de
+
+- initial release
+

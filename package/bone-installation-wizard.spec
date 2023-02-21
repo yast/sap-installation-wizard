@@ -1,5 +1,5 @@
 #
-# spec file for package sap-installation-wizard
+# spec file for package bone-installation-wizard
 #
 # Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
 #
@@ -16,8 +16,8 @@
 #
 
 
-Name:           sap-installation-wizard
-Summary:        Installation wizard for SAP applications
+Name:           bone-installation-wizard
+Summary:        Installation wizard for SAP BusinesOne
 License:        GPL-2.0+
 Group:          System/YaST
 Version:        4.5.3
@@ -28,13 +28,6 @@ Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
-Requires:     HANA-Firewall
-Requires:     saptune
-Requires:     sap-netscape-link
-Requires:     saprouter-systemd
-Requires:     yast2-hana-firewall
-Requires:     yast2-sap-scp
-Requires:     yast2-sap-scp-prodlist
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
@@ -49,7 +42,7 @@ BuildRequires:  yast2-devtools
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
 %endif
 ExclusiveArch:  x86_64 ppc64le
-Conflicts:      bone-installation-wizard
+Conflicts:      sap-installation-wizard
 Obsoletes:      sap-media-changer <= 2.17
 Provides:       sap-media-changer  = %{version}
 
