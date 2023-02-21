@@ -40,9 +40,9 @@ BuildRequires:  autoyast2-installation
 BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
 BuildRequires:  yast2
-BuildRequires:  yast2-devtools
-BuildRequires:  rubygem(rspec)
-BuildRequires:  rubygem(yast-rake)
+BuildRequires:  yast2-devtools >= 4.2.2
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 BuildRequires:  yast2-network
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
 ExclusiveArch:  x86_64 ppc64le
