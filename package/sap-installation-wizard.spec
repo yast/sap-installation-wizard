@@ -23,31 +23,28 @@ Group:          System/YaST
 Version:        4.5.3
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
-BuildRequires:  yast2
 Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
-Requires:     HANA-Firewall
-Requires:     saptune
-Requires:     sap-netscape-link
-Requires:     saprouter-systemd
-Requires:     yast2-hana-firewall
-Requires:     yast2-sap-scp
-Requires:     yast2-sap-scp-prodlist
+Requires:       HANA-Firewall
+Requires:       saptune
+Requires:       sap-netscape-link
+Requires:       saprouter-systemd
+Requires:       yast2-hana-firewall
+Requires:       yast2-sap-scp
+Requires:       yast2-sap-scp-prodlist
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
 BuildRequires:  autoyast2-installation
-BuildRequires:  yast2-network
-BuildRequires:  yast2-ruby-bindings >= 4.0.6
+BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
+BuildRequires:  yast2
+BuildRequires:  yast2-devtools
 BuildRequires:  rubygem(rspec)
 BuildRequires:  rubygem(yast-rake)
-BuildRequires:  yast2-devtools
-# speed up the tests in SLE15-SP1+ or TW
-%if 0%{?sle_version} >= 150100 || 0%{?suse_version} > 1500
-BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
-%endif
+BuildRequires:  yast2-network
+BuildRequires:  yast2-ruby-bindings >= 4.0.6
 ExclusiveArch:  x86_64 ppc64le
 Conflicts:      bone-installation-wizard
 Obsoletes:      sap-media-changer <= 2.17
