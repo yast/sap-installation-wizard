@@ -20,35 +20,33 @@ Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.5.2
+Version:        4.5.3
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
-BuildRequires:  yast2
 Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
-Recommends:     HANA-Firewall
-Recommends:     saptune
-Suggests:       sap-netscape-link
-Suggests:       saprouter-systemd
-Suggests:       yast2-hana-firewall
-Suggests:       yast2-sap-scp
-Suggests:       yast2-sap-scp-prodlist
+Requires:       HANA-Firewall
+Requires:       saptune
+Requires:       sap-netscape-link
+Requires:       saprouter-systemd
+Requires:       yast2-hana-firewall
+Requires:       yast2-sap-scp
+Requires:       yast2-sap-scp-prodlist
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
 BuildRequires:  autoyast2-installation
+BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
+BuildRequires:  yast2
+BuildRequires:  yast2-devtools >= 4.2.2
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 BuildRequires:  yast2-network
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
-BuildRequires:  rubygem(rspec)
-BuildRequires:  rubygem(yast-rake)
-BuildRequires:  yast2-devtools
-# speed up the tests in SLE15-SP1+ or TW
-%if 0%{?sle_version} >= 150100 || 0%{?suse_version} > 1500
-BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
-%endif
 ExclusiveArch:  x86_64 ppc64le
+Conflicts:      bone-installation-wizard
 Obsoletes:      sap-media-changer <= 2.17
 Provides:       sap-media-changer  = %{version}
 
@@ -58,6 +56,23 @@ A YaST module providing an installation wizard for SAP applications
 Authors:
 --------
     varkoly@suse.com
+
+%package -n bone-installation-wizard
+Summary:        Installation wizard for SAP applications
+License:        GPL-2.0+
+Group:          System/YaST
+Version:        4.5.3
+Release:        0
+PreReq:         /bin/mkdir %fillup_prereq yast2
+BuildRequires:  yast2
+Requires:       autoyast2
+Requires:       autoyast2-installation
+Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
+Requires:     	xfsprogs
+Conflicts:      sap-installation-wizard
+
+%description -n bone-installation-wizard
+A YaST module providing an installation wizard for SAP BusinessOne
 
 %prep
 %setup -q
@@ -87,6 +102,23 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 rm -rf  %{buildroot}
 
 %files
+%defattr(-,root,root)
+%{yast_clientdir}
+%{yast_libdir}
+%{yast_desktopdir}
+%{yast_fillupdir}
+%{yast_ybindir}
+%{yast_scrconfdir}
+%{yast_icondir}
+/usr/share/YaST2/data/y2sap/
+%if ! %{defined _SAPBOne}
+%doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
+%else
+%doc README README.md
+%endif
+%license COPYING
+
+%files -n bone-installation-wizard
 %defattr(-,root,root)
 %{yast_clientdir}
 %{yast_libdir}

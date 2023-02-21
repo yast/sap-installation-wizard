@@ -41,7 +41,7 @@ module Y2SystemRoleHandlers
       if ::Installation::Services.enabled.include?("xrdp")
         log.info("Sles4sapRoleFinish xrd enabled")
         external = @firewalld.find_zone(@firewalld.default_zone)
-        external.add_service("ms-wbt")
+        external.add_service("rdp")
         @firewalld.write
       end
       true
