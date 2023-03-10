@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Mar 10 18:51:19 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- [Build 77.1] openQA test fails in installation (bsc#1209152)
+  is_instmaster was renamed to find_instmaster
+- 4.5.4
+
+-------------------------------------------------------------------
 Tue Feb 21 10:59:08 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - openQA sle-15-SP5-Online-S-Staging-x86_64-BuildS.39.1-sles4sap_default_install@64bit failed
