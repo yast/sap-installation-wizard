@@ -36,7 +36,7 @@ module Y2Sap
         IO.readlines(label_file).each do |line|
           fields = line.split(":")
           fields = line.split(" ") if filepath[-1] == "info.txt"
-          log.info("is_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
+          log.info("find_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
           next if fields.size == 0
           instmaster = check_label(fields, label_file)
           return instmaster if !instmaster.nil?
