@@ -125,7 +125,7 @@ module Y2Sap
             copy_dir(@mount_point, @inst_dir, "Supplement")
             # TODO: EXECUTE profile.xml ON MEDIa
           when "sap"
-            inst_master_list = is_instmaster(@mount_point)
+            inst_master_list = find_instmaster(@mount_point)
             if inst_master_list.empty?
               sap_media = find_sap_media(@mount_point)
               sap_media.each do |path, label|
