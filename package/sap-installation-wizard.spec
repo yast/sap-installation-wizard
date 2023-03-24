@@ -15,7 +15,7 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define         common_version 4.4.4
+%define common_version 4.4.4
 Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
@@ -115,11 +115,7 @@ rm -rf  %{buildroot}
 %{yast_scrconfdir}
 %{yast_icondir}
 /usr/share/YaST2/data/y2sap/
-%if ! %{defined _SAPBOne}
 %doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
-%else
-%doc README README.md
-%endif
 %license COPYING
 
 %files -n bone-installation-wizard
@@ -132,11 +128,7 @@ rm -rf  %{buildroot}
 %{yast_scrconfdir}
 %{yast_icondir}
 /usr/share/YaST2/data/y2sap/
-%if ! %{defined _SAPBOne}
-%doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
-%else
 %doc README README.md
-%endif
 %license COPYING
 
 %changelog
