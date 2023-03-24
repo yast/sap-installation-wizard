@@ -15,12 +15,12 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-
+%define         common_version 4.5.4
 Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.5.4
+Version:        %{common_version}
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 Requires:       autoyast2
@@ -61,7 +61,7 @@ Authors:
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.5.3
+Version:        %{common_version}
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
