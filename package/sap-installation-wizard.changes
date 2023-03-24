@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Mar 24 06:49:36 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- (jsc#PED-3112) Maint: Automatic Setup for SAP BusinessOne
+- Implementing the same as on SP5. Need new package BusinessOne
+- 4.4.4
+
+-------------------------------------------------------------------
 Wed Aug 10 09:05:39 UTC 2022 - Peter Varkoly <varkoly@suse.com>
 
 - yast2 sap-installation-wizard fails on # in NFS mount
