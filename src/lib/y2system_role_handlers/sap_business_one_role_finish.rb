@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 # ------------------------------------------------------------------------------
-# Copyright (c) 2020 SUSE LLC
+# Copyright (c) 2022 SUSE LLC
 #
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -25,10 +25,10 @@ require "installation/finish_client"
 
 module Y2SystemRoleHandlers
   # Open xrdp port if xrdp.service was enabled.
-  class Sles4sapRoleFinish
+  class SapBusinessOneRoleFinish
     include Yast::Logger
     def run
-      log.info("Sles4sapRoleFinish started")
+      log.info("SapBusinessOneRoleFinish started")
       role = ::Installation::SystemRole.current_role
       if !role
         log.warn("Current role not found, not saving the config")
@@ -37,9 +37,9 @@ module Y2SystemRoleHandlers
       @firewalld = Y2Firewall::Firewalld.instance
       @firewalld.read
       return true if !@firewalld.installed?
-      log.info("Sles4sapRoleFinish firewall installed")
+      log.info("SapBusinessOneRoleFinish firewall installed")
       if ::Installation::Services.enabled.include?("xrdp")
-        log.info("Sles4sapRoleFinish xrd enabled")
+        log.info("SapBusinessOneRoleFinish xrd enabled")
         external = @firewalld.find_zone(@firewalld.default_zone)
         external.add_service("rdp")
         @firewalld.write

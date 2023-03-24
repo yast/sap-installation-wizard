@@ -27,6 +27,9 @@ describe Y2Sap::Clients::Sequence do
   subject(:client) { described_class.new }
 
   describe "#main" do
+    before do
+      allow(FileUtils).to receive(:mkdir_p)
+    end
     it "Start the sequence" do
       expect(client.read).to eq(:next)
     end

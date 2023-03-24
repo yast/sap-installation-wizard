@@ -9,9 +9,6 @@
     </mode>
   </general>
   <software>
-    <!-- post-patterns config:type="list">
-    <pattern>sap-b1</pattern>
-  </post-patterns -->
     <post-packages config:type="list">
       <package>patterns-sap-b1</package>
     </post-packages>

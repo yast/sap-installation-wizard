@@ -26,7 +26,12 @@ require "y2sap/media"
 require "yast"
 
 describe Y2Sap::Media do
+  before do
+    allow(FileUtils).to receive(:mkdir_p)
+  end
+
   context "no sysconfig file exist" do
+    subject { described_class.new(DATA_PATH + "/system/etc/sap-installation-wizard.xml") }
     it "reads the default base configuration" do
       expect(subject.mount_point).to eq "/mnt"
       expect(subject.inst_mode).to   eq "manual"
@@ -42,7 +47,7 @@ describe Y2Sap::Media do
     end
   end
   context "sysconfig file does exist" do
-    subject { described_class.new }
+    subject { described_class.new(DATA_PATH + "/system/etc/sap-installation-wizard.xml") }
     around do |example|
       # change the SCR root to a testing directory
       change_scr_root(File.join(DATA_PATH, "system"))
@@ -57,6 +62,7 @@ describe Y2Sap::Media do
     end
   end
   context "test the MediaCopy functions" do
+    subject { described_class.new(DATA_PATH + "/system/etc/sap-installation-wizard.xml") }
     let(:out) { { "exit" => 0, "stdout" => "200" } }
 
     before do

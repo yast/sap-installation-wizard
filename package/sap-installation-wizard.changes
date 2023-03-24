@@ -3,6 +3,10 @@ Fri Mar 24 06:49:36 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - (jsc#PED-3112) Maint: Automatic Setup for SAP BusinessOne
 - Implementing the same as on SP5. Need new package BusinessOne
+- [Build 77.1] openQA test fails in installation (bsc#1209152)
+  is_instmaster was renamed to find_instmaster
+- Do not require packages from HA and SLES4SAP. These packages are
+  only recommended. (bsc#1208112)
 - 4.4.4
 
 -------------------------------------------------------------------
