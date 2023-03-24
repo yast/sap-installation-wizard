@@ -1,7 +1,7 @@
 #
-# spec file for package sap-installation-wizard
+# spec file for package sap-installation-wizard and bone-installation-wizard
 #
-# Copyright (c) 2018 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2023 SUSE LINUX GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -15,12 +15,12 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-
+%define         common_version 4.4.4
 Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.4.4
+Version:        %{common_version}
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 Requires:       autoyast2
@@ -61,7 +61,7 @@ Authors:
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.4.4
+Version:        %{common_version}
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
@@ -73,6 +73,10 @@ Conflicts:      sap-installation-wizard
 
 %description -n bone-installation-wizard
 A YaST module providing an installation wizard for SAP BusinessOne
+
+Authors:
+--------
+    varkoly@suse.com
 
 %prep
 %setup -q
