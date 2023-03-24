@@ -87,7 +87,7 @@ module Y2Sap
 
       def config_read(path, def_val)
         return Yast::Misc.SysconfigRead(
-            Yast::Path.new(".sysconfig.sap-installation-wizard." +path),
+            Yast::Path.new(".sysconfig.sap-installation-wizard." + path),
             def_val
         )
       end
