@@ -93,7 +93,7 @@ installation server for the distributed or installation of SAP products.
 
 1.1.2 SAPMedia
    Perl module to recognize and analyze the SAP installation master.
-   is_instmaster:
+   find_instmaster:
 	Detects if the selected media is a SAP installation master.
 	If it is returns the type of the installation master.
    ConfigValue:

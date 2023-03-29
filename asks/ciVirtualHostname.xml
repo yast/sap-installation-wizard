@@ -5,7 +5,7 @@
              <p><b>Virtual Hostname of the CI</b><br>Enter the virtual hostname the SAP system should use internally.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_ciVirtualHostname</file>
+             <file>/var/run/sap-wizard/ay_q_ciVirtualHostname</file>
              <question>CI Virtual Hostname</question>
              <stage>cont</stage>
              <default>##VirtualHostname##</default>
@@ -24,7 +24,7 @@ function check_hostname() {
 
         return 0
 }
-#CHECK=$( cat /tmp/ay_q_virt_network )
+#CHECK=$( cat /var/run/sap-wizard/ay_q_virt_network )
 #if [ "$CHECK" = "false" ]; then
 #	exit 0
 #	

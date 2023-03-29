@@ -18,18 +18,16 @@
 #
 # To contact Novell about this file by physical or electronic mail, you may
 # find current contact information at www.novell.com.
+=begin
+textdomain "sap-installation-wizard"
+=end
 
 require "yast"
 require "open3"
 require "y2sap/partitioning/product_partitioning"
 Yast.import "UI"
 
-=begin
-textdomain "sap-installation-wizard"
-=end
-
 module Y2Sap
-
   # Install the selected products.
   module DoInstall
     include Yast
@@ -40,9 +38,7 @@ module Y2Sap
     def do_install
       do_collect
       ret = create_partitions(@partitioning_list, @product_list)
-      if( ret == :abort )
-        return :abort
-      end
+      return :abort if ret == :abort
       start_install_process
       return :next
     end
@@ -52,11 +48,10 @@ module Y2Sap
       @script_list       = []
       @partitioning_list = []
       @product_list      = []
-      @products_to_install.each do |instDir|
+      @products_to_install.each do |inst_dir|
         product_data = Convert.convert(
-          SCR.Read(path(".target.ycp"), instDir + "/product.data"),
-          :from => "any",
-          :to   => "map <string, any>"
+          SCR.Read(path(".target.ycp"), inst_dir + "/product.data"),
+          from: "any", to: "map <string, any>"
         )
         params = Builtins.sformat(
           " -m \"%1\" -i \"%2\" -t \"%3\" -y \"%4\" -d \"%5\"",
@@ -64,7 +59,7 @@ module Y2Sap
           Ops.get_string(product_data, "product_id", ""),
           Ops.get_string(product_data, "db", ""),
           Ops.get_string(product_data, "type", ""),
-          Ops.get_string(product_data, "inst_dir", ""),
+          Ops.get_string(product_data, "inst_dir", "")
         )
         log.info("product_data: #{product_data}")
         # Add script
@@ -75,7 +70,7 @@ module Y2Sap
 
         # Add product partitioning
         ret = Ops.get_string(product_data, "partitioning", "")
-        if ret == nil
+        if ret.nil?
           # Default is base_partitioning
           ret = "base_partitioning"
         end
@@ -90,7 +85,7 @@ module Y2Sap
     def start_install_process
       require "open3"
       @script_list.each do |intall_script|
-	run_script(intall_script)
+        run_script(intall_script)
       end
     end
 
@@ -134,6 +129,5 @@ module Y2Sap
         )
       end
     end
-
   end
 end

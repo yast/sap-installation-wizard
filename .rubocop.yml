@@ -10,11 +10,23 @@ Style/RedundantReturn:
 SingleLineBlockParams:
   Enabled: false
 
-# The general YaST agreement is 100 characters, so it fits into standard
-# resolutions and Github's pull request view. But let's open the threshold a
-# little bit
+Metrics/AbcSize:
+  Max: 70
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
 Metrics/LineLength:
-  Max: 105
+  Max: 140
+
+Metrics/ModuleLength:
+  Max: 150
+
+Metrics/MethodLength:
+  Max: 60
+
+Metrics/PerceivedComplexity:
+  Max: 15
 
 # Enforce if/unless at the end only for really short lines
 Style/IfUnlessModifier:
@@ -27,4 +39,13 @@ Style/ZeroLengthPredicate:
 
 # the ".freeze" attribute for the constants is not nice
 Style/MutableConstant:
+  Enabled: false
+
+Style/AlignHash:
+  Enabled: false
+
+Style/FileName:
+  Enabled: false
+
+Style/BlockComments:
   Enabled: false

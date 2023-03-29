@@ -8,7 +8,7 @@
              <p><b>SAP Instance Number</b><br>Enter the SAP system's instance number.</p>
 ]]>
 </help>
-             <file>/tmp/ay_q_sapinstnr</file>
+             <file>/var/run/sap-wizard/ay_q_sapinstnr</file>
              <question>SAP Instance Number</question>
              <stage>cont</stage>
              <script>

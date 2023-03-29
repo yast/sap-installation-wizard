@@ -1,6 +1,4 @@
 # encoding: utf-8
-# rubocop:disable AlignHash
-
 # Copyright (c) [2017] SUSE LLC
 #
 # All Rights Reserved.
@@ -47,7 +45,7 @@ module Y2Sap
         },
         "net_weaver" => {
           abort: :abort,
-	  back:  "read_im",
+          back:  "read_im",
           next:  "nw_installation_mode"
         },
         "nw_installation_mode" => {

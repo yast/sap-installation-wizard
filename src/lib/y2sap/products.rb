@@ -1,5 +1,4 @@
 # encoding: utf-8
-  
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -59,7 +58,7 @@ module Y2Sap
     # @return [String] The name of selected product.
     attr_accessor :product_name
 
-    # @return [Map<String,String>] The list of the products can be installed 
+    # @return [Map<String,String>] The list of the products can be installed
     # and the data base.
     attr_accessor :product_map
 
@@ -69,9 +68,9 @@ module Y2Sap
 
     # @return [List<String>] List of the partitioning xmls
     attr_accessor :product_partitioning_list
-    
-    # @return [Class<Y2SAP::Media>] This class instance contains the actual 
-    # media collection for the product to be installed. 
+
+    # @return [Class<Y2SAP::Media>] This class instance contains the actual
+    # media collection for the product to be installed.
     attr_accessor :media
 
     attr_accessor :dialog_text
@@ -100,6 +99,6 @@ module Y2Sap
 
     def install_sap
       do_install
-    end 
+    end
   end
 end
