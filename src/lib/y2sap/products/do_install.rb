@@ -128,6 +128,14 @@ module Y2Sap
             /var/tmp and /var/adm/autoinstall/logs.")
         )
       end
+      begin
+        File.open("/var/run/sap-wizard/installationSuccesfullyFinished.dat") do |f|
+          contents = f.read
+          Yast::Popup.TimedMessage(contents,10)
+          File.delete(f)
+        end
+      rescue Errno::ENOENT
+      end
     end
   end
 end

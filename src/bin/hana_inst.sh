@@ -294,6 +294,7 @@ hana_installation_summary ()
 EOF
 
   cp  ${summary_file} ${MEDIA_TARGET}/installationSuccesfullyFinished.dat
+  cp  ${summary_file} /var/run/sap-wizard/installationSuccesfullyFinished.dat
   cat ${summary_file}
 
 }
@@ -442,8 +443,6 @@ if [ $rc -eq 0 ]; then
    hana_installation_summary
 fi
 
-cp ${MEDIA_TARGET}/ay_q_sid /dev/shm
-cp ${MEDIA_TARGET}/ay_q_sapinstnr /dev/shm
 cleanup
 
 exit $rc
