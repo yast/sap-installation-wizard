@@ -63,7 +63,7 @@ module Y2Sap
         )
         log.info("product_data: #{product_data}")
         # Add script
-        @script_list << "/bin/sh -x " + Ops.get_string(product_data, "script_name", "") + params
+        @script_list << Ops.get_string(product_data, "script_name", "") + params
 
         # Add product to install
         @product_list << Ops.get_string(product_data, "product_id", "")
