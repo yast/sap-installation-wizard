@@ -131,7 +131,7 @@ module Y2Sap
       begin
         File.open("/var/run/sap-wizard/installationSuccesfullyFinished.dat") do |f|
           contents = f.read
-          Yast::Popup.Message(contents)
+          Yast::Popup.ShowTextTimed("Installation Summary",contents,100)
           File.delete(f)
         end
       rescue Errno::ENOENT
