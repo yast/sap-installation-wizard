@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Apr 13 16:57:37 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- AUDIT-0: sap-installation-wizard: b-one stuff (bsc#1210043)
+- 4.4.5
+
+-------------------------------------------------------------------
 Fri Mar 24 06:49:36 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - (jsc#PED-3112) Maint: Automatic Setup for SAP BusinessOne
