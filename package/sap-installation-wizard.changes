@@ -2,6 +2,8 @@
 Thu Apr 13 16:57:37 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - AUDIT-0: sap-installation-wizard: b-one stuff (bsc#1210043)
+- [Build 88.1] openQA test fails in wizard_hana_install - summary screen is blank
+  (bsc#1210215)
 - 4.4.5
 
 -------------------------------------------------------------------
