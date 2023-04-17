@@ -93,7 +93,7 @@ module Y2Sap
     def run_script(script)
       date = `date +%Y%m%d-%H%M`
       logfile = "/var/adm/autoinstall/logs/sap_inst." + date.chop + ".log"
-      f = File.new(logfile, "w", 0640)
+      f = File.new(logfile, "w", 0o640)
       f << "Run script:" << script
       exit_status = nil
       Wizard.SetContents(
