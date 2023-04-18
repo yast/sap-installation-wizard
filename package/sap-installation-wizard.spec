@@ -57,7 +57,7 @@ Authors:
     varkoly@suse.com
 
 %package -n bone-installation-wizard
-Summary:        Installation wizard for SAP applications
+Summary:        Installation wizard for SAP Business One applications
 License:        GPL-2.0+
 Group:          System/YaST
 Version:        4.6.1
