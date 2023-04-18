@@ -41,7 +41,6 @@ EOF
 
 SAPCD_INSTMASTER=""
 SAPINST_PRODUCT_ID=""
-. /etc/sysconfig/sap-installation-wizard
 
 # Optionally overrule parameters from answer files by command line arguments
 while getopts "i:m:d:s:n:p:t:y:h\?" options; do
@@ -118,8 +117,6 @@ cleanup()
   rm -rf /tmp/sapinst_exe.*
   rm -f  ${MEDIA_TARGET}/ay_*
   # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
-  sed -i "s${MASTERPASS}**********g" /var/log/YaST2/y2log
-  sed -i "s${MASTERPASS}**********g" /var/adm/autoinstall/logs/*
 
   rm -rf ${MEDIA_TARGET}
   # delete since created via mktemp
@@ -301,7 +298,7 @@ b1_post_process()
   USER_INSTALL_DIR="/usr/sap/SAPBusinessOne"
 
   # check if HANA processes are running
-  ps aux | grep -v grep | grep sapstartsrv | grep -i ${A_SID} > /dev/null 2>&1
+  ps aux | grep -v grep | grep -i "/usr/sap/${A_SID}/...../exe/sapstartsrv" > /dev/null 2>&1
   if [ $? -ne 0 ];
   then
       yast_popup "SAP HANA ${A_SID} is not running, please start it now. If SAP HANA is not yet installed, please install it now. Afterwards install SAP Business One."
