@@ -60,7 +60,11 @@ Authors:
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
+<<<<<<< HEAD
 Version:        4.6.1
+=======
+Version:        4.4.4
+>>>>>>> SLE-15-SP5
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
@@ -114,11 +118,7 @@ rm -rf  %{buildroot}
 %{yast_scrconfdir}
 %{yast_icondir}
 /usr/share/YaST2/data/y2sap/
-%if ! %{defined _SAPBOne}
 %doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
-%else
-%doc README README.md
-%endif
 %license COPYING
 
 %files -n bone-installation-wizard
@@ -131,11 +131,7 @@ rm -rf  %{buildroot}
 %{yast_scrconfdir}
 %{yast_icondir}
 /usr/share/YaST2/data/y2sap/
-%if ! %{defined _SAPBOne}
-%doc src/docs/windows_cheat_sheet.pdf src/docs/sap-autoinstallation.txt src/docs/hana-autoyast.xml README README.md
-%else
 %doc README README.md
-%endif
 %license COPYING
 
 %changelog

@@ -128,12 +128,13 @@ module Y2Sap
             /var/tmp and /var/adm/autoinstall/logs.")
         )
       end
-      if File.exist?("/var/run/sap-wizard/installationSuccesfullyFinished.dat")
-        File.open("/var/run/sap-wizard/installationSuccesfullyFinished.dat") do |file|
+      file_name = "/var/run/sap-wizard/installationSuccesfullyFinished.dat"
+      if File.exist?(file_name)
+        File.open(file_name) do |file|
           contents = file.read
           Yast::Popup.ShowTextTimed("Installation Summary", contents, 100)
-          File.delete(file)
         end
+        File.delete(file_name)
       end
     end
   end
