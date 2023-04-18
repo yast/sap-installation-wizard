@@ -60,11 +60,7 @@ Authors:
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-<<<<<<< HEAD
 Version:        4.6.1
-=======
-Version:        4.4.4
->>>>>>> SLE-15-SP5
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
