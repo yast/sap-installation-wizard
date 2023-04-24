@@ -63,7 +63,7 @@ module Y2Sap
         )
         log.info("product_data: #{product_data}")
         # Add script
-        @script_list << "/bin/sh -x " + Ops.get_string(product_data, "script_name", "") + params
+        @script_list << Ops.get_string(product_data, "script_name", "") + params
 
         # Add product to install
         @product_list << Ops.get_string(product_data, "product_id", "")
@@ -93,7 +93,7 @@ module Y2Sap
     def run_script(script)
       date = `date +%Y%m%d-%H%M`
       logfile = "/var/adm/autoinstall/logs/sap_inst." + date.chop + ".log"
-      f = File.new(logfile, "w")
+      f = File.new(logfile, "w", 0o640)
       f << "Run script:" << script
       exit_status = nil
       Wizard.SetContents(
@@ -127,6 +127,14 @@ module Y2Sap
           _("Installation failed. For details please check log files at \
             /var/tmp and /var/adm/autoinstall/logs.")
         )
+      end
+      file_name = "/var/run/sap-wizard/installationSuccesfullyFinished.dat"
+      if File.exist?(file_name)
+        File.open(file_name) do |file|
+          contents = file.read
+          Yast::Popup.ShowTextTimed("Installation Summary", contents, 100)
+        end
+        File.delete(file_name)
       end
     end
   end
