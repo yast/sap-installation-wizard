@@ -804,19 +804,6 @@ create_sapstartsrv_resources
 # Database specific preparations
 ###########################################
 
-# enable special handling for Sybase database
-if [ "SYB" = "${DBTYPE}" ]; then
-        # disable process address space randomization, set kernel.randomize_va_space = 0
-        if [ `sysctl -n kernel.randomize_va_space` -ne 0 ]; then
-                echo "Disabling process address space randomization. Setting 'kernel.randomize_va_space = 0'."
-                sed -i 's@^kernel.randomize_va_space.*@# & # changing parameter - needed for Sybase database@' /etc/sysctl.conf
-                echo "# Disabling process address space randomization. Needed for Sybase database, see SAP note 1570335." >> /etc/sysctl.conf
-                echo "# Setting 'kernel.randomize_va_space = 0'" >> /etc/sysctl.conf
-                echo "kernel.randomize_va_space = 0" >> /etc/sysctl.conf
-                echo 0 > /proc/sys/kernel/randomize_va_space
-        fi
-fi
-
 if [ "DB6" = "${DBTYPE}" ]; then
 	# comment "fis" service in /etc/services, as DB6 needs port 5912 as DB2 communication service
 	sed -i 's@.*5912/.*@# & # changing as needed for DB2 communication service@' /etc/services
