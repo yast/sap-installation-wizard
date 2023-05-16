@@ -105,7 +105,7 @@ module Y2Sap
     def hw_info
       hwinfo = []
       bios = Convert.to_list(SCR.Read(path(".probe.bios")))
-      log.warn("Warning: BIOS list size is %s" % bios.size) if bios.size != 1
+      log.warn(format("Warning: BIOS list size is %d", bios.size)) if bios.size != 1
       biosinfo = Ops.get_map(bios, 0, {})
       smbios = Ops.get_list(biosinfo, "smbios", [])
       sysinfo = {}
