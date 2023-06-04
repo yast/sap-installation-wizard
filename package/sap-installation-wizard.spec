@@ -69,6 +69,7 @@ Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
 Conflicts:      sap-installation-wizard
+Provides:       sap-installation-wizard = %{version}
 
 %description -n bone-installation-wizard
 A YaST module providing an installation wizard for SAP BusinessOne
