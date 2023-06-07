@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Wed Jun  7 09:43:29 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Remove all depreceted unified_installer stuff.
+- sap-installation-wizard can not find the installer on B1 image
+  (bsc#1212097) Fix the order of finding the installer.
+- 4.4.7
+
+-------------------------------------------------------------------
+Tue Jun  6 09:37:49 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Do not create new package. Fit package dependency using the macro %sap_bone
+
+-------------------------------------------------------------------
 Wed May 17 13:08:59 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard crashes: logger.rb aborts with wrong number of arguments
