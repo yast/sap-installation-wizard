@@ -68,6 +68,7 @@ Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
+Requires:       sapconf
 Conflicts:      sap-installation-wizard
 Obsoletes:      sap-installation-wizard  < %{version}
 Provides:       sap-installation-wizard  = %{version}
@@ -98,6 +99,13 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 
 %post
 %{fillup_only -n sap-installation-wizard}
+
+%post -n bone-installation-wizard
+%{fillup_only -n sap-installation-wizard}
+%{fillup_only -n pm-profiler}
+%{fillup_only -n sapconf}
+cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
+cp /usr/share/YaST2/data/y2sap/logind.conf.d-sap.conf /etc/systemd/logind.conf.d/sap.conf
 
 %preun
 
