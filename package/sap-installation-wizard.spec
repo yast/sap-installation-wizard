@@ -34,6 +34,9 @@ Requires:       saprouter-systemd
 Requires:       yast2-hana-firewall
 Requires:       yast2-sap-scp
 Requires:       yast2-sap-scp-prodlist
+%else
+Requires:       logrotate
+Requires:       sapconf
 %endif
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -76,6 +79,15 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 
 %post
 %{fillup_only -n sap-installation-wizard}
+
+%post -n bone-installation-wizard
+%{fillup_only -n sap-installation-wizard}
+%if  %{defined sap_bone}
+%{fillup_only -n pm-profiler}
+%{fillup_only -n sapconf}
+cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
+cp /usr/share/YaST2/data/y2sap/logind.conf.d-sap.conf /etc/systemd/logind.conf.d/sap.conf
+%endif
 
 %preun
 
