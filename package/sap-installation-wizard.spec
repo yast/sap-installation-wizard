@@ -1,5 +1,5 @@
 #
-# spec file for package sap-installation-wizard and bone-installation-wizard
+# spec file for package sap-installation-wizard
 #
 # Copyright (c) 2023 SUSE LINUX GmbH, Nuernberg, Germany.
 #
@@ -78,9 +78,6 @@ cd %{buildroot}/%{yast_clientdir}
 ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 
 %post
-%{fillup_only -n sap-installation-wizard}
-
-%post -n bone-installation-wizard
 %{fillup_only -n sap-installation-wizard}
 %if  %{defined sap_bone}
 %{fillup_only -n pm-profiler}
