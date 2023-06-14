@@ -66,6 +66,7 @@ PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
 Requires:       autoyast2
 Requires:       autoyast2-installation
+Requires:       logrotate
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
 Requires:       sapconf
@@ -105,6 +106,7 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 %{fillup_only -n pm-profiler}
 %{fillup_only -n sapconf}
 cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
+mkdir -p /etc/systemd/logind.conf.d/
 cp /usr/share/YaST2/data/y2sap/logind.conf.d-sap.conf /etc/systemd/logind.conf.d/sap.conf
 
 %preun
