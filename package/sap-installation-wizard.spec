@@ -36,13 +36,14 @@ Requires:       yast2-sap-scp
 Requires:       yast2-sap-scp-prodlist
 %else
 PreReq:         logrotate
-Requires:       sapconf
+PreReq:         sapconf
 %endif
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  autoyast2-installation
 BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
+BuildRequires:  sapconf
 BuildRequires:  yast2
 BuildRequires:  yast2-devtools >= 4.2.2
 BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
