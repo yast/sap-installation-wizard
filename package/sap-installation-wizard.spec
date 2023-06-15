@@ -105,6 +105,7 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 %{fillup_only -n sap-installation-wizard}
 %{fillup_only -n pm-profiler}
 %{fillup_only -n sapconf}
+/usr/bin/systemctl enable sapconf
 cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
 mkdir -p /etc/systemd/logind.conf.d/
 cp /usr/share/YaST2/data/y2sap/logind.conf.d-sap.conf /etc/systemd/logind.conf.d/sap.conf

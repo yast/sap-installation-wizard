@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Wed Jun 14 11:47:33 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+Thu Jun 15 14:10:56 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - Remove all depreceted unified_installer stuff.
 - sap-installation-wizard can not find the installer on B1 image
@@ -7,7 +7,8 @@ Wed Jun 14 11:47:33 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 - Add some Business One specific tunig stuff which was earlier integrated into the preinstalled image.
   sysconfig: pm-profiler, sapconf
   logrotate configuration
-  systemd logind.conf.d 
+  systemd logind.conf.d
+  Enable sapconf to apply the required system settings by start.
 - 4.5.7
 
 -------------------------------------------------------------------
