@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # hana_inst.sh - is a script used to install SAP HANA
 #
@@ -189,68 +189,6 @@ hana_setenv_lcm()
 EOF
 }
 
-
-hana_setenv_unified_installer()
-{
-  # there are two versions of the HANA Unified Installer response file
-  # Try the newer one if present
-  oldfile=${SAPCD_INSTMASTER}/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
-  newfile=${oldfile}.v2
-  if [ -f ${newfile} ]; then
-    FILE=${newfile}
-
-    oldstring="<dataPath></dataPath>"
-    newstring="<dataPath>${hanadatadir}/${SID}</dataPath>"
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring="<logPath></logPath>"
-    newstring="<logPath>${hanalogdir}/${SID}</logPath>"
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring="<sapmntPath>/hanamnt</sapmntPath>"
-    newstring="<sapmntPath>/hana/shared</sapmntPath>"
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring="<instanceNumber></instanceNumber>"
-    newstring="<instanceNumber>${SAPINSTNR}</instanceNumber>"
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring="<sid></sid>"
-    newstring="<sid>${SID}</sid>"
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring="<hdbHost></hdbHost>"
-    newstring="<hdbHost>$(hostname -f)</hdbHost>"
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-  else
-    FILE=${oldfile}
-
-    oldstring='${DATAPATH}'
-    newstring=${hanadatadir}/${SID}
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring='${LOGPATH}'
-    newstring=${hanalogdir}/${SID}
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring='/hanamnt'
-    newstring='/hana/shared'
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring='${INSTANCENUMBER}'
-    newstring=${SAPINSTNR}
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring='${SID}'
-    newstring=${SID}
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-
-    oldstring='${HDBHOST}'
-    newstring=$(hostname -f)
-    sed -i "s@${oldstring}@${newstring}@" ${FILE}
-  fi
-}
-
 cleanup() {
   if [ ! -e /root/hana-install-do-not-rm ]; then
     # Cleanup
@@ -307,10 +245,19 @@ hana_lcm_workflow()
    hana_get_input
    hana_setenv_lcm
 
-   #Detect if it is a B1 installation
-   B1=$(grep "FOR.B1" ${SAPCD_INSTMASTER}/*)
+   # Detect if it is a B1 installation
+   B1=$(find ${SAPCD_INSTMASTER} -maxdepth 1 -type f -exec grep FOR.B1 {} \;)
    if [ -n "$B1" -a ! -d ${SAPCD_INSTMASTER}/SAP_HANA_DATABASE ]; then
+     # Move the component directories into the first level
      find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
+   fi
+   # Find the installer
+   HDBLCM=$(find ${SAPCD_INSTMASTER} -name hdblcm | grep -m 1 -P 'DATABASE|SERVER')
+   HDBLCMDIR=$(dirname "${HDBLCM}")
+   if [ -z "${HDBLCM}" ]; then
+     echo "Cannot find hdblcm" > ${MEDIA_TARGET}/installation_failed
+     rc=1
+     return $rc
    fi
    case $A_SAPMDC in
      no)
@@ -353,54 +300,6 @@ hana_lcm_workflow()
    return $rc
 }
 
-hana_unified_installer_workflow()
-{
-   WORKDIR=/var/tmp/hanainst
-   DB_USER=SYSTEM
-   rm -rf ${WORKDIR}
-   mkdir -p ${WORKDIR}
-   hana_volumes
-   hana_get_input
-   hana_setenv_unified_installer
-
-   oldfile=${SAPCD_INSTMASTER}/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setuphana.slmodel.template
-   newfile=${oldfile}.v2
-   if [ -f ${newfile} ]; then
-     FILE=${newfile}
-   else
-     FILE=${oldfile}
-   fi
-
-   LINUX26_SUPPORT=/usr/bin/uname26  # workaround for saposcol bug (does not detect Linux kernel 3.x which is shipped with SLES11 SP2)
-   echo -e "$(cat ${MEDIA_TARGET}/ay_q_masterPwd)\n$(cat ${MEDIA_TARGET}/ay_q_masterPwd)" | ${LINUX26_SUPPORT} ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/setup.sh ${WORKDIR} ${FILE}
-   # Unified Installer always returns rc 0, regardless of success :-(
-   # workaround: test connection to HANA to determine success
-   [ -f ${A_SID} ] && SID=$(cat ${A_SID})
-   SID=${SID:="NDB"}
-   sid=${SID,,}
-   su - ${sid}adm -c "hdbsql -i ${SAPINSTNR} -u ${DB_USER} -p ${MASTERPASS} -jC 'select * from sys.dummy'" > /dev/null >&2
-   rc=$?
-
-   # install AFL (required for B1)
-   cd ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}
-   if [ $? -eq 0 ]; then
-      ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HANA_IM_LINUX__${ARCH}/SAPCAR -xvf ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR
-      if [ $? -eq 0 ]; then
-          cd SAP_HANA_AFL
-          ./hdbinst -b -p $(cat ${MEDIA_TARGET}/ay_q_masterPwd) -s ${SID}
-          rc=$?
-          if [ $rc -ne 0 ]; then
-             echo "could not install AFL, error=$rc"
-          fi
-      else
-         echo "could not extract ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH}/IMDB_AFL100_*.SAR"
-      fi
-   else
-      echo "AFL directory ${MEDIA_TARGET}/Instmaster/DATA_UNITS/HDB_AFL_LINUX_${ARCH} does not exist"
-      rc=1
-   fi
-   return $rc
-}
 
 extract_media_archives()
 {
@@ -420,25 +319,8 @@ extract_media_archives()
 
 rc=0
 missing=''
-# determine proper installation tool:
-# HANA 1.0 <= SP6: Unified Installer
-# HANA 1.0 => SP7: Life Cycle Manager (hdblcm)
 extract_media_archives
-HDBLCM=$(find ${SAPCD_INSTMASTER} -name hdblcm | grep -m 1 -P 'DATABASE|SERVER')
-if [ -n "${HDBLCM}" ]; then
-   export HDBLCMDIR=$(dirname ${HDBLCM})
-   hana_lcm_workflow
-else
-   COMPONENTS="HANA_IM_LINUX__${ARCH} HDB_CLIENT_LINUX_${ARCH} HDB_SERVER_LINUX_${ARCH} SAP_HOST_AGENT_LINUX_X64 HDB_AFL_LINUX_${ARCH} HDB_STUDIO_LINUX_${ARCH} HDB_CLIENT_LINUXINTEL"
-   missing=$(hana_check_components)
-   if [ -n "${missing}" ]; then
-      echo "Cannot install, HANA component folders missing on media: ${missing}" > ${MEDIA_TARGET}/installation_failed
-      rc=1
-   else
-      hana_unified_installer_workflow
-      rc=$?
-   fi
-fi
+hana_lcm_workflow
 if [ $rc -eq 0 ]; then
    hana_installation_summary
 fi
