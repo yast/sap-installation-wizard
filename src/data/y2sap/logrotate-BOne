@@ -1,0 +1,63 @@
+################################################ 
+#
+### logrotate file for SAP BusinessOne
+#
+################################################ 
+#
+## For tomcat logs with own logrotate (<YYYY>-<MM>-<DD>)
+## we only can do compress and delete 
+#
+/opt/sap/SAPBusinessOne/tomcat/logs/IMCE*.log /opt/sap/SAPBusinessOne/tomcat/logs/analyticService*.log /opt/sap/SAPBusinessOne/tomcat/logs/host-manager*.log /opt/sap/SAPBusinessOne/tomcat/logs/localhost*.log /root/IMCE*.log {
+# suppress error if not exist
+   missingok
+# compress the logs
+   compress
+   compresscmd /usr/bin/xz
+   compressext .xz
+# remove  logs after 3 month
+   maxage 90
+}
+
+## BOne 9x has some new locations so we add it
+/opt/sap/SAPBusinessOne/Common/tomcat/logs/AnalyticsPlatform/IMCE*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/analyticService*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/catalina*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/host-manager*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/localhost*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/manager*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/sbomailer*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/security*.log /opt/sap/SAPBusinessOne/Common/tomcat/logs/sldService*.log{
+# suppress error if not exist
+   missingok
+# compress the logs
+   compress
+   compresscmd /usr/bin/xz
+   compressext .xz
+# remove  logs after 3 month
+   maxage 90
+}
+
+## BOne 9x has some new locations so we add it
+/usr/sap/SAPBusinessOne/Common/tomcat/logs/AnalyticsPlatform/IMCE*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/analyticService*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/catalina*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/host-manager*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/localhost*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/manager*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/sbomailer*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/security*.log /usr/sap/SAPBusinessOne/Common/tomcat/logs/sldService*.log{
+# suppress error if not exist
+   missingok
+# compress the logs
+   compress
+   compresscmd /usr/bin/xz
+   compressext .xz
+# remove  logs after 3 month
+   maxage 90
+}
+
+#
+## For normal log file we can rotate
+#
+/root/SAP_Business_One /root/analytics_powered_by_SAP_HANA_Install* {
+# suppress error if not exist
+   missingok
+# rotate the log every month
+   monthly
+# keep 3 rotated logs
+   rotate 3
+# compress the archived logs
+   compress
+   compresscmd /usr/bin/xz
+   compressext .xz
+# remove rotated logs after 3 month
+   maxage 90
+# rotate if bigger than
+   size=+2048k
+}
