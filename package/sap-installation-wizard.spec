@@ -19,7 +19,7 @@ Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.4.7
+Version:        4.4.8
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 Requires:       autoyast2
@@ -82,6 +82,7 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 %if  %{defined sap_bone}
 %{fillup_only -n pm-profiler}
 %{fillup_only -n sapconf}
+/usr/bin/systemctl enable sapconf
 cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
 mkdir -p /etc/systemd/logind.conf.d/
 cp /usr/share/YaST2/data/y2sap/logind.conf.d-sap.conf /etc/systemd/logind.conf.d/sap.conf
