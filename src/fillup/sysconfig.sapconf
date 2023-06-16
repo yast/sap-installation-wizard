@@ -1,0 +1,319 @@
+## Path:	Productivity/Other
+## Description: Limits for system tuning profiles of sapconf
+## ServiceRestart: sapconf
+##
+## This file includes parameters recommended by SAP
+## Be in mind: If you edit or remove values from this file, sapconf will no
+## long behave as designed to or monitor these removed parameters
+##
+## This file is sourced in the common script (lib/common.sh) of sapconf and
+## in sapconf (lib/sapconf) itself.
+## SCCU2
+##
+# Size of tmpfs mounted on /dev/shm in percent of the virtual memory.
+# Depending on the size of the virtual memory (physical+swap) the
+# value is calculated by (RAM + SWAP) * VSZ_TMPFS_PERCENT/100
+# Set to 75
+#
+# SAP Note 941735
+#
+VSZ_TMPFS_PERCENT=75
+
+# kernel.shmall
+# This parameter sets the total amount of shared memory pages that
+# can be used system wide. Hence, SHMALL should always be at least
+# ceil(shmmax/PAGE_SIZE).
+# To determine the current page size run the command "getconf PAGE_SIZE".
+# see https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
+#
+# kernel.shmall is set to the SHMALL value from this file
+#
+# SAP Note 941735, HANA Administration Guide
+# 
+SHMALL=1152921504606846720
+
+# kernel.shmmax
+# This value can be set the run time limit on the maximum shared memory
+# segment size that can be created.
+# see https://www.kernel.org/doc/Documentation/sysctl/kernel.txt
+#
+# kernel.shmmax is set to the SHMMAX value from this file
+#
+# SHMMAX set to ULONG_MAX (18446744073709551615)
+#
+# SAP Note 941735, HANA Administration Guide
+#
+SHMMAX=18446744073709551615
+
+# /etc/security/limits.d/sapconf-nofile.conf
+## Type:        regexp(^@(sapsys|sdba|dba)[[:space:]]+(-|hard|soft)[[:space:]]+(nofile)[[:space:]]+[[:digit:]]+)
+#
+# Maximum number of open files for SAP application groups sapsys, sdba, and dba.
+# Consult with manual page limits.conf(5) for the correct syntax.
+# Set to 65536
+#
+# SAP Note 1771258
+#
+LIMIT_1="@sapsys soft nofile 65536"
+LIMIT_2="@sapsys hard nofile 65536"
+LIMIT_3="@sdba soft nofile 65536"
+LIMIT_4="@sdba hard nofile 65536"
+LIMIT_5="@dba soft nofile 65536"
+LIMIT_6="@dba hard nofile 65536"
+
+# vm.max_map_count
+# The value is the maximum number of memory map areas a process may have.
+# Memory map areas are used as a side-effect of calling malloc, directly by
+# mmap and mprotect, and also when loading shared libraries.
+#
+# vm.max_map_count is set to the MAX_MAP_COUNT value from this file
+#
+# vm.max_map_count should be set to MAX_INT (2147483647)
+#
+# SAP Note 1980196, 900929, HANA Administration Guide
+#
+MAX_MAP_COUNT=2147483647
+
+# kernel.shmmni
+# The value is the maximum number of shared memory identifies available in the
+# system.
+#
+# kernel.shmmni is set to the SHMMNI value from this file
+#
+# kernel.shmmni should be set to 32768
+#
+# SAP Note 2534844, HANA Administration Guide
+#
+SHMMNI=32768
+
+# vm.dirty_bytes (indirect vm.dirty_ratio)
+# Contains the amount of dirty memory at which a process generating disk writes
+# will itself start writeback.
+# Note: dirty_bytes is the counterpart of dirty_ratio. Only one of them may be
+# specified at a time. When one sysctl is written it is immediately taken into
+# account to evaluate the dirty memory limits and the other appears as 0 when
+# read.
+# Note: when switching off (stopping) sapconf, both values will be set back to
+# their previous settings.
+# Note: the minimum value allowed for dirty_bytes is two pages (in bytes); any
+# value lower than this limit will be ignored and the old configuration will be
+# retained.
+#
+# vm.dirty_bytes is set to the DIRTY_BYTES value from this file
+#
+# vm.dirty_bytes should be set to 629145600 (see TID_7010287)
+#
+# SAP Note 2578899
+#
+DIRTY_BYTES=629145600
+
+# vm.dirty_background_bytes (indirect vm.dirty_background_ratio)
+# Contains the amount of dirty memory at which the background kernel
+# flusher threads will start writeback.
+# Note: dirty_background_bytes is the counterpart of dirty_background_ratio.
+# Only one of them may be specified at a time. When one sysctl is written it is
+# immediately taken into account to evaluate the dirty memory limits and the
+# other appears as 0 when read.
+# Note: when switching off (stopping) sapconf, both values will be set back to
+# their previous settings.
+#
+# vm.dirty_background_bytes is set to the DIRTY_BG_BYTES value from this file
+#
+# vm.dirty_background_bytes should be set to 314572800 (see TID_7010287)
+#
+# SAP Note 2578899
+#
+DIRTY_BG_BYTES=314572800
+
+# net.ipv4.tcp_slow_start_after_idle
+# If enabled (=1), provide RFC 2861 behavior and time out the congestion
+# window after an idle period. An idle period is defined as the current
+# RTO (retransmission timeout). If disabled (=0), the congestion window will
+# not be timed out after an idle period.
+#
+# This value is important for large ScaleOut HANA clusters and HANA2 in general.
+# So disable TCP slow start on idle connections
+# set net.ipv4.tcp_slow_start_after_idle=0
+#
+# SAP Note 2382421
+#
+TCP_SLOW_START=0
+
+# /sys/kernel/mm/ksm/run
+# Kernel Samepage Merging (KSM). KSM allows for an application to register with
+# the kernel so as to have its memory pages merged with other processes that
+# also register to have their pages merged. For KVM the KSM mechanism allows
+# for guest virtual machines to share pages with each other. In todays
+# environment where many of the guest operating systems like XEN, KVM are
+# similar and are running on same host machine, this can result in significant
+# memory savings. Default value is 0.
+#
+# ksm set to 0
+#
+# SAP Note 2684254
+#
+KSM=0
+
+# /proc/sys/kernel/numa_balancing
+# Enables/disables automatic page fault based NUMA memory balancing.
+# Memory is moved automatically to nodes that access it often.
+# Enables/disables automatic NUMA memory balancing. On NUMA machines, there
+# is a performance penalty if remote memory is accessed by a CPU. When this
+# feature is enabled the kernel samples what task thread is accessing memory
+# by periodically unmapping pages and later trapping a page fault. At the
+# time of the page fault, it is determined if the data being accessed should
+# be migrated to a local memory node.
+# The unmapping of pages and trapping faults incur additional overhead that
+# ideally is offset by improved memory locality but there is no universal
+# guarantee. If the target workload is already bound to NUMA nodes then this
+# feature should be disabled. Otherwise, if the system overhead from the
+# feature is too high then the rate the kernel samples for NUMA hinting
+# faults may be controlled by the numa_balancing_scan_period_min_ms,
+# numa_balancing_scan_delay_ms, numa_balancing_scan_period_max_ms,
+# numa_balancing_scan_size_mb, and numa_balancing_settle_count sysctls.
+#
+# Turn off autoNUMA balancing
+# 0 to disable, 1 to enable
+# numa_balancing set to 0
+#
+# SAP Note 2684254
+#
+NUMA_BALANCING=0
+
+# /sys/kernel/mm/transparent_hugepage/enabled
+#
+# 'never' to disable, 'always' to enable
+# Disable transparent hugepages
+# set to 'never'
+#
+# SAP Note 2131662, 2684254, 2031375
+#
+THP=never
+
+# Energy Performance Bias EPB (applies to Intel-based systems only)
+#
+# we renamed the parameter to PERF_BIAS to make a clear distinction to
+# the former used tuned.conf parameter 'energy_perf_bias'
+#
+# PERF_BIAS: performance - 0, normal - 6, powersave - 15
+# or any number between 0 and 15
+#
+# SAP Note 2684254
+#
+# setting is disabled by default (leave empty)
+# When set, for all cpus the energy performance bias setting will be switched
+# to the chosen value.
+# if activating performance related settings a recommended value for
+# Energy Performance Bias is 'performance' or '0'
+#
+PERF_BIAS="performance"
+
+# CPU Frequency/Voltage scaling (applies to Intel-based systems only)
+#
+# we renamed the parameter to GOVERNOR to make a clear distinction to
+# the former used tuned.conf parameter 'governor'
+#
+# The clock frequency and voltage of modern CPUs can scale, in order to save
+# energy when there’s less work to be done. However HANA as a high-performance
+# database benefits from high CPU frequencies.
+# governor: performance , powersave
+#
+# SAP Note 2684254
+#
+# setting is disabled by default (leave empty)
+# When set, for all cpus the scaling governor setting will be switched to the
+# chosen value.
+# if activating performance related settings a recommended value for
+# governor is 'performance'
+#
+GOVERNOR="performance"
+
+# force latency - configure C-States for lower latency
+# (applies to Intel-based systems only)
+#
+# we renamed the parameter to FORCE_LATENCY to make a clear distinction to
+# the former used tuned.conf parameter 'force_latency'
+#
+# Input is a string, which is internally treated as a decimal (not a
+# hexadecimal) integer number representing a maximum response time in
+# microseconds.
+# It is used to establish a latency upper limit by limiting the use of C-States
+# (CPU idle or CPU latency states) to only those with an exit latency smaller
+# than the value set here. That means only those states that require less than
+# the requested number of microseconds to wake up are enabled, all the other
+# C-States are disabled.
+#
+# The files /sys/devices/system/cpu/cpu*/cpuidle/state*/latency and
+# /sys/devices/system/cpu/cpu*/cpuidle/state*/disable are used to limit the
+# C-States.
+#
+# When set in the sysconfig file
+# for all available CPUs all CPU latency states with a value read from
+# /sys/devices/system/cpu/cpu*/cpuidle/state*/latency >= (higher than)
+# the value from the sysconfig file are disabled by writing '1' to
+# /sys/devices/system/cpu/cpu*/cpuidle/state*/disable
+#
+# ATTENTION: not idling *at all* increases power consumption significantly and
+# reduces the life span of the machine because of wear and tear. So do not use
+# a too strict latency setting. For SAP HANA workloads a value of '70'
+# microseconds (as a "light sleep") seems to be sufficient. And the impact on
+# power consumption and life of the CPUs is less severe. But don't forget: The
+# deeper the idle state, the larger is the exit latency.
+#
+# SAP Note 2684254
+#
+# if activating performance related settings a recommended value for
+# force latency to start with is 70
+#
+FORCE_LATENCY=70
+
+# Intel P-State driver setting
+# (applies to Intel-based systems only and only if Intel-P-State-Driver is used)
+#
+# we renamed the parameter to MIN_PERF_PCT to make a clear distinction to
+# the former used tuned.conf parameter 'min_perf_pct'
+#
+# The P-State driver provides its own sysfs files to control the P-State
+# selection. These files have been added to /sys/devices/system/cpu/intel_pstate
+# Any changes made to these files are applicable to all CPUs
+#
+# min_perf_pct: Limits the minimum P-State that will be requested by the driver.
+# It states it as a percentage of the max (non-turbo) performance level.
+#
+# SAP Note 2684254
+#
+# setting is disabled by default (leave empty)
+# if activating performance related settings a recommended value for
+# MIN_PERF_PCT to start with is 100
+#
+MIN_PERF_PCT=
+
+# disk I/O scheduler
+#
+# we renamed the parameter to IO_SCHEDULER to make a clear distinction to
+# the former used tuned.conf parameter 'elevator'
+#
+# The default I/O scheduler for single-queued block layer devices offers
+# satisfactory performance for wide range of I/O task, however choosing an
+# alternative scheduler may potentially yield better latency characteristics
+# and throughput.
+# "noop" is an alternative scheduler, in comparison to other schedulers it
+# may offer more consistent performance, lower computation overhead, and
+# potentially higher throughput.
+# For most SAP environments (RAID, storage arrays, virtualizaton) 'noop' is
+# the better choice.
+# With the new introduced multi-queue scheduler for block layer devices the
+# recommended I/O scheduler is 'none' as an equivalent to 'noop' for
+# single-queued block layer devices.
+#
+# So IO_SCHEDULER can now contain a list of possible schedulers, separated
+# by blanks, which are checked from left to right. The first one which is
+# available in /sys/block/<device>/queue/scheduler will be used as new
+# scheduler setting for the respective block device.
+#
+# When set, all block devices on the system will be switched to one of the
+# chosen schedulers.
+#
+# SAP Note 2578899
+#
+IO_SCHEDULER="noop none"
