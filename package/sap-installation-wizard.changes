@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Jul  7 15:03:22 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- sap-installation-wizard update is trying to install file as sapconf but with different content
+  (bsc#1212813) Remove superfluous sysconfig file
+- 4.6.5
+
+-------------------------------------------------------------------
 Thu Jun 15 14:10:56 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - Remove all depreceted unified_installer stuff.
