@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Aug 11 12:14:00 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Adapt pattern name (bsc#1214161)
+  SAP installation wizard stops after HANA installation
+- 4.6.6
+
+-------------------------------------------------------------------
 Fri Jul  7 15:03:22 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard update is trying to install file as sapconf but with different content
