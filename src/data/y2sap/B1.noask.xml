@@ -10,7 +10,7 @@
   </general>
   <software>
     <post-packages config:type="list">
-      <package>patterns-sap-b1</package>
+      <package>patterns-sap-bone</package>
     </post-packages>
   </software>
   <networking>
