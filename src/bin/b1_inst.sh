@@ -1,37 +1,33 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # b1_inst.sh - is a script used to install SAP Business One products:
 #   SAP Business One 9.2, version for SAP HANA including SAP Business One Analytics Powered by SAP HANA
 #
 # Copyright (c) 2017 SAP AG
 #
-# This program is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU General Public License as 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation only version 2 of the License.
 #
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License 
+# You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 usage() {
 	cat <<-EOF
 
 		############################################################################
-		#  `basename $0` -i | -m | -d | -s | -n | -p | -t                             #
+		#  $(basename $0) -i | -m | -d | -s | -n | -p | -t                         #
 		#                                                                          #
-		#  i ) SAPINST_PRODUCT_ID - Product ID                                     #
 		#  m ) SAPCD_INSTMASTER - Path to the SAP Installation Master Medium       #
 		#  d ) SAPINST_DIR - The directory where the installation will be prepared #
 		#  s ) SID - SAP System ID                                                 #
 		#  n ) SAPINSTNR - SAP Instance Number (two digits)                        #
 		#  p ) MASTERPASS - SAP Masterpassword to use                              #
-		#  g ) NOGUI                                                               #
-		#  t ) DBTYPE - De minek...? Na mindegy...                                 #
-		#  y ) PRODUCT_TYPE - Ez is borzaszto fontos!!!
 		#  h ) This help                                                           #
 		#                                                                          #
 		############################################################################
@@ -40,20 +36,17 @@ EOF
 }
 
 SAPCD_INSTMASTER=""
-SAPINST_PRODUCT_ID=""
 
 # Optionally overrule parameters from answer files by command line arguments
-while getopts "i:m:d:s:n:p:t:y:h\?" options; do
+while getopts "m:i:y:d:s:n:p:t:h\?" options; do
 	case $options in
-		i ) SAPINST_PRODUCT_ID=${OPTARG};; #Product ID
 		m ) SAPCD_INSTMASTER=${OPTARG};; # Path to the SAP Installation Master Medium (has to be full-qualified)
+		i ) continue;; # On B1 we ignore product id
+		y ) continue;; # On B1 we ignore product type
 		d ) SAPINST_DIR=${OPTARG};; # The directory where the installation will be prepared
 		s ) SID=$OPTARG;;  # SAP System ID
 		n ) SAPINSTNR=$OPTARG;;  # SAP Instance Number
 		p ) MASTERPASS=$OPTARG;;  # Masterpassword
-		g ) NOGUI="yes";;
-		t ) DBTYPE=$OPTARG;;  # Nagyon fontos parameter...
-		y ) PRODUCT_TYPE=$OPTARG;;
 		h | \? ) usage
 		        exit $ERR_invalid_args;;
 		* ) usage
@@ -64,18 +57,20 @@ done
 ###########################################
 # globals
 ###########################################
-TMPDIR=`mktemp -t -d sap_install_XXXXX`
+TMPDIR=$(mktemp -t -d sap_install_XXXXX)
 chmod 755 $TMPDIR
 MEDIA_TARGET=$(dirname $SAPCD_INSTMASTER)
 
-HOSTNAME=`hostname`
-IP_ADDR=`gethostip -d $HOSTNAME`
+HOSTNAME=$(hostname)
+IP_ADDR=$(gethostip -d $HOSTNAME)
 
 # YaST parameter take over
-A_MASTERPASS=`cat "${MEDIA_TARGET}/ay_q_masterPwd"`
-A_SID=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c1-3`
-#A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sapinstnr"`
-A_SAPINSTNR=`cat "${MEDIA_TARGET}/ay_q_sid" | cut -c5-6`
+A_MASTERPASS=$(cat "${MEDIA_TARGET}/ay_q_masterPwd")
+A_SID=$(cat "${MEDIA_TARGET}/ay_q_sid" | cut -c1-3)
+A_SAPINSTNR=$(cat "${MEDIA_TARGET}/ay_q_sid" | cut -c5-6)
+if [ -z "${A_SAPINSTNR}" && -e ${MEDIA_TARGET}/ay_q_sapinstnr ]; then
+  A_SAPINSTNR=$(cat "${MEDIA_TARGET}/ay_q_sapinstnr")
+fi
 
 ###########################################
 # Define ERRORS section
@@ -114,16 +109,16 @@ EOF
 
 cleanup()
 {
-  rm -rf /tmp/sapinst_exe.*
-  rm -f  ${MEDIA_TARGET}/ay_*
-  # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
+  if [ ! -e /root/b1-install-do-not-rm ]; then
+    rm -rf /tmp/sapinst_exe.*
+    rm -f  ${MEDIA_TARGET}/ay_*
+    # the ^[ is a escape character "strg-v ESC" !! don't cut'n'paste it
 
-  rm -rf ${MEDIA_TARGET}
-  # delete since created via mktemp
-  rm -rf ${TMPDIR}
+    rm -rf ${MEDIA_TARGET}
+    # delete since created via mktemp
+    rm -rf ${TMPDIR}
+  fi
 
-# check if we stopped nscd during our installation
-#[ "${NSCD_RUNNING}" = "true" ] && service nscd start > /dev/null 2>&1
 }
 
 
@@ -142,17 +137,17 @@ summary()
         # ( File can be found here: ${summary_file} )
         #########################################################################
         # Hostname:	${HOSTNAME}
-        # Domain Name:	`dnsdomainname`
+        # Domain Name:	$(dnsdomainname)
         # IP Address:	${phys_ip}
-        # Domain Searchlist:	`grep ^search /etc/resolv.conf | sed 's/search //'`
-        # IP for Nameserver:	`grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' '`
+        # Domain Searchlist:	$(grep ^search /etc/resolv.conf | sed 's/search //')
+        # IP for Nameserver:	$(grep ^nameserver /etc/resolv.conf | sed 's/nameserver //' | tr '\n' ' ')
         # Default Gateway:	$( ip route list | gawk '/default/ { print $3}' )
         #
         # SAP HANA System ID:	${A_SID}
         # SAP HANA Instance:	${A_SAPINSTNR}
         # Installation location: ${USER_INSTALL_DIR}
         #########################################################################
-        # `basename $0` ended at `date +"%Y/%m/%d, %T (%Z)"`
+        # $(basename $0) ended at $(date +"%Y/%m/%d, %T (%Z)")
         #########################################################################
 EOF
 
@@ -243,7 +238,7 @@ installation()
           parameters
           ${INSTTOOL} -i silent -f ${PROPERTIES} > /dev/null 2>&1 &
           pid_installer=$!
-          
+
           # start displaying the logs
 	  while true
 	  do
@@ -253,14 +248,14 @@ installation()
 		fi
 		sleep 2
 	  done
-          
+
           tail -f ${USER_INSTALL_LOG} &
           pid_logging=$!
-          
+
           # waiting for the installation to be done
           wait ${pid_installer}
           rc=$?
-          
+
           # stop log monitor
           kill -9 ${pid_logging}
     fi
@@ -275,14 +270,14 @@ b1_post_process()
 
     if [ -f "/etc/samba/smb.conf" ];
     then
-	param_check=`cat $smb_conf | grep ${security_param}`
+	param_check=$(cat $smb_conf | grep ${security_param})
 	
 	    if [ -z "$param_check" ];
 	    then
     	    sed -i '/\[global\]/,+0{ a \
 	'${security_param}'
     	    }' $smb_conf
-    	    
+    	
     	    # restarting samba with the new configuration
     	    /usr/bin/systemctl restart smb.service
     	fi
