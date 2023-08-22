@@ -21,17 +21,14 @@ usage () {
   cat <<-EOF
 
     #######################################################################
-    # $(basename $0) -i -m -s -n -p -t -y -h -g
+    # $(basename $0) -m -s -n -p -t -h
     #
-    #  i ) SAPINST_PRODUCT_ID - SAPINST Product ID
     #  m ) SAPCD_INSTMASTER - Path to the SAP Installation Master Medium
     #  d ) SAPINST_DIR - The directory where the installation will be prepared
     #  s ) SID - SAP System ID
     #  n ) SAPINSTNR - SAP Instance Number (two digits)
     #  p ) MASTERPASS - SAP Masterpassword to use
     #  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
-    #  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
-    #  g ) Do not use gui. All message should be put into STDOUT
     #
     #######################################################################
 EOF
@@ -39,21 +36,19 @@ EOF
 }
 
 SAPCD_INSTMASTER=""
-SAPINST_PRODUCT_ID=""
 ARCH=$(uname -m | tr [:lower:] [:upper:])
 
 # Optionally overrule parameters from answer files by command line arguments
-while getopts "i:m:d:s:n:p:t:y:hg\?" options; do
+while getopts "m:i:y:d:s:n:p:t:h\?" options; do
   case $options in
-    i ) SAPINST_PRODUCT_ID=$OPTARG;;  # SAPINST Product ID
     m ) SAPCD_INSTMASTER=${OPTARG};; # Path to the SAP Installation Master Medium (has to be full-qualified)
+    i ) continue;; # On HANA we ignore product id
+    y ) continue;; # On HANA we ignore product type
     d ) SAPINST_DIR=${OPTARG};; # The directory where the installation will be prepared
     s ) SID=$OPTARG;;  # SAP System ID
     n ) SAPINSTNR=$OPTARG;;  # SAP Instance Number
     p ) MASTERPASS=$OPTARG;;  # Masterpassword
-    t ) DBTYPE=${OPTARG};; # Database type, e.g. ADA, DB6, ORA, SYB or HDB
-    y ) PRODUCT_TYPE=${OPTARG};; # Product Type, eg. HANA, B1
-    g ) NOGUI="yes";;
+    t ) continue;; # On HANA we ignore DB type
     h | \? ) usage
             exit $ERR_invalid_args;;
     * ) usage
