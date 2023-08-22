@@ -1,19 +1,19 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # sap_inst.sh - is a script used to install SAP products
 #
 # Copyright (c) 2013 SAP AG
 #
-# This program is free software; you can redistribute it and/or 
-# modify it under the terms of the GNU General Public License as 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation only version 2 of the License.
 #
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
-# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License 
+# You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 usage () {
@@ -26,7 +26,6 @@ usage () {
 		#  m ) SAPCD_INSTMASTER - Path to the SAP Installation Master Medium
 		#  d ) SAPINST_DIR - The directory where the installation will be prepared
 		#  t ) DBTYPE - Database type, e.g. ADA, DB6, ORA or SYB
-		#  g ) INSTALLATION_TYPE - Start SAPINST in GUI-mode? 
                 #  y ) PRODUCT_TYPE - Product Type, eg. SAPINST, HANA, B1
 		#      (default: GUI, anything else starts SAPINST in dark mode)
 		#
@@ -41,14 +40,16 @@ SAPINSTNR=""
 SAPINST_DIR=""
 
 # Optionally overrule parameters from answer files by command line arguments
-while getopts "i:m:d:t:g:y:h\?" options; do
+while getopts "m:i:y:d:s:n:p:t:h\?" options; do
 	case $options in
-		i ) SAPINST_PRODUCT_ID=$OPTARG;;  # SAPINST Product ID
 		m ) SAPCD_INSTMASTER=${OPTARG};; # Path to the SAP Installation Master Medium (has to be full-qualified)
-		d ) SAPINST_DIR=${OPTARG};; # The directory where the installation will be prepared
-		t ) DBTYPE=${OPTARG};; # Database type, e.g. ADA, DB6, ORA, SYB or HDB
-		g ) INSTALLATION_TYPE=${OPTARG};; # Start SAPINST in GUI-mode? (default: GUI, anything else starts non-graphical)
+		i ) SAPINST_PRODUCT_ID=${OPTARG};;  # SAPINST Product ID
                 y ) PRODUCT_TYPE=${OPTARG};; # Product Type, eg. HANA, B1
+		d ) SAPINST_DIR=${OPTARG};; # The directory where the installation will be prepared
+                s ) SID=$OPTARG;;  # SAP System ID
+                n ) SAPINSTNR=$OPTARG;;  # SAP Instance Number
+                p ) MASTERPASS=$OPTARG;;  # Masterpassword
+		t ) DBTYPE=${OPTARG};; # Database type, e.g. ADA, DB6, ORA, SYB or HDB
 		h | \? ) usage
 		        exit $ERR_invalid_args;;
 		* ) usage
@@ -195,7 +196,7 @@ activate_network_alias() {
         local pairs directory filename _res text
 
 	if [ -e /etc/redhat-release ]; then
-		# Red Hat 
+		# Red Hat
 		directory=/etc/sysconfig/network-scripts
 		pairs="DEVICE=${interface_name}:IPADDR=${virt_ip_address} NETMASK=${virt_ip_netmask} ONBOOT=yes NAME=${virt_interface_name}"
 	else
@@ -292,7 +293,7 @@ adapt_sap_instance_profile () {
 
 	# allow also dialog instance "D* instead of DVEBMGS*"
         instance_profile_path=$(ls -1 /usr/sap/${SID}/SYS/profile/${SID}_D*${SAPINSTNR}_${virt_hostname} 2>/dev/null)
-#        # rename instance profile 
+#        # rename instance profile
 
         # adapt ABAP profile if available
         if [ -f ${instance_profile_path} ]; then
@@ -305,7 +306,7 @@ adapt_sap_instance_profile () {
 
                         # increase buffers
                         case $TSHIRT in
-                                XS ) 
+                                XS )
                                     echo "abap/buffersize = 200000" >> ${instance_profile_path} # 200 MB ABAP Buffer
                                     echo "zcsa/table_buffer_area = 30000000" >> ${instance_profile_path} # 30 MB Table Buffer
                                     # reduce number of workprocesses
@@ -314,19 +315,19 @@ adapt_sap_instance_profile () {
                                     oldstring=`grep -m1 -E '^rdisp/wp_no_btc' ${instance_profile_path}` || oldstring=""
                                     sed -i "s@${oldstring}@rdisp/wp_no_btc = 2@" ${instance_profile_path}
                                     ;;
-                                S ) 
+                                S )
                                     echo "abap/buffersize = 300000" >> ${instance_profile_path} # 300 MB ABAP Buffer
                                     echo "zcsa/table_buffer_area = 30000000" >> ${instance_profile_path} # 30 MB Table Buffer
                                     ;;
-                                M ) 
+                                M )
                                     echo "abap/buffersize = 500000" >> ${instance_profile_path} # 500 MB ABAP Buffer
                                     echo "zcsa/table_buffer_area = 30000000" >> ${instance_profile_path} # 30 MB Table Buffer
                                     ;;
-                                L ) 
+                                L )
                                     echo "abap/buffersize = 1000000" >> ${instance_profile_path} # 1000 MB ABAP Buffer
                                     echo "zcsa/table_buffer_area = 200000000" >> ${instance_profile_path} # 200 MB Table Buffer
                                     ;;
-                                * ) 
+                                * )
                                     echo "abap/buffersize = 500000" >> ${instance_profile_path} # 500 MB ABAP Buffer
                                     echo "zcsa/table_buffer_area = 30000000" >> ${instance_profile_path} # 30 MB Table Buffer
                                     ;;
@@ -429,7 +430,7 @@ yast_popup_wait () {
 		}
 EOF
 
-	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile} 
+	[ -x /sbin/yast2 ] && /sbin/yast2 ${tmpfile}
 	rm ${tmpfile}
 }
 
@@ -514,10 +515,6 @@ LOADJOBS=$(( `grep -c processor /proc/cpuinfo` * 2 ))
 [ 4 -gt ${LOADJOBS} ] && LOADJOBS=4
 
 
-# SAP Installation Type - "GUI" for graphical SAPINST - or "anything else" for dark installation
-# INSTALLATION_TYPE="GUI"
-INSTALLATION_TYPE=${INSTALLATION_TYPE:=GUI}
-
 SAPINST_RESOLUTION=`/sbin/fbresolution`
 [ -f ${SAPINST_DIR}/ay_q_sapinst_resolution ] && SAPINST_RESOLUTION=`< ${${SAPINST_DIR}/ay_q_sapinst_resolution}`
 
@@ -537,7 +534,7 @@ echo "virt_ip_pool=        $virt_ip_pool"
 echo "virt_ip_netmask=     $virt_ip_netmask"
 echo "REAL_HOSTNAME=       $REAL_HOSTNAME"
 echo "TSHIRT=              $TSHIRT"
-echo  
+echo
 echo "SAP_SID=             $SID"
 echo
 echo "DBSID=               $DBSID"
@@ -573,7 +570,7 @@ export PRC_DEACTIVATE_CHECKS=true
 
 ####################################################################
 # Start the SAP installation
-# 
+#
 
 cd ${SAPINST_DIR}
 SAPINST_CMD="${SAPCD_INSTMASTER}/sapinst \
@@ -614,7 +611,7 @@ done
 # Cleanup-PopUp
 yast_popup "SAPINST finished.\nCleaning up and starting SAP system."
 
-adapt_sap_instance_profile       
+adapt_sap_instance_profile
 
 # remove additional env files
 #rm ~${sid}adm/.sapenv_*
