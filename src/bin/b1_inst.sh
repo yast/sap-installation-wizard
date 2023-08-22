@@ -69,7 +69,7 @@ IP_ADDR=$(gethostip -d $HOSTNAME)
 A_MASTERPASS=$(cat "${MEDIA_TARGET}/ay_q_masterPwd")
 A_SID=$(cat "${MEDIA_TARGET}/ay_q_sid" | cut -c1-3)
 A_SAPINSTNR=$(cat "${MEDIA_TARGET}/ay_q_sid" | cut -c5-6)
-if [ -z "${A_SAPINSTNR}" && -e ${MEDIA_TARGET}/ay_q_sapinstnr ]; then
+if [ -z "${A_SAPINSTNR}" -a -e ${MEDIA_TARGET}/ay_q_sapinstnr ]; then
   A_SAPINSTNR=$(cat "${MEDIA_TARGET}/ay_q_sapinstnr")
 fi
 
