@@ -47,6 +47,7 @@ while getopts "m:i:y:d:s:n:p:t:h\?" options; do
 		s ) SID=$OPTARG;;  # SAP System ID
 		n ) SAPINSTNR=$OPTARG;;  # SAP Instance Number
 		p ) MASTERPASS=$OPTARG;;  # Masterpassword
+		t ) continue;; # On B1 we ignore DB type
 		h | \? ) usage
 		        exit $ERR_invalid_args;;
 		* ) usage
