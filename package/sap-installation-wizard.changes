@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Aug 30 20:16:10 UTC 2023 - Josef Reidinger <jreidinger@suse.cz>
+
+- 5.0.0 (#bsc1185510)
+
+-------------------------------------------------------------------
 Fri Jul  7 15:03:22 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard update is trying to install file as sapconf but with different content
