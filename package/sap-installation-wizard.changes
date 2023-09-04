@@ -12,7 +12,7 @@ Mon Aug 21 16:26:29 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 - Code clean up:
     Use the same parameter in all scripts.
     Remove trailing spaces.
-    Use $() instead of backsticks.
+    Use $() instead of backticks.
     Remove derprecated parameter -g
 - Adapt pattern name (bsc#1214161)
   SAP installation wizard stops after HANA installation
