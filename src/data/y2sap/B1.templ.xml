@@ -1,51 +1,56 @@
 <?xml version="1.0"?>
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
-<general>
-  <mode>
-    <final_restart_services config:type="boolean">
-      false
-    </final_restart_services>
-  </mode>
-  <ask-list config:type="list">
-          <ask>
-             <title>SAP BusinessOne System Parameters</title>
-             <dialog config:type="integer">10</dialog>
-             <element config:type="integer">30</element>
-             <width config:type="integer">70</width>
-             <height config:type="integer">20</height>
-             <help><![CDATA[
+  <general>
+    <mode>
+      <final_restart_services config:type="boolean">false</final_restart_services>
+    </mode>
+    <ask-list config:type="list">
+      <ask>
+        <title>SAP BusinessOne System Parameters</title>
+        <dialog config:type="integer">10</dialog>
+        <element config:type="integer">30</element>
+        <width config:type="integer">70</width>
+        <height config:type="integer">20</height>
+        <help><![CDATA[
              <p><b>SAP HANA Master Password</b><br>Enter exiting password for the SYSTEM user.<br>
 	     </p>
-	     ]]>
-	     </help>
-             <file>/var/run/sap-wizard/ay_q_masterPwd</file>
-             <path>users,0,user_password</path>
-             <question>SAP HANA Master Password</question>
-             <password config:type="boolean">true</password>
-             <stage>cont</stage>
-          </ask>
-	  <ask>
-	     <title>SAP System Parameters</title>
-             <dialog config:type="integer">10</dialog>
-             <element config:type="integer">10</element>
-             <help><![CDATA[
+	     ]]></help>
+        <file>/var/run/sap-wizard/ay_q_masterPwd</file>
+        <path>users,0,user_password</path>
+        <question>SAP HANA Master Password</question>
+        <password config:type="boolean">true</password>
+        <stage>cont</stage>
+        <script>
+          <filename>my_pwd.sh</filename>
+          <rerun_on_error config:type="boolean">true</rerun_on_error>
+          <environment config:type="boolean">true</environment>
+          <source><![CDATA[
+/usr/lib/YaST2/bin/sap_check_admin_pw.sh B1
+]]></source>
+          <debug config:type="boolean">false</debug>
+          <feedback config:type="boolean">true</feedback>
+        </script>
+      </ask>
+      <ask>
+        <title>SAP System Parameters</title>
+        <dialog config:type="integer">10</dialog>
+        <element config:type="integer">10</element>
+        <help><![CDATA[
              <p><b>SID (SAP System ID)</b><br>Enter the three letter SAP System ID.</p>
-]]>
-</help>
-             <file>/var/run/sap-wizard/ay_q_sid</file>
-             <question>SID (SAP HANA System ID)</question>
-             <stage>cont</stage>
-	     <default>___SAPSID___</default>
-          </ask>
-  </ask-list>
-</general>
-<software>
+]]></help>
+        <file>/var/run/sap-wizard/ay_q_sid</file>
+        <question>SID (SAP HANA System ID)</question>
+        <stage>cont</stage>
+        <default>___SAPSID___</default>
+      </ask>
+    </ask-list>
+  </general>
+  <software>
     <post-packages config:type="list">
       <package>patterns-sap-bone</package>
     </post-packages>
-  </post-packages>
-</software>
+  </software>
   <networking>
     <keep_install_network config:type="boolean">true</keep_install_network>
   </networking>
