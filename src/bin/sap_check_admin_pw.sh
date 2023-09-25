@@ -30,6 +30,10 @@ src=
 %28
 %29"
 
+if [ -e /usr/share/doc/packages/patterns-sap/bone.txt ]; then
+	PRODUCT="B1"
+fi
+
 case "$PRODUCT" in
 	B1)
 		notAllowedStrings=${notAllowedForBone}
