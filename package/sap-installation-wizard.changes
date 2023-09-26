@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Tue Sep 26 08:51:20 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One password policies do not match with HANA password policies (bsc#1215107)
+  Implementing administrator passwort check in a script.
+  If sap_bone pattern is installed apply SAP Bone password policies
+  for the setup HANA also because this password will be used for
+  the SAP Bone installation.
+- 4.4.11
+
+-------------------------------------------------------------------
 Mon Aug 21 16:26:29 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - Code clean up:
