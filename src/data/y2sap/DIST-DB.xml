@@ -39,6 +39,7 @@
                 <environment config:type="boolean">true</environment>
                 <source><![CDATA[
 /usr/lib/YaST2/bin/sap_check_admin_pw.sh NW
+exit $?
 ]]>
                 </source>
                 <debug config:type="boolean">false</debug>

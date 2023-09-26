@@ -7,7 +7,7 @@ else
 	read pass
 fi
 
-func crack_check {
+crack_check() {
 	if [  "$( echo "${pass}" | /usr/sbin/cracklib-check | gawk '{ print $2 }' )" != "OK" ]; then
 		echo "Password is not secure enough"
 		exit 1
@@ -15,6 +15,7 @@ func crack_check {
 }
 
 minLen=8
+maxLen=0
 allowed="a-zA-Z0-9\!\@\#\$\%\^\&\*\(\)\_\+"
 notAllowedForBone="<
 >
@@ -41,6 +42,7 @@ case "$PRODUCT" in
 	NW)
 		minLen=3
 		maxLen=40
+		;;
 	*)
 		notAllowedStrings=""
 esac
@@ -62,7 +64,7 @@ if [ "${#pass}" -lt $minLen ]; then
         echo "You entered a ${#pass} chars long password."
         exit 1
 fi
-if [ "$maxLen" -a "${#pass}" -gt $maxLen ]; then
+if [ "$maxLen" -gt 0 -a "${#pass}" -gt $maxLen ]; then
         echo "The master password cannot be longer than $maxLen chars."
         echo "You entered a ${#pass} chars long password."
         exit 1
@@ -97,4 +99,4 @@ fi
 	echo "The password must not start with ? or !"
 	exit 1
 }
-
+exit 0
