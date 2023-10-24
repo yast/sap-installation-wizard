@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Oct 24 12:15:51 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Default for xs_routing_mode was changed in HANA-2 SP7 (bsc#1216539)
+  Set 'ports' as default for xs_routing_mode. This setting is backwards compatible.
+- Append '/' after directories in find to be able to handle 
+  links to directories
+- 4.4.12
+
+-------------------------------------------------------------------
 Tue Sep 26 08:51:20 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - SAP Business One password policies do not match with HANA password policies (bsc#1215107)
