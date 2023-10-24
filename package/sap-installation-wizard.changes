@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Tue Oct 24 12:15:51 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Default for xs_routing_mode was changed in HANA-2 SP7 (bsc#1216539)
+  Set 'ports' as default for xs_routing_mode. This setting is backwards compatible.
+- Append '/' after directories in find to be able to handle 
+  links to directories
+- SAP Business One password policies do not match with HANA password policies (bsc#1215107)
+  Implementing administrator passwort check in a script.
+  If sap_bone pattern is installed apply SAP Bone password policies
+  for the setup HANA also because this password will be used for
+  the SAP Bone installation.
+- 4.5.11
+
+-------------------------------------------------------------------
 Thu Aug 31 11:14:19 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - bone-installation-wizard causes problems in the module definitions
