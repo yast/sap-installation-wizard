@@ -272,13 +272,11 @@ b1_post_process()
     if [ -f "/etc/samba/smb.conf" ];
     then
 	param_check=$(cat $smb_conf | grep ${security_param})
-	
 	    if [ -z "$param_check" ];
 	    then
     	    sed -i '/\[global\]/,+0{ a \
-	'${security_param}'
+              '${security_param}'
     	    }' $smb_conf
-    	
     	    # restarting samba with the new configuration
     	    /usr/bin/systemctl restart smb.service
     	fi

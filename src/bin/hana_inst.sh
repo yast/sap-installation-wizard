@@ -241,13 +241,13 @@ hana_lcm_workflow()
    hana_setenv_lcm
 
    # Detect if it is a B1 installation
-   B1=$(find ${SAPCD_INSTMASTER} -maxdepth 1 -type f -exec grep FOR.B1 {} \;)
+   B1=$(find ${SAPCD_INSTMASTER}/ -maxdepth 1 -type f -exec grep FOR.B1 {} \;)
    if [ -n "$B1" -a ! -d ${SAPCD_INSTMASTER}/SAP_HANA_DATABASE ]; then
      # Move the component directories into the first level
      find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
    fi
    # Find the installer
-   HDBLCM=$(find ${SAPCD_INSTMASTER} -name hdblcm | grep -m 1 -P 'DATABASE|SERVER')
+   HDBLCM=$(find ${SAPCD_INSTMASTER}/ -name hdblcm | grep -m 1 -P 'DATABASE|SERVER')
    HDBLCMDIR=$(dirname "${HDBLCM}")
    if [ -z "${HDBLCM}" ]; then
      echo "Cannot find hdblcm" > ${MEDIA_TARGET}/installation_failed
@@ -279,7 +279,8 @@ hana_lcm_workflow()
             --number=${SAPINSTNR} \
             --groupid=79 \
             --read_password_from_stdin=xml \
-            --configfile=${MEDIA_TARGET}/hana_mdc.conf
+            --configfile=${MEDIA_TARGET}/hana_mdc.conf \
+            --xs_routing_mode=ports
    else
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=$TOIGNORE \
@@ -288,7 +289,8 @@ hana_lcm_workflow()
             --sid=${SID} \
             --number=${SAPINSTNR} \
             --groupid=79 \
-            --read_password_from_stdin=xml
+            --read_password_from_stdin=xml \
+            --xs_routing_mode=ports
    fi
    rc=$?
    rm  ~/pwds.xml
@@ -299,12 +301,12 @@ hana_lcm_workflow()
 extract_media_archives()
 {
    # try to extract all SAR archives on SAP media in the respective directories, if possible
-   SAPCAR=$(find ${MEDIA_TARGET}/Instmaster -name SAPCAR)
+   SAPCAR=$(find ${MEDIA_TARGET}/Instmaster/ -name SAPCAR)
    if [ -n "${SAPCAR}" ]; then
       if [ ! -x ${SAPCAR} ]; then
          chmod +x ${SAPCAR}
       fi
-      find ${MEDIA_TARGET}/Instmaster -name "*.SAR" -type f -execdir ${SAPCAR} -manifest SIGNATURE.SMF -xf '{}' +
+      find ${MEDIA_TARGET}/Instmaster/ -name "*.SAR" -type f -execdir ${SAPCAR} -manifest SIGNATURE.SMF -xf '{}' +
    fi
 }
 
