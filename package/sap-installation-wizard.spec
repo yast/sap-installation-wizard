@@ -19,7 +19,7 @@ Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.6.1
+Version:        4.6.8
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 Requires:       autoyast2
@@ -57,10 +57,10 @@ Authors:
     varkoly@suse.com
 
 %package -n bone-installation-wizard
-Summary:        Installation wizard for SAP Business One Application
+Summary:        Installation wizard for SAP Business One applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.6.1
+Version:        4.6.8
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
