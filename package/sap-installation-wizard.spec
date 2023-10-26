@@ -83,6 +83,7 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 %if  %{defined sap_bone}
 %{fillup_only -n pm-profiler}
 %{fillup_only -n sapconf}
+sed -i -e 's/^PERF_BIAS=*$/PERF_BIAS=performance/' -e 's/^GOVERNOR=*$/GOVERNOR=performance/' /etc/sysconfig/sapconf
 /usr/bin/systemctl enable sapconf
 cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
 mkdir -p /etc/systemd/logind.conf.d/
