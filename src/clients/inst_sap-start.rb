@@ -92,7 +92,7 @@ module Yast
     end
 
     def set_variable
-      @wizard  = Package.Available("sap-installation-wizard") ? "sap-installation-wizard" : "bone-installation-wizard"
+      @wizard  = Package.PackageAvailable("sap-installation-wizard") ? "sap-installation-wizard" : "bone-installation-wizard"
       @caption = _("Choose Operating System Edition")
       @help    = _("<p><b>Select operating system edition</b></p> \
          <p>If you wish to proceed with installing SAP softwares right after installing the operating system, tick\

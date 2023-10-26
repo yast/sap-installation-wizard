@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Tue Oct 24 12:15:51 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+Thu Oct 26 08:34:52 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
+- sapconf setting for the role SAP Business One is missing (bsc#1216568)
 - Default for xs_routing_mode was changed in HANA-2 SP7 (bsc#1216539)
   Set 'ports' as default for xs_routing_mode. This setting is backwards compatible.
 - Append '/' after directories in find to be able to handle
