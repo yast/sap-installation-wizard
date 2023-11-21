@@ -1,4 +1,39 @@
 -------------------------------------------------------------------
+Thu Oct 26 08:34:52 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- sapconf setting for the role SAP Business One is missing (bsc#1216568)
+- Default for xs_routing_mode was changed in HANA-2 SP7 (bsc#1216539)
+  Set 'ports' as default for xs_routing_mode. This setting is backwards compatible.
+- Append '/' after directories in find to be able to handle
+  links to directories
+- SAP Business One password policies do not match with HANA password policies (bsc#1215107)
+  Implementing administrator passwort check in a script.
+  If sap_bone pattern is installed apply SAP Bone password policies
+  for the setup HANA also because this password will be used for
+  the SAP Bone installation.
+- 4.5.11
+
+-------------------------------------------------------------------
+Thu Aug 31 11:14:19 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- bone-installation-wizard causes problems in the module definitions
+  (bsc#1214821)
+  Remove bad Provides and Obsoletes
+- 4.5.10
+
+-------------------------------------------------------------------
+Mon Aug 21 16:26:29 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Code clean up:
+    Use the same parameter in all scripts.
+    Remove trailing spaces.
+    Use $() instead of backticks.
+    Remove derprecated parameter -g
+- Adapt pattern name (bsc#1214161)
+  SAP installation wizard stops after HANA installation
+- 4.5.9
+
+-------------------------------------------------------------------
 Fri Jul  7 15:03:22 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard update is trying to install file as sapconf but with different content

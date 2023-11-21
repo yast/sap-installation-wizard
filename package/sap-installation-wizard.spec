@@ -19,7 +19,7 @@ Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.5.8
+Version:        4.5.11
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 Requires:       autoyast2
@@ -60,7 +60,7 @@ Authors:
 Summary:        Installation wizard for SAP Business One Application
 License:        GPL-2.0+
 Group:          System/YaST
-Version:        4.5.8
+Version:        4.5.11
 Release:        0
 PreReq:         /bin/mkdir %fillup_prereq yast2
 BuildRequires:  yast2
@@ -72,8 +72,6 @@ Requires:     	xfsprogs
 PreReq:         logrotate
 PreReq:         sapconf
 Conflicts:      sap-installation-wizard
-Obsoletes:      sap-installation-wizard  < %{version}
-Provides:       sap-installation-wizard  = %{version}
 
 %description -n bone-installation-wizard
 A YaST module providing an installation wizard for SAP BusinessOne
@@ -106,6 +104,7 @@ ln -s sap_installation_wizard.rb sap-installation-wizard.rb
 %{fillup_only -n sap-installation-wizard}
 %{fillup_only -n pm-profiler}
 %{fillup_only -n sapconf}
+sed -i -e 's/^PERF_BIAS=*$/PERF_BIAS=performance/' -e 's/^GOVERNOR=*$/GOVERNOR=performance/' /etc/sysconfig/sapconf
 /usr/bin/systemctl enable sapconf
 cp /usr/share/YaST2/data/y2sap/logrotate-BOne /etc/logrotate.d/BOne
 mkdir -p /etc/systemd/logind.conf.d/
