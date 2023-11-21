@@ -24,24 +24,28 @@ case "$PROD" in
 		do
 			cat $i.xml >> $XMLFILE
 		done
+		sed -i "s/##PROD##/NW/" $XMLFILE
 		;;
 	DIST-ASCS)
 		for i in masterPwd sid ascsVirtualHostname instanceNumber scsVirtualHostname
 		do
 			cat $i.xml >> $XMLFILE
 		done
+		sed -i "s/##PROD##/NW/" $XMLFILE
 		;;
 	DIST-DB)
 		for i in masterPwd sid dbsid
 		do
 			cat $i.xml >> $XMLFILE
 		done
+		sed -i "s/##PROD##/NW/" $XMLFILE
 		;;
 	DIST-APP1)
 		for i in masterPwd ascsVirtualHostname ciVirtualHostname scsVirtualHostname dbsid instanceNumber profileDir
 		do
 			cat $i.xml >> $XMLFILE
 		done
+		sed -i "s/##PROD##/NW/" $XMLFILE
 		;;
 #	GATEWAY)
 #		for i in MY_MASTERPASS MY_GW_INSTANCE_NR
@@ -60,6 +64,7 @@ case "$PROD" in
 		do
 			cat $i.xml >> $XMLFILE
 		done
+		sed -i "s/##PROD##/TREX/" $XMLFILE
 		;;
 	*)
 		echo "No ask dialog for $PROD."

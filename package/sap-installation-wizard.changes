@@ -1,14 +1,44 @@
 -------------------------------------------------------------------
-Fri Sep 01 19:57:03 UTC 2023 - Josef Reidinger <jreidinger@suse.com>
+Thu Oct 26 08:34:52 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
-- Branch package for SP6 (bsc#1208913)
+- sapconf setting for the role SAP Business One is missing (bsc#1216568)
+- Default for xs_routing_mode was changed in HANA-2 SP7 (bsc#1216539)
+  Set 'ports' as default for xs_routing_mode. This setting is backwards compatible.
+- Append '/' after directories in find to be able to handle
+  links to directories
+- SAP Business One password policies do not match with HANA password policies (bsc#1215107)
+  Implementing administrator passwort check in a script.
+  If sap_bone pattern is installed apply SAP Bone password policies
+  for the setup HANA also because this password will be used for
+  the SAP Bone installation.
+- 4.6.8
+
+-------------------------------------------------------------------
+Thu Aug 31 11:14:19 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- bone-installation-wizard causes problems in the module definitions
+  (bsc#1214821)
+  Remove bad Provides and Obsoletes
+- 4.6.7
+
+-------------------------------------------------------------------
+Mon Aug 21 16:26:29 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+
+- Code clean up:
+    Use the same parameter in all scripts.
+    Remove trailing spaces.
+    Use $() instead of backticks.
+    Remove derprecated parameter -g
+- Adapt pattern name (bsc#1214161)
+  SAP installation wizard stops after HANA installation
+- 4.6.6
 
 -------------------------------------------------------------------
 Fri Jul  7 15:03:22 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard update is trying to install file as sapconf but with different content
   (bsc#1212813) Remove superfluous sysconfig file
-- 4.5.8
+- 4.6.5
 
 -------------------------------------------------------------------
 Thu Jun 15 14:10:56 UTC 2023 - Peter Varkoly <varkoly@suse.com>
@@ -21,30 +51,35 @@ Thu Jun 15 14:10:56 UTC 2023 - Peter Varkoly <varkoly@suse.com>
   logrotate configuration
   systemd logind.conf.d
   Enable sapconf to apply the required system settings by start.
-- 4.5.7
+- 4.6.4
 
 -------------------------------------------------------------------
 Tue May 16 12:17:17 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard crashes: logger.rb aborts with wrong number of arguments
-  (bsc#1211099)
-- 4.5.6
+(bsc#1211099)
+- 4.6.3
 
 -------------------------------------------------------------------
-Thu Apr 13 16:58:27 UTC 2023 - Peter Varkoly <varkoly@suse.com>
+Thu Apr 13 16:59:09 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - AUDIT-0: sap-installation-wizard: b-one stuff (bsc#1210043)
 - [Build 88.1] openQA test fails in wizard_hana_install - summary screen is blank
   (bsc#1210215)
 - [Build 77.1] openQA test fails in wizard_hana_install (bsc#1209151)
-- 4.5.5
+- 4.6.2
 
 -------------------------------------------------------------------
 Fri Mar 10 18:51:19 UTC 2023 - Peter Varkoly <varkoly@suse.com>
 
 - [Build 77.1] openQA test fails in installation (bsc#1209152)
   is_instmaster was renamed to find_instmaster
-- 4.5.4
+- 4.6.1
+
+-------------------------------------------------------------------
+Fri Mar 03 14:44:07 UTC 2023 - Ladislav Slezák <lslezak@suse.cz>
+
+- Bump version to 4.6.0 (bsc#1208913)
 
 -------------------------------------------------------------------
 Tue Feb 21 10:59:08 UTC 2023 - Peter Varkoly <varkoly@suse.com>
