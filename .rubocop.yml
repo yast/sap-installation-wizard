@@ -6,6 +6,17 @@ inherit_from:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Metrics/BlockLength:
+  Max: 60
+
+# do not change too much
+Style/GuardClause:
+  Enabled: false
+
+# lets keep it
+Lint/EmptyClass:
+  Enabled: false
+
 # Redundant returns add legibility for developers used to other languages
 Style/RedundantReturn:
   Enabled: false
@@ -20,8 +31,17 @@ Metrics/AbcSize:
 Metrics/CyclomaticComplexity:
   Max: 15
 
+Naming/MethodParameterName:
+  AllowedNames:
+    - vg
+    - db
+
+# do not modify API
+Naming/VariableNumber:
+  Enabled: false
+
 Layout/LineLength:
-  Max: 140
+  Max: 160
 
 Metrics/ModuleLength:
   Max: 150

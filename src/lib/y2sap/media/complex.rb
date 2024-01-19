@@ -33,7 +33,6 @@ module Y2Sap
 
     def installation_master
       log.info("Start Y2Sap MediaComplex installation_master ---")
-      ret = nil
       run = true
       while run
         ret = media_dialog("inst_master")

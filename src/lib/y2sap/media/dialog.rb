@@ -35,7 +35,6 @@ module Y2Sap
     def media_dialog(wizard)
       log.info("-- Start media_dialog ---")
       @has_back = true
-      content = Empty()
       @content_before_input = Empty()
       @content_input        = Empty()
       @content_advanced_ops = Empty()

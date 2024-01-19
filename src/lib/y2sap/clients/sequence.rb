@@ -89,6 +89,7 @@ module Y2Sap
       }
 
       def initialize
+        super
         textdomain "sap-installation-wizard"
       end
 
