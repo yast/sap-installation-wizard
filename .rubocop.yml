@@ -1,6 +1,10 @@
 # use the shared YaST defaults
 inherit_from:
-  /usr/share/YaST2/data/devtools/data/rubocop_yast_style.yml
+  /usr/share/YaST2/data/devtools/data/rubocop-1.24.1_yast_style.yml
+
+# to enable it, it will need serious testing
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
 # Redundant returns add legibility for developers used to other languages
 Style/RedundantReturn:
@@ -16,7 +20,7 @@ Metrics/AbcSize:
 Metrics/CyclomaticComplexity:
   Max: 15
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 140
 
 Metrics/ModuleLength:
@@ -28,10 +32,6 @@ Metrics/MethodLength:
 Metrics/PerceivedComplexity:
   Max: 15
 
-# Enforce if/unless at the end only for really short lines
-Style/IfUnlessModifier:
-  MaxLineLength: 60
-
 # some storage API have size method, but without empty? method
 # for details see https://github.com/yast/yast-storage-ng/pull/83
 Style/ZeroLengthPredicate:
@@ -41,10 +41,10 @@ Style/ZeroLengthPredicate:
 Style/MutableConstant:
   Enabled: false
 
-Style/AlignHash:
+Layout/HashAlignment:
   Enabled: false
 
-Style/FileName:
+Naming/FileName:
   Enabled: false
 
 Style/BlockComments:

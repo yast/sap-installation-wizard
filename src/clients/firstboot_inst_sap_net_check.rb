@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 module Yast
   # Check if the hostname was set for the server
   class FirstbootInstSapNetCheckClient < Client

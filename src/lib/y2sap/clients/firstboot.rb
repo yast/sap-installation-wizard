@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -120,7 +118,7 @@ module Y2Sap
 
     def ui_loop
       ret = nil
-      until ret == :next || ret == :back
+      until [:next, :back].include?(ret)
         ret = Wizard.UserInput
         log.info("ret #{ret}")
         case ret

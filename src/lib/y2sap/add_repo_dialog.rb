@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # ------------------------------------------------------------------------------
 # Copyright (c) 2021 SUSE LINUX GmbH, Nuernberg, Germany.
 #
@@ -65,7 +63,7 @@ module SAPInstaller
           loop do
             begin
               Yast::AddRepoInvoker.show
-            rescue
+            rescue StandardError
               log.error("ui_event_loop can not show ddRepoInvoker")
             end
             return :next if !Yast::Popup.YesNo(_("Do you have more software repositories to add?"))

@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -53,8 +51,8 @@ module Y2Sap
         supplement_dialog
       end
       # Render the wizard
-      if @content_advanced_ops == Empty()
-        content = VBox(
+      content = if @content_advanced_ops == Empty()
+        VBox(
           Left(@content_before_input),
           VSpacing(2),
           Left(@content_input),
@@ -62,7 +60,7 @@ module Y2Sap
           Left(@after_advanced_ops)
         )
       else
-        content = VBox(
+        VBox(
           Left(@content_before_input),
           VSpacing(2),
           Left(@content_input),

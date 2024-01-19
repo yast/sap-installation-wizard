@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -75,9 +73,15 @@ module Y2Sap
     end
 
     def create_im_before
-      if !@sap_cds_url.empty?
+      @content_before_input = if @sap_cds_url.empty?
+        # Otherwise, allow user to enter new installation master
+        Frame(
+          _("Choose an installation master"),
+          ComboBox(Id(:local_im), Opt(:notify), "", ["---"] + instmaster_media)
+        )
+      else
         # If SAP_CD is mounted from network location, do not allow empty selection
-        @content_before_input = VBox(
+        VBox(
           Frame(
             format(_("Ready for use from: %s"), @sap_cds_url),
             Label(Id(:mediums), Opt(:hstretch), media.join("\n"))
@@ -88,12 +92,6 @@ module Y2Sap
               ComboBox(Id(:local_im), Opt(:notify), "", instmaster_media)
             )
           )
-        )
-      else
-        # Otherwise, allow user to enter new installation master
-        @content_before_input = Frame(
-          _("Choose an installation master"),
-          ComboBox(Id(:local_im), Opt(:notify), "", ["---"] + instmaster_media)
         )
       end
     end

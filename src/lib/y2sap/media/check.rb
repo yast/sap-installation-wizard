@@ -38,6 +38,7 @@ module Y2Sap
           fields = line.split(" ") if filepath[-1] == "info.txt"
           log.info("find_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
           next if fields.size == 0
+
           instmaster = check_label(fields, label_file)
           return instmaster if !instmaster.nil?
         end
@@ -94,6 +95,7 @@ module Y2Sap
       labels = []
       IO.readlines(path + "/start_dir.cd").each do |medium|
         next if medium =~ /Instmaster/
+
         labels << IO.readlines(medium.chomp + "/LABEL.ASC")[0].chomp
       end
       dbm    = ""
@@ -124,6 +126,7 @@ module Y2Sap
           # check if it is a database media
           @databases.each do |db|
             next if label.index(db).nil?
+
             log.debug("db #{db} ##  #{label} ##  #{@dbmap[db]}")
             dbm = @dbmap[db]
             break
