@@ -114,7 +114,7 @@ module Y2Sap
       size_min = parse_size(partition["size_min"])
       size_max = parse_size(partition["size_max"])
       begin
-        size     = parse_size(partition["size"])
+        size = parse_size(partition["size"])
       rescue TypeError
         # <size> contains non size values like 'max' or 'auto'
         return
