@@ -153,8 +153,8 @@ module Y2Sap
         when :next
           ret = do_next
           return ret if !ret.nil?
-        end # Case user input
-      end # While true
+        end
+      end
       return :next
     end
 

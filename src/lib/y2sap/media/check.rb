@@ -33,9 +33,9 @@ module Y2Sap
       end
       search_labelfiles(prod_path).each do |label_file|
         filepath = label_file.split("/")
-        IO.readlines(label_file).each do |line|
+        File.readlines(label_file).each do |line|
           fields = line.split(":")
-          fields = line.split(" ") if filepath[-1] == "info.txt"
+          fields = line.split if filepath[-1] == "info.txt"
           log.info("find_instmaster,search_labelfiles,fields: #{fields} size #{fields.size}")
           next if fields.size == 0
 
@@ -93,17 +93,17 @@ module Y2Sap
       log.info("Start MediaCheck get_products_for_media #{path}")
       # First we read all LABEL.ASC files from the selected media
       labels = []
-      IO.readlines(path + "/start_dir.cd").each do |medium|
+      File.readlines(path + "/start_dir.cd").each do |medium|
         next if medium =~ /Instmaster/
 
-        labels << IO.readlines(medium.chomp + "/LABEL.ASC")[0].chomp
+        labels << File.readlines(medium.chomp + "/LABEL.ASC")[0].chomp
       end
       dbm    = ""
       trex   = false
       valid  = []
       # Now we search all packages.xml and compare it with the existing labels
       IO.popen(["find", path + "/Instmaster", "-name", "packages.xml"]).readlines.each do |xml_file|
-        doc   = Nokogiri::XML(IO.read(xml_file.chomp))
+        doc   = Nokogiri::XML(File.read(xml_file.chomp))
         found = true
         labels.each do |label|
           found_label = false

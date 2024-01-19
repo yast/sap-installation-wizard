@@ -33,7 +33,7 @@ module Y2Sap
     # Function to build a dialog to copy the installation master
     def inst_master_dialog
       @has_back = false
-      instmaster_media = local_media.select { |name| name =~ /Instmaster-/ }
+      instmaster_media = local_media.grep(/Instmaster-/)
       create_im_before if !instmaster_media.empty?
       @content_input = HBox(
         ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
@@ -98,7 +98,7 @@ module Y2Sap
 
     # Function to build a dialog to copy a sap media
     def sapmedium_dialog
-      product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
+      product_media = local_media.reject { |name| (name =~ /Instmaster-/) }
       if !product_media.empty?
         media_items = []
         product_media.each do |medium|
@@ -131,7 +131,7 @@ module Y2Sap
 
     # Function to build a dialog to copy a suplementary media
     def supplement_dialog
-      product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
+      product_media = local_media.reject { |name| (name =~ /Instmaster-/) }
       if !product_media.empty?
         @content_before_input = Frame(
           _("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n"))

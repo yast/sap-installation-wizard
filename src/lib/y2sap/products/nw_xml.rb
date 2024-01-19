@@ -28,7 +28,7 @@ module Y2Sap
 
     def get_nw_products(inst_env, type, db, product_dir)
       begin
-        @product_catalog_reader = Nokogiri::XML(IO.read(inst_env + "/Instmaster/product.catalog"))
+        @product_catalog_reader = Nokogiri::XML(File.read(inst_env + "/Instmaster/product.catalog"))
       rescue StandardError
         log.error("Can not read #{inst_env}/Instmaster/product.catalog")
       end

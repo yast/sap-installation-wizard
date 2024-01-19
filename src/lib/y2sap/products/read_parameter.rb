@@ -111,8 +111,8 @@ module Y2Sap
         # WFM.CallFunction("ayast_setup", ["setup", "filename="+xml_path, "dopackages=yes"])
         ret = openFile("filename" => xml_path, "dopackages" => "yes")
         log.info("ayast_setup returned '#{ret}' for '#{xml_path}'")
-        @sid = IO.read("/var/run/sap-wizard/ay_q_sid").chomp if File.exist?("/var/run/sap-wizard/ay_q_sid")
-        @inst_number = IO.read("/var/run/sap-wizard/ay_q_sapinstnr").chomp if File.exist?("/var/run/sap-wizard/ay_q_sapinstnr")
+        @sid = File.read("/var/run/sap-wizard/ay_q_sid").chomp if File.exist?("/var/run/sap-wizard/ay_q_sid")
+        @inst_number = File.read("/var/run/sap-wizard/ay_q_sapinstnr").chomp if File.exist?("/var/run/sap-wizard/ay_q_sapinstnr")
         SCR.Execute(path(".target.bash"), "mv /var/run/sap-wizard/* " + @media.inst_dir)
       end
     end
@@ -170,7 +170,7 @@ module Y2Sap
         inifile = File.read(ini_pars)
         Dir.glob(@media.inst_dir + "/ay_q_*").each do |param|
           par = param.gsub(/^.*\/ay_q_/, "")
-          val = IO.read(param).chomp
+          val = File.read(param).chomp
           pattern = "##" + par + "##"
           inifile.gsub!(/#{pattern}/, val)
         end

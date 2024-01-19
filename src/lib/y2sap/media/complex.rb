@@ -116,7 +116,7 @@ module Y2Sap
         media_list << (@media_dir + "/" + medium) if @selected_media[medium]
       end
       media_list << (@inst_dir + "/" + "Instmaster")
-      IO.write(@inst_dir + "/start_dir.cd", media_list.join("\n"))
+      File.write(@inst_dir + "/start_dir.cd", media_list.join("\n"))
       log.info("End net_weaver #{@inst_dir}")
       return :next
     end
