@@ -177,10 +177,10 @@ module Y2Sap
         return :abort
       end
       !prod.key?("sapMDC") || prod["sapMDC"] = "no"
-      File.write(@inst_dir + "/ay_q_masterPwd",  prod["sapMasterPW"])
-      File.write(@inst_dir + "/ay_q_sid",        prod["sid"])
-      File.write(@inst_dir + "/ay_q_sapinstnr",  prod["sapInstNr"])
-      File.write(@inst_dir + "/ay_q_sapmdc",     prod["sapMDC"])
+      File.write(@inst_dir + "/ay_q_masterPwd", prod["sapMasterPW"])
+      File.write(@inst_dir + "/ay_q_sid",       prod["sid"])
+      File.write(@inst_dir + "/ay_q_sapinstnr", prod["sapInstNr"])
+      File.write(@inst_dir + "/ay_q_sapmdc",    prod["sapMDC"])
       if prod.key?("sapVirtHostname")
         File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
       end
