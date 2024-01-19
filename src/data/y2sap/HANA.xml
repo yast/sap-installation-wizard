@@ -94,11 +94,11 @@ check_instance_no "$VAL"
         <height config:type="integer">20</height>
         <help><![CDATA[
              <p><b>SAP HANA Master Password</b><br>Enter and repeat the master password for the SAP system.<br>
-		The system uses this master password for all accounts created by the installer<br> 
+		The system uses this master password for all accounts created by the installer<br>
 		and for the secure store key phrase.<br>
 		The password must fulfill the following requirements:<br>
 		- Consists of 8 or more characters<br>
-		- Contains at least one digit, one lowercase and one uppercase character<br> 
+		- Contains at least one digit, one lowercase and one uppercase character<br>
 		- It can contain only these 3 special characters: $ _ #<br>
 	     </p>
 	     ]]></help>
@@ -114,6 +114,56 @@ check_instance_no "$VAL"
           <environment config:type="boolean">true</environment>
           <source><![CDATA[
 /usr/lib/YaST2/bin/sap_check_admin_pw.sh HANA
+exit $?
+]]></source>
+          <debug config:type="boolean">false</debug>
+          <feedback config:type="boolean">true</feedback>
+        </script>
+      </ask>
+      <ask>
+        <title>SAP HANA System Parameters</title>
+        <dialog config:type="integer">10</dialog>
+        <element config:type="integer">50</element>
+        <width config:type="integer">70</width>
+        <height config:type="integer">20</height>
+        <help><![CDATA[
+             <p><b>SAP HANA XS routing mode.</b> This can be <i>hostname</i> or <i>ports</i>.
+	     </p>
+	     ]]></help>
+        <file>/var/run/sap-wizard/ay_q_xs_routing_mode</file>
+        <question>SAP HANA XS Routing Mode</question>
+        <stage>cont</stage>
+        <selection config:type="list"><default>hostname</defualt><default>ports^</defualt></selection>
+        <script>
+          <filename>xs_routing_mode.sh</filename>
+          <rerun_on_error config:type="boolean">true</rerun_on_error>
+          <environment config:type="boolean">true</environment>
+          <source><![CDATA[
+/usr/lib/YaST2/bin/sap_check_admin_pw.sh HANA
+exit $?
+]]></source>
+          <debug config:type="boolean">false</debug>
+          <feedback config:type="boolean">true</feedback>
+        </script>
+      </ask>
+      <ask>
+        <title>SAP HANA System Parameters</title>
+        <dialog config:type="integer">10</dialog>
+        <element config:type="integer">60</element>
+        <width config:type="integer">70</width>
+        <height config:type="integer">20</height>
+        <help><![CDATA[
+             <p><b>SAP HANA XS routing mode. This can be hostname or ports.
+	     </p>
+	     ]]></help>
+        <file>/var/run/sap-wizard/ay_q_xs_domain_name</file>
+        <question>SAP HANA XS Domain Name</question>
+        <stage>cont</stage>
+        <script>
+          <filename>xs_routing_mode.sh</filename>
+          <rerun_on_error config:type="boolean">true</rerun_on_error>
+          <environment config:type="boolean">true</environment>
+          <source><![CDATA[
 exit $?
 ]]></source>
           <debug config:type="boolean">false</debug>
