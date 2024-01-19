@@ -2,7 +2,7 @@
 Fri Jan 19 08:39:28 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - SAP Business One storage configuration failed for Fujitsu server (bsc#1218918)
-  Handle TypeError <size> contains non size values like 'max' or 'auto'
+  Handle TypeError if <size> contains non size values like 'max' or 'auto'
 - 4.6.9
 
 -------------------------------------------------------------------
