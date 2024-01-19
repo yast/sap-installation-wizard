@@ -32,6 +32,7 @@ module Y2Sap
   # * Adding a LVM physical volume for each defined volume group.
   class PartitioningPreprocessor
     include Yast
+    include Yast::Logger
 
     # Preprocesses the partitioning section
     #
