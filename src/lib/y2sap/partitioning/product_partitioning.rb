@@ -40,6 +40,7 @@ module Y2Sap
       hwinfo = hw_info
       manufacturer = Ops.get(hwinfo, 0, "") # "FUJITSU", "IBM", "HP", "Dell Inc."
       model = Ops.get(hwinfo, 1, "") # "PowerEdge R620", "PowerEdge R910"
+      log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
 
       product_partitioning_list.each do |product_partitioning|
         part_base = @media.partitioning_dir_base + "/" + product_partitioning
@@ -60,11 +61,11 @@ module Y2Sap
             return :abort
           end
         end
+        log.info("selected part_xml: #{part_xml}")
         ret = WFM.CallFunction("sap_create_storage_ng", [part_xml])
         log.info("sap_create_storage_ng returned: #{ret}")
         return :abort if ret == :abort
       end
-      log.info("MANUFACTURER: #{manufacturer} Modell: #{model}")
       deep_copy(ret)
     end
 

@@ -109,9 +109,15 @@ module Y2Sap
     #
     # @see parse_size
     def adjust_partition_size(partition)
+      log.info("adjust_partition_size called for #{partition}")
       size_min = parse_size(partition["size_min"])
       size_max = parse_size(partition["size_max"])
-      size     = parse_size(partition["size"])
+      begin
+        size     = parse_size(partition["size"])
+      rescue TypeError
+        # <size> contains non size values like 'max' or 'auto'
+        return
+      end
       size_min = [size_min, size].compact.max
       size = [size_min, size_max].compact.min
       partition["size"] = size.to_i.to_s if size
