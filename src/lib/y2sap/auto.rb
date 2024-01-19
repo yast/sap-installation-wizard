@@ -178,23 +178,23 @@ module Y2Sap
       end
       !prod.key?("sapMDC") || prod["sapMDC"] = "no"
       File.write(@inst_dir + "/ay_q_masterPwd", prod["sapMasterPW"])
-      File.write(@inst_dir + "/ay_q_sid",        prod["sid"])
-      File.write(@inst_dir + "/ay_q_sapinstnr",  prod["sapInstNr"])
-      File.write(@inst_dir + "/ay_q_sapmdc",     prod["sapMDC"])
+      File.write(@inst_dir + "/ay_q_sid",       prod["sid"])
+      File.write(@inst_dir + "/ay_q_sapinstnr", prod["sapInstNr"])
+      File.write(@inst_dir + "/ay_q_sapmdc",    prod["sapMDC"])
       if prod.key?("sapVirtHostname")
         File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
       end
       @sid = prod["sid"]
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir)
       SCR.Execute(path(".target.bash"), "chmod 775 " + @inst_dir)
-      @script = @sapinst_path + "/hana_inst.sh -g"
+      @script = @sapinst_path + "/hana_inst.sh"
     end
 
     # Sets the global variables for a Busines One installation evaluated
     # from the autoyast hash.
     def prepare_b1(prod)
       prepare_hana(prod)
-      @script = @sapinst_path + "/b1_inst.sh -g"
+      @script = @sapinst_path + "/b1_inst.sh"
     end
 
     # Sets the global variables for a TREX installation evaluated
