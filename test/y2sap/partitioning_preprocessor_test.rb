@@ -1,5 +1,5 @@
 #!/usr/bin/env rspec
-# encoding: utf-8
+
 #
 # Copyright (c) [2018] SUSE LLC
 #
@@ -36,7 +36,7 @@ describe Y2Sap::PartitioningPreprocessor do
 
   let(:lv_data) do
     LV_BASE.merge("mount" => "/hana/data", "lv_name" => "lv_data",
-                  "size_min" => size_min, "size_max" => size_max)
+      "size_min" => size_min, "size_max" => size_max)
   end
 
   let(:vg_hana) do

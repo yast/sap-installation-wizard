@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -36,10 +34,8 @@ module Y2Sap
       if @path_map.empty?
         lf = @base + "/LABEL.ASC"
         if File.exist?(lf)
-          label = IO.readlines(lf, ":")
-          if label.length > 2
-            @path_map[base] = label[1].gsub(/\W/, "-") + label[2].gsub(/\W/, "-") + label[3].chop.gsub(/\W/, "-")
-          end
+          label = File.readlines(lf, ":")
+          @path_map[base] = label[1].gsub(/\W/, "-") + label[2].gsub(/\W/, "-") + label[3].chop.gsub(/\W/, "-") if label.length > 2
         end
       end
       return @path_map
@@ -53,10 +49,9 @@ module Y2Sap
       stdout.split("\n").each do |d|
         lf = d + "/LABEL.ASC"
         next if !File.exist?(lf)
-        label = IO.readlines(lf, ":")
-        if label.length > 2
-          @path_map[d] = label[1].gsub(/\W/, "-") + label[2].gsub(/\W/, "-")
-        end
+
+        label = File.readlines(lf, ":")
+        @path_map[d] = label[1].gsub(/\W/, "-") + label[2].gsub(/\W/, "-") if label.length > 2
       end
     end
 
@@ -68,10 +63,9 @@ module Y2Sap
       stdout.split("\n").each do |d|
         lf = d + "/LABEL.ASC"
         next if !File.exist?(lf)
-        label = IO.readlines(lf, ":")
-        if label.length > 3
-          @path_map[d] = label[4].chop.gsub(/\W/, "-")
-        end
+
+        label = File.readlines(lf, ":")
+        @path_map[d] = label[4].chop.gsub(/\W/, "-") if label.length > 3
       end
     end
 
@@ -83,10 +77,9 @@ module Y2Sap
       stdout.split("\n").each do |d|
         lf = d + "/LABEL.ASC"
         next if !File.exist?(lf)
-        label = IO.readlines(lf, ":")
-        if label.length > 3
-          @path_map[d] = label[2].gsub(/\W/, "-") + label[3].gsub(/\W/, "-") + label[4].chop.gsub(/\W/, "-")
-        end
+
+        label = File.readlines(lf, ":")
+        @path_map[d] = label[2].gsub(/\W/, "-") + label[3].gsub(/\W/, "-") + label[4].chop.gsub(/\W/, "-") if label.length > 3
       end
     end
 

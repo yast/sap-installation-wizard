@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -42,6 +40,7 @@ module Y2Sap
     #   +partitioning+ section.
     def preprocess(drives, device)
       return if drives.nil?
+
       new_drives = deep_copy(drives)
       adjust_lv_sizes(new_drives)
       add_pvs(new_drives, device)
@@ -152,6 +151,7 @@ module Y2Sap
     def ram
       probe = Yast::SCR.Read(Yast::Path.new(".probe.memory"))
       return 0 if probe.nil?
+
       memory = probe.first["resource"]
       memory["phys_mem"][0]["range"]
     end

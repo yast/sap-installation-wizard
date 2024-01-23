@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -72,6 +70,7 @@ module Y2Sap
         return :abort if disk == :abort
 
         return :abort unless commit(partitioning, disk)
+
         Yast::Wizard.CloseDialog
 
         :next
@@ -87,6 +86,7 @@ module Y2Sap
           return false
         end
         return false unless check_issues(proposal.issues_list) == :ok
+
         proposal.save
         Y2Storage::StorageManager.instance.commit
         true
@@ -115,6 +115,7 @@ module Y2Sap
       # @return [String] Device name
       def select_disk
         return eligible_disks.first unless eligible_disks.size > 1
+
         blacklist = devicegraph.disks.map(&:name) - eligible_disks
         Y2Autoinstallation::Dialogs::DiskSelector.new(blacklist: blacklist).run
       end
@@ -126,6 +127,7 @@ module Y2Sap
       # @return [Array<String>]
       def eligible_disks
         return @eligible_disks if @eligible_disks
+
         disks_with_space = devicegraph.disks.reject { |d| d.free_spaces.empty? }
         @eligible_disks = disks_with_space.map(&:name)
       end
@@ -137,6 +139,7 @@ module Y2Sap
       # @return [Y2Storage::Devicegraph]
       def devicegraph
         return storage.probed if storage.probed?
+
         storage.activate
         storage.probe
         storage.probed
@@ -186,6 +189,7 @@ module Y2Sap
       def check_issues(issues_list)
         relevant_issues = issues_list.select { |i| RELEVANT_ISSUES_CLASSES.include?(i.class) }
         return :ok if relevant_issues.empty?
+
         buttons_set = relevant_issues.any?(&:fatal?) ? :abort : :question
         presenter = issues_class.new(relevant_issues)
         Y2Autoinstallation::Dialogs::Question.new(

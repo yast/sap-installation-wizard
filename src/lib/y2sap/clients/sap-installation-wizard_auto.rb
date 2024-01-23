@@ -1,4 +1,3 @@
-# encoding: utf-8
 # ------------------------------------------------------------------------------
 # Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
 #
@@ -30,27 +29,27 @@ module SapInst
     include Logger
 
     class << self
-        # @return [Boolean] whether the AutoYaST configuration has been
-        # modified or not
-        attr_accessor :changed
-        # @return [Boolean] whether the AutoYaST configuration was imported
-        # successfully or not
-        attr_accessor :imported
-        # @return [Boolean] whether the firewalld service has to be enabled
-        # after writing the configuration
-        attr_accessor :enable
-        # @return [Boolean] whether the firewalld service has to be started
-        # after writing the configuration
-        attr_accessor :start
-        # @return [Hash]
-        attr_accessor :profile
-        # @return [Boolean] whether the AutoYaST configuration has been
-        # modified or not
-        attr_accessor :ay_config
+      # @return [Boolean] whether the AutoYaST configuration has been
+      # modified or not
+      attr_accessor :changed
+      # @return [Boolean] whether the AutoYaST configuration was imported
+      # successfully or not
+      attr_accessor :imported
+      # @return [Boolean] whether the firewalld service has to be enabled
+      # after writing the configuration
+      attr_accessor :enable
+      # @return [Boolean] whether the firewalld service has to be started
+      # after writing the configuration
+      attr_accessor :start
+      # @return [Hash]
+      attr_accessor :profile
+      # @return [Boolean] whether the AutoYaST configuration has been
+      # modified or not
+      attr_accessor :ay_config
 
-        # @return [Class<Y2SAP::Media>] This class instance contains the actual
-        # media collection for the product to be installed.
-        attr_accessor :sap_autoinst
+      # @return [Class<Y2SAP::Media>] This class instance contains the actual
+      # media collection for the product to be installed.
+      attr_accessor :sap_autoinst
     end
 
     def initialize

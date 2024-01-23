@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -35,7 +33,7 @@ module Y2Sap
     # Function to build a dialog to copy the installation master
     def inst_master_dialog
       @has_back = false
-      instmaster_media = local_media.select { |name| name =~ /Instmaster-/ }
+      instmaster_media = local_media.grep(/Instmaster-/)
       create_im_before if !instmaster_media.empty?
       @content_input = HBox(
         ComboBox(Id(:scheme), Opt(:notify), " ", @scheme_list),
@@ -75,9 +73,15 @@ module Y2Sap
     end
 
     def create_im_before
-      if !@sap_cds_url.empty?
+      @content_before_input = if @sap_cds_url.empty?
+        # Otherwise, allow user to enter new installation master
+        Frame(
+          _("Choose an installation master"),
+          ComboBox(Id(:local_im), Opt(:notify), "", ["---"] + instmaster_media)
+        )
+      else
         # If SAP_CD is mounted from network location, do not allow empty selection
-        @content_before_input = VBox(
+        VBox(
           Frame(
             format(_("Ready for use from: %s"), @sap_cds_url),
             Label(Id(:mediums), Opt(:hstretch), media.join("\n"))
@@ -89,18 +93,12 @@ module Y2Sap
             )
           )
         )
-      else
-        # Otherwise, allow user to enter new installation master
-        @content_before_input = Frame(
-          _("Choose an installation master"),
-          ComboBox(Id(:local_im), Opt(:notify), "", ["---"] + instmaster_media)
-        )
       end
     end
 
     # Function to build a dialog to copy a sap media
     def sapmedium_dialog
-      product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
+      product_media = local_media.reject { |name| (name =~ /Instmaster-/) }
       if !product_media.empty?
         media_items = []
         product_media.each do |medium|
@@ -133,7 +131,7 @@ module Y2Sap
 
     # Function to build a dialog to copy a suplementary media
     def supplement_dialog
-      product_media = local_media.select { |name| !(name =~ /Instmaster-/) }
+      product_media = local_media.reject { |name| (name =~ /Instmaster-/) }
       if !product_media.empty?
         @content_before_input = Frame(
           _("Ready for use:"), Label(Id(:mediums), Opt(:hstretch), product_media.join("\n"))

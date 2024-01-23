@@ -1,4 +1,3 @@
-# encoding: utf-8
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -70,6 +69,7 @@ module Y2Sap
         end
         reset_variables
         next if !copy_product_media(prod["media"])
+
         case @inst_master_type
         when "SAPINST"
           prepare_sapinst(prod)
@@ -81,6 +81,7 @@ module Y2Sap
           prepare_trex(prod)
         end
         next if @ERROR
+
         @script << " -m '#{@inst_dir}/Instmaster' \
           -i '#{@product_id}' \
           -t '#{@db}' \
@@ -130,13 +131,13 @@ module Y2Sap
               sap_media = find_sap_media(@mount_point)
               sap_media.each do |path, label|
                 copy_dir(path, @media_dir, label)
-                @media_list << @media_dir + "/" + label
+                @media_list << (@media_dir + "/" + label)
               end
             else
               @inst_master_type = inst_master_list[0]
               @inst_master_path = inst_master_list[1]
               copy_dir(@inst_master_path, @inst_dir, "Instmaster")
-              @media_list << @inst_dir + "/" + "Instmaster"
+              @media_list << (@inst_dir + "/" + "Instmaster")
             end
           end
         end
@@ -150,9 +151,7 @@ module Y2Sap
       @db           = prod.key?("DB")          ? prod["DB"]          : ""
       @product_name = prod.key?("productName") ? prod["productName"] : ""
       @product_id   = prod.key?("productID")   ? prod["productID"]   : ""
-      if prod.key?("iniFile")
-        File.write(@inst_dir + "/inifile.params", prod["iniFile"])
-      end
+      File.write(@inst_dir + "/inifile.params", prod["iniFile"]) if prod.key?("iniFile")
       if @product_id == ""
         Yast::Popup.Error("The SAP product_id is not defined.")
         @error = true
@@ -181,9 +180,7 @@ module Y2Sap
       File.write(@inst_dir + "/ay_q_sid",       prod["sid"])
       File.write(@inst_dir + "/ay_q_sapinstnr", prod["sapInstNr"])
       File.write(@inst_dir + "/ay_q_sapmdc",    prod["sapMDC"])
-      if prod.key?("sapVirtHostname")
-        File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
-      end
+      File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"]) if prod.key?("sapVirtHostname")
       @sid = prod["sid"]
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir)
       SCR.Execute(path(".target.bash"), "chmod 775 " + @inst_dir)

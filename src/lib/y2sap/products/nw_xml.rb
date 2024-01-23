@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -30,8 +28,8 @@ module Y2Sap
 
     def get_nw_products(inst_env, type, db, product_dir)
       begin
-        @product_catalog_reader = Nokogiri::XML(IO.read(inst_env + "/Instmaster/product.catalog"))
-      rescue
+        @product_catalog_reader = Nokogiri::XML(File.read(inst_env + "/Instmaster/product.catalog"))
+      rescue StandardError
         log.error("Can not read #{inst_env}/Instmaster/product.catalog")
       end
       filters = get_filters(type)
@@ -47,6 +45,7 @@ module Y2Sap
           next if child.name.nil?
           next if child.text.nil?
           next if child.name == "search"
+
           ok = true if child.name == "name" && child.text == prod
           ok = true if child.name == "id"   && child.text == prod
           p[child.name] = child.text
@@ -86,6 +85,7 @@ module Y2Sap
             ok = true if child.text == type
           end
           next if !ok
+
           f.each do |filter|
             p = "base_partitioning" if p == ""
             s = "sap_inst.sh"       if s == ""
@@ -103,21 +103,22 @@ module Y2Sap
       found   = {}
       filters.each do |tmp|
         xmlpath = tmp[1]
-        if xmlpath !~ /##PD##/
-          @product_catalog_reader.xpath(xmlfilter).each do |node|
-            nodes << [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
-          end
-        else
+        if xmlpath =~ /##PD##/
           xmlpath.sub!(/##DB##/, db)
           product_dir.each do |pd|
             pdpath = xmlpath.sub(/##PD##/, pd)
             next if found.has?(pdpath)
+
             found[pdpath] = 1
             # puts pdpath
             @product_catalog_reader.xpath(pdpath).each do |node|
               # puts pdpath
               nodes << [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
             end
+          end
+        else
+          @product_catalog_reader.xpath(xmlfilter).each do |node|
+            nodes << [tmp[0], node, tmp[2], tmp[3], tmp[4], tmp[5]]
           end
         end
       end

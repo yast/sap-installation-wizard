@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -47,20 +45,17 @@ module Y2Sap
         part_xml = part_base + "_" + manufacturer + "_" + model + ".xml"
         if !File.exist?(part_xml)
           part_xml = part_base + "_" + manufacturer + "_generic.xml"
-          if !File.exist?(part_xml)
-            part_xml = part_base + ".xml"
-          end
+          part_xml = part_base + ".xml" if !File.exist?(part_xml)
         end
         # B1 need to be installed for certified hardware
-        if part_xml == part_base + ".xml" && product_list.include?("B1")
-          if !Popup.YesNoHeadline(
-            _("Your System is not certified for SAP Business One on HANA."),
-            _("It is not guaranteed that your system will work properly. \
+        if part_xml == part_base + ".xml" && product_list.include?("B1") && !Popup.YesNoHeadline(
+          _("Your System is not certified for SAP Business One on HANA."),
+          _("It is not guaranteed that your system will work properly. \
                Do you want to continue the installation?")
-          )
-            return :abort
-          end
+        )
+          return :abort
         end
+
         log.info("selected part_xml: #{part_xml}")
         ret = WFM.CallFunction("sap_create_storage_ng", [part_xml])
         log.info("sap_create_storage_ng returned: #{ret}")

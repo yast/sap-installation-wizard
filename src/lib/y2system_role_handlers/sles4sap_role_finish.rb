@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # ------------------------------------------------------------------------------
 # Copyright (c) 2020 SUSE LLC
 #
@@ -37,6 +35,7 @@ module Y2SystemRoleHandlers
       @firewalld = Y2Firewall::Firewalld.instance
       @firewalld.read
       return true if !@firewalld.installed?
+
       log.info("Sles4sapRoleFinish firewall installed")
       if ::Installation::Services.enabled.include?("xrdp")
         log.info("Sles4sapRoleFinish xrd enabled")

@@ -1,4 +1,3 @@
-# encoding: utf-8
 # Copyright (c) [2017] SUSE LLC
 #
 # All Rights Reserved.
@@ -90,6 +89,7 @@ module Y2Sap
       }
 
       def initialize
+        super
         textdomain "sap-installation-wizard"
       end
 

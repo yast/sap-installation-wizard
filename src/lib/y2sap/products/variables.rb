@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -30,9 +28,9 @@ module Y2Sap
     # Initialize the global variables
     def init_variables
       begin
-        @product_definitions_reader = Nokogiri::XML(IO.read(@media.product_definitions))
+        @product_definitions_reader = Nokogiri::XML(File.read(@media.product_definitions))
         @product_list = init_product_list
-      rescue
+      rescue StandardError
         log.error("Can not read #{@media.product_definitions}")
       end
       @dialog_text = {

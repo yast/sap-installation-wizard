@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -35,15 +33,12 @@ module Y2Sap
 
     def installation_master
       log.info("Start Y2Sap MediaComplex installation_master ---")
-      ret = nil
       run = true
       while run
         ret = media_dialog("inst_master")
-        if ret == :abort || ret == :cancel
-          if Yast::Popup.ReallyAbort(false)
-            Yast::Wizard.CloseDialog
-            return :abort
-          end
+        if [:abort, :cancel].include?(ret) && Yast::Popup.ReallyAbort(false)
+          Yast::Wizard.CloseDialog
+          return :abort
         end
         log.info("looking for instmaster in #{@source_dir}")
         inst_master_list    = find_instmaster(@source_dir)
@@ -77,11 +72,8 @@ module Y2Sap
       when "TREX"
         ret = :TREX
       end
-      if @inst_master_type != "HANA" && @inst_master_type != "B1"
-        # Make a local copy of the installation master
-        if !File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + "-" + @inst_master_version)
-          copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
-        end
+      if @inst_master_type != "HANA" && @inst_master_type != "B1" && !File.exist?(@media_dir + "/Instmaster-" + @inst_master_type + "-" + @inst_master_version)
+        copy_dir(@inst_master_path, @media_dir, "Instmaster-" + @inst_master_type + "-" + @inst_master_version)
       end
       copy_dir(@inst_master_path, @inst_dir, "Instmaster")
       @inst_master_path = @inst_dir + "/Instmaster"
@@ -93,6 +85,7 @@ module Y2Sap
       log.info("-- Start net_weaver ---")
       # Skip the dialog all together if SAP_CD is already mounted from network location
       return :next if !@sap_cds_url.empty?
+
       run = true
       while run
         case media_dialog("sapmedium")
@@ -110,6 +103,7 @@ module Y2Sap
           media.each do |path, label|
             # The selected medium was already copied.
             next if File.exist?(@media_dir + "/" + label)
+
             copy_dir(path, @media_dir, label)
             @selected_media[label] = true
           end
@@ -118,10 +112,10 @@ module Y2Sap
       end
       media_list = []
       @selected_media.each_key do |medium|
-        media_list << @media_dir + "/" + medium if @selected_media[medium]
+        media_list << (@media_dir + "/" + medium) if @selected_media[medium]
       end
-      media_list << @inst_dir + "/" + "Instmaster"
-      IO.write(@inst_dir + "/start_dir.cd", media_list.join("\n"))
+      media_list << (@inst_dir + "/" + "Instmaster")
+      File.write(@inst_dir + "/start_dir.cd", media_list.join("\n"))
       log.info("End net_weaver #{@inst_dir}")
       return :next
     end
@@ -131,13 +125,12 @@ module Y2Sap
       run = Yast::Popup.YesNo(_("Do you use a Supplement/3rd-Party SAP software medium?"))
       while run
         ret = media_dialog("supplement")
-        if ret == :abort || ret == :cancel
-          if Yast::Popup.ReallyAbort(false)
-            Yast::Wizard.CloseDialog
-            return :abort
-          end
+        if [:abort, :cancel].include?(ret) && Yast::Popup.ReallyAbort(false)
+          Yast::Wizard.CloseDialog
+          return :abort
         end
         return :back if ret == :back
+
         copy_dir(@source_dir, @inst_dir, "Supplement")
         openFile("filename" => @inst_dir + "/Supplement/product.xml", "dopackages" => "yes")
         run = Yast::Popup.YesNo(_("Are there more supplementary media to be prepared?"))

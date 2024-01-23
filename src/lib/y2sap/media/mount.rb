@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -51,6 +49,7 @@ module Y2Sap
     # Mounts the sap media server configured in SAP_CDS_URL
     def mount_sap_cds
       return if @sap_cds_url == ""
+
       # Un-mount it, in case if the location was previously mounted
       # Run twice to umount it forcibly and surely
       SCR.Execute(path(".target.bash_output"), "/usr/bin/umount -lfr " + @media_dir)
@@ -73,9 +72,7 @@ module Y2Sap
           ",guest"
         end
         mopts += ",dir_mode=0777,file_mode=0777"
-        if url["host"] =~ /windows.net$/
-          mopts += ",sec=ntlmssp,vers=3.0"
-        end
+        mopts += ",sec=ntlmssp,vers=3.0" if url["host"] =~ /windows.net$/
         command = "/sbin/mount.cifs //" + url["host"] + url["path"].shellescape + " " + @media_dir + " " + mopts
       end
       out = Convert.to_map(SCR.Execute(path(".target.bash_output"), command))
@@ -108,6 +105,7 @@ module Y2Sap
           )
         return "ERROR:Can not mount required device."
       end
+
       @need_umount = true
       @source_dir  = @mount_point + "/" + url["path"].shellescape
       log.info("MountSource url #{url}")
@@ -122,9 +120,8 @@ module Y2Sap
         )
       )
       log.info("MountSource url #{url}")
-      if Ops.get_string(out, "stderr", "") != ""
-        return "ERROR:" + Ops.get_string(out, "stderr", "")
-      end
+      return "ERROR:" + Ops.get_string(out, "stderr", "") if Ops.get_string(out, "stderr", "") != ""
+
       @source_dir = @mount_point
       return ""
     end
@@ -156,17 +153,15 @@ module Y2Sap
         )
       )
       log.info("MountSource url #{url}")
-      if Ops.get_string(out, "stderr", "") != ""
-        return "ERROR:" + Ops.get_string(out, "stderr", "")
-      end
+      return "ERROR:" + Ops.get_string(out, "stderr", "") if Ops.get_string(out, "stderr", "") != ""
+
       @source_dir = @mount_point
       return ""
     end
 
     def mount_local(location)
-      if SCR.Read(path(".target.lstat"), location) == {}
-        return "ERROR: Can not find local path:" + location
-      end
+      return "ERROR: Can not find local path:" + location if SCR.Read(path(".target.lstat"), location) == {}
+
       return ""
     end
 

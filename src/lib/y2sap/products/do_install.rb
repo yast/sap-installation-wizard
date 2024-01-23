@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2021] SUSE LLC
 #
 # All Rights Reserved.
@@ -39,6 +37,7 @@ module Y2Sap
       do_collect
       ret = create_partitions(@partitioning_list, @product_list)
       return :abort if ret == :abort
+
       start_install_process
       return :next
     end
@@ -63,7 +62,7 @@ module Y2Sap
         )
         log.info("product_data: #{product_data}")
         # Add script
-        @script_list << Ops.get_string(product_data, "script_name", "") + params
+        @script_list << (Ops.get_string(product_data, "script_name", "") + params)
 
         # Add product to install
         @product_list << Ops.get_string(product_data, "product_id", "")

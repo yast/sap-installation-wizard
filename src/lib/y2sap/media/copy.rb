@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 # Copyright (c) [2018] SUSE LLC
 #
 # All Rights Reserved.
@@ -28,9 +26,8 @@ module Y2Sap
     def copy_dir(source_dir, target_dir, sub_dir)
       log.info("Y2Sap::MediaCopy.copy_dir called: #{source_dir}, #{target_dir}, #{sub_dir}")
       pid = start_copy(source_dir, target_dir, sub_dir)
-      if pid.nil? || pid < 1
-        return ask_me_to_retry(source_dir, target_dir, sub_dir)
-      end
+      return ask_me_to_retry(source_dir, target_dir, sub_dir) if pid.nil? || pid < 1
+
       source_size = human_size(source_dir)
       techsize = tech_size(source_dir)
       Progress.Simple(
@@ -97,6 +94,7 @@ module Y2Sap
         exitcode = Convert.to_integer(SCR.Read(path(".process.status"), pid))
         stderr   = SCR.Read(path(".process.read_stderr"), pid)
         next if exitcode.nil? || exitcode == 0
+
         log.info("Copy has failed, exit code was: #{exitcode} stderr: " + stderr)
         Popup.Error(
           format("Copy has failed, exit code was: %i, stderr: %s", exitcode, stderr)
