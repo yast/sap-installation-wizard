@@ -67,6 +67,8 @@ BuildRequires:  yast2
 BuildRequires:  sapconf
 Requires:       autoyast2
 Requires:       autoyast2-installation
+Requires:       patterns-sap-hana
+Requires:       patterns-sap-bone
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Requires:     	xfsprogs
 PreReq:         logrotate
