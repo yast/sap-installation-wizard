@@ -183,19 +183,18 @@ module Y2Sap
         File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
       end
       xs_routing_mode = prod.key?("xsRoutingMode") ? prod.key?("xsRoutingMode") : "ports"
-      xs_domain_name = prod.key?("xsDomainName") ? prod.key?("xsDomainName") : nil
-      if not ["hostname","ports"].include?(xs_routing_mode)
+      if !["hostname", "ports"].include?(xs_routing_mode)
         Yast::Popup.Error("Bad XS routing mode: #{xs_routing_mode}. Provided values are 'hostname' or 'ports'")
         @error = true
         return :abort
       end
-      if xs_routing_mode == "hostname" and xs_routing_mode.nil?
+      if xs_routing_mode == "hostname" && !prod.key?("xsDomainName")
         Yast::Popup.Error("If XS routing mode is set to hostname you have to define xsDomainName also")
         @error = true
         return :abort
       end
       File.write(@inst_dir + "/ay_q_xs_routing_mode", xs_routing_mode)
-      File.write(@inst_dir + "/ay_q_xs_domain_name", prod["xsDomainName"])  if not xs_routing_mode.nil?
+      File.write(@inst_dir + "/ay_q_xs_domain_name", prod["xsDomainName"]) if prod.key?("xsDomainName")
       @sid = prod["sid"]
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir)
       SCR.Execute(path(".target.bash"), "chmod 775 " + @inst_dir)
