@@ -29,6 +29,13 @@ require "installation/services"
 module Yast
   # Select basic installation profile
   class InstSapStart < Client
+    REQUIRED_MODULES = [
+      "sle-module-desktop-applications",
+      "sle-module-development-tools",
+      "sle-module-legacy",
+      "sle-module-server-applications"
+    ]
+
     def main
       textdomain "sap-installation-wizard"
       Yast.import "Arch"
@@ -130,26 +137,19 @@ module Yast
     def install_required_modules
       require "registration/registration"
       require "registration/storage"
-      required_modules = [
-        "sle-module-desktop-applications",
-	"sle-module-development-tools",
-	"sle-module-legacy",
-	"sle-module-server-applications"
-      ]
       options = Registration::Storage::InstallationOptions.instance
       version = Yast::OSRelease.ReleaseVersion
       arch = Yast::Arch.rpm_arc
-      required_modules do |product|
-          product_data = {
-            "name"     => product,
-            "reg_code" => optinons.reg_code,
-            "arch"     => arch,
-            "version"  => version
-          }
-	  registration.register_product(product_data)
+      REQUIRED_MODULES.each do |product|
+        product_data = {
+          "name"     => product,
+          "reg_code" => options.reg_code,
+          "arch"     => arch,
+          "version"  => version
+        }
+        registration.register_product(product_data)
       end
     end
-
   end
 end
 
