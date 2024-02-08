@@ -29,6 +29,7 @@ require "installation/services"
 module Yast
   # Select basic installation profile
   class InstSapStart < Client
+    include Yast::Logger
     REQUIRED_MODULES = [
       "sle-module-desktop-applications",
       "sle-module-development-tools",
@@ -147,6 +148,7 @@ module Yast
           "arch"     => arch,
           "version"  => version
         }
+        log.info("Register product #{product_data}")
         registration.register_product(product_data)
       end
     end
