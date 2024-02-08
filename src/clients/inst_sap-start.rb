@@ -31,6 +31,7 @@ module Yast
   class InstSapStart < Client
     def main
       textdomain "sap-installation-wizard"
+      Yast.import "Arch"
       Yast.import "Package"
       Yast.import "Popup"
       Yast.import "PackagesProposal"
@@ -55,7 +56,7 @@ module Yast
         when :help
           Wizard.ShowHelp(@help)
         when :next
-          constumize_sap_installation(
+          costumize_sap_installation(
             Convert.to_boolean(UI.QueryWidget(Id("wizard"), :Value)),
             Convert.to_boolean(UI.QueryWidget(Id("rdp"), :Value))
           )
@@ -67,7 +68,7 @@ module Yast
       ret
     end
 
-    def constumize_sap_installation(start_wizard, start_rdp)
+    def costumize_sap_installation(start_wizard, start_rdp)
       to_install = []
       to_remove  = []
       ProductControl.DisableModule("user_first")
@@ -89,6 +90,7 @@ module Yast
       end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
       PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
+      install_required_modules
     end
 
     def set_variable
@@ -124,6 +126,30 @@ module Yast
         )
       )
     end
+
+    def install_required_modules
+      require "registration/registration"
+      require "registration/storage"
+      required_modules = [
+        "sle-module-desktop-applications",
+	"sle-module-development-tools",
+	"sle-module-legacy",
+	"sle-module-server-applications"
+      ]
+      options = Registration::Storage::InstallationOptions.instance
+      version = Yast::OSRelease.ReleaseVersion
+      arch = Yast::Arch.rpm_arc
+      required_modules do |product|
+          product_data = {
+            "name"     => product,
+            "reg_code" => optinons.reg_code,
+            "arch"     => arch,
+            "version"  => version
+          }
+	  registration.register_product(product_data)
+      end
+    end
+
   end
 end
 
