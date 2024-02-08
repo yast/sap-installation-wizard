@@ -30,7 +30,7 @@ module Yast
   # Select basic installation profile
   class InstSapStart < Client
     include Yast::Logger
-    REQUIRED_MODULES = [
+    BONE_REQUIRED_MODULES = [
       "sle-module-desktop-applications",
       "sle-module-development-tools",
       "sle-module-legacy",
@@ -98,7 +98,7 @@ module Yast
       end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
       PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
-      install_required_modules
+      install_bone_required_modules if @wizard == "bone-installation-wizard"
     end
 
     def set_variable
@@ -135,21 +135,22 @@ module Yast
       )
     end
 
-    def install_required_modules
+    def install_bone_required_modules
       require "registration/registration"
       require "registration/storage"
       options = Registration::Storage::InstallationOptions.instance
       version = Yast::OSRelease.ReleaseVersion
-      arch = Yast::Arch.rpm_arc
-      REQUIRED_MODULES.each do |product|
+      arch = Yast::Arch.rpm_arch
+      reg = Registration::Registration.new
+      BONE_REQUIRED_MODULES.each do |product|
         product_data = {
           "name"     => product,
           "reg_code" => options.reg_code,
           "arch"     => arch,
           "version"  => version
         }
-        log.info("Register product #{product_data}")
-        registration.register_product(product_data)
+        log.info("Bone required SLE Module: #{product} #{arch} #{version}")
+        reg.register_product(product_data)
       end
     end
   end
