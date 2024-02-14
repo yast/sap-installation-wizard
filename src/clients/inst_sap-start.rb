@@ -64,7 +64,7 @@ module Yast
         when :help
           Wizard.ShowHelp(@help)
         when :next
-          costumize_sap_installation(
+          customize_sap_installation(
             Convert.to_boolean(UI.QueryWidget(Id("wizard"), :Value)),
             Convert.to_boolean(UI.QueryWidget(Id("rdp"), :Value))
           )
@@ -76,7 +76,7 @@ module Yast
       ret
     end
 
-    def costumize_sap_installation(start_wizard, start_rdp)
+    def customize_sap_installation(start_wizard, start_rdp)
       to_install = []
       to_remove  = []
       ProductControl.DisableModule("user_first")
