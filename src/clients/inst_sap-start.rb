@@ -164,6 +164,7 @@ module Yast
           log.info("Bone add source for: #{product}")
           Pkg.SourceCreate("dvd:///" + product , "/")
 	end
+      end
     end
   end
 end
