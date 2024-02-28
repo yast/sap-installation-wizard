@@ -102,9 +102,12 @@ module Yast
         to_remove << "xrdp"
         ::Installation::Services.enabled.delete("xrdp")
       end
+      if @wizard == "bone-installation-wizard"
+        install_bone_required_modules
+        to_install << "patterns-sap-bone"
+      end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
       PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
-      install_bone_required_modules if @wizard == "bone-installation-wizard"
     end
 
     def set_variable
