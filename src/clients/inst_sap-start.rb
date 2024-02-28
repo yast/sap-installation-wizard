@@ -147,7 +147,7 @@ module Yast
     def install_bone_required_modules
       require "registration/registration"
       require "registration/storage"
-      if Registration.is_registered?
+      if Registration::Registration.is_registered?
         options = Registration::Storage::InstallationOptions.instance
         version = Yast::OSRelease.ReleaseVersion
         arch = Yast::Arch.rpm_arch
