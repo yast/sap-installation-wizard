@@ -1,12 +1,22 @@
 -------------------------------------------------------------------
-Mon Feb  5 09:08:23 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+Tue Mar  5 14:45:24 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
+- [Build 60.3] openQA test fails in "autoyast_sles4sap_hana" autoyast installation, it reports : Value '' is invalid. Use one of: ports, hostnames
+  (bsc#1220851)
+- bone-installation-wizard must not require patterns-sap-hana. This is only available for SLE4SAP product
+- SAP Business One: using hostname instead of IP address for SAP installation 
+  (bsc#1220388)
+- Pattern sap_bone cannot be found for module SAP Business One
+  (bsc#1220381)
+- Installation throws internal error "credentials file missing" when skipping registration
+  (bsc#1220380)
 - BusinessOne installer:
   o Adapt installed services.
   o Use hostname as local address."
 - Implementing selecting SAP HANA XS Routing Mode.
   sap-installation-wizard does not handle xs_routing_mode (bsc#1216648)
   Remove deprecated MDC stuff: (bsc#1083546) mdc is now default for hana 2.0 sps1
+- Missed dependency in patterns-sap-bone (bsc#1219569)
 - 5.0.2
 
 -------------------------------------------------------------------

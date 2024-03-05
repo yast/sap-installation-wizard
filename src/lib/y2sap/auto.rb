@@ -167,6 +167,7 @@ module Y2Sap
     # Sets the global variables for a HANA installation evaluated
     # from the autoyast hash.
     def prepare_hana(prod)
+      log.info("prepare_hana #{prod}")
       @db           = "HANA"
       @product_name = @inst_master_type
       @product_id   = @inst_master_type
@@ -181,19 +182,20 @@ module Y2Sap
       if prod.key?("sapVirtHostname")
         File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
       end
-      xs_routing_mode = prod.key?("xsRoutingMode") ? prod.key?("xsRoutingMode") : "ports"
+      xs_routing_mode = prod.key?("xsRoutingMode") ? prod["xsRoutingMode"] : "ports"
       if !["hostname", "ports"].include?(xs_routing_mode)
-        Yast::Popup.Error("Bad XS routing mode: #{xs_routing_mode}. Provided values are 'hostname' or 'ports'")
+        Yast::Popup.Error("Bad XS routing mode: #{xs_routing_mode}. Supported values are 'hostname' or 'ports'")
         @error = true
         return :abort
       end
       if xs_routing_mode == "hostname" && !prod.key?("xsDomainName")
-        Yast::Popup.Error("If XS routing mode is set to hostname you have to define xsDomainName also")
+        Yast::Popup.Error("If XS routing mode is set to 'hostname' you have to define xsDomainName also")
         @error = true
         return :abort
       end
       File.write(@inst_dir + "/ay_q_xs_routing_mode", xs_routing_mode)
       File.write(@inst_dir + "/ay_q_xs_domain_name", prod["xsDomainName"]) if prod.key?("xsDomainName")
+      log.info("prepare_hana XS routing #{xs_routing_mode}")
       @sid = prod["sid"]
       SCR.Execute(path(".target.bash"), "chgrp sapinst " + @inst_dir)
       SCR.Execute(path(".target.bash"), "chmod 775 " + @inst_dir)

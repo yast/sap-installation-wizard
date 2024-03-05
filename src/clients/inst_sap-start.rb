@@ -34,6 +34,12 @@ module Yast
       "sle-module-legacy",
       "sle-module-server-applications"
     ]
+    BONE_REQUIRED_ADD_ONS = [
+      "Module-Desktop-Applications",
+      "Module-Development-Tools",
+      "Module-Legacy",
+      "Module-Server-Applications"
+    ]
 
     def main
       textdomain "sap-installation-wizard"
@@ -62,7 +68,7 @@ module Yast
         when :help
           Wizard.ShowHelp(@help)
         when :next
-          costumize_sap_installation(
+          customize_sap_installation(
             Convert.to_boolean(UI.QueryWidget(Id("wizard"), :Value)),
             Convert.to_boolean(UI.QueryWidget(Id("rdp"), :Value))
           )
@@ -74,7 +80,7 @@ module Yast
       ret
     end
 
-    def costumize_sap_installation(start_wizard, start_rdp)
+    def customize_sap_installation(start_wizard, start_rdp)
       to_install = []
       to_remove  = []
       ProductControl.DisableModule("user_first")
@@ -94,9 +100,12 @@ module Yast
         to_remove << "xrdp"
         ::Installation::Services.enabled.delete("xrdp")
       end
+      if @wizard == "bone-installation-wizard"
+        install_bone_required_modules
+        to_install << "patterns-sap-bone"
+      end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
       PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
-      install_bone_required_modules if @wizard == "bone-installation-wizard"
     end
 
     def set_variable
@@ -136,19 +145,26 @@ module Yast
     def install_bone_required_modules
       require "registration/registration"
       require "registration/storage"
-      options = Registration::Storage::InstallationOptions.instance
-      version = Yast::OSRelease.ReleaseVersion
-      arch = Yast::Arch.rpm_arch
-      reg = Registration::Registration.new
-      BONE_REQUIRED_MODULES.each do |product|
-        product_data = {
-          "name"     => product,
-          "reg_code" => options.reg_code,
-          "arch"     => arch,
-          "version"  => version
-        }
-        log.info("Bone required SLE Module: #{product} #{arch} #{version}")
-        reg.register_product(product_data)
+      if Registration::Registration.is_registered?
+        options = Registration::Storage::InstallationOptions.instance
+        version = Yast::OSRelease.ReleaseVersion
+        arch = Yast::Arch.rpm_arch
+        reg = Registration::Registration.new
+        BONE_REQUIRED_MODULES.each do |product|
+          product_data = {
+            "name"     => product,
+            "reg_code" => options.reg_code,
+            "arch"     => arch,
+            "version"  => version
+          }
+          log.info("Bone register SLE Module: #{product} #{arch} #{version}")
+          reg.register_product(product_data)
+        end
+      else
+        BONE_REQUIRED_ADD_ONS.each do |product|
+          log.info("Bone add source for: #{product}")
+          Pkg.SourceCreate("dvd:///" + product, "/")
+        end
       end
     end
   end
