@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Mar  5 14:45:24 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+
+- [Build 60.3] openQA test fails in "autoyast_sles4sap_hana" autoyast installation, it reports : Value '' is invalid. Use one of: ports, hostnames
+  (bsc#1220851)
+- bone-installation-wizard must not require patterns-sap-hana. This is only available for SLE4SAP product
+- 4.6.12
+
+-------------------------------------------------------------------
 Tue Feb 27 16:43:56 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - SAP Business One: using hostname instead of IP address for SAP installation 
