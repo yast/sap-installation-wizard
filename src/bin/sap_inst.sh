@@ -680,7 +680,7 @@ EOF
 
 
 cleanup() {
-  if [ ! -e /root/b1-install-do-not-rm ]; then
+  if [ ! -e /root/sap-install-do-not-rm ]; then
 
     # Cleanup
     # SAPINST automatically creates the directory /tmp/sapinst_exe.*
