@@ -185,7 +185,8 @@ HANA_DATABASE_USER_ID=SYSTEM
 LANDSCAPE_INSTALL_ACTION=create
 LICENSE_SERVER_ACTION=register
 LICENSE_SERVER_NODE=standalone
-SELECTED_FEATURES=B1ServerToolsSLD,B1ServerToolsExtensionManager,B1ServerToolsLicense,B1BackupService,B1ServerSHR,B1ServerCommonDB
+LOCAL_ADDRESS=${HOSTNAME}
+SELECTED_FEATURES=B1ServerToolsSLD,B1ServerToolsExtensionManager,B1ServerToolsLicense,B1ServerToolsJobService,B1ServerToolsMobileService,B1ServerToolsXApp,B1SLDAgent,B1WebClient,B1BackupService,B1ServerSHR,B1ServerCommonDB,B1ServerHelp_EN,B1ServerAddons,B1ServerOI,B1AnalyticsOlap,B1AnalyticsTomcatEntSearch,B1AnalyticsTomcatDashboard,B1AnalyticsTomcatReplication,B1AnalyticsTomcatConfiguration,B1AnalyticsTomcatPredictiveAnalysis,B1ServiceLayerComponent,B1ElectronicDocumentService,B1APIGatewayService
 SITE_USER_ID=B1SiteUser
 SLD_CERTIFICATE_ACTION=self
 SLD_DATABASE_ACTION=create
@@ -241,13 +242,15 @@ installation()
           pid_installer=$!
 
           # start displaying the logs
+          COUNTER=0
 	  while true
 	  do
 	        USER_INSTALL_LOG=$( find /var/log/SAPBusinessOne/ -maxdepth 1 -name "B1Installer*.log" )
-		if [ "$USER_INSTALL_LOG" ]; then
+		if [ "$USER_INSTALL_LOG" -o $COUNTER -gt 30 ]; then
 		   break
 		fi
 		sleep 2
+                ((COUNTER++))
 	  done
 
           tail -f ${USER_INSTALL_LOG} &

@@ -27,8 +27,23 @@ require "installation/services"
 module Yast
   # Select basic installation profile
   class InstSapStart < Client
+    include Yast::Logger
+    BONE_REQUIRED_MODULES = [
+      "sle-module-desktop-applications",
+      "sle-module-development-tools",
+      "sle-module-legacy",
+      "sle-module-server-applications"
+    ]
+    BONE_REQUIRED_ADD_ONS = [
+      "Module-Desktop-Applications",
+      "Module-Development-Tools",
+      "Module-Legacy",
+      "Module-Server-Applications"
+    ]
+
     def main
       textdomain "sap-installation-wizard"
+      Yast.import "Arch"
       Yast.import "Package"
       Yast.import "Popup"
       Yast.import "PackagesProposal"
@@ -53,7 +68,7 @@ module Yast
         when :help
           Wizard.ShowHelp(@help)
         when :next
-          constumize_sap_installation(
+          customize_sap_installation(
             Convert.to_boolean(UI.QueryWidget(Id("wizard"), :Value)),
             Convert.to_boolean(UI.QueryWidget(Id("rdp"), :Value))
           )
@@ -65,7 +80,7 @@ module Yast
       ret
     end
 
-    def constumize_sap_installation(start_wizard, start_rdp)
+    def customize_sap_installation(start_wizard, start_rdp)
       to_install = []
       to_remove  = []
       ProductControl.DisableModule("user_first")
@@ -84,6 +99,10 @@ module Yast
       else
         to_remove << "xrdp"
         ::Installation::Services.enabled.delete("xrdp")
+      end
+      if @wizard == "bone-installation-wizard"
+        install_bone_required_modules
+        to_install << "patterns-sap-bone"
       end
       PackagesProposal.AddResolvables("sap-wizard", :package, to_install)
       PackagesProposal.RemoveResolvables("sap-wizard", :package, to_remove) if !to_remove.empty?
@@ -121,6 +140,32 @@ module Yast
           )
         )
       )
+    end
+
+    def install_bone_required_modules
+      require "registration/registration"
+      require "registration/storage"
+      if Registration::Registration.is_registered?
+        options = Registration::Storage::InstallationOptions.instance
+        version = Yast::OSRelease.ReleaseVersion
+        arch = Yast::Arch.rpm_arch
+        reg = Registration::Registration.new
+        BONE_REQUIRED_MODULES.each do |product|
+          product_data = {
+            "name"     => product,
+            "reg_code" => options.reg_code,
+            "arch"     => arch,
+            "version"  => version
+          }
+          log.info("Bone register SLE Module: #{product} #{arch} #{version}")
+          reg.register_product(product_data)
+        end
+      else
+        BONE_REQUIRED_ADD_ONS.each do |product|
+          log.info("Bone add source for: #{product}")
+          Pkg.SourceCreate("dvd:///" + product, "/")
+        end
+      end
     end
   end
 end
