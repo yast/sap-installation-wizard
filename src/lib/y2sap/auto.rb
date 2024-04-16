@@ -179,9 +179,7 @@ module Y2Sap
       File.write(@inst_dir + "/ay_q_masterPwd", prod["sapMasterPW"])
       File.write(@inst_dir + "/ay_q_sid",       prod["sid"])
       File.write(@inst_dir + "/ay_q_sapinstnr", prod["sapInstNr"])
-      if prod.key?("sapVirtHostname")
-        File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"])
-      end
+      File.write(@inst_dir + "/ay_q_virt_hostname", prod["sapVirtHostname"]) if prod.key?("sapVirtHostname")
       xs_routing_mode = prod.key?("xsRoutingMode") ? prod["xsRoutingMode"] : "ports"
       if !["hostname", "ports"].include?(xs_routing_mode)
         Yast::Popup.Error("Bad XS routing mode: #{xs_routing_mode}. Supported values are 'hostname' or 'ports'")
