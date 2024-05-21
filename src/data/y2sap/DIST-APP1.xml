@@ -3,9 +3,8 @@
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
 <general>
   <mode>
-    <final_restart_services config:type="boolean">
-      false
-    </final_restart_services>
+    <final_restart_services config:type="boolean">false</final_restart_services>
+    <activate_systemd_default_target config:type="boolean">false</activate_systemd_default_target>
   </mode>
   <ask-list config:type="list">
   
@@ -296,5 +295,6 @@ check_instance_no "$VAL"
 </software>
   <networking>
     <keep_install_network config:type="boolean">true</keep_install_network>
+    <start_immediately config:type="boolean">false</start_immediately>
   </networking>
 </profile>

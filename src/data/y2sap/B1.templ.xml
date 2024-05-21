@@ -4,6 +4,7 @@
   <general>
     <mode>
       <final_restart_services config:type="boolean">false</final_restart_services>
+      <activate_systemd_default_target config:type="boolean">false</activate_systemd_default_target>
     </mode>
     <ask-list config:type="list">
       <ask>
@@ -54,5 +55,6 @@ exit $?
   </software>
   <networking>
     <keep_install_network config:type="boolean">true</keep_install_network>
+    <start_immediately config:type="boolean">false</start_immediately
   </networking>
 </profile>

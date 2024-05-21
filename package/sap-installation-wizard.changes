@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Tue May 21 09:30:08 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+
+- openQA test fails in wizard_hana_install - Crash of Gnome session
+  (bsc#1184679)
+  Apply proposed ayast parameters:
+    general.mode.activate_systemd_default_target = false
+    networking.start_immediately =false
+- 5.0.4
+
+-------------------------------------------------------------------
 Mon Apr  8 10:12:22 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard install SPS05rev59 on ppc64le failed: Details: undefined method  for nil:NilClass
