@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Jun 11 16:59:03 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+
+- openQA test fails in wizard_hana_install - Crash of Gnome session
+  (bsc#1184679) Fix xml syntax problem created in last checkin.
+- 5.0.6
+
+-------------------------------------------------------------------
 Tue May 21 09:30:08 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - openQA test fails in wizard_hana_install - Crash of Gnome session
