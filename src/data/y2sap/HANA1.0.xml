@@ -189,6 +189,6 @@ check_masterpwd "$VAL"
   </software>
   <networking>
     <keep_install_network config:type="boolean">true</keep_install_network>
-    <start_immediately config:type="boolean">false</start_immediately
+    <start_immediately config:type="boolean">false</start_immediately>
   </networking>
 </profile>
