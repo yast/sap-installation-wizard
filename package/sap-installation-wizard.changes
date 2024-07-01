@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Jul  1 09:36:28 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+
+- Fixing bsc#1226752. Read the hash value.
+- 4.5.15
+
+-------------------------------------------------------------------
 Mon Apr  8 10:12:22 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - sap-installation-wizard install SPS05rev59 on ppc64le failed: Details: undefined method  for nil:NilClass
