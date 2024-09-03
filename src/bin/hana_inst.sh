@@ -161,8 +161,8 @@ hana_get_input()
        echo "Warning: MASTERPASS not set!"
    fi
 
-   [ -f ${A_XS_DOMAIN_NAME} ]  && A_XS_DOMAIN_NAME=$(cat ${A_XS_DOMAIN_NAME})
-   [ -f ${A_XS_ROUTING_MODE} ] && A_XS_ROUTING_MODE=$(cat ${A_XS_ROUTING_MODE})
+   [ -f ${A_XS_DOMAIN_NAME} ]  && XS_DOMAIN_NAME=$(cat ${A_XS_DOMAIN_NAME})
+   [ -f ${A_XS_ROUTING_MODE} ] && XS_ROUTING_MODE=$(cat ${A_XS_ROUTING_MODE})
 }
 
 hana_setenv_lcm()
@@ -260,7 +260,7 @@ hana_lcm_workflow()
    if [ -e /root/hana-install-ignore ]; then
      TOIGNORE=$(cat /root/hana-install-ignore)
    fi
-   if [ ${XS_ROUTING_MODE} == "ports" ]; then
+   if [ -z "${XS_ROUTING_MODE}" -o -z "${XS_DOMAIN_NAME}" -o "${XS_ROUTING_MODE}" == "ports" ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=$TOIGNORE \
             --lss_trust_unsigned_server \
