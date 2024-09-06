@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Sep 06 07:14:32 UTC 2024 - Ladislav Slezák <lslezak@suse.com>
+
+- Branch package for SP7 (bsc#1230201)
+
+-------------------------------------------------------------------
 Tue Jun 11 16:59:03 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - openQA test fails in wizard_hana_install - Crash of Gnome session
