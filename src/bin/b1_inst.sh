@@ -62,7 +62,7 @@ TMPDIR=$(mktemp -t -d sap_install_XXXXX)
 chmod 755 $TMPDIR
 MEDIA_TARGET=$(dirname $SAPCD_INSTMASTER)
 
-HOSTNAME=$(hostname)
+HOSTNAME=$(hostname -f)
 IP_ADDR=$(gethostip -d $HOSTNAME)
 
 # YaST parameter take over
