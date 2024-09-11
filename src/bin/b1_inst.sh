@@ -62,7 +62,7 @@ TMPDIR=$(mktemp -t -d sap_install_XXXXX)
 chmod 755 $TMPDIR
 MEDIA_TARGET=$(dirname $SAPCD_INSTMASTER)
 
-HOSTNAME=$(hostname)
+HOSTNAME=$(hostname -f)
 IP_ADDR=$(gethostip -d $HOSTNAME)
 
 # YaST parameter take over
@@ -185,7 +185,7 @@ HANA_DATABASE_USER_ID=SYSTEM
 LANDSCAPE_INSTALL_ACTION=create
 LICENSE_SERVER_ACTION=register
 LICENSE_SERVER_NODE=standalone
-SELECTED_FEATURES=B1ServerToolsSLD,B1ServerToolsExtensionManager,B1ServerToolsLicense,B1BackupService,B1ServerSHR,B1ServerCommonDB
+SELECTED_FEATURES=B1ServerToolsSLD,B1ServerToolsExtensionManager,B1ServerToolsLicense,B1ServerToolsJobService,B1ServerToolsMobileService,B1ServerToolsXApp,B1SLDAgent,B1WebClient,B1BackupService,B1ServerSHR,B1ServerCommonDB,B1ServerHelp_EN,B1ServerAddons,B1ServerOI,B1AnalyticsOlap,B1AnalyticsTomcatEntSearch,B1AnalyticsTomcatDashboard,B1AnalyticsTomcatReplication,B1AnalyticsTomcatConfiguration,B1AnalyticsTomcatPredictiveAnalysis,B1ServiceLayerComponent,B1ElectronicDocumentService,B1APIGatewayService
 SITE_USER_ID=B1SiteUser
 SLD_CERTIFICATE_ACTION=self
 SLD_DATABASE_ACTION=create
@@ -194,15 +194,22 @@ SLD_SERVER_PROTOCOL=https
 SLD_SERVER_TYPE=op
 INSTALLATION_FOLDER=/usr/sap/SAPBusinessOne
 INST_FOLDER_CORRECT_PERMISSIONS=true
+SL_LB_MEMBERS=127.0.0.1:50001,127.0.0.1:50002,127.0.0.1:50003,127.0.0.1:50004
+SL_LB_MEMBER_ONLY=false
+SL_LB_PORT=50000
+SL_THREAD_PER_SERVER=24
+WEBCLIENT_PORT=8443
 #### flexible part ###
-BCKP_HANA_SERVERS=<servers><server><system address="${IP_ADDR}"/><database instance="${A_SAPINSTNR}" port="3${A_SAPINSTNR}13" tenant-db="${A_SID}" user="SYSTEM" password="${A_MASTERPASS}"/></server></servers>
+BCKP_HANA_SERVERS=<servers><server><system address="${HOSTNAME}"/><database instance="${A_SAPINSTNR}" port="3${A_SAPINSTNR}13" tenant-db="${A_SID}" user="SYSTEM" password="${A_MASTERPASS}"/></server></servers>
 HANA_DATABASE_ADMIN_ID=${A_SID,,}adm
 HANA_DATABASE_TENANT_DB=${A_SID}
 HANA_DATABASE_INSTANCE=${A_SAPINSTNR}
 HANA_DATABASE_SERVER_PORT=3${A_SAPINSTNR}13
-HANA_DATABASE_SERVER=${IP_ADDR}
+HANA_DATABASE_SERVER=${HOSTNAME}
+HANA_DATABASE_LOCATION=${HOSTNAME}
 HANA_DATABASE_ADMIN_PASSWD=${A_MASTERPASS}
 HANA_DATABASE_USER_PASSWORD=${A_MASTERPASS}
+LOCAL_ADDRESS=${HOSTNAME}
 SITE_USER_PASSWORD=${A_MASTERPASS}
 EOF
 
@@ -241,13 +248,15 @@ installation()
           pid_installer=$!
 
           # start displaying the logs
+          COUNTER=0
 	  while true
 	  do
 	        USER_INSTALL_LOG=$( find /var/log/SAPBusinessOne/ -maxdepth 1 -name "B1Installer*.log" )
-		if [ "$USER_INSTALL_LOG" ]; then
+		if [ "$USER_INSTALL_LOG" -o $COUNTER -gt 30 ]; then
 		   break
 		fi
 		sleep 2
+                ((COUNTER++))
 	  done
 
           tail -f ${USER_INSTALL_LOG} &
@@ -272,13 +281,11 @@ b1_post_process()
     if [ -f "/etc/samba/smb.conf" ];
     then
 	param_check=$(cat $smb_conf | grep ${security_param})
-	
 	    if [ -z "$param_check" ];
 	    then
     	    sed -i '/\[global\]/,+0{ a \
-	'${security_param}'
+              '${security_param}'
     	    }' $smb_conf
-    	
     	    # restarting samba with the new configuration
     	    /usr/bin/systemctl restart smb.service
     	fi
