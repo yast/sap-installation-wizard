@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Mon Sep  9 04:57:28 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+
+- [Build 60.3] openQA test fails in "autoyast_sles4sap_hana" autoyast installation, it reports : Value '' is invalid. Use one of: ports, hostnames
+  (bsc#1220851)
+- BusinessOne installer:
+  bone-installation-wizard: hostname issue (B1 hostname differs from HANA)
+  (bsc#1230165) Set the host name instead of the IP address and instead of the default values for all occurrences.
+  o Use FQHN for BCKP_HANA_SERVERS, HANA_DATABASE_SERVER, HANA_DATABASE_LOCATION and LOCAL_ADDRESS
+  o Add SL_** and WEBCLIENT parameters
+- 4.5.16
+
+-------------------------------------------------------------------
 Mon Jul  1 09:36:28 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - Fixing bsc#1226752. Read the hash value.
