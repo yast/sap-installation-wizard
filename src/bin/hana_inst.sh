@@ -77,11 +77,9 @@ INSTALL_COUNT=$(echo ${MEDIA_TARGET} | awk -F '/' '{print $NF}')
 A_MASTERPASS="${MEDIA_TARGET}/ay_q_masterPwd"
 A_SID="${MEDIA_TARGET}/ay_q_sid"
 A_SAPINSTNR="${MEDIA_TARGET}/ay_q_sapinstnr"
-A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS}"
-if [ -e ${MEDIA_TARGET}/ay_q_sapmdc ]; then
-  A_SAPMDC=$(cat ${MEDIA_TARGET}/ay_q_sapmdc)
-fi
-
+A_XS_ROUTING_MODE="${MEDIA_TARGET}/ay_q_xs_routing_mode"
+A_XS_DOMAIN_NAME="${MEDIA_TARGET}/ay_q_xs_domain_name"
+A_FILES="${A_SID} ${A_SAPINSTNR} ${A_MASTERPASS} ${A_XS_ROUTING} ${A_XS_DOMAIN_NAME}"
 ###########################################
 # Define ERRORS section
 ###########################################
@@ -162,6 +160,9 @@ hana_get_input()
    if [ -z "${MASTERPASS}" ]; then
        echo "Warning: MASTERPASS not set!"
    fi
+
+   [ -f ${A_XS_DOMAIN_NAME} ]  && XS_DOMAIN_NAME=$(cat ${A_XS_DOMAIN_NAME})
+   [ -f ${A_XS_ROUTING_MODE} ] && XS_ROUTING_MODE=$(cat ${A_XS_ROUTING_MODE})
 }
 
 hana_setenv_lcm()
@@ -254,23 +255,12 @@ hana_lcm_workflow()
      rc=1
      return $rc
    fi
-   case $A_SAPMDC in
-     no)
-       echo -e "db_mode=\n"  > ${MEDIA_TARGET}/hana_mdc.conf
-     ;;
-     low)
-       echo -e "db_mode=multidb\ndb_isolation=low\n"  > ${MEDIA_TARGET}/hana_mdc.conf
-     ;;
-     high)
-       echo -e "db_mode=multidb\ndb_isolation=high\n"  > ${MEDIA_TARGET}/hana_mdc.conf
-     ;;
-   esac
    cd "${HDBLCMDIR}"
    TOIGNORE="check_signature_file"
    if [ -e /root/hana-install-ignore ]; then
      TOIGNORE=$(cat /root/hana-install-ignore)
    fi
-   if [ -e ${MEDIA_TARGET}/hana_mdc.conf ]; then
+   if [ -z "${XS_ROUTING_MODE}" -o -z "${XS_DOMAIN_NAME}" -o "${XS_ROUTING_MODE}" == "ports" ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=$TOIGNORE \
             --lss_trust_unsigned_server \
@@ -279,7 +269,6 @@ hana_lcm_workflow()
             --number=${SAPINSTNR} \
             --groupid=79 \
             --read_password_from_stdin=xml \
-            --configfile=${MEDIA_TARGET}/hana_mdc.conf \
             --xs_routing_mode=ports
    else
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
@@ -290,7 +279,8 @@ hana_lcm_workflow()
             --number=${SAPINSTNR} \
             --groupid=79 \
             --read_password_from_stdin=xml \
-            --xs_routing_mode=ports
+            --xs_routing_mode=${XS_ROUTING_MODE} \
+	    --xs_domain_name="${XS_DOMAIN_NAME}"
    fi
    rc=$?
    rm  ~/pwds.xml
