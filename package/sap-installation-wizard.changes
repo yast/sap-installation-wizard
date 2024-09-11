@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Sep 10 11:13:32 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+
+-  bone-installation-wizard: hostname issue (B1 hostname differs from HANA)
+  (bsc#1230165) Set the host name instead of the IP address and instead of the default values for all occurrences.
+  o Use FQHN for BCKP_HANA_SERVERS, HANA_DATABASE_SERVER, HANA_DATABASE_LOCATION and LOCAL_ADDRESS
+  o Add SL_** and WEBCLIENT parameters
+- 4.6.16 
+
+-------------------------------------------------------------------
 Tue Jun 11 16:59:03 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - openQA test fails in wizard_hana_install - Crash of Gnome session
