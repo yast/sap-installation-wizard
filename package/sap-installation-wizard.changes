@@ -4,6 +4,7 @@ Wed Sep 11 07:42:52 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 - (bsc#1230165) Set the host name instead of the IP address and instead of the default values for all occurrences.
   o Use FQHN for BCKP_HANA_SERVERS, HANA_DATABASE_SERVER, HANA_DATABASE_LOCATION and LOCAL_ADDRESS
   o Add SL_** and WEBCLIENT parameters
+- Fix handling HANA XS routing mode.
 - 4.4.14
 
 -------------------------------------------------------------------
