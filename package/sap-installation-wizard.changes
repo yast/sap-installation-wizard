@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb 24 06:57:04 UTC 2025 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One 2411: failure to install due to self signed certificate
+  (bsc#1233822)
+  Set CONNECTION_SSL_CERTIFICATE_VERIFICATION=false
+- 4.5.17
+
+-------------------------------------------------------------------
 Mon Sep  9 04:57:28 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - [Build 60.3] openQA test fails in "autoyast_sles4sap_hana" autoyast installation, it reports : Value '' is invalid. Use one of: ports, hostnames
