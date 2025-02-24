@@ -1,7 +1,11 @@
 -------------------------------------------------------------------
-Tue Sep 10 11:13:32 UTC 2024 - Peter Varkoly <varkoly@suse.com>
+Mon Feb 24 06:57:04 UTC 2025 - Peter Varkoly <varkoly@suse.com>
 
--  bone-installation-wizard: hostname issue (B1 hostname differs from HANA)
+- SAP Business One 2411: failure to install due to self signed certificate
+  (bsc#1233822)
+  Set CONNECTION_SSL_CERTIFICATE_VERIFICATION=false
+- Fixing bsc#1226752. Read the hash value.
+- bone-installation-wizard: hostname issue (B1 hostname differs from HANA)
   (bsc#1230165) Set the host name instead of the IP address and instead of the default values for all occurrences.
   o Use FQHN for BCKP_HANA_SERVERS, HANA_DATABASE_SERVER, HANA_DATABASE_LOCATION and LOCAL_ADDRESS
   o Add SL_** and WEBCLIENT parameters
