@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Mon Feb 24 06:57:04 UTC 2025 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One 2411: failure to install due to self signed certificate
+  (bsc#1233822)
+  Set CONNECTION_SSL_CERTIFICATE_VERIFICATION=false
+- Fixing bsc#1226752. Read the hash value.
+- bone-installation-wizard: hostname issue (B1 hostname differs from HANA)
+  (bsc#1230165) Set the host name instead of the IP address and instead of the default values for all occurrences.
+  o Use FQHN for BCKP_HANA_SERVERS, HANA_DATABASE_SERVER, HANA_DATABASE_LOCATION and LOCAL_ADDRESS
+  o Add SL_** and WEBCLIENT parameters
+- 4.7.1
+
+-------------------------------------------------------------------
 Fri Sep 06 07:14:32 UTC 2024 - Ladislav Slezák <lslezak@suse.com>
 
 - Branch package for SP7 (bsc#1230201)
