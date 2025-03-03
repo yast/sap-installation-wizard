@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb 24 06:57:04 UTC 2025 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One 2411: failure to install due to self signed certificate
+  (bsc#1233822)
+  Set CONNECTION_SSL_CERTIFICATE_VERIFICATION=false
+- 4.4.15
+
+-------------------------------------------------------------------
 Wed Sep 11 07:42:52 UTC 2024 - Peter Varkoly <varkoly@suse.com>
 
 - (bsc#1230165) Set the host name instead of the IP address and instead of the default values for all occurrences.
