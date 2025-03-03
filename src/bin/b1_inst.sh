@@ -62,7 +62,7 @@ TMPDIR=$(mktemp -t -d sap_install_XXXXX)
 chmod 755 $TMPDIR
 MEDIA_TARGET=$(dirname $SAPCD_INSTMASTER)
 
-HOSTNAME=$(hostname)
+HOSTNAME=$(hostname -f)
 IP_ADDR=$(gethostip -d $HOSTNAME)
 
 # YaST parameter take over
@@ -181,11 +181,12 @@ parameters()
 B1S_SAMBA_AUTOSTART=true
 B1S_SHARED_FOLDER_OVERWRITE=true
 BCKP_BACKUP_COMPRESS=true
+# Certificate verification when connecting to applications and websites
+CONNECTION_SSL_CERTIFICATE_VERIFICATION=false
 HANA_DATABASE_USER_ID=SYSTEM
 LANDSCAPE_INSTALL_ACTION=create
 LICENSE_SERVER_ACTION=register
 LICENSE_SERVER_NODE=standalone
-LOCAL_ADDRESS=${HOSTNAME}
 SELECTED_FEATURES=B1ServerToolsSLD,B1ServerToolsExtensionManager,B1ServerToolsLicense,B1ServerToolsJobService,B1ServerToolsMobileService,B1ServerToolsXApp,B1SLDAgent,B1WebClient,B1BackupService,B1ServerSHR,B1ServerCommonDB,B1ServerHelp_EN,B1ServerAddons,B1ServerOI,B1AnalyticsOlap,B1AnalyticsTomcatEntSearch,B1AnalyticsTomcatDashboard,B1AnalyticsTomcatReplication,B1AnalyticsTomcatConfiguration,B1AnalyticsTomcatPredictiveAnalysis,B1ServiceLayerComponent,B1ElectronicDocumentService,B1APIGatewayService
 SITE_USER_ID=B1SiteUser
 SLD_CERTIFICATE_ACTION=self
@@ -195,15 +196,22 @@ SLD_SERVER_PROTOCOL=https
 SLD_SERVER_TYPE=op
 INSTALLATION_FOLDER=/usr/sap/SAPBusinessOne
 INST_FOLDER_CORRECT_PERMISSIONS=true
+SL_LB_MEMBERS=127.0.0.1:50001,127.0.0.1:50002,127.0.0.1:50003,127.0.0.1:50004
+SL_LB_MEMBER_ONLY=false
+SL_LB_PORT=50000
+SL_THREAD_PER_SERVER=24
+WEBCLIENT_PORT=8443
 #### flexible part ###
-BCKP_HANA_SERVERS=<servers><server><system address="${IP_ADDR}"/><database instance="${A_SAPINSTNR}" port="3${A_SAPINSTNR}13" tenant-db="${A_SID}" user="SYSTEM" password="${A_MASTERPASS}"/></server></servers>
+BCKP_HANA_SERVERS=<servers><server><system address="${HOSTNAME}"/><database instance="${A_SAPINSTNR}" port="3${A_SAPINSTNR}13" tenant-db="${A_SID}" user="SYSTEM" password="${A_MASTERPASS}"/></server></servers>
 HANA_DATABASE_ADMIN_ID=${A_SID,,}adm
 HANA_DATABASE_TENANT_DB=${A_SID}
 HANA_DATABASE_INSTANCE=${A_SAPINSTNR}
 HANA_DATABASE_SERVER_PORT=3${A_SAPINSTNR}13
-HANA_DATABASE_SERVER=${IP_ADDR}
+HANA_DATABASE_SERVER=${HOSTNAME}
+HANA_DATABASE_LOCATION=${HOSTNAME}
 HANA_DATABASE_ADMIN_PASSWD=${A_MASTERPASS}
 HANA_DATABASE_USER_PASSWORD=${A_MASTERPASS}
+LOCAL_ADDRESS=${HOSTNAME}
 SITE_USER_PASSWORD=${A_MASTERPASS}
 EOF
 
