@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Mar 17 19:36:12 UTC 2025 - Peter Varkoly <varkoly@suse.com>
+
+- bone-installation-wizard: missing landscape server address (bsc#1239627)
+  Add SLD_SERVER_ADDR=${HOSTNAME} parameter
+- 4.6.18
+
+-------------------------------------------------------------------
 Mon Feb 24 06:57:04 UTC 2025 - Peter Varkoly <varkoly@suse.com>
 
 - SAP Business One 2411: failure to install due to self signed certificate
