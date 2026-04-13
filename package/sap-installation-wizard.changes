@@ -1,4 +1,21 @@
 -------------------------------------------------------------------
+Thu Apr  9 09:05:08 UTC 2026 - Peter Varkoly <varkoly@suse.com>
+
+- wizard_hana_install failed on "hdblcm --lss_trust_unsigned_components", it reports "Unknown option: lss_trust_unsigned_components"
+  (bsc#1261407)
+  Distinguish between a B1 installation and a standard HANA installation.
+- 4.5.20
+
+-------------------------------------------------------------------
+Fri Mar 13 13:37:30 UTC 2026 - Peter Varkoly <varkoly@suse.com>
+
+- SAP Business One 2602: failure to install (bsc#1258485)
+  o Add install parameter --lss_userid=800
+  o Replace deprecated parameter --lss_trust_unsigned_server by the new paramter --lss_trust_unsigned_components
+  o Do not remove passwd.xml file also if cleanup is not wanted
+- 4.5.19
+
+-------------------------------------------------------------------
 Mon Apr  7 18:29:54 UTC 2025 - Peter Varkoly <varkoly@suse.com>
 
 - bone-installation-wizard: missing landscape server address (bsc#1239627)
