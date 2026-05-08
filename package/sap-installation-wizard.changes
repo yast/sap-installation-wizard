@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Apr 30 13:21:15 UTC 2026 - Peter Varkoly <varkoly@suse.com>
+
+- wizard_hana_install failed on "hdblcm --lss_trust_unsigned_components", it reports "Unknown option: lss_trust_unsigned_components"
+  (bsc#1261407)
+  Distinguish between a B1 installation and a standard HANA installation.
+- 5.0.9
+
+------------------------------------------------------------------
 Fri Feb 27 13:45:42 UTC 2026 - Peter Varkoly <varkoly@suse.com>
 
 - SAP Business One 2602: failure to install (bsc#1258485)

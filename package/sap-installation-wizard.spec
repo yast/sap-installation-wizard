@@ -1,7 +1,7 @@
 #
-# spec file for package sap-installation-wizard and bone-installation-wizard
+# spec file for package sap-installation-wizard
 #
-# Copyright (c) 2023 SUSE LINUX GmbH, Nuernberg, Germany.
+# Copyright (c) 2025 SUSE LLC
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -12,38 +12,41 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
+
 
 Name:           sap-installation-wizard
 Summary:        Installation wizard for SAP applications
-License:        GPL-2.0+
+License:        GPL-2.0-or-later
 Group:          System/YaST
 Version:        5.0.8
 Release:        0
-PreReq:         /bin/mkdir %fillup_prereq yast2
+PreReq:         %fillup_prereq
+PreReq:         /bin/mkdir
+PreReq:         yast2
+Requires:       HANA-Firewall
 Requires:       autoyast2
 Requires:       autoyast2-installation
-Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
-Requires:     	xfsprogs
-Requires:       HANA-Firewall
-Requires:       saptune
 Requires:       sap-netscape-link
 Requires:       saprouter-systemd
+Requires:       saptune
+Requires:       xfsprogs
 Requires:       yast2-hana-firewall
 Requires:       yast2-sap-scp
 Requires:       yast2-sap-scp-prodlist
+Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 BuildRequires:  autoyast2-installation
-BuildRequires:	rubygem(%{rb_default_ruby_abi}:nokogiri)
-BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
 BuildRequires:  yast2
 BuildRequires:  yast2-devtools >= 4.2.2
-BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
-BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
 BuildRequires:  yast2-network
 BuildRequires:  yast2-ruby-bindings >= 4.0.6
+BuildRequires:  rubygem(%rb_default_ruby_abi:yast-rake)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:nokogiri)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:parallel_tests)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 ExclusiveArch:  x86_64 ppc64le
 Conflicts:      bone-installation-wizard
 Obsoletes:      sap-media-changer <= 2.17
@@ -58,18 +61,20 @@ Authors:
 
 %package -n bone-installation-wizard
 Summary:        Installation wizard for SAP Business One applications
-License:        GPL-2.0+
+License:        GPL-2.0-or-later
 Group:          System/YaST
 Version:        5.0.8
 Release:        0
-PreReq:         /bin/mkdir %fillup_prereq yast2
-BuildRequires:  yast2
+PreReq:         %fillup_prereq
+PreReq:         /bin/mkdir
+PreReq:         yast2
 BuildRequires:  sapconf
+BuildRequires:  yast2
 Requires:       autoyast2
 Requires:       autoyast2-installation
 Requires:       patterns-sap-bone
+Requires:       xfsprogs
 Requires:       rubygem(%{rb_default_ruby_abi}:nokogiri)
-Requires:     	xfsprogs
 PreReq:         logrotate
 PreReq:         sapconf
 Conflicts:      sap-installation-wizard
@@ -92,7 +97,7 @@ rake test:unit
 %install
 rake install DESTDIR="%{buildroot}"
 %ifarch ppc64le
-   sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/data/y2sap/HANA.xml 
+   sed -i /libopenssl0_9_8/d %{buildroot}/usr/share/YaST2/data/y2sap/HANA.xml
 %endif
 #Make symlink for compatibility reason
 cd %{buildroot}/%{yast_clientdir}

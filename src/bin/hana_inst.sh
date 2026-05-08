@@ -241,6 +241,7 @@ hana_lcm_workflow()
    hana_volumes
    hana_get_input
    hana_setenv_lcm
+   LSS_PARAM="--lss_trust_unsigned_server"
 
    # Detect if it is a B1 installation
    B1=$(find ${SAPCD_INSTMASTER}/ -maxdepth 1 -type f -exec grep FOR.B1 {} \;)
@@ -257,6 +258,14 @@ hana_lcm_workflow()
      return $rc
    fi
    cd "${HDBLCMDIR}"
+
+   if [ -n "$B1" ]; then
+     ver1=$( gawk '/fullversion:/ {print $2}' instruntime/manifest )
+     ver2="2.8.70"
+     if [ "$(printf '%s\n%s' "$ver1" "$ver2" | sort -V | head -n1)" = "$ver2" ]; then
+        LSS_PARAM="--lss_trust_unsigned_components"
+     fi
+   fi
    TOIGNORE="check_signature_file"
    if [ -e /root/hana-install-ignore ]; then
      TOIGNORE=$(cat /root/hana-install-ignore)
@@ -264,7 +273,7 @@ hana_lcm_workflow()
    if [ -z "${XS_ROUTING_MODE}" -o -z "${XS_DOMAIN_NAME}" -o "${XS_ROUTING_MODE}" == "ports" ]; then
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=$TOIGNORE \
-            --lss_trust_unsigned_components \
+            ${LSS_PARAM} \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
@@ -275,7 +284,7 @@ hana_lcm_workflow()
    else
        cat ~/pwds.xml | ./hdblcm --batch --action=install \
             --ignore=$TOIGNORE \
-            --lss_trust_unsigned_components \
+            ${LSS_PARAM} \
             --components=all \
             --sid=${SID} \
             --number=${SAPINSTNR} \
