@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Thu Apr  9 09:05:08 UTC 2026 - Peter Varkoly <varkoly@suse.com>
+Thu Apr 30 13:21:15 UTC 2026 - Peter Varkoly <varkoly@suse.com>
 
 - wizard_hana_install failed on "hdblcm --lss_trust_unsigned_components", it reports "Unknown option: lss_trust_unsigned_components"
   (bsc#1261407)

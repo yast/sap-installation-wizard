@@ -249,9 +249,6 @@ hana_lcm_workflow()
      # Move the component directories into the first level
      find ${SAPCD_INSTMASTER}/DATA_UNITS/  -type d -name "SAP_HANA_*" -exec mv {} ${SAPCD_INSTMASTER}/ \;
    fi
-   if [ -n "$B1" ]; then
-     LSS_PARAM="--lss_trust_unsigned_components"
-   fi
    # Find the installer
    HDBLCM=$(find ${SAPCD_INSTMASTER}/ -name hdblcm | grep -m 1 -P 'DATABASE|SERVER')
    HDBLCMDIR=$(dirname "${HDBLCM}")
@@ -261,6 +258,14 @@ hana_lcm_workflow()
      return $rc
    fi
    cd "${HDBLCMDIR}"
+
+   if [ -n "$B1" ]; then
+     ver1=$( gawk '/fullversion:/ {print $2}' instruntime/manifest )
+     ver2="2.8.70"
+     if [ "$(printf '%s\n%s' "$ver1" "$ver2" | sort -V | head -n1)" = "$ver2" ]; then
+        LSS_PARAM="--lss_trust_unsigned_components"
+     fi
+   fi
    TOIGNORE="check_signature_file"
    if [ -e /root/hana-install-ignore ]; then
      TOIGNORE=$(cat /root/hana-install-ignore)
